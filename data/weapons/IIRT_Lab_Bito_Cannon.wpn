@@ -1,0 +1,46 @@
+{
+  "id": "IIRT_Lab_Bito_Cannon",
+  "specClass": "projectile",
+  "projectileSpecId": "IIRT_Lab_Bito",
+  "type": "ENERGY",
+  "size": "SMALL",
+  "turretSprite": "graphics/weapons/Lab_Common/IIRT_Lab_Common_Bito_Cannon.png",
+  "turretGunSprite": "graphics/weapons/Lab_Common/IIRT_Lab_Common_Bito_Cannon_t.png",
+  "hardpointSprite": "graphics/weapons/Lab_Common/IIRT_Lab_Common_Bito_Cannon.png",
+  "hardpointGunSprite": "graphics/weapons/Lab_Common/IIRT_Lab_Common_Bito_Cannon_t.png",
+  "visualRecoil": 3,
+  "renderHints": [
+    "RENDER_BARREL_BELOW"
+  ],
+  "turretOffsets": [
+    15,
+    0
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    24,
+    0
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "barrelMode": "ALTERNATING",
+  "animationType": "MUZZLE_FLASH",
+  "muzzleFlashSpec": {
+    "length": 30,
+    "spread": 0,
+    "particleSizeMin": 7,
+    "particleSizeRange": 7,
+    "particleDuration": 0.2,
+    "particleCount": 12,
+    "particleColor": [
+      255,
+      255,
+      255,
+      175
+    ]
+  },
+     "fireSoundTwo": "IIRT_Lab_Assault_Rifle"
+}

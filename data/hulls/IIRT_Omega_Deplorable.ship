@@ -1,0 +1,112 @@
+{
+  "hullName": "IIRT_Omega_Deplorable",
+  "hullId": "IIRT_Omega_Deplorable",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Omega_Deplorable.png",
+  "style": "OMEGA",
+  "height": 116,
+  "width": 82,
+  "center": [47, 57.5],
+  "collisionRadius": 81.5,
+  "shieldCenter": [-2, -0],
+  "shieldRadius": 79,
+  "viewOffset": 0,
+  "builtInMods": [
+    "IIRT_Omega_TranShardSpawner",
+    "insulatedengine",
+    "reduced_explosion",
+    "automated"
+  ],
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": 0,
+      "locations": [23.5, -10]
+    },
+    {
+      "id": "WS0002",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 292,
+      "angle": -21.5,
+      "locations": [-8.5, -13]
+    },
+    {
+      "id": "WS0003",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 276,
+      "angle": 20,
+      "locations": [8.5, 16]
+    },
+    {
+      "id": "WS0004",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 233,
+      "angle": 31.5,
+      "locations": [27.5, 28]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-33, 6.5],
+      "length": 45.701447,
+      "width": 13.802573,
+      "angle": -177,
+      "contrailSize": 13.802573,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-33, -6.5],
+      "length": 31,
+      "width": 11,
+      "angle": 180,
+      "contrailSize": 11,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-28, -15.5],
+      "length": 29,
+      "width": 11,
+      "angle": -179.5,
+      "contrailSize": 11,
+      "style": "OMEGA"
+    }
+  ],
+  "bounds": [
+    -44, 41.5,
+    -44.5, 34.5,
+    -35.5, 15.5,
+    -41, 12.5,
+    -41, 9,
+    -51, 5.5,
+    -48.5, 3,
+    -41.5, 3,
+    -37.5, -3,
+    -42.5, -3,
+    -40, -7,
+    -40, -10,
+    -29, -27,
+    -8.5, -34,
+    0.5, -34,
+    13.5, -26.5,
+    20, -15.5,
+    26.5, -13.5,
+    26.5, -6.5,
+    25.5, -2,
+    56.5, 46,
+    1, 34,
+    -2, 21,
+    -5, 21,
+    -5, 28,
+    -8.5, 35.5
+  ]
+}

@@ -1,0 +1,28 @@
+{
+	"id":"IIRT_33Light_missile",
+	"specClass":"missile",	
+	"missileType":"MISSILE",
+	"sprite":"graphics/fx/IIRT_light_Add.png",
+	"glowSprite":"graphics/fx/IIRT_light_Add.png",
+	"glowColor":[172,182,231,225],
+	"size":[3,3],	
+	"center":[1.5,1.5],
+	"collisionRadius":3,
+	"collisionClass":"MISSILE_NO_FF",
+	"explosionColor":[ 200,110,255,255],  # purely visual, will get a white additively blended core on top of this color
+	"explosionRadius":20, # purely visual
+	"flameoutTime":0.1, # total time from flameout to full fadeout
+	"fadeTime":0.1, # fadeout duration
+	"noEngineGlowTime":0.1, 
+	"engineSpec":{"turnAcc":1720,
+				  "turnRate":190,
+				  "acc":350,
+				  "dec":90},
+	"engineSlots":[{"id":"ES1",
+					"loc":[0, 0],
+				    "style":"DEVK_TECH",
+				    "width":4.0,
+				    "length":25.0,
+				    "angle":180.0}]	
+
+}

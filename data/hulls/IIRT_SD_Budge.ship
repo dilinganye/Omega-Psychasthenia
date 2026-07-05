@@ -1,0 +1,83 @@
+{
+  "hullName": "IIRT_SD_Budge",
+  "hullId": "IIRT_SD_Budge",
+  "hullSize": "FIGHTER",
+  "spriteName": "graphics/ships/IIRT/IIRT_Budge.png",
+  "style": "IIRT_TECH",
+  "height": 23,
+  "width": 21,
+  "center": [10.5, 10.5],
+  "collisionRadius": 15,
+  "shieldCenter": [0, -0],
+  "shieldRadius": 14,
+  "viewOffset": 0,
+  "weaponSlots": [
+    {
+      "id": "WS0003",
+      "size": "SMALL",
+      "type": "ENERGY",
+      "mount": "HIDDEN",
+      "arc": 216,
+      "angle": 90,
+      "locations": [-2, 6]
+    },
+    {
+      "id": "WS0004",
+      "size": "SMALL",
+      "type": "ENERGY",
+      "mount": "HIDDEN",
+      "arc": 216,
+      "angle": -90,
+      "locations": [-2, -6]
+    },
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "ENERGY",
+      "mount": "HIDDEN",
+      "arc": 360,
+      "angle": 0,
+      "locations": [0.5, -0]
+    },
+    {
+      "id": "WS0002",
+      "size": "SMALL",
+      "type": "ENERGY",
+      "mount": "HIDDEN",
+      "arc": 161,
+      "angle": 0,
+      "locations": [0.5, -0]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-3, 9.5],
+      "length": 1.93,
+      "width": 6.78,
+      "angle": 83,
+      "contrailSize": 6.78,
+      "style": "DEVK_TECH"
+    },
+    {
+      "location": [-3, -9.5],
+      "length": 1.93,
+      "width": 6.78,
+      "angle": -83,
+      "contrailSize": 6.78,
+      "style": "DEVK_TECH"
+    },
+    {
+      "location": [-9.5, -0],
+      "length": 16.5,
+      "width": 7,
+      "angle": 180,
+      "contrailSize": 7,
+      "style": "OMEGA"
+    }
+  ],
+  "bounds": [
+    -5, 8,
+    7.5, -0,
+    -5, -8
+  ]
+}

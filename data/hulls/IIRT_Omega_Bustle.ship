@@ -1,0 +1,135 @@
+{
+  "hullName": "IIRT_Omega_Bustle",
+  "hullId": "IIRT_Omega_Bustle",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Omega_Bustle.png",
+  "style": "OMEGA",
+  "height": 114,
+  "width": 102,
+  "center": [51, 57],
+  "collisionRadius": 86.5,
+  "shieldCenter": [-5.5, -0],
+  "shieldRadius": 79,
+  "viewOffset": 0,
+  "builtInMods": [
+    "armoredweapons",
+    "automated",
+    "IIRT_Omega_TranShardSpawner",
+    "ground_support",
+    "do_not_back_off"
+  ],
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 294,
+      "angle": -22,
+      "locations": [10, -3]
+    },
+    {
+      "id": "WS0002",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 306,
+      "angle": 159.5,
+      "locations": [-13, 6]
+    },
+    {
+      "id": "WS0003",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 308,
+      "angle": 57.5,
+      "locations": [23, 25]
+    },
+    {
+      "id": "WS0004",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": 0,
+      "locations": [41, 12]
+    },
+    {
+      "id": "WS0005",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": 0,
+      "locations": [35, -25]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-29, 8.5],
+      "length": 56,
+      "width": 15,
+      "angle": 180,
+      "contrailSize": 15,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-9.5, -26],
+      "length": 60.42675,
+      "width": 15.4736,
+      "angle": 156.5,
+      "contrailSize": 15.4736,
+      "style": "OMEGA"
+    },
+    {
+      "location": [7, -40],
+      "length": 41.985703,
+      "width": 12.522103,
+      "angle": 156.5,
+      "contrailSize": 12.522103,
+      "style": "OMEGA"
+    },
+    {
+      "location": [17.5, -49],
+      "length": 26.43543,
+      "width": 8.813171,
+      "angle": 156.5,
+      "contrailSize": 8.813171,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-26, 17],
+      "length": 43.299736,
+      "width": 8.33858,
+      "angle": -173.5,
+      "contrailSize": 8.33858,
+      "style": "OMEGA"
+    }
+  ],
+  "bounds": [
+    -53, 11.5,
+    -37.5, 4.5,
+    -16, -10,
+    -12, -14.5,
+    -12, -20.5,
+    -38.5, -11,
+    -14.5, -28.5,
+    16.5, -50.5,
+    25, -51,
+    32, -47.5,
+    33.5, -30,
+    39.5, -26.5,
+    39.5, -23,
+    34.5, -18,
+    36.5, 5.5,
+    43.5, 9.5,
+    43.5, 14.5,
+    40, 19.5,
+    41, 49.5,
+    29.5, 48,
+    26, 43.5,
+    -23, 25,
+    -25, 20.5
+  ]
+}

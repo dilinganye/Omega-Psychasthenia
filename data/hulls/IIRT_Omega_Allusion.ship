@@ -1,0 +1,63 @@
+{
+  "hullName": "IIRT_Omega_Allusion",
+  "hullId": "IIRT_Omega_Allusion",
+  "hullSize": "FIGHTER",
+  "spriteName": "graphics/ships/Omega_Allusion.png",
+  "style": "OMEGA",
+  "height": 48,
+  "width": 32,
+  "center": [16, 24],
+  "collisionRadius": 36.5,
+  "shieldCenter": [-3, -0],
+  "shieldRadius": 33,
+  "viewOffset": 0,
+  "builtInMods": [
+    "fluxbreakers",
+    "insulatedengine",
+    "armoredweapons",
+    "automated"
+  ],
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [1, -0]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-12, -4],
+      "length": 29.5,
+      "width": 12,
+      "angle": 180,
+      "contrailSize": 12,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-10, 7],
+      "length": 25.968004,
+      "width": 10.566501,
+      "angle": -168.5,
+      "contrailSize": 10.566501,
+      "style": "OMEGA"
+    }
+  ],
+  "bounds": [
+    -23, 4.5,
+    -8, 12,
+    11.5, 9.5,
+    23.5, 1.5,
+    15, -7,
+    20, -8.5,
+    3.5, -10.5,
+    -4, -14,
+    -17, -6,
+    -23, -4,
+    -15, -2.5,
+    -15, 4
+  ]
+}

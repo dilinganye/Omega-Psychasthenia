@@ -1,0 +1,26 @@
+{
+	"id":"IIRT_Omega_PupalSwarm_2",
+	"type":"ENGINE_MOD",
+	"aiType":"MANEUVERING_JETS",
+	
+	"statsScript":"data.scripts.shipsystems.IIRT_Omega_PupalSwarm",
+
+	"engineGlowLengthMult":0.95,
+	"engineGlowWidthMult":1.35,
+	"engineGlowGlowMult":0.75,
+	
+	"flameoutOnImpactChance":0,
+
+	"clampTurnRateAfter":true,
+	"clampMaxSpeedAfter":false,
+
+	"useSound":"system_maneuvering_jets",
+	"loopSound":"system_maneuvering_jets_loop",
+	"outOfUsesSound":"engine_disabled",
+	
+	"aiHints":{
+		"activeSpeedIncrease":50,
+		"burstMovementPotential":0,
+		"averageSpeedIncrease":25,
+	}
+}

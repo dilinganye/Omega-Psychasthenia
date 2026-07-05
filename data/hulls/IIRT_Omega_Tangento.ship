@@ -1,0 +1,168 @@
+{
+  "hullName": "IIRT_Omega_Tangento",
+  "hullId": "IIRT_Omega_Tangento",
+  "hullSize": "DESTROYER",
+  "spriteName": "graphics/ships/Omega_Tangento.png",
+  "style": "OMEGA",
+  "height": 118,
+  "width": 124,
+  "center": [64, 62],
+  "collisionRadius": 73.5,
+  "shieldCenter": [0, -0],
+  "shieldRadius": 72.5,
+  "viewOffset": 0,
+  "builtInMods": [
+    "fluxbreakers",
+    "IIRT_Omega_TranShardSpawner",
+    "eccm",
+    "automated"
+  ],
+  "builtInWeapons": {
+    "WS0009": "phasecl"
+  },
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "LARGE",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [-6.5, 26]
+    },
+    {
+      "id": "WS0002",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [7, 0]
+    },
+    {
+      "id": "WS0003",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 226,
+      "angle": 180,
+      "locations": [-11, -11]
+    },
+    {
+      "id": "WS0004",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": -45,
+      "locations": [5, -46]
+    },
+    {
+      "id": "WS0005",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 45,
+      "locations": [5, 50]
+    },
+    {
+      "id": "WS0006",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": 0,
+      "locations": [38, 42]
+    },
+    {
+      "id": "WS0007",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": 0,
+      "locations": [42, -19]
+    },
+    {
+      "id": "WS0008",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": 0,
+      "locations": [38, -38]
+    },
+    {
+      "id": "WS0009",
+      "size": "MEDIUM",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 10,
+      "angle": 0,
+      "locations": [36.5, 2.5]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-19.5, 42.5],
+      "length": 26.383055,
+      "width": 13.256602,
+      "angle": -177,
+      "contrailSize": 13.256602,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-25.5, 34.5],
+      "length": 26.88237,
+      "width": 13.204266,
+      "angle": -177,
+      "contrailSize": 13.204266,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-28, 26],
+      "length": 31.724798,
+      "width": 16.344685,
+      "angle": -178.5,
+      "contrailSize": 16.344685,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-26.5, 16],
+      "length": 51.5,
+      "width": 18,
+      "angle": 180,
+      "contrailSize": 18,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-22.5, -23.5],
+      "length": 61.522511,
+      "width": 21.469101,
+      "angle": 177,
+      "contrailSize": 21.469101,
+      "style": "OMEGA"
+    }
+  ],
+  "bounds": [
+    -26.5, 25.5,
+    -23, 8,
+    -19, 1.5,
+    -26, -17,
+    -20, -41.5,
+    8, -60,
+    27.5, -52.5,
+    32.5, -42.5,
+    38.5, -15.5,
+    55, -6.5,
+    40.5, 2,
+    55, 10.5,
+    43.5, 17.5,
+    30, 34,
+    32.5, 48.5,
+    25.5, 57,
+    5, 62,
+    -20.5, 42
+  ]
+}

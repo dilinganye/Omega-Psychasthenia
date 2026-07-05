@@ -1,0 +1,28 @@
+{
+	"id":"IIRT_Plasma_Ball_Rocket",
+	"specClass":"missile",	
+	"missileType":"MISSILE",
+	"sprite":"graphics/missiles/Plasma_Ball.png",
+	"glowSprite":"graphics/missiles/Plasma_Ball.png",
+	"glowColor":[172,182,231,255],
+	"size":[30,30],	
+	"center":[15,15],
+	"collisionRadius":12,
+	"collisionClass":"MISSILE_FF",
+	"explosionColor":[ 200,110,255,255],  # purely visual, will get a white additively blended core on top of this color
+	"explosionRadius":150, # purely visual
+	"flameoutTime":0.1, # total time from flameout to full fadeout
+	"fadeTime":0.1, # fadeout duration
+	"noEngineGlowTime":0.05, 
+	"engineSpec":{"turnAcc":1720,
+				  "turnRate":190,
+				  "acc":400,
+				  "dec":40},
+	"engineSlots":[{"id":"ES1",
+					"loc":[-5, 0],
+				    "style":"OMEGA",
+				    "width":5.0,
+				    "length":20.0,
+				    "angle":180.0}]	
+
+}

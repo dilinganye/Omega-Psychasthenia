@@ -1,0 +1,40 @@
+{
+  "variantId": "IIRT_Omega_Sinus_Only_4",
+  "hullId": "IIRT_Omega_Sinus",
+  "displayName": "Anti Armor",
+  "goalVariant": true,
+  "fluxCapacitors": 10,
+  "fluxVents": 7,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "hardenedshieldemitter",
+    "targetingunit",
+    "ecm"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0002": "disintegrator"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0003": "amsrm"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "shockrepeater"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

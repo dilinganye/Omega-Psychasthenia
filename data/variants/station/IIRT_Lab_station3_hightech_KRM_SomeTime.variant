@@ -1,0 +1,69 @@
+{
+  "variantId": "IIRT_Lab_station3_hightech_KRM_SomeTime",
+  "hullId": "IIRT_Lab_station3_hightech_KRM",
+  "displayName": "BattleCenter",
+  "goalVariant": false,
+  "fluxCapacitors": 0,
+  "fluxVents": 0,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [],
+  "weaponGroups": [],
+  "modules": [
+    {
+      "WS0014": "module_hightech_shield_Standard"
+    },
+    {
+      "WS0011": "module_hightech_strut_Standard"
+    },
+    {
+      "WS0012": "module_hightech_strut_Standard"
+    },
+    {
+      "WS0009": "module_hightech_hangar_Standard"
+    },
+    {
+      "WS0015": "module_hightech_citadel_Standard"
+    },
+    {
+      "WS0016": "module_hightech_citadel_Standard"
+    },
+    {
+      "WS0018": "module_hightech_armour_Standard"
+    },
+    {
+      "WS0017": "module_hightech_armour_Standard"
+    },
+    {
+      "WS0010": "module_hightech_hangar_Standard"
+    },
+    {
+      "WS0013": "module_hightech_shield_Standard"
+    },
+    {
+      "WS0006": "module_hightech_strut_Standard"
+    },
+    {
+      "WS0008": "module_hightech_strut_Standard"
+    },
+    {
+      "WS0003": "module_hightech_armour_Standard"
+    },
+    {
+      "WS0004": "module_hightech_armour_Standard"
+    },
+    {
+      "WS0021": "module_hightech_attack_Standard"
+    },
+    {
+      "WS0022": "module_hightech_attack_Standard"
+    },
+    {
+      "WS0001": "module_hightech_strut_Standard"
+    },
+    {
+      "WS0002": "module_hightech_strut_Standard"
+    }
+  ],
+  "wings": []
+}

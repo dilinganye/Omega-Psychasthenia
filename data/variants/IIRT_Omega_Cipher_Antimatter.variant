@@ -1,0 +1,55 @@
+{
+  "variantId": "IIRT_Omega_Cipher_Antimatter",
+  "hullId": "IIRT_Omega_Cipher",
+  "displayName": "Antimatter",
+  "goalVariant": true,
+  "fluxCapacitors": 7,
+  "fluxVents": 0,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "magazines"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "ALTERNATING",
+      "weapons": {
+        "WS0005": "amblaster",
+        "WS0006": "amblaster"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0011": "IIRT_Omega_Moon_Rocket"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0003": "ionpulser"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "lightneedler",
+        "WS0002": "lightneedler"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0009": "IIRT_Omega_Moon_PD",
+        "WS0010": "IIRT_Omega_Moon_PD"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

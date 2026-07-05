@@ -1,0 +1,47 @@
+{
+  "variantId": "IIRT_Lab_Vague_Common_Omega",
+  "hullId": "IIRT_Lab_Vague_Common",
+  "displayName": "Omega",
+  "goalVariant": false,
+  "fluxCapacitors": 10,
+  "fluxVents": 2,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "targetingunit"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "ALTERNATING",
+      "weapons": {
+        "WS0002": "lightneedler",
+        "WS0003": "lightneedler"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "ALTERNATING",
+      "weapons": {
+        "WS0007": "amsrm"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "ALTERNATING",
+      "weapons": {
+        "WS0006": "reaper"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0004": "shockrepeater",
+        "WS0005": "shockrepeater"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

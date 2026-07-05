@@ -1,0 +1,24 @@
+{
+  "variantId": "IIRT_Omega_Bit_Only",
+  "hullId": "IIRT_Omega_Bit",
+  "displayName": "Bit",
+  "goalVariant": true,
+  "fluxCapacitors": 2,
+  "fluxVents": 5,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "assault_package"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "minipulser"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

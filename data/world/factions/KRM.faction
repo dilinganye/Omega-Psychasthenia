@@ -1,0 +1,280 @@
+{
+  "id": "KRM",
+  "color": [136,144,173,255],
+  "secondaryUIColor":[0,0,0,0],
+  "secondarySegments":10,
+  "baseUIColor": [102, 109, 134, 255],
+  #"darkUIColor": [32, 85, 0, 175],
+  #"gridUIColor": [95, 255, 0, 75],
+  "displayName": "克劳斯姆概念",
+  "displayNameWithArticle": "克劳斯姆概念局",
+  "displayNameLong": "克劳斯姆概念设计局",
+  "displayNameLongWithArticle": "克劳斯姆概念设计局",
+  "logo": "graphics/factions/IIRT_KRSMt.png",
+  "crest": "graphics/factions/IIRT_KRSM.png",
+  "shipNamePrefix": "KRM",
+  "shipNameSources": {
+	"NORDIC":1,
+	"MERCANTILE":2,
+	"SPACE":2,
+	"GENERAL":2,
+	"DERELICT_DRONE":1,
+  },
+  "names": {
+		"modern":1,
+		"world":1,
+		"future":1,
+		"myth":1,
+  },
+  # variantOverrides restricts hulls to listed variants and adjusts their probability
+  "variantOverrides": {
+  },
+  # multiplier for how often hulls show up in the faction's fleets
+  "hullFrequency": {
+    "tags": {
+      "KRM_bp": 2
+    },
+    "hulls": {
+		"buffalo2":0, # just say no
+    },
+  },
+  # ships the faction gets access to when importing S&W out-of-faction
+  "shipsWhenImporting": {
+    "tags": [],
+    "hulls": [
+    ],
+  },
+  "knownShips": {
+    "tags": ["hightech_bp", "KRM_bp","KRM_Com_bp"],
+    "hulls": [
+	  "afflictor",
+	  "shade",
+	  "phantom",
+	  "harbinger",
+	  "doom",
+	  "revenant",
+    ],
+  },
+  # listing ships here will make the faction mostly use them even if other hulls become available
+  "priorityShips": {
+    "tags": ["KRM_bp","KRM_Com_bp"],
+    "hulls": [
+	  "afflictor",
+	  "shade",
+	  "phantom",
+	  "harbinger",
+	  "doom",
+	  "revenant",
+    ],
+  },
+  "knownFighters": {
+    "tags": ["hightech_bp", "midline_bp", "KRM_bp","KRM_Com_bp"],
+    "fighters": [
+    ],
+  },
+  "priorityFighters": {
+    "tags": ["KRM_bp","KRM_Com_bp"],
+    "fighters": [
+    ],
+  },
+  "knownWeapons": {
+		"tags":["base_bp", "lowtech_bp", "midline_bp", "missile_bp", "hightech_bp", "tritachyon", "KRM_bp","KRM_Com_bp"],
+		"weapons":[
+			"lightneedler",
+			"hveldriver",
+			"heavyneedler",
+			"mjolnir",
+			"multineedler",
+			"breachpod",
+			"sabotpod",
+			"phasecl",
+			"cyclone",
+			"hurricane",
+			"squall",
+			"locust",
+			"pdburst",
+			"amblaster",
+			"phasebeam",
+			"heavyblaster",
+			"heavyburst",
+			"ionpulser",
+			"ionbeam",
+			"plasma",
+			"guardian",
+			"tachyonlance",
+		],
+  },
+  "priorityWeapons": {
+    "tags": [],
+    "weapons": [    ],
+  },
+	"knownHullMods":{
+		"tags":["base_bp", "tritachyon"],
+		"hullMods":[
+			"advancedshieldemitter", # accelerated
+			"advancedoptics",
+			"turretgyros",
+			"augmentedengines",
+			"eccm",
+			"ecm",
+			"expanded_deck_crew",
+			"magazines",
+			"missleracks",
+			"extendedshieldemitter",
+			"frontemitter",
+			"frontshield",  # makeshift
+			"hardenedshieldemitter",
+			"insulatedengine",
+			"pointdefenseai",
+			"targetingunit",
+			"nav_relay",
+			"adaptiveshields", # omni
+			"operations_center",
+			"fluxbreakers",
+			"stabilizedshieldemitter",
+			"hiressensors",
+			"efficiency_overhaul",
+			"adaptive_coils",
+			"phase_anchor",
+		],
+	},
+  "factionDoctrine": {
+    "warships": 1,
+    "carriers": 3,
+    "phaseShips": 7,
+    "officerQuality": 5,
+    "shipQuality": 4,
+    "numShips": 4,
+    "shipSize": 3,
+    "aggression": 3,
+    "combatFreighterProbability": 0.25, # instead of some portion of the freighters in a fleet
+    "combatFreighterCombatUseFraction": 0.5, # as part of the normal combat lineup
+    "combatFreighterCombatUseFractionWhenPriority": 1, # as part of normal combat lineup, when marked as priority ship
+    "autofitRandomizeProbability": 0.1,
+    "commanderSkillsShuffleProbability": 0.1,
+    "commanderSkills": [
+      "helmsmanship",
+			"coordinated_maneuvers",
+			"electronic_warfare",
+			"fighter_uplink",
+			"carrier_group",
+			"flux_regulation",
+			"cybernetic_augmentation",
+			"damage_control",
+			"tactical_drills",
+			"wolfpack_tactics",
+			"electronic_warfare",
+			"ordnance_expert",
+			"makeshift_equipment",
+    ],
+  },
+  "illegalCommodities": [
+    "drugs",
+    "organs"
+  ],
+  "music": {
+		"theme":"music_KRM_theme",
+		"market_neutral":"music_KRM_market_neutral",
+		"market_hostile":"music_KRM_market_hostile",
+		"market_friendly":"music_KRM_market_friendly",
+		"encounter_neutral":"music_KRM_encounter_neutral",
+		"encounter_hostile":"music_KRM_encounter_hostile",
+		"encounter_friendly":"music_KRM_encounter_friendly",
+  },
+	"internalComms":"tritachyon_internal",
+	"portraits":{
+		"standard_male":[
+			"graphics/portraits/portrait_corporate01.png",
+			"graphics/portraits/portrait_corporate03.png",
+			"graphics/portraits/portrait_corporate05.png",
+			"graphics/portraits/portrait_corporate06.png",
+			"graphics/portraits/portrait_corporate08.png",
+			"graphics/portraits/portrait_corporate10.png",
+			"graphics/portraits/portrait13.png",
+			"graphics/portraits/portrait18.png",
+			"graphics/portraits/portrait25.png",
+			"graphics/portraits/portrait26.png",
+			"graphics/portraits/portrait30.png",
+			"graphics/portraits/portrait35.png",
+		],
+		"standard_female":[
+			"graphics/portraits/portrait_corporate02.png",
+			"graphics/portraits/portrait_corporate04.png",
+			"graphics/portraits/portrait_corporate07.png",
+			"graphics/portraits/portrait_corporate09.png",
+			"graphics/portraits/portrait_mercenary02.png",
+			"graphics/portraits/portrait_mercenary08.png",
+			"graphics/portraits/portrait16.png",
+			"graphics/portraits/portrait21.png",
+			"graphics/portraits/portrait28.png",
+			"graphics/portraits/portrait32.png",
+			"graphics/portraits/portrait34.png",
+			"graphics/portraits/portrait41.png",
+		],
+	},
+	"ranks":{
+		"ranks":{
+			"spaceAdmiral":{"name":"高级营运经理"},
+			"spaceCommander":{"name":"运营经理"},
+			"factionLeader":{"name":"首席执行官"},
+		},
+		"posts":{
+			"factionLeader":{"name":"研究首席"},
+			"patrolCommander":{"name":"安保主管"},
+			"fleetCommander":{"name":"舰队主管"},
+			"baseCommander":{"name":"基地主管"},
+		},
+	},
+	"voices":{
+		"LOW":{
+			"business":5,
+			"spacer":5,
+			"scientist":10,
+		},
+		"MEDIUM":{
+			"business":5,
+			"scientist":10,
+		},
+		"HIGH":{
+			"business":5,
+			"aristo":10,
+			"scientist":10,
+		},
+	},		
+	"custom":{
+		"offersCommissions":true,
+		"engagesInHostilities":true,
+		"buysAICores":true,
+		"AICoreValueMult":3,
+		"AICoreRepMult":0.5,
+		"buysSurveyData":true,
+		"hostilityImpactOnGrowth":false,
+		"punitiveExpeditionData":{
+			"vsCompetitors":true,
+			"vsFreePort":false,
+			"canBombard":true,
+			"territorial":true,
+		},
+	},	
+	"fleetTypeNames":{
+		"trade":"企业相位商队",
+		"tradeLiner":"相位护送舰队",
+		"tradeSmuggler":"相位运输舰队",
+		"smallTrader":"相位配送舰队",
+		
+		"patrolSmall":"设计局缉查队",
+		"patrolMedium":"设计局安保队",
+		"patrolLarge":"设计局嫡系舰队",
+		
+		"inspectionFleet":"QA 巡视员",
+		"taskForce":"特别事务行动小组",
+		
+		"foodReliefFleet":"救援舰队",
+		
+		"mercScout":"外包侦察队",
+		"mercBountyHunter":"回收承包商",
+		"mercPrivateer":"安保承包商",
+		"mercPatrol":"受雇巡逻队",
+		#"mercArmada":"受雇无敌舰队",
+	}
+},

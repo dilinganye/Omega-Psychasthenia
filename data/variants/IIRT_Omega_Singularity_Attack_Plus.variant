@@ -1,0 +1,59 @@
+{
+  "variantId": "IIRT_Omega_Singularity_Attack_Plus",
+  "hullId": "IIRT_Omega_Singularity",
+  "displayName": "Attack",
+  "goalVariant": false,
+  "fluxCapacitors": 15,
+  "fluxVents": 2,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "riftlance",
+        "WS0002": "riftlance"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0003": "cryoblaster"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "ALTERNATING",
+      "weapons": {
+        "WS0007": "amsrm",
+        "WS0008": "amsrm"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0005": "disintegrator"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0006": "Omega_Vpdiver_S"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0004": "riftbeam"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

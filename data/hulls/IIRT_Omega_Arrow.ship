@@ -1,0 +1,68 @@
+{
+  "hullName": "IIRT_Omega_Arrow",
+  "hullId": "IIRT_Omega_Arrow",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Omega_Arrow.png",
+  "style": "OMEGA",
+  "height": 90,
+  "width": 60,
+  "center": [29, 44],
+  "collisionRadius": 48.5,
+  "shieldCenter": [0, -0],
+  "shieldRadius": 47.5,
+  "viewOffset": 0,
+  "builtInMods": [
+    "automated",
+    "fluxbreakers",
+    "IIRT_Omega_WebShardSpawner",
+    "do_not_back_off"
+  ],
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [1, 0]
+    },
+    {
+      "id": "WS0002",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 273,
+      "angle": -149,
+      "locations": [-15.5, -9]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-17.5, 11.5],
+      "length": 51.614719,
+      "width": 17.426493,
+      "angle": -173,
+      "contrailSize": 17.426493,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-22.5, -24],
+      "length": 35.687756,
+      "width": 10.702172,
+      "angle": 167.5,
+      "contrailSize": 10.702172,
+      "style": "OMEGA"
+    }
+  ],
+  "bounds": [
+    -28.5, -17.5,
+    -27, 6,
+    -11.5, 23,
+    2.5, 13,
+    15.5, 12.5,
+    39, 1.5,
+    -13.5, -21,
+    -18, -30
+  ]
+}

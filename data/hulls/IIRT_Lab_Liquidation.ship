@@ -1,0 +1,117 @@
+{
+  "hullName": "IIRT_Lab_Liquidation",
+  "hullId": "IIRT_Lab_Liquidation",
+  "hullSize": "FIGHTER",
+  "spriteName": "graphics/ships/Lab/IIRT_Lab_Liquidation.png",
+  "style": "KRM_TECH",
+  "height": 35,
+  "width": 42,
+  "center": [23.5, 17.5],
+  "collisionRadius": 38.5,
+  "shieldCenter": [-4.5, 0.5],
+  "shieldRadius": 32.5,
+  "viewOffset": 0,
+  "builtInMods": [
+    "IIRT_Lab_RPCM",
+    "autorepair",
+    "fluxbreakers"
+  ],
+  "builtInWeapons": {
+    "WS0003": "blinker_red",
+    "WS0004": "blinker_red"
+  },
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 59,
+      "angle": 24,
+      "locations": [2, 9.5]
+    },
+    {
+      "id": "WS0002",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 6,
+      "angle": 0,
+      "locations": [10.5, -12]
+    },
+    {
+      "id": "WS0003",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 0,
+      "angle": 0,
+      "locations": [-5.5, -9.5]
+    },
+    {
+      "id": "WS0004",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 0,
+      "angle": 0,
+      "locations": [-8.5, 22.5]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-15.5, -9],
+      "length": 25.880621,
+      "width": 5.07679,
+      "angle": 175.5,
+      "contrailSize": 5.07679,
+      "style": "KRSM_TECH"
+    },
+    {
+      "location": [-6.5, 0.5],
+      "length": 28.5,
+      "width": 8,
+      "angle": 180,
+      "contrailSize": 8,
+      "style": "KRSM_Smoke"
+    },
+    {
+      "location": [-14.5, -6],
+      "length": 40.5,
+      "width": 4,
+      "angle": 180,
+      "contrailSize": 4,
+      "style": "KRSM_TECH"
+    },
+    {
+      "location": [-14, 0.5],
+      "length": 1,
+      "width": 28,
+      "angle": 180,
+      "contrailSize": 28,
+      "style": "KRSM_TECH"
+    }
+  ],
+  "bounds": [
+    15.5, -4.5,
+    10, -10.5,
+    14.5, -10.5,
+    14.5, -12.5,
+    5.5, -12.5,
+    -5.5, -17.5,
+    -8, -13.5,
+    -15.5, -15.5,
+    -11.5, -10.5,
+    -14.5, -10,
+    -14.5, -5.5,
+    -5.5, -4.5,
+    -5.5, 4.5,
+    -11, 7.5,
+    -5.5, 14,
+    -8.5, 22,
+    -2.5, 15,
+    2, 15,
+    6, 8,
+    7.5, 7
+  ]
+}

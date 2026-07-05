@@ -1,0 +1,68 @@
+{
+  "id": "IIRT_TDB_unFocuspd",
+  "specClass": "beam",
+  "type": "ENERGY",
+  "size": "SMALL",
+  "collisionClass": "RAY",
+  "collisionClassByFighter": "RAY_FIGHTER",
+  "turretSprite": "graphics/weapons/Paint/IIRT_TDB_unFocuspd/IIRT_TDB_unFocuspd.png",
+  "turretGlowSprite": "graphics/weapons/Paint/IIRT_TDB_unFocuspd/IIRT_TDB_unFocuspd_g.png",
+  "hardpointSprite": "graphics/weapons/Paint/IIRT_TDB_unFocuspd/IIRT_TDB_unFocuspd.png",
+  "hardpointGlowSprite": "graphics/weapons/Paint/IIRT_TDB_unFocuspd/IIRT_TDB_unFocuspd_g.png",
+  "glowColor": [
+    10,
+    175,
+    255,
+    255
+  ],
+  "hitGlowRadius": 5,
+  "turretOffsets": [
+    7.5,
+    0,
+    10.5,
+    3.5,
+    10.5,
+    -3.5
+  ],
+  "turretAngleOffsets": [
+    0,
+    -18.5,
+    18.5
+  ],
+  "hardpointOffsets": [
+    12,
+    0,
+    14,
+    3.5,
+    14,
+    -3.5
+  ],
+  "hardpointAngleOffsets": [
+    0,
+    -18.5,
+    18.5
+  ],
+  "fringeColor": [
+    10,
+    175,
+    255,
+    255
+  ],
+  "coreColor": [
+    10,
+    147,
+    255,
+    255
+  ],
+  "convergeOnPoint": true,
+  "width": 0.9,
+  "textureType": ROUGH,
+  "textureScrollSpeed": 128,
+  "pixelsPerTexel": 10,
+  "pierceSet": [
+    PROJECTILE_FF,
+    PROJECTILE_NO_FF,
+    PROJECTILE_FIGHTER
+  ],
+  "fireSoundOne": "IIRT_paintHit"
+}

@@ -1,0 +1,57 @@
+{
+  "id": "IIRT_Theaten",
+  "specClass": "beam",
+  "beamEffect":"data.scripts.weapons.IIRT_HeavyBeam",
+  "type": "ENERGY",
+  "mountTypeOverride": "HYBRID",
+  "size": "MEDIUM",
+  "collisionClass": "RAY",
+  "collisionClassByFighter": "RAY_FIGHTER",
+  "turretSprite": "graphics/weapons/IIRT_Threaten/IIRT_Threaten.png",
+  "turretGlowSprite": "graphics/weapons/IIRT_Threaten/IIRT_Threaten_Light.png",
+  "hardpointSprite": "graphics/weapons/IIRT_Threaten/IIRT_Threaten_Hardpoint.png",
+  "hardpointGlowSprite": "graphics/weapons/IIRT_Threaten/IIRT_Threaten_Hardpoint_Light.png",
+  "glowColor": [
+    229,
+    208,
+    255,
+    255
+  ],
+  "hitGlowRadius": 3,
+  "turretOffsets": [
+    15,
+    0
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    29.5,
+    0
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "beamFireOnlyOnFullCharge": true,
+  "fringeColor": [
+    229,
+    208,
+    255,
+    240
+  ],
+  "coreColor": [
+    255,
+    255,
+    255,
+    255
+  ],
+  "width": 14,
+  "textureType": [
+    "graphics/fx/IIRT_trail_1.png",
+    "graphics/fx/Grain.png"
+  ],
+  "textureScrollSpeed": 1900,
+  "pixelsPerTexel": 1,
+  "fireSoundOne": "IIRT_SD_Theaten",
+  "fireSoundTwo":"phase_beam_loop"
+}

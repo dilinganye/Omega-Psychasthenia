@@ -1,0 +1,30 @@
+{
+  "variantId": "IIRT_Lab_Meniscus_Rifle",
+  "hullId": "IIRT_Lab_Meniscus",
+  "displayName": "Rifle",
+  "goalVariant": false,
+  "fluxCapacitors": 0,
+  "fluxVents": 0,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0002": "IIRT_Lab_Meniscus_RA",
+        "WS0003": "IIRT_Lab_Meniscus_LAG"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "IIRT_Lab_Meniscus_H"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

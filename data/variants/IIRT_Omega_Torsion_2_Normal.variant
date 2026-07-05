@@ -1,0 +1,32 @@
+{
+  "variantId": "IIRT_Omega_Torsion_2_Normal",
+  "hullId": "IIRT_Omega_Torsion_2",
+  "displayName": "PD",
+  "goalVariant": true,
+  "fluxCapacitors": 14,
+  "fluxVents": 17,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "advancedoptics"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "Omega_Entropy"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0002": "shockrepeater",
+        "WS0003": "shockrepeater"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

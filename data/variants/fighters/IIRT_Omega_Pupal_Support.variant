@@ -1,0 +1,22 @@
+{
+  "variantId": "IIRT_Omega_Pupal_Support",
+  "hullId": "IIRT_Omega_Pupal",
+  "displayName": "Support",
+  "goalVariant": false,
+  "fluxCapacitors": 0,
+  "fluxVents": 0,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0003": "shockrepeater"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

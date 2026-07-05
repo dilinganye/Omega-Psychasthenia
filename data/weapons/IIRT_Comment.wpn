@@ -1,0 +1,63 @@
+{
+  "id": "IIRT_Comment",
+  "specClass": "beam",
+  "type": "ENERGY",
+  "size": "MEDIUM",
+  "collisionClass": "RAY",
+  "collisionClassByFighter": "RAY_FIGHTER",
+  "turretSprite": "graphics/weapons/IIRT_Comment/IIRT_Comment.png",
+  "turretGlowSprite": "graphics/weapons/IIRT_Comment/IIRT_Comment_Light.png",
+  "turretUnderSprite": "graphics/weapons/IIRT_Comment/IIRT_Comment_Below.png",
+  "hardpointSprite": "graphics/weapons/IIRT_Comment/IIRT_Comment_back.png",
+  "hardpointGlowSprite": "graphics/weapons/IIRT_Comment/IIRT_Comment_Light.png",
+  "glowColor": [
+    247,
+    213,
+    248,
+    230
+  ],
+  "hitGlowRadius": 10,
+  "turretOffsets": [
+    -3,
+    0,
+    21.5,
+    12,
+    21.5,
+    -12
+  ],
+  "turretAngleOffsets": [
+    0,
+    0,
+    0
+  ],
+  "hardpointOffsets": [
+    12,
+    0,
+    37.5,
+    -12,
+    37.5,
+    12
+  ],
+  "hardpointAngleOffsets": [
+    0,
+    0,
+    0
+  ],
+  "fringeColor": [
+    200,
+    110,
+    255,
+    150
+  ],
+  "coreColor": [
+    185,
+    70,
+    255,
+    200
+  ],
+  "width": 10,
+  "textureType": ROUGH,
+  "textureScrollSpeed": 128,
+  "pixelsPerTexel": 5,
+  "fireSoundTwo":"phase_beam_loop",
+}

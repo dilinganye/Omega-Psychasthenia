@@ -1,0 +1,62 @@
+{
+  "id": "IIRT_Sentry",
+  "specClass": "beam",
+  "beamEffect":"data.scripts.weapons.IIRT_SD_SentryBeam",
+  "type": "ENERGY",
+  "mountTypeOverride": "ENERGY",
+  "size": "MEDIUM",
+  "collisionClass": "RAY",
+  "collisionClassByFighter": "RAY_FIGHTER",
+  "turretSprite": "graphics/weapons/IIRT_Sentry/IIRT_Sentry.png",
+  "turretGlowSprite": "graphics/weapons/IIRT_Sentry/IIRT_Sentry_Light.png",
+  "hardpointSprite": "graphics/weapons/IIRT_Sentry/IIRT_Sentry_Hardpoint.png",
+  "hardpointGlowSprite": "graphics/weapons/IIRT_Sentry/IIRT_Sentry_Hardpoint_Light.png",
+  "glowColor": [
+    229,
+    208,
+    255,
+    230
+  ],
+  "hitGlowRadius": 0,
+  "turretOffsets": [
+    19,
+    2,
+    19,
+    -2
+  ],
+  "turretAngleOffsets": [
+    0,
+    0
+  ],
+  "hardpointOffsets": [
+    33.5,
+    2,
+    33.5,
+    -2
+  ],
+  "hardpointAngleOffsets": [
+    0,
+    0
+  ],
+  "fringeColor": [
+    229,
+    208,
+    255,
+    200
+  ],
+  "coreColor": [
+    255,
+    255,
+    255,
+    240
+  ],
+  #"darkCore": true,
+  "width": 4,
+  "textureType": [
+    "graphics/fx/Sentry/SentryFringe.png",
+    "graphics/fx/Sentry/SentryCore.png"
+  ],
+  "textureScrollSpeed": 1900,
+  "pixelsPerTexel": 1,
+  "fireSoundTwo": "IIRT_SD_Sentry"
+}

@@ -1,0 +1,85 @@
+{
+	"playableFaction":true,
+	"corvusCompatible":true,
+
+	"rebelFleetSuffix":"失控",
+    
+	"marketSpawnWeight":0.8,
+
+	"startRelationships":{
+		"tritachyon": 0.2,
+		"persean":0.2,
+		"hegemony":-0.45,
+		"luddic_path":-1,
+		"pirates":-0.8
+	},
+    	"maxRelationships":{
+			"hegemony": 0.6,
+			"pirates": -0.6,
+			"luddic_church": 0.2,
+			"luddic_path": -0.6,
+	},
+	"alignments":{
+		"technocratic":2.0,
+		"militarist":1.0,
+		"diplomatic":-0.5,
+		"ideological":1.5
+	},
+	"diplomacyPositiveChance":{
+		"hegemony":0.1,
+		"tritachyon":0.8,
+		"luddic_church":0.4,
+		"luddic_path":0.2
+	},
+	"diplomacyNegativeChance":{
+		"luddic_church":1.2,
+		"luddic_path":2.0
+	},
+	"diplomacyTraits":["lowprofile", "likes_ai","devious"],
+	
+	# chance of the faction being picked to send a colony expedition. Default 0 (disabled)
+	"colonyExpeditionChance":0.5,	# baseline expansion behaviour
+	"colonyTargetValuator":"exerelin.campaign.colony.IndustrialColonyTargetValuator",
+
+	"specialForcesNamerClass":"exerelin.campaign.intel.specialforces.namer.PlanetNamer",
+
+	"startShipsSolo":[
+		["IIRT_SD_Skirmisher_Assault"],
+		["IIRT_SD_Recursion_Support"]
+	],
+	"startShipsCombatSmall":[
+		["IIRT_SD_Skirmisher_Assault", "IIRT_SD_DownLight_Assault"],
+		["IIRT_SD_Recursion_Support", "IIRT_SD_DownLight_Assault"],
+		["IIRT_SD_Exordium_Support"]
+	],
+	"startShipsTradeSmall":[
+	["IIRT_SD_Skirmisher_Assault", "IIRT_SD_Gap_Cargo"]
+	],
+	"startShipsTradeMedium":[
+		["IIRT_SD_Skirmisher_Assault", "IIRT_SD_Gap_Cargo","IIRT_SD_Gap_Tanker_Tanker","IIRT_SD_Dim_Tanker"]
+	],
+
+    "startSpecialItems":[
+        [["IIRT_package", "beta_core"]]
+    ],
+
+	"defenceStations":[
+		{"ids":["orbitalstation", "battlestation", "starfortress"]},
+		{"ids":["orbitalstation_high", "battlestation_high", "starfortress_high"], "weight":0.5}
+	],
+    
+    "industrySeeds":[
+        {"id":"orbitalworks", "mult":0.1},
+        {"id":"fuelprod", "mult":0.1},
+        {"id":"lightindustry", "mult":0.1},
+    ],
+    
+    "bonusSeeds":[
+        {"id":"population_upsize", "count":1},
+        {"id":"nanoforge_pristine", "count":1},
+		{"id":"aiCore_station", "count":2, "mult":0.35},
+        {"id":"aiCore_military", "mult":0.8},
+        {"id":"aiCore_heavyindustry", "count":2},
+        {"id":"aiCore_any", "mult":1}
+    ],
+}

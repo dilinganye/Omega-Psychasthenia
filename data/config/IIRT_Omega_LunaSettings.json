@@ -1,0 +1,102 @@
+{
+  "modID": "Omega_PTSD",
+  "modName": "Omega - 精神创伤",
+  "settings": [
+    {
+      "name": "omega_invasion_enabled",
+      "displayName": "启用Omega入侵系统",
+      "description": "是否启用Omega入侵系统（需要开启Dev模式才能修改）",
+      "type": "boolean",
+      "defaultValue": true
+    },
+    {
+      "name": "omega_ptsd_prev",
+      "displayName": "启用实际内容",
+      "description": "是否开放欧米伽精神创伤的实际内容（需要开启Dev模式才能修改）",
+      "type": "boolean",
+      "defaultValue": false
+    },
+    {
+      "name": "start_stage_time",
+      "displayName": "初始阶段时长（天）",
+      "description": "Omega入侵开始前的等待时间（天数）",
+      "type": "int",
+      "min": 1,
+      "max": 365,
+      "defaultValue": 65
+    },
+    {
+      "name": "collect_data_time",
+      "displayName": "侦察阶段时长（天）",
+      "description": "Omega侦察持续的时间（天数）",
+      "type": "int",
+      "min": 1,
+      "max": 365,
+      "defaultValue": 60
+    },
+    {
+      "name": "invade_time",
+      "displayName": "初期入侵时长（天）",
+      "description": "Omega进行初期入侵的时间（天数）",
+      "type": "int",
+      "min": 1,
+      "max": 365,
+      "defaultValue": 30
+    },
+    {
+      "name": "repair_time",
+      "displayName": "核心建设时长（天）",
+      "description": "Omega核心建设和修复的时间（天数）",
+      "type": "int",
+      "min": 1,
+      "max": 365,
+      "defaultValue": 30
+    },
+    {
+      "name": "scout_min_interval",
+      "displayName": "侦察队最小间隔（天）",
+      "description": "生成侦察队之间的最小时间间隔（天数）",
+      "type": "int",
+      "min": 1,
+      "max": 60,
+      "defaultValue": 10
+    },
+    {
+      "name": "scout_max_interval",
+      "displayName": "侦察队最大间隔（天）",
+      "description": "生成侦察队之间的最大时间间隔（天数）",
+      "type": "int",
+      "min": 1,
+      "max": 60,
+      "defaultValue": 25
+    },
+    {
+      "name": "scout_spawn_radius",
+      "displayName": "侦察队生成半径",
+      "description": "侦察队在目标周围的生成半径（超空间坐标）",
+      "type": "int",
+      "min": 100,
+      "max": 2000,
+      "defaultValue": 300
+    },
+    {
+      "name": "max_guard_fleets",
+      "displayName": "最大守卫舰队数",
+      "description": "核心建设期间生成的最大守卫舰队数量",
+      "type": "int",
+      "min": 1,
+      "max": 20,
+      "defaultValue": 10
+    },
+    {
+      "name": "final_invasion_max_strength",
+      "displayName": "最终入侵最大强度",
+      "description": "全面攻击阶段的最大攻击舰队强度（舰队点数）",
+      "type": "int",
+      "min": 50,
+      "max": 500,
+      "defaultValue": 200
+    }
+  ]
+}
+

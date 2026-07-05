@@ -1,0 +1,51 @@
+{
+  "variantId": "IIRT_Omega_RedShift_Boomer",
+  "hullId": "IIRT_Omega_RedShift",
+  "displayName": "Boomer",
+  "goalVariant": false,
+  "fluxCapacitors": 6,
+  "fluxVents": 10,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "missleracks",
+    "eccm"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "cryoblaster"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0008": "disintegrator"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "ALTERNATING",
+      "weapons": {
+        "WS0002": "amsrm",
+        "WS0004": "amsrm",
+        "WS0005": "amsrm",
+        "WS0006": "amsrm",
+        "WS0007": "amsrm",
+        "WS0009": "amsrm"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0003": "shockrepeater"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

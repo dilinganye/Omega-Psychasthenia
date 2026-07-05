@@ -1,0 +1,43 @@
+{
+  "variantId": "IIRT_Omega_Station_Pulse",
+  "hullId": "IIRT_Omega_Station",
+  "displayName": "Pulse",
+  "goalVariant": false,
+  "fluxCapacitors": 0,
+  "fluxVents": 0,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "turretgyros"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0002": "interdictorbeam"
+      }
+    }
+  ],
+  "modules": [
+    {
+      "WS0001": "IIRT_Omega_Weapon_Platfrom_1_Crack"
+    },
+    {
+      "WS0006": "IIRT_Omega_Torsion_2_Normal_3"
+    },
+    {
+      "WS0010": "IIRT_Omega_Tranquil_Normal_1"
+    },
+    {
+      "WS0011": "IIRT_Omega_Tranquil_Normal_3"
+    },
+    {
+      "WS0009": "IIRT_Omega_Weapon_Platfrom_1_Crack"
+    }
+  ],
+  "wings": [
+    "IIRT_Omega_Pupal_attack_wing",
+    "IIRT_Omega_Pupal_attack_wing"
+  ]
+}

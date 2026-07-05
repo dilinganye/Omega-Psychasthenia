@@ -1,0 +1,31 @@
+{
+  "id": "IIRT_FSF_Helico_ten",
+	"specClass":"beam",
+	"type":"DECORATIVE",
+  "size": "SMALL",
+	"everyFrameEffect":"data.weapons.IIRT_RotateEveryFrameEffect",
+  "turretSprite": "graphics/weapons/Paint/IIRT_FSF_Helico_ten/IIRT_FSF_Helico_ten.png",
+  "hardpointSprite": "graphics/weapons/Paint/IIRT_FSF_Helico_ten/IIRT_FSF_Helico_ten.png",
+  "turretOffsets": [
+    0,
+    0
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    10.5,
+    0
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+
+	"fringeColor":[255,255,255,255],
+	"coreColor":[255,255,255,255],
+	"glowColor":[255,255,255,255],
+	"width":1.0,
+	"textureType":ROUGH,
+	"textureScrollSpeed":1.0,
+	"pixelsPerTexel":1.0,
+}

@@ -1,0 +1,26 @@
+{
+	"id":"IIRT_Omega_Cube_Wave_B",
+	"specClass":"beam",
+	"type":"DECORATIVE",
+	"size":"SMALL",
+	
+	"everyFrameEffect":"data.weapons.IIRT_RotateEveryFrameEffect",
+
+    "turretSprite":"graphics/ships/IIRT_Omega_Cube_Wave_B.png",
+	"hardpointSprite":"graphics/ships/IIRT_Omega_Cube_Wave_B.png",
+	"showDamageWhenDecorative":false,
+	"renderBelowAllWeapons":false,
+
+	"turretOffsets":[0, 0],
+	"turretAngleOffsets":[0],
+	"hardpointOffsets":[10, 0],
+	"hardpointAngleOffsets":[0],
+
+	"fringeColor":[255,255,255,255],
+	"coreColor":[255,255,255,255],
+	"glowColor":[255,255,255,255],
+	"width":1.0,
+	"textureType":WEAVE,
+	"textureScrollSpeed":1.0,
+	"pixelsPerTexel":1.0,
+}

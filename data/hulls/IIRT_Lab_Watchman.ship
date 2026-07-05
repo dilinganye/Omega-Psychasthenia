@@ -1,0 +1,175 @@
+{
+  "hullName": "IIRT_Lab_Watchman",
+  "hullId": "IIRT_Lab_Watchman",
+  "hullSize": "DESTROYER",
+  "spriteName": "graphics/ships/Lab/IIRT_Lab_Warchman.png",
+  "style": "OMEGA",
+  "height": 246,
+  "width": 120,
+  "center": [49.5, 151.5],
+  "collisionRadius": 169.5,
+  "shieldCenter": [-19.5, -0],
+  "shieldRadius": 145.5,
+  "viewOffset": 0,
+  "builtInMods": [
+    "IIRT_Lab_RPCM",
+    "autorepair",
+    "phasefield",
+    "nav_relay"
+  ],
+  "builtInWeapons": {
+    "WS0004": "thermosiphonsrm"
+  },
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 280,
+      "angle": 45,
+      "locations": [27.5, 8.5],
+      "renderOrderMod": 2
+    },
+    {
+      "id": "WS0002",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 280,
+      "angle": -45,
+      "locations": [-7.5, -26.5],
+      "renderOrderMod": 1
+    },
+    {
+      "id": "WS0003",
+      "size": "SMALL",
+      "type": "MISSILE",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": 0,
+      "locations": [-8, -11]
+    },
+    {
+      "id": "WS0004",
+      "size": "SMALL",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 5,
+      "angle": 0,
+      "locations": [1.5, 20]
+    },
+    {
+      "id": "LB 1",
+      "size": "LARGE",
+      "type": "LAUNCH_BAY",
+      "mount": "HIDDEN",
+      "arc": 360,
+      "angle": 0,
+      "locations": [9, -7.5]
+    },
+    {
+      "id": "LB 2",
+      "size": "LARGE",
+      "type": "LAUNCH_BAY",
+      "mount": "HIDDEN",
+      "arc": 360,
+      "angle": 0,
+      "locations": [-2, -12]
+    },
+    {
+      "id": "LB 3",
+      "size": "LARGE",
+      "type": "LAUNCH_BAY",
+      "mount": "HIDDEN",
+      "arc": 360,
+      "angle": 0,
+      "locations": [7, -15]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-32, -0],
+      "length": 30,
+      "width": 10,
+      "angle": 180,
+      "contrailSize": 30,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-32, -6],
+      "length": 30,
+      "width": 10,
+      "angle": 180,
+      "contrailSize": 30,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-36, -3],
+      "length": 57,
+      "width": 26,
+      "angle": 180,
+      "contrailSize": 26,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-34, -48.5],
+      "length": 33.586384,
+      "width": 28.789234,
+      "angle": 173.5,
+      "contrailSize": 28.789234,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-32, -37.5],
+      "length": 23.4555,
+      "width": 11.805005,
+      "angle": 173,
+      "contrailSize": 11.805005,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-30.5, -22.5],
+      "length": 21.5,
+      "width": 8,
+      "angle": 180,
+      "contrailSize": 8,
+      "style": "OMEGA"
+    }
+  ],
+  "bounds": [
+    89.5, 44.5,
+    67.5, 26,
+    67.5, 23,
+    51, 9,
+    41.5, 9,
+    37, -2.5,
+    27.5, -2.5,
+    22.5, -9.5,
+    30.5, -9.5,
+    36.5, -3,
+    31, -10.5,
+    21, -10.5,
+    19.5, -12.5,
+    13.5, -12.5,
+    6, -25.5,
+    4.5, -34.5,
+    -11.5, -33.5,
+    -24.5, -42.5,
+    -34, -69,
+    -40.5, -69.5,
+    -31, -20.5,
+    -24.5, -20.5,
+    -24.5, -10.5,
+    -30.5, -8.5,
+    -30.5, 3.5,
+    -64, 18,
+    -148.5, 46.5,
+    -138.5, 46.5,
+    -44.5, 19,
+    -18, 24.5,
+    7.5, 24.5,
+    34, 22.5,
+    80, 44.5
+  ]
+}

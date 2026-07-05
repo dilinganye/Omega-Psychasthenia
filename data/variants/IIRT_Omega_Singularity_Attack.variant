@@ -1,0 +1,59 @@
+{
+  "variantId": "IIRT_Omega_Singularity_Attack",
+  "hullId": "IIRT_Omega_Singularity",
+  "displayName": "Attack",
+  "goalVariant": false,
+  "fluxCapacitors": 16,
+  "fluxVents": 3,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0003": "cryoblaster"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0006": "cryoblaster"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0005": "cryoflux"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "ALTERNATING",
+      "weapons": {
+        "WS0002": "amsrm",
+        "WS0007": "amsrm"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0008": "thermosiphonsrm"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "shockrepeater",
+        "WS0004": "Omega_Entropy"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

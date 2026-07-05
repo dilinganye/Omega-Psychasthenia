@@ -1,0 +1,35 @@
+{
+  "variantId": "IIRT_FSF_Helico_Common",
+  "hullId": "IIRT_FSF_Helico",
+  "displayName": "Paint",
+  "goalVariant": true,
+  "fluxCapacitors": 8,
+  "fluxVents": 10,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "armoredweapons",
+    "blast_doors",
+    "targetingunit"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0003": "IIRT_FSF_Helico_Gun",
+        "WS0004": "IIRT_FSF_Helico_Gun"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "ALTERNATING",
+      "weapons": {
+        "WS0001": "IIRT_FSF_Helico_Gun",
+        "WS0005": "IIRT_FSF_Helico_Gun"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

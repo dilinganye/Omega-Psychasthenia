@@ -1,0 +1,32 @@
+{
+  "variantId": "IIRT_Omega_Riots_Normal_1",
+  "hullId": "IIRT_Omega_Riots",
+  "displayName": "Attack",
+  "goalVariant": false,
+  "fluxCapacitors": 2,
+  "fluxVents": 0,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "advancedoptics",
+    "high_scatter_amp"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "riftbeam"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0002": "riftlance"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

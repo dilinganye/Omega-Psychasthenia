@@ -1,0 +1,31 @@
+{
+  "variantId": "IIRT_Omega_Riots_Normal_2",
+  "hullId": "IIRT_Omega_Riots",
+  "displayName": "Missile",
+  "goalVariant": true,
+  "fluxCapacitors": 3,
+  "fluxVents": 1,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "missleracks"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "resonatormrm"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0002": "amsrm"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

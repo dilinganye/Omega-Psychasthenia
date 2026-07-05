@@ -1,0 +1,223 @@
+{
+  "hullName": "PTSD_Threat_Reconnaissance",
+  "hullId": "PTSD_Threat_Reconnaissance",
+  "hullSize": "DESTROYER",
+  "spriteName": "graphics/ships/Threat/PTSD_Threat_ReconnaissanceUnit.png",
+  "style": "THREAT",
+  "height": 280,
+  "width": 160,
+  "center": [80, 140],
+  "collisionRadius": 213,
+  "shieldCenter": [-13, -0],
+  "shieldRadius": 196,
+  "viewOffset": 0,
+  "builtInMods": [
+    "automated",
+    "threat_hullmod"
+  ],
+  "builtInWeapons": {
+    "WS0001": "pseudoparticle_jet",
+    "WS0009": "pseudoparticle_jet",
+    "WS0010": "heavy_mass_driver"
+  },
+  "weaponSlots": [
+    {
+      "id": "WS0002",
+      "size": "MEDIUM",
+      "type": "HYBRID",
+      "mount": "TURRET",
+      "arc": 90,
+      "angle": -0,
+      "locations": [-38, 0]
+    },
+    {
+      "id": "WS0003",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 109,
+      "angle": -55,
+      "locations": [25.5, -27]
+    },
+    {
+      "id": "WS0004",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 109,
+      "angle": 55,
+      "locations": [25.5, 27]
+    },
+    {
+      "id": "WS0005",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 177,
+      "angle": -26.5,
+      "locations": [16, -63]
+    },
+    {
+      "id": "WS0006",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 177,
+      "angle": 26.5,
+      "locations": [16, 63]
+    },
+    {
+      "id": "WS0007",
+      "size": "SMALL",
+      "type": "SYNERGY",
+      "mount": "HARDPOINT",
+      "arc": 12,
+      "angle": -90,
+      "locations": [-93, -49]
+    },
+    {
+      "id": "WS0008",
+      "size": "SMALL",
+      "type": "SYNERGY",
+      "mount": "HARDPOINT",
+      "arc": 12,
+      "angle": 90,
+      "locations": [-93, 49]
+    },
+    {
+      "id": "WS0001",
+      "size": "MEDIUM",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 4,
+      "angle": -0,
+      "locations": [24, -0]
+    },
+    {
+      "id": "WS0009",
+      "size": "MEDIUM",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 4,
+      "angle": -0,
+      "locations": [22, -0]
+    },
+    {
+      "id": "WS0010",
+      "size": "MEDIUM",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 4,
+      "angle": -0,
+      "locations": [26, -0]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-139.5, 10],
+      "length": 7.03,
+      "width": 31.969999,
+      "angle": -169.5,
+      "contrailSize": 31.969999,
+      "style": "THREAT_DEC"
+    },
+    {
+      "location": [-139.5, -10],
+      "length": 7.03,
+      "width": 31.969999,
+      "angle": 169.5,
+      "contrailSize": 31.969999,
+      "style": "THREAT_DEC"
+    },
+    {
+      "location": [-140, 31],
+      "length": 4.439603,
+      "width": 45.377964,
+      "angle": 169.5,
+      "contrailSize": 45.377964,
+      "style": "THREAT_DEC"
+    },
+    {
+      "location": [-140, -31],
+      "length": 4.439603,
+      "width": 45.377964,
+      "angle": -169.5,
+      "contrailSize": 45.377964,
+      "style": "THREAT_DEC"
+    },
+    {
+      "location": [-144, 21],
+      "length": 126.5186,
+      "width": 16.406614,
+      "angle": 178,
+      "contrailSize": 16.406614,
+      "style": "THREAT"
+    },
+    {
+      "location": [-144, -21],
+      "length": 126.5186,
+      "width": 16.406614,
+      "angle": -178,
+      "contrailSize": 16.406614,
+      "style": "THREAT"
+    },
+    {
+      "location": [-144, 29.5],
+      "length": 40.318989,
+      "width": 18.64179,
+      "angle": -168,
+      "contrailSize": 18.64179,
+      "style": "THREAT"
+    },
+    {
+      "location": [-144, -29.5],
+      "length": 40.318989,
+      "width": 18.64179,
+      "angle": 168,
+      "contrailSize": 18.64179,
+      "style": "THREAT"
+    }
+  ],
+  "bounds": [
+    -78, -4.5,
+    -102.5, -12.5,
+    -118.5, -6,
+    -133.5, -6,
+    -137.5, -23,
+    -134.5, -35.5,
+    -130, -35.5,
+    -123.5, -41,
+    -72, -39,
+    -39.5, -31,
+    -17, -68,
+    13.5, -65,
+    -0.5, -33.5,
+    34, -32,
+    48.5, -22,
+    84.5, -16.5,
+    63, -9.5,
+    57.5, -14.5,
+    32, -15,
+    25, -5,
+    25, 5,
+    32, 15,
+    57.5, 14.5,
+    63, 9.5,
+    84.5, 16.5,
+    48.5, 22,
+    34, 32,
+    -0.5, 33.5,
+    13.5, 65,
+    -17, 68,
+    -39.5, 31,
+    -72, 39,
+    -123.5, 41,
+    -130, 35.5,
+    -134.5, 35.5,
+    -137.5, 23,
+    -133.5, 6,
+    -118.5, 6,
+    -102.5, 12.5,
+    -78, 4.5
+  ]
+}

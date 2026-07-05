@@ -1,0 +1,21 @@
+{
+	"id":"IIRT_Omega_Watcher_FluxCap",
+	"type":"STAT_MOD",
+	"aiType":"CUSTOM",
+
+	"aiScript":"data.scripts.shipsystems.ai.IIRT_Omega_Watcher_FluxCap_AI",
+	"statsScript":"data.scripts.shipsystems.IIRT_Omega_Watcher_FluxCap",
+
+	"runScriptWhileIdle":true,
+
+	"jitterColor":[255,243,232,200],
+	"jitterCopies":0,
+	"jitterRange":0,
+	"jitterRangeRadiusFraction":0.2,
+
+	"fadeActivationSoundOnChargedown":true,
+	"useSound":"system_damper_omega",
+	"loopSound":"system_damper_omega_loop",
+	"deactivateSound":"system_damper_omega_off",
+	"outOfUsesSound":"gun_out_of_ammo",
+}

@@ -1,0 +1,180 @@
+{
+  "hullName": "IIRT_SD_Gap_Tanker",
+  "hullId": "IIRT_SD_Gap_Tanker",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/IIRT/IIRT_Gap_Tanker.png",
+  "style": "IIRT_TECH",
+  "height": 144,
+  "width": 98,
+  "center": [49, 51.5],
+  "collisionRadius": 109,
+  "shieldCenter": [18, -0],
+  "shieldRadius": 88.5,
+  "viewOffset": 0,
+  "builtInMods": [
+    "IIRT_SD_Lab",
+    "civgrade"
+  ],
+  "builtInWings": [
+    "IIRT_SD_Budge_PD_wing"
+  ],
+  "builtInWeapons": {
+    "WS0005": "atropos_single",
+    "WS0006": "atropos_single",
+    "WS0007": "blinker_green",
+    "WS0008": "blinker_red"
+  },
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "ENERGY",
+      "mount": "TURRET",
+      "arc": 170,
+      "angle": 65,
+      "locations": [-29.5, 12]
+    },
+    {
+      "id": "WS0002",
+      "size": "SMALL",
+      "type": "ENERGY",
+      "mount": "TURRET",
+      "arc": 170,
+      "angle": -65,
+      "locations": [-29.5, -12]
+    },
+    {
+      "id": "WS0003",
+      "size": "SMALL",
+      "type": "ENERGY",
+      "mount": "TURRET",
+      "arc": 265,
+      "angle": 0,
+      "locations": [71.5, -0]
+    },
+    {
+      "id": "WS0007",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 0,
+      "angle": 0,
+      "locations": [6, -35.5]
+    },
+    {
+      "id": "WS0008",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 0,
+      "angle": -0,
+      "locations": [-47.5, 24.5]
+    },
+    {
+      "id": "WS0005",
+      "size": "SMALL",
+      "type": "BUILT_IN",
+      "mount": "HARDPOINT",
+      "arc": 7,
+      "angle": 0,
+      "locations": [13.5, 22]
+    },
+    {
+      "id": "WS0006",
+      "size": "SMALL",
+      "type": "BUILT_IN",
+      "mount": "HARDPOINT",
+      "arc": 7,
+      "angle": -0,
+      "locations": [13.5, -22]
+    },
+    {
+      "id": "LB 1",
+      "size": "LARGE",
+      "type": "LAUNCH_BAY",
+      "mount": "HIDDEN",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        -19.5, -20,
+        -19.5, 20
+      ]
+    },
+    {
+      "id": "LB 2",
+      "size": "LARGE",
+      "type": "LAUNCH_BAY",
+      "mount": "HIDDEN",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        68.5, 19,
+        54, 19,
+        68.5, -19,
+        54, -19
+      ]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-33.5, -4.5],
+      "length": 29.5,
+      "width": 3,
+      "angle": -180,
+      "contrailSize": 3,
+      "style": "IIRT_TECH"
+    },
+    {
+      "location": [-33, -0],
+      "length": 44,
+      "width": 9,
+      "angle": -180,
+      "contrailSize": 9,
+      "style": "IIRT_Smoke"
+    },
+    {
+      "location": [-12.5, -35.5],
+      "length": 12.5,
+      "width": 5,
+      "angle": -175,
+      "contrailSize": 5,
+      "style": "IIRT_Smoke"
+    },
+    {
+      "location": [-12.5, 35.5],
+      "length": 12.5,
+      "width": 5,
+      "angle": 175,
+      "contrailSize": 5,
+      "style": "IIRT_Smoke"
+    },
+    {
+      "location": [-33.5, 4.5],
+      "length": 29.5,
+      "width": 3,
+      "angle": 180,
+      "contrailSize": 3,
+      "style": "IIRT_TECH"
+    }
+  ],
+  "bounds": [
+    -31.5, 5,
+    -47.5, 8,
+    -25.5, 29.5,
+    -3.5, 37,
+    12.5, 18.5,
+    23.5, 13,
+    29.5, 20.5,
+    80, 20,
+    85, 15,
+    85, -15,
+    80, -20,
+    29.5, -20.5,
+    23.5, -13,
+    12.5, -18.5,
+    -3.5, -37,
+    -25.5, -29.5,
+    -47.5, -8,
+    -31.5, -5
+  ]
+}

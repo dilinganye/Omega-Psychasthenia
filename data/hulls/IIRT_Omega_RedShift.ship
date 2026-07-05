@@ -1,0 +1,181 @@
+{
+  "hullName": "IIRT_Omega_RedShift",
+  "hullId": "IIRT_Omega_RedShift",
+  "hullSize": "DESTROYER",
+  "spriteName": "graphics/ships/phase/Omega_RedShift.png",
+  "style": "OMEGA_Plus",
+  "height": 192,
+  "width": 147,
+  "center": [80, 95.5],
+  "collisionRadius": 115.5,
+  "shieldCenter": [3, -0],
+  "shieldRadius": 110,
+  "viewOffset": 0,
+  "builtInMods": [
+    "IIRT_Omega_BugShardSpawner",
+    "autorepair",
+    "automated"
+  ],
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 270,
+      "angle": 30,
+      "locations": [13.5, 19]
+    },
+    {
+      "id": "WS0002",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 283,
+      "angle": 0,
+      "locations": [5.5, -11]
+    },
+    {
+      "id": "WS0003",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 270,
+      "angle": -28.5,
+      "locations": [31.5, -21]
+    },
+    {
+      "id": "WS0004",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 270,
+      "angle": -5.5,
+      "locations": [65.5, -23]
+    },
+    {
+      "id": "WS0005",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 214,
+      "angle": -31.5,
+      "locations": [35.5, -46]
+    },
+    {
+      "id": "WS0006",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 283,
+      "angle": 45,
+      "locations": [-15.5, 34]
+    },
+    {
+      "id": "WS0007",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 283,
+      "angle": 45,
+      "locations": [-1.5, 44]
+    },
+    {
+      "id": "WS0008",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": 0,
+      "locations": [48.5, 23]
+    },
+    {
+      "id": "WS0009",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": 0,
+      "locations": [79.5, -10]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-47, -32],
+      "length": 60,
+      "width": 16,
+      "angle": 180,
+      "contrailSize": 16,
+      "style": "OMEGA"
+    },
+    {
+      "location": [4, -40],
+      "length": 44.5,
+      "width": 15,
+      "angle": 180,
+      "contrailSize": 15,
+      "style": "OMEGA"
+    },
+    {
+      "location": [12, -50.5],
+      "length": 44.5,
+      "width": 15,
+      "angle": 175.5,
+      "contrailSize": 15,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-25.5, 29],
+      "length": 46,
+      "width": 12,
+      "angle": 176.5,
+      "contrailSize": 12,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-32, 36.5],
+      "length": 57.577743,
+      "width": 14.114346,
+      "angle": -174,
+      "contrailSize": 14.114346,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-11, 51.5],
+      "length": 40,
+      "width": 12,
+      "angle": 180,
+      "contrailSize": 12,
+      "style": "OMEGA"
+    }
+  ],
+  "bounds": [
+    -63, -34.5,
+    -51.5, -20.5,
+    -51.5, -9,
+    -26, 11,
+    -22.5, 20,
+    -41.5, 21.5,
+    -17, 26.5,
+    -30.5, 26,
+    -33.5, 31.5,
+    -36, 43,
+    -41, 46.5,
+    -13, 47.5,
+    -9, 66.5,
+    23.5, 42,
+    17.5, 37,
+    23, 33.5,
+    52.5, 30,
+    49, 13.5,
+    76, -4,
+    76, -18.5,
+    89.5, -30,
+    41.5, -48.5,
+    39, -53.5,
+    4, -53.5,
+    1, -47,
+    -21, -43.5,
+    -22.5, -36.5
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "hullName": "IIRT_Lab_Spirit",
+  "hullId": "IIRT_Lab_Spirit",
+  "hullSize": "FIGHTER",
+  "spriteName": "graphics/ships/Lab/IIRT_Lab_Spirit.png",
+  "style": "KRM_TECH",
+  "height": 50,
+  "width": 46,
+  "center": [23, 19],
+  "collisionRadius": 39.5,
+  "shieldCenter": [1, -0],
+  "shieldRadius": 37,
+  "viewOffset": 0,
+  "builtInMods": [
+    "IIRT_Lab_RPCM"
+  ],
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 0,
+      "angle": 0,
+      "locations": [3, 12]
+    },
+    {
+      "id": "WS0002",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 0,
+      "angle": -0,
+      "locations": [3, -12]
+    },
+    {
+      "id": "WS0005",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 0,
+      "angle": 0,
+      "locations": [5.5, -0]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [7.5, 1.5],
+      "length": 2,
+      "width": 13,
+      "angle": 90,
+      "contrailSize": 13,
+      "style": "KRSM_Smoke"
+    },
+    {
+      "location": [7.5, -1.5],
+      "length": 2,
+      "width": 13,
+      "angle": -90,
+      "contrailSize": 13,
+      "style": "KRSM_Smoke"
+    }
+  ],
+  "bounds": [
+    -14.5, 3.5,
+    -13.5, 10.5,
+    -17, 18.5,
+    -11.5, 22,
+    -4.5, 15.5,
+    7.5, 15.5,
+    16, 5,
+    31, -0,
+    16, -5,
+    7.5, -15.5,
+    -4.5, -15.5,
+    -11.5, -22,
+    -17, -18.5,
+    -13.5, -10.5,
+    -14.5, -3.5
+  ]
+}

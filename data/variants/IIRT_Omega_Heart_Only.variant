@@ -1,0 +1,64 @@
+{
+  "variantId": "IIRT_Omega_Heart_Only",
+  "hullId": "IIRT_Omega_Heart",
+  "displayName": "Heart",
+  "goalVariant": true,
+  "fluxCapacitors": 16,
+  "fluxVents": 19,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "dedicated_targeting_core"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0002": "riftcascade"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0013": "realitydisruptor"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0003": "riftbeam",
+        "WS0004": "riftlance",
+        "WS0009": "riftlance",
+        "WS0011": "disintegrator",
+        "WS0012": "disintegrator",
+        "WS0014": "riftlance"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0007": "minipulser",
+        "WS0008": "minipulser"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0005": "shockrepeater",
+        "WS0006": "shockrepeater"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {}
+    }
+  ],
+
+  "wings": []
+}

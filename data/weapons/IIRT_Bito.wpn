@@ -1,0 +1,51 @@
+{
+  "id": "IIRT_Bito",
+  "specClass": "projectile",
+  "projectileSpecId": "IIRT_Bito_shot",
+  "type": "ENERGY",
+  "mountTypeOverride": "ENERGY",
+  "size": "SMALL",
+  "turretSprite": "graphics/weapons/IIRT_Bite/IIRT_Bite_turret_base_00.png",
+  "turretGlowSprite": "graphics/weapons/IIRT_Bite/IIRT_Bite_turret_Light.png",
+  "hardpointSprite": "graphics/weapons/IIRT_Bite/IIRT_Bite_base_00.png",
+  "hardpointGlowSprite": "graphics/weapons/IIRT_Bite/IIRT_Bite_Light.png",
+  "turretOffsets": [
+    9.5,
+    3,
+    9.5,
+    -3
+  ],
+  "turretAngleOffsets": [
+    0,
+    0
+  ],
+  "hardpointOffsets": [
+    10.5,
+    3,
+    10.5,
+    -3
+  ],
+  "hardpointAngleOffsets": [
+    0,
+    0
+  ],
+  "barrelMode": "ALTERNATING",
+  "animationType": "MUZZLE_FLASH",
+  "numFrames": 2,
+  "frameRate": 20,
+  "muzzleFlashSpec": {
+    "length": 25,
+    "spread": 5,
+    "particleSizeMin": 6,
+    "particleSizeRange": 14,
+    "particleDuration": 0.15,
+    "particleCount": 11,
+    "particleColor": [
+      247,
+      213,
+      248,
+      150
+    ]
+  },
+  "fireSoundTwo": "IIRT_plasma_shot2"
+}

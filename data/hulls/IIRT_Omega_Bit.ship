@@ -1,0 +1,73 @@
+{
+  "hullName": "IIRT_Omega_bit",
+  "hullId": "IIRT_Omega_Bit",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Omega_Bit.png",
+  "style": "OMEGA",
+  "height": 21,
+  "width": 13,
+  "center": [7, 10.5],
+  "collisionRadius": 14,
+  "shieldCenter": [0, -0],
+  "shieldRadius": 13.5,
+  "viewOffset": 0,
+  "builtInMods": [
+    "fragile_subsystems",
+    "no_weapon_flux",
+    "ecm",
+    "eccm",
+    "magazines",
+    "dedicated_targeting_core",
+    "automated"
+  ],
+  "builtInWings": [
+    "aspect_shock_wing"
+  ],
+  "builtInWeapons": {
+    "WS0001": "minipulser",
+    "WS0002": "interdictorbeam"
+  },
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 0,
+      "angle": 0,
+      "locations": [0, 0.5]
+    },
+    {
+      "id": "WS0002",
+      "size": "MEDIUM",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 0,
+      "angle": 0,
+      "locations": [5, 0.5]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-3, 2.5],
+      "length": 6,
+      "width": 3,
+      "angle": -173.5,
+      "contrailSize": 3,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-1.5, -3],
+      "length": 8.347692,
+      "width": 3.356211,
+      "angle": 173,
+      "contrailSize": 3.356211,
+      "style": "OMEGA"
+    }
+  ],
+  "bounds": [
+    -3.5, 5,
+    0, -6,
+    9, 1.5
+  ]
+}

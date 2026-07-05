@@ -1,0 +1,45 @@
+{
+  "id": "IIRT_FSF_Helico_Gun",
+  "specClass": "projectile",
+  "projectileSpecId": "lightmortar_shot",
+  "type": "BALLISTIC",
+  "size": "SMALL",
+  "displayArcRadius": 450,
+  "turretSprite": "graphics/weapons/Paint/IIRT_TDB_meiYouFeng/IIRT_TDB_meiYouFeng_m.png",
+  "turretGunSprite": "graphics/weapons/Paint/IIRT_TDB_meiYouFeng/IIRT_TDB_meiYouFeng_t.png",
+  "hardpointSprite": "graphics/weapons/Paint/IIRT_TDB_meiYouFeng/IIRT_TDB_meiYouFeng_m.png",
+  "hardpointGunSprite": "graphics/weapons/Paint/IIRT_TDB_meiYouFeng/IIRT_TDB_meiYouFeng_t.png",
+  "visualRecoil": 10,
+  "renderHints": [
+    RENDER_BARREL_BELOW
+  ],
+  "turretOffsets": [
+    5,
+    0
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    5,
+    0
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "barrelMode": "ALTERNATING",
+  "autocharge":"true",
+  "animationType": "MUZZLE_FLASH",
+  "muzzleFlashSpec": {
+    "length": 40,
+    "spread": 10,
+    "particleSizeMin": 10,
+    "particleSizeRange": 10,
+    "particleDuration": 0.4,
+    "particleCount": 12,
+    "particleColor": [255,125,105,
+      200
+    ]
+  },
+  "fireSoundOne": "IIRT_paintHit"
+}

@@ -1,0 +1,443 @@
+package data.scripts.campaign;
+
+import com.fs.starfarer.api.EveryFrameScript;
+import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.campaign.*;
+import com.fs.starfarer.api.campaign.econ.MarketAPI;
+import com.fs.starfarer.api.impl.campaign.fleets.FleetFactoryV3;
+import com.fs.starfarer.api.impl.campaign.fleets.FleetParamsV3;
+import com.fs.starfarer.api.impl.campaign.ids.*;
+import com.fs.starfarer.api.impl.campaign.missions.hub.HubMissionWithTriggers.OfficerQuality;
+import com.fs.starfarer.api.util.Misc;
+import com.fs.starfarer.api.util.WeightedRandomPicker;
+import org.lwjgl.util.vector.Vector2f;
+
+import java.awt.Color;
+import java.util.List;
+
+import static data.scripts.IIRT_Omega_ModPlugin.OMEGA_PTSD_PREV;
+
+public class IIRT_Omega_Invasion implements EveryFrameScript {
+
+	private static final Color NOTICE_COLOR = new Color(238, 165, 143, 255);
+
+	public enum STAGE {
+		START, COLLECT_DATA, INVADE, REPAIR, FULL_ATTACK, END
+	}
+
+	protected STAGE currStage;
+
+	public static final String stage_id = "$IIRT_Omega_Invasion_Stage";
+	public static final String baseSystem_id = "$IIRT_Omega_Base_System";
+	public static final String baseMarket_id = "$IIRT_Omega_Base_Market";
+	public static final String IIRT_Omega_Faction = "Omega_Psychasthenia";
+	public static final int start_stage_time = 65;// (int) (120 + 60 * Math.random());
+	public static final int collect_data_time = 60;// (int) (300 + 120 * Math.random());
+	public static final int invade_time = 30;
+	public static final int repair_time = 30;// (int) (300 + 120 * Math.random());
+
+	protected float stageElapsed = 0f;
+	protected float elapsed = 0f;
+	protected float temp_time = 0f;
+	protected StarSystemAPI baseSystem = null;
+	protected MarketAPI baseMarket = null;
+	protected int inv_interval = (int)(10 + Math.random() * 10);
+
+	public IIRT_Omega_Invasion(SectorAPI sector) {
+		if (sector.getMemoryWithoutUpdate().contains(stage_id)) {
+			currStage = (STAGE)sector.getMemoryWithoutUpdate().get(stage_id);
+		} else {
+			currStage = STAGE.START;
+			sector.getMemoryWithoutUpdate().set(stage_id, currStage);
+		}
+		Global.getLogger(this.getClass()).info("new omega invasion created!");
+	}
+
+	public void setStage(STAGE stage) {
+		currStage = stage;
+		// Global.getSector().getMemoryWithoutUpdate().unset(stage_id);
+		Global.getSector().getMemoryWithoutUpdate().set(stage_id, stage);
+	}
+
+	@Override
+	public boolean isDone() {
+		return currStage == STAGE.END;
+	}
+
+	/**
+	 * @return whether advance() should be called while the campaign engine is
+	 * paused.
+	 */
+	@Override
+	public boolean runWhilePaused() {
+		return false;
+	}
+
+	/**
+	 * Use SectorAPI.getClock() to convert to campaign days.
+	 *
+	 * @param amount seconds elapsed during the last frame.
+	 */
+	@Override
+	public void advance(float amount) {
+		if (Global.getSector() == null && !OMEGA_PTSD_PREV) return;
+		stageElapsed += Global.getSector().getClock().convertToDays(amount);
+		CampaignFleetAPI playerFleet = Global.getSector().getPlayerFleet();
+
+		switch (currStage) {
+			case START:
+				// do nothing at all
+				if (stageElapsed >= start_stage_time) {
+					stageElapsed = 0;
+					setStage(STAGE.COLLECT_DATA);
+					// temp_time = (float) (0.2 + 0.5f * Math.random());
+					temp_time = 0.1f;
+				}
+				break;
+			case COLLECT_DATA:
+				elapsed += Global.getSector().getClock().convertToDays(amount);
+				// Global.getLogger(this.getClass()).info("omega scout fleet test spawn
+				// elapsed"+elapsed);
+				if (elapsed >= temp_time) {
+					elapsed = 0f;
+					temp_time = (float)(10f + 15f * Math.random());// 生成侦查舰队的间隔时间
+					// temp_time = 0.1f;
+					// Global.getLogger(this.getClass()).info("omega scout fleet test spawn");
+					WeightedRandomPicker<SectorEntityToken> scoutTargets = new WeightedRandomPicker<>();
+					for (StarSystemAPI scoutSystem : Global.getSector().getStarSystems()) {
+						if (!scoutSystem.isProcgen()) {
+							Global.getLogger(this.getClass()).info("===___===__=Omega_Invasion Scout=__===___===");
+							for (SectorEntityToken relay : scoutSystem.getEntitiesWithTag(Tags.COMM_RELAY)) {
+								scoutTargets.add(relay);
+
+								if (Global.getSettings().isDevMode()) {
+									Global.getLogger(this.getClass()).info("omega scoutTargets.add  The ID is" + relay.getId() + " & the Name is" + relay.getName());
+									playerFleet.addFloatingText("omega scoutTargets.add  The ID is" + relay.getId() + " & the Name is" + relay.getName(), NOTICE_COLOR, 5.0F);
+								}
+							}
+						}
+					}
+					SectorEntityToken scoutTarget = scoutTargets.pick();
+					if (scoutTarget == null) {
+						Global.getLogger(this.getClass()).info("===___===__=Omega_Invasion Scout=__===___===");
+						Global.getLogger(this.getClass()).info("omega scout fleet test spawn fail to find target");
+						if (Global.getSettings().isDevMode()) {
+							playerFleet.addFloatingText("omega scout fleet test spawn fail to find target", NOTICE_COLOR, 5.0F);
+						}
+						break;
+					}
+					float min_range = 1000000;
+					SectorEntityToken scoutStart = null;
+					// WeightedRandomPicker<SectorEntityToken> scoutBegins = new
+					// WeightedRandomPicker<>();
+					for (SectorEntityToken gate : Global.getSector().getEntitiesWithTag(Tags.GATE)) {
+						if (gate.getStarSystem().equals(scoutTarget.getStarSystem())) {
+							scoutStart = gate;
+							break;
+						} else {
+							if (Misc.getDistance(gate.getLocationInHyperspace(), scoutTarget.getLocationInHyperspace()) < min_range) {
+								min_range = Misc.getDistance(gate.getLocationInHyperspace(), scoutTarget.getLocationInHyperspace());
+								scoutStart = gate;
+							}
+						}
+					}
+					Vector2f scoutStartLoc = Global.getSector().getPlayerFleet().getLocationInHyperspace();
+					boolean isInHyperspace = true;
+					if (scoutStart != null) {
+						if (scoutStart.getStarSystem() != null) {
+							scoutStartLoc = scoutStart.getLocation();
+							isInHyperspace = false;
+						} else {
+							scoutStartLoc = scoutStart.getLocationInHyperspace();
+							isInHyperspace = true;
+						}
+					} else {
+						scoutStartLoc = Misc.getPointWithinRadius(scoutTarget.getLocationInHyperspace(), 300f);
+					}
+					FleetParamsV3 scoutFleetParam = new FleetParamsV3(scoutStartLoc, IIRT_Omega_Faction, 0.25f, FleetTypes.MERC_SCOUT, 12, 0, 0, 0, 0, 0, 0);
+					scoutFleetParam.aiCores = OfficerQuality.AI_GAMMA;
+					CampaignFleetAPI scoutFleet = FleetFactoryV3.createFleet(scoutFleetParam);
+					// scoutFleet.getFleetData().addFleetMember("IIRT_Omega_Kb_Only");
+					scoutFleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_NO_SHIP_RECOVERY, true);
+					scoutFleet.getMemoryWithoutUpdate().set(MemFlags.CAN_ONLY_BE_ENGAGED_WHEN_VISIBLE_TO_PLAYER, true);
+					if (isInHyperspace) {
+						Global.getSector().getHyperspace().addEntity(scoutFleet);
+						scoutFleet.setLocation(scoutStartLoc.x, scoutStartLoc.y);
+					} else {
+						scoutStart.getStarSystem().addEntity(scoutFleet);
+						scoutFleet.setLocation(scoutStartLoc.x, scoutStartLoc.y);
+					}
+					//____________________这里的AI需要更换：更换为前往到目标地点后消极环绕，侦测到任何舰队靠近就离开此星系_________________________
+					scoutFleet.addAssignment(FleetAssignment.GO_TO_LOCATION_AND_DESPAWN, scoutTarget, 1000, "前往" + scoutTarget.getName());
+					scoutFleet.addTag("IIRT_Omega_Scout");
+					Global.getLogger(this.getClass()).info("omega scout fleet spawn at (" + scoutStartLoc.x + " , " + scoutStartLoc.y + ") and target to " + scoutTarget.getStarSystem().getId() + " with " + scoutFleet.getFleetSizeCount() + " ships, Fleet Id is " + scoutFleet.getId() + " . And For Hyperspace, they are " + isInHyperspace + "in.");
+
+					if (Global.getSettings().isDevMode()) {
+						Global.getLogger(this.getClass()).info("===___===__=Omega_Invasion Scout=__===___===");
+						playerFleet.addFloatingText("omegaScout spawn at (" + scoutStartLoc.x + " , " + scoutStartLoc.y + ") and target to " + scoutTarget.getStarSystem().getId() + " with " + scoutFleet.getFleetSizeCount() + " ships, Fleet Id is " + scoutFleet.getId() + " . And For Hyperspace, they are " + isInHyperspace + "in.", NOTICE_COLOR, 60.0F);
+						scoutFleet.setAlwaysUseSensorFaderBrightness(true);
+						scoutFleet.getMemoryWithoutUpdate().set(MemFlags.ENTITY_MISSION_IMPORTANT, true);
+					}else{
+						scoutFleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_FORCE_TRANSPONDER_OFF, true);
+					}
+				}
+				if (stageElapsed > collect_data_time) {
+					setStage(STAGE.INVADE);
+					stageElapsed = 0f;
+					elapsed = 0;
+				}
+				break;
+			case INVADE:
+				stageElapsed += Global.getSector().getClock().convertToDays(amount);
+				if (baseSystem == null && Global.getSector().getMemoryWithoutUpdate().contains(baseSystem_id)) {
+					String baseSystemId = (String)Global.getSector().getMemoryWithoutUpdate().get(baseSystem_id);
+					baseSystem = Global.getSector().getStarSystem(baseSystemId);
+				}
+				if (baseMarket == null && baseSystem != null && Global.getSector().getMemoryWithoutUpdate().contains(baseMarket_id)) {
+					String marketId = (String)Global.getSector().getMemoryWithoutUpdate().get(baseMarket_id);
+					for (PlanetAPI p : baseSystem.getPlanets()) {
+						if (p.getMarket() != null && p.getMarket().getId().contentEquals(marketId)) baseMarket = p.getMarket();
+					}
+				}
+				if (baseSystem == null || baseMarket == null) {
+					// 选择一个星系
+					WeightedRandomPicker<StarSystemAPI> SystemPicker = new WeightedRandomPicker<>();
+					for (StarSystemAPI system : Global.getSector().getStarSystems()) {
+						if (system.isProcgen()) {
+							if (system.getStar().getTypeId().contentEquals(StarTypes.BLUE_GIANT) || system.getStar().getTypeId().contentEquals(StarTypes.BLUE_SUPERGIANT)) {
+								if (system.getPlanets().size() <= 1) continue;
+								float weight = 1f;
+								if (system.isEnteredByPlayer()) weight *= 0.9f;
+								if (system.getAllEntities().contains(Global.getSector().getPlayerFleet())) weight = 0f;
+								for (PlanetAPI planet : system.getPlanets()) {
+									if (planet.getMarket() != null) weight *= 0.2f;
+								}
+								SystemPicker.add(system, weight);
+							}
+						}
+					}
+					Global.getLogger(this.getClass()).info(SystemPicker.getItems().size() + " systems with blue giants");
+					if (SystemPicker.isEmpty()) {
+						for (StarSystemAPI system : Global.getSector().getStarSystems()) {
+							if (system.isProcgen()) {
+								if (system.getPlanets().size() <= 1) continue;
+								float weight = 1f;
+								if (system.isEnteredByPlayer()) weight *= 0.9f;
+								if (system.getAllEntities().contains(Global.getSector().getPlayerFleet())) weight = 0f;
+								for (PlanetAPI planet : system.getPlanets()) {
+									if (planet.getMarket() != null) weight *= 0.2f;
+								}
+								SystemPicker.add(system, weight);
+							}
+						}
+					}
+					if (!SystemPicker.isEmpty()) {
+						baseSystem = SystemPicker.pick();
+						if (Global.getSettings().isDevMode()) {
+							Global.getLogger(this.getClass()).info("===___===__=Omega_Invasion Invade=__===___===");
+							playerFleet.addFloatingText(SystemPicker.getItems().size() + " systems with blue giants, And" + baseSystem.getId() + " had been picked", NOTICE_COLOR, 60.0F);
+							Global.getLogger(this.getClass()).info(SystemPicker.getItems().size() + " systems with blue giants, And" + baseSystem.getId() + " had been picked");
+						}
+					}
+					if (baseSystem != null) {
+						Global.getSector().getMemoryWithoutUpdate().set(baseSystem_id, baseSystem.getId());
+					}
+					if (!baseSystem.getMemoryWithoutUpdate().contains("$IIRT_Omega_Invaded")) {
+						baseSystem.getMemoryWithoutUpdate().set("$IIRT_Omega_Invaded", true);
+						WeightedRandomPicker<PlanetAPI> basePicker = new WeightedRandomPicker<>();
+						for (PlanetAPI planet : baseSystem.getPlanets()) {
+							float weight = 1f;
+							if (planet.isStar()) continue;
+							if (!planet.isGasGiant()) weight *= 1.25f;
+							if (planet.getMarket() != null && planet.getMarket().getFaction() != null && !planet.getMarket().getFaction().getId().contentEquals(Factions.OMEGA)) {
+								Global.getSector().getEconomy().removeMarket(planet.getMarket());
+							}
+							basePicker.add(planet, weight);
+						}
+						PlanetAPI base = basePicker.pick();
+						Global.getLogger(this.getClass()).info("picked " + base.getId());
+						base.addTag("IIRT_Omega_Invaded");
+						base.getSpec().setGlowColor(new Color(173, 181, 182));
+						base.getSpec().setIconColor(new Color(154, 154, 154));
+						base.getSpec().setCloudColor(new Color(127, 175, 185));
+						base.getSpec().setPlanetColor(new Color(152, 141, 164));
+						base.getSpec().setUseReverseLightForGlow(true);
+						baseMarket = Global.getFactory().createMarket("market_" + base.getId(), base.getName(), 7);
+						Global.getSector().getMemoryWithoutUpdate().set(baseMarket_id, baseMarket.getId());
+						baseMarket.setFactionId(IIRT_Omega_Faction);
+						baseMarket.addCondition("IIRT_Omega_Repair_Facility");
+						baseMarket.addIndustry("orbitalworks");
+						baseMarket.addIndustry("planetaryshield");
+						baseMarket.addIndustry("highcommand");
+						baseMarket.setPrimaryEntity(base);
+						baseMarket.getMemoryWithoutUpdate().set("$IIRT_Omega_Invaded", true);
+						Global.getSector().getEconomy().addMarket(baseMarket, false);
+						base.setMarket(baseMarket);
+					}
+				}
+				elapsed += Global.getSector().getClock().convertToDays(amount);
+				if (elapsed >= 2f) {
+					elapsed = 0;
+					Vector2f invStartLoc = Misc.getPointWithinRadius(baseSystem.getLocation(), 300f);
+					FleetParamsV3 invFleetParam = new FleetParamsV3(invStartLoc, IIRT_Omega_Faction, 0.25f, FleetTypes.PATROL_LARGE, Global.getSettings().getBattleSize(), 0, 0, 0, 0, 0, 0);
+					invFleetParam.maxNumShips = (int)(Global.getSettings().getMaxShipsInFleet() * 1.5f);
+					invFleetParam.aiCores = OfficerQuality.AI_OMEGA;
+					CampaignFleetAPI invFleet = FleetFactoryV3.createFleet(invFleetParam);
+					// scoutFleet.getFleetData().addFleetMember("IIRT_Omega_Kb_Only");
+					invFleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_NO_SHIP_RECOVERY, true);
+
+					Global.getSector().getHyperspace().addEntity(invFleet);
+					invFleet.setLocation(invStartLoc.x, invStartLoc.y);
+
+					if (Global.getSettings().isDevMode()) {
+						Global.getLogger(this.getClass()).info("===___===__=Omega_Invasion Invade=__===___===");
+						playerFleet.addFloatingText("Small Invade fleet been set, And at x=" + invStartLoc.x + " & y=" + invStartLoc.y + ". In the Hyperspace, target to "+baseMarket.getName()+" in "+baseMarket.getStarSystem().getName(), NOTICE_COLOR, 40.0F);
+						Global.getLogger(this.getClass()).info("Small Invade fleet been set, And at x=" + invStartLoc.x + " & y=" + invStartLoc.y + ". In the Hyperspace, target to "+baseMarket.getName()+" in "+baseMarket.getStarSystem().getName());
+
+						DebugGOTO(playerFleet,invFleet);
+					}
+
+					invFleet.addAssignment(FleetAssignment.DEFEND_LOCATION, baseMarket.getPrimaryEntity(), 100000f, "前往" + baseMarket.getName());
+					invFleet.addTag("IIRT_Omega_Scout");
+					invFleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_ALLOW_LONG_PURSUIT, true);
+				}
+				if (stageElapsed > invade_time) {
+					stageElapsed = 0;
+					setStage(STAGE.REPAIR);
+					elapsed = 0;
+				}
+				break;
+			case REPAIR:
+				// sleeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeep
+				// until they can wipe out anything in this sector
+				stageElapsed += Global.getSector().getClock().convertToDays(amount);
+				FactionAPI iirt_omega = Global.getSector().getFaction(IIRT_Omega_Faction);
+				if (stageElapsed > repair_time) {
+					if (Global.getSettings().isDevMode()) {
+						Global.getLogger(this.getClass()).info("===___===__=Omega_Invasion Repair=__===___===");
+						playerFleet.addFloatingText("Omega repair Complete", NOTICE_COLOR, 15.0F);
+					}
+					setStage(STAGE.FULL_ATTACK);
+					stageElapsed = 0;
+					iirt_omega.getDoctrine().setNumShips(5);
+					iirt_omega.getDoctrine().setOfficerQuality(5);
+					iirt_omega.getDoctrine().setShipQuality(5);
+					iirt_omega.getDoctrine().setAggression(5);
+				}
+
+				break;
+			case FULL_ATTACK:
+				// better use nexerlin here
+				elapsed += Global.getSector().getClock().convertToDays(amount);
+				stageElapsed += Global.getSector().getClock().convertToDays(amount);
+				if (elapsed >= inv_interval) {
+					for (FactionAPI faction : Global.getSector().getAllFactions()) {
+						Global.getSector().getFaction(IIRT_Omega_Faction).setRelationship(faction.getId(), RepLevel.HOSTILE);
+					}
+					elapsed = 0;
+					inv_interval = (int)(10f + Math.random() * 10);
+					WeightedRandomPicker<FactionAPI> toInv = new WeightedRandomPicker<>();
+					for (FactionAPI faction : Global.getSector().getAllFactions()) {
+						if (!faction.isShowInIntelTab()) continue;
+						toInv.add(faction);
+					}
+					if (toInv != null || !toInv.isEmpty()) {
+						FactionAPI toInvFac = toInv.pick();
+						List<MarketAPI> markets = Global.getSector().getEconomy().getMarketsCopy();
+						WeightedRandomPicker<MarketAPI> toInvMarket = new WeightedRandomPicker<>();
+						for (MarketAPI market : markets) {
+							if (market.getFaction().getId().contentEquals(toInvFac.getId())) {
+								toInvMarket.add(market);
+							}
+						}
+						MarketAPI toInvMkt = toInvMarket.pick();
+
+						FleetParamsV3 invFleetParam = new FleetParamsV3(baseMarket.getLocationInHyperspace(), IIRT_Omega_Faction, 1f, FleetTypes.TASK_FORCE, Global.getSettings().getBattleSize() * 2f, 0, 0, 0, 0, 0, 4);
+						invFleetParam.maxNumShips = (int)(Global.getSettings().getMaxShipsInFleet() * 1.5f);
+						invFleetParam.aiCores = OfficerQuality.AI_OMEGA;
+						CampaignFleetAPI invFleet = FleetFactoryV3.createFleet(invFleetParam);
+						// scoutFleet.getFleetData().addFleetMember("IIRT_Omega_Kb_Only");
+						invFleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_NO_SHIP_RECOVERY, true);
+						Global.getSector().getHyperspace().addEntity(invFleet);
+						invFleet.setLocation(baseMarket.getLocation().x, baseMarket.getLocation().y);
+						invFleet.setName("Omega Invaders");
+						if (Global.getSettings().isDevMode()) {
+							Global.getLogger(this.getClass()).info("===___===__=Omega_Invasion Full Attack=__===___===");
+							playerFleet.addFloatingText("Omega invading " + toInvMkt.getName() + " at System: " + toInvMkt.getStarSystem().getId()+", through ("+baseMarket.getLocation().x+", "+baseMarket.getLocation().y+") in Hyperspace.", NOTICE_COLOR, 50.0F);
+							Global.getLogger(this.getClass()).info("Omega invading " + toInvMkt.getName() + " at System: " + toInvMkt.getStarSystem().getId()+", through ("+baseMarket.getLocation().x+", "+baseMarket.getLocation().y+") in Hyperspace.");
+
+							DebugGOTO(playerFleet,invFleet);
+						}
+						FleetParamsV3 defFleetParam = new FleetParamsV3(baseMarket.getLocationInHyperspace(), IIRT_Omega_Faction, 1f, FleetTypes.PATROL_LARGE, Global.getSettings().getBattleSize(), 0, 0, 0, 0, 0, 0);
+						invFleetParam.maxNumShips = (int)(Global.getSettings().getMaxShipsInFleet() * 1.5f);
+						invFleetParam.aiCores = OfficerQuality.AI_OMEGA;
+						CampaignFleetAPI defFleet = FleetFactoryV3.createFleet(defFleetParam);
+						// scoutFleet.getFleetData().addFleetMember("IIRT_Omega_Kb_Only");
+						defFleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_NO_SHIP_RECOVERY, true);
+
+						baseMarket.getContainingLocation().addEntity(defFleet);
+						defFleet.setLocation(baseMarket.getPrimaryEntity().getLocation().x, baseMarket.getPrimaryEntity().getLocation().y);
+						defFleet.setContainingLocation(baseSystem);
+						defFleet.clearAssignments();
+						defFleet.addAssignment(FleetAssignment.DEFEND_LOCATION, baseMarket.getPrimaryEntity(), 1000f);
+						defFleet.setName("Omega Defenders");
+						invFleet.clearAssignments();
+						invFleet.addAssignment(FleetAssignment.ATTACK_LOCATION, toInvMkt.getPrimaryEntity(), 1000f);
+
+					}
+				}
+				if (Global.getSector().getMemoryWithoutUpdate().getBoolean("$IIRT_omega_Invasion_End")) {
+					Global.getSector().getMemoryWithoutUpdate().set(stage_id, STAGE.END);
+					setStage(STAGE.END);
+					baseMarket.removeCondition("IIRT_Omega_Repair_Facility");
+				}
+				break;
+			case END:
+				break;
+			default:
+				break;
+
+		}
+	}
+	public void DebugGOTO (CampaignFleetAPI playerFleet, CampaignFleetAPI invFleet){ //因为一般生成在超空间，所以请在超空间待机
+		if(invFleet != null) {
+			SectorEntityToken thisFleet = (SectorEntityToken) invFleet;
+			if(thisFleet != null) {  //I DON'T Know WHY, It just should like this.
+				final Vector2f loc = thisFleet.getLocation();
+				playerFleet.setLocation(loc.x, loc.y);
+				playerFleet.clearAssignments();
+				playerFleet.addAssignment(FleetAssignment.GO_TO_LOCATION, thisFleet, 1f);
+			}else{
+				Global.getLogger(this.getClass()).info("===___===__=Omega_Invasion SectorEntityToken ERROR=__===___===");
+				playerFleet.addFloatingText("Omega Invation Fleet SectorEntityToken ERROR",new Color(255,0,0,255),60f);
+				Global.getLogger(this.getClass()).info("Omega Invation Fleet SectorEntityToken ERROR");
+			}
+			/*
+			if(invFleet.getLightSource()!=null) {
+				SectorEntityToken thisFleet = invFleet.getLightSource();
+
+				final Vector2f loc = thisFleet.getLocation();
+				playerFleet.setLocation(loc.x, loc.y);
+				playerFleet.clearAssignments();
+				playerFleet.addAssignment(FleetAssignment.GO_TO_LOCATION, thisFleet, 1f);
+			} else if (invFleet.getOrbitFocus()!=null) {
+				SectorEntityToken thisFleet = invFleet.getOrbitFocus();
+
+				final Vector2f loc = thisFleet.getLocation();
+				playerFleet.setLocation(loc.x, loc.y);
+				playerFleet.clearAssignments();
+				playerFleet.addAssignment(FleetAssignment.GO_TO_LOCATION, thisFleet, 1f);
+
+			} else if (()invFleet){
+
+			}
+
+			 */
+		}else{
+			Global.getLogger(this.getClass()).info("===___===__=Omega_Invasion CREATE ERROR=__===___===");
+			playerFleet.addFloatingText("Omega Invation Fleet Create ERROR",new Color(255,0,0,255),60f);
+			Global.getLogger(this.getClass()).info("Omega Invation Fleet Create ERROR");
+
+		}
+	}
+}

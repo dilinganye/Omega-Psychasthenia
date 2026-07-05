@@ -1,0 +1,107 @@
+{
+  "hullName": "IIRT_Omega_Tranquil",
+  "hullId": "IIRT_Omega_Tranquil",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Omega_Tranquil.png",
+  "style": "OMEGA",
+  "height": 68,
+  "width": 70,
+  "center": [38.5, 36],
+  "collisionRadius": 55.5,
+  "shieldCenter": [2.5, -1],
+  "shieldRadius": 52,
+  "viewOffset": 0,
+  "builtInMods": [
+    "IIRT_Omega_TranShardSpawner",
+    "automated",
+    "autorepair",
+    "ground_support",
+    "fluxshunt"
+  ],
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 301,
+      "angle": 56.5,
+      "locations": [10, 15.5]
+    },
+    {
+      "id": "WS0002",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [4, -17.5]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-13.5, 13],
+      "length": 21,
+      "width": 9,
+      "angle": 180,
+      "contrailSize": 9,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-17.5, -2],
+      "length": 33,
+      "width": 9,
+      "angle": 180,
+      "contrailSize": 9,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-11.5, -8.5],
+      "length": 22.5,
+      "width": 8,
+      "angle": 180,
+      "contrailSize": 8,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-4.5, 20],
+      "length": 22,
+      "width": 7,
+      "angle": 180,
+      "contrailSize": 7,
+      "style": "OMEGA"
+    },
+    {
+      "location": [3, 25.5],
+      "length": 21,
+      "width": 7,
+      "angle": 180,
+      "contrailSize": 7,
+      "style": "OMEGA"
+    },
+    {
+      "location": [12, 31.5],
+      "length": 19,
+      "width": 7,
+      "angle": 180,
+      "contrailSize": 7,
+      "style": "OMEGA"
+    }
+  ],
+  "bounds": [
+    -34.5, 0,
+    -12.5, -11.5,
+    -6, -23,
+    -15.5, -23.5,
+    0, -27.5,
+    25, -29,
+    31, -26.5,
+    24, 4,
+    25, 37.5,
+    20.5, 35,
+    14.5, 35,
+    -21, 14.5,
+    -15.5, 8.5,
+    -16.5, 0.5
+  ]
+}

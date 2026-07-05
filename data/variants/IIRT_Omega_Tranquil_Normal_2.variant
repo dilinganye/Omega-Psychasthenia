@@ -1,0 +1,31 @@
+{
+  "variantId": "IIRT_Omega_Tranquil_Normal_2",
+  "hullId": "IIRT_Omega_Tranquil",
+  "displayName": "Attack",
+  "goalVariant": true,
+  "fluxCapacitors": 6,
+  "fluxVents": 1,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "advancedoptics"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "ALTERNATING",
+      "weapons": {
+        "WS0001": "riftlance"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0002": "riftlance"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

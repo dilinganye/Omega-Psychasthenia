@@ -1,0 +1,308 @@
+{
+  "combatSmallForSmallFleet": {
+    "IIRT_Omega_Inspect_Normal_1": 5,
+    "IIRT_Omega_Inspect_Normal_2": 5,
+    "IIRT_Omega_Inspect_Normal_3": 5,
+    "IIRT_Omega_Inspect_Normal_4": 5,
+
+    "IIRT_Lab_Pioneer_Assault": 3,
+    "IIRT_Lab_Lethe_Assault": 5,
+    "IIRT_Lab_Lethe_Common": 5,
+    "IIRT_Lab_Norm_Standard": 10,
+
+
+    "IIRT_Lab_Ferryman_Support": 1,
+    "IIRT_Lab_Slander_Assault": 5,
+    "IIRT_Lab_Slander_Support": 5,
+
+
+	"fallback":{"combatSmall":0.5}
+  },
+  "combatSmall": {
+	"IIRT_Omega_Sinus_Only": 5,
+	"IIRT_Omega_Sinus_Only_2": 5,
+	"IIRT_Omega_Sinus_Only_3": 5,
+	"IIRT_Omega_Sinus_Only_4": 3,
+	"IIRT_Omega_Sinus_Only_5": 4,
+
+	"IIRT_Omega_Proxy_Only": 5,
+	"IIRT_Omega_Proxy_Only2": 5,
+	"IIRT_Omega_Proxy_Only3": 5,
+	"IIRT_Omega_Proxy_Only4": 5,
+
+    "IIRT_Omega_Tranquil_Normal_1": 5,
+    "IIRT_Omega_Tranquil_Normal_2": 5,
+    "IIRT_Omega_Tranquil_Normal_3": 5,
+    "IIRT_Omega_Tranquil_Normal_4": 5,
+
+    "IIRT_Omega_Riots_Normal_1": 3,
+    "IIRT_Omega_Riots_Normal_2": 6,
+    "IIRT_Omega_Riots_Normal_3": 6,
+    "IIRT_Omega_Riots_Normal_4": 6,
+    "IIRT_Omega_Riots_Normal_5": 3,
+    "IIRT_Omega_Riots_Normal_6": 4,
+
+    "IIRT_Omega_Bustle_Normal_1": 3,
+    "IIRT_Omega_Bustle_Normal_2": 6,
+    "IIRT_Omega_Bustle_Normal_3": 6,
+    "IIRT_Omega_Bustle_Normal_4": 6,
+    "IIRT_Omega_Bustle_Normal_5": 3,
+    "IIRT_Omega_Bustle_Normal_6": 4,
+
+    "IIRT_Omega_Deplorable_Normal_1": 6,
+    "IIRT_Omega_Deplorable_Normal_2": 6,
+    "IIRT_Omega_Deplorable_Normal_3": 6,
+    "IIRT_Omega_Deplorable_Normal_4": 3,
+    "IIRT_Omega_Deplorable_Normal_5": 4,
+	
+	"IIRT_Omega_Arrow_Only": 5,
+	"IIRT_Omega_Arrow_Only_2": 5,
+	"IIRT_Omega_Arrow_Only_3": 5,
+	"IIRT_Omega_Arrow_Only_4": 3,
+	"IIRT_Omega_Arrow_Only_5": 2,
+	"IIRT_Omega_Arrow_Only_6": 3,
+	"IIRT_Omega_Arrow_Only_7": 2,
+	
+	"IIRT_Omega_Crack_Only": 5,
+	"IIRT_Omega_Crack_Only_2": 5,
+	"IIRT_Omega_Crack_Only_3": 5,
+	"IIRT_Omega_Crack_Only2": 5,
+
+
+    "IIRT_Lab_Lethe_Assault": 5,
+    "IIRT_Lab_Lethe_Common": 5,
+
+    "IIRT_Lab_Norm_Standard": 10,
+
+    "IIRT_Lab_Foil_Assault": 5,
+    "IIRT_Lab_Foil_Support": 5,
+
+
+
+    "IIRT_SD_Skirmisher_Assault": 5,
+    "IIRT_SD_Recursion_Support": 5,
+    "IIRT_SD_DownLight_Assault": 6,
+    "IIRT_SD_Lens_Assault": 5,
+
+	
+		"fallback":{"combatMedium":0.5},
+  },
+  "combatMedium": {
+	"IIRT_Omega_Gateway_Only": 5,
+	"IIRT_Omega_Gateway_Only2": 5,
+	"IIRT_Omega_Gateway_Only3": 5,
+	"IIRT_Omega_Gateway_Only4": 5,
+	"IIRT_Omega_Gateway_Only5": 5,
+
+    "IIRT_Omega_Torsion_2_Normal": 5,
+    "IIRT_Omega_Torsion_2_Normal_2": 5,
+    "IIRT_Omega_Torsion_2_Normal_3": 5,
+    "IIRT_Omega_Torsion_2_Normal_4": 5,
+    "IIRT_Omega_Torsion_2_Normal_5": 5,
+	
+	"IIRT_Omega_Cosinus_Only": 6,
+	"IIRT_Omega_Cosinus_Only_2": 6,
+	"IIRT_Omega_Cosinus_Only_3": 6,
+	"IIRT_Omega_Cosinus_Only_4": 6,
+    "IIRT_Omega_Inner_Normal_1": 5,
+
+    "IIRT_Omega_DevilFork_Attack": 5,
+    "IIRT_Omega_DevilFork_Missile": 5,
+    "IIRT_Omega_DevilFork_AntiShield": 5,
+    "IIRT_Omega_DevilFork_AntiArmor": 5,
+    "IIRT_Omega_DevilFork_Support": 5,
+
+
+    "IIRT_Lab_LongKnives_Assault": 10,
+
+    "IIRT_Lab_Lopes_Assault": 2,
+    "IIRT_Lab_Lopes_Attack": 2,
+
+
+    "IIRT_SD_Stroll_Support": 5,
+	
+		"fallback":{"combatSmall":1},
+  },
+  "combatLarge": {
+	"IIRT_Omega_Firewall_Only":5,
+	"IIRT_Omega_Firewall_Only_2":5,
+	"IIRT_Omega_Firewall_Only_3":5,
+	"IIRT_Omega_Firewall_Only_4":5,
+	"IIRT_Omega_Firewall_Only_5":5,
+	"IIRT_Omega_Antitrack_Only":5,
+	"IIRT_Omega_Antitrack_Only_2":5,
+	"IIRT_Omega_Antitrack_Only_3":5,
+	"IIRT_Omega_Antitrack_Only_4":5,
+	"IIRT_Omega_Antitrack_Only2":5,
+	
+	"IIRT_Omega_Tangento_Only":5,
+	"IIRT_Omega_Tangento_Only2":5,
+	"IIRT_Omega_Tangento_Only_2":5,
+	"IIRT_Omega_Tangento_Only_3":5,
+	
+	"IIRT_Omega_Cube_Lazer_Plus":3,
+	"IIRT_Omega_Cube_Shock":3,
+	"IIRT_Omega_Cube_Shock_Plus":3,
+
+
+    "IIRT_Omega_RedShift_Boomer":20,
+
+
+    "IIRT_Lab_LongKnives_Assault": 10,
+
+
+    "IIRT_SD_Exordium_Support": 5,
+
+		"fallback":{"combatMedium":1},
+  },
+"combatCapital": {
+    "IIRT_Lab_Mourning_Assault": 5,
+	"Omega_EPP_Lazer":3,
+	"Omega_Scrap_Heap_Garbage":0.01,
+	"PTSD_Omega_MacroVirus_Assault":2,
+	
+  "fallback":{"combatLarge":1}
+  },
+  "combatFreighterSmall": {
+  },
+  "combatFreighterMedium": {
+  "fallback":{"combatFreighterSmall":1}
+  },
+  "combatFreighterLarge": {
+  },
+"civilianRandom": {
+},
+  "carrierSmall": {
+  "fallback":{"carrierMedium":0.5},
+  "fallback2":{"carrierLarge":0.25}
+  },
+  "carrierMedium": {
+  "fallback":{"carrierSmall":1},
+    "IIRT_Lab_Misty_Assault": 5,
+    "IIRT_Lab_Misty_Support": 5,
+  "fallback2":{"carrierLarge":0.5}
+  },
+  "carrierLarge": {
+    "IIRT_Lab_NightMare_Assault": 10,
+    "IIRT_Lab_Mourning_Assault": 3,
+  "fallback":{"carrierMedium":1},
+  "fallback2":{"carrierSmall":1}
+  },
+  "phaseSmall": {
+    "IIRT_Lab_Ferryman_Support": 1,
+
+    "IIRT_Lab_Slander_Assault": 5,
+    "IIRT_Lab_Slander_Support": 5,
+    "IIRT_Lab_Pioneer_Assault": 5,
+    "IIRT_Lab_Lethe_Assault": 5,
+    "IIRT_Lab_Lethe_Common": 5,
+    "IIRT_Lab_Norm_Standard": 10,
+    "IIRT_Lab_Perplex_Assault": 10,
+    "IIRT_Lab_Vague_Common_Assault": 10,
+
+    "IIRT_SD_Realm_Assault": 5,
+
+    "fallback":{"phaseMedium":0.5},
+    "fallback2":{"phaseLarge":0.25}
+  },
+  "phaseMedium": {
+    "IIRT_Lab_Revenge_Assault": 8,
+    "IIRT_Lab_Perished_Assault": 4,
+    "IIRT_Lab_Perished_Support": 4,
+    "IIRT_Lab_Thought_Hunter": 3,
+    "IIRT_Lab_Thought_Assault": 3,
+    "IIRT_Lab_Misty_Assault": 5,
+    "IIRT_Lab_Misty_Support": 5,
+    "fallback":{"phaseSmall":1},
+    "fallback2":{"phaseLarge":0.5}
+  },
+  "phaseLarge": {
+    "IIRT_Lab_Impudent_Assault": 10,
+    "IIRT_Lab_Assignation_Assault": 5,
+    "IIRT_Lab_Assignation_Attack": 5,
+    "fallback":{"phaseMedium":1},
+    "fallback2":{"phaseSmall":1}
+  },
+  "phaseCapital": {
+    "IIRT_Lab_Slod_Attack": 8
+  },
+  "freighterSmall": {
+	"IIRT_Omega_Cube_Lazer_Plus":3,
+	"IIRT_Omega_Cube_Shock":3,
+	"IIRT_Omega_Cube_Shock_Plus":3,
+
+    "IIRT_SD_Gap_Cargo":5,
+  "fallback":{"freighterMedium":0.5},
+  "fallback2":{"freighterLarge":0.25}
+  },
+  "freighterMedium": {
+    "IIRT_Lab_Obscurity_Support":2,
+    "IIRT_Lab_Obscurity_Cargo":8,
+  "fallback":{"freighterSmall":1},
+  "fallback2":{"freighterLarge":0.5}
+  },
+  "freighterLarge": {
+  "fallback":{"freighterMedium":1},
+  "fallback2":{"freighterSmall":1}
+  },
+  "tankerSmall": {
+	"IIRT_Omega_Cube_Lazer_Plus":3,
+	"IIRT_Omega_Cube_Shock":3,
+	"IIRT_Omega_Cube_Shock_Plus":3,
+
+    "IIRT_Lab_Lethe_Tanker_Common":10,
+
+    "IIRT_SD_Gap_Tanker_Tanker":5,
+  "fallback":{"tankerMedium":0.5},
+  "fallback2":{"tankerLarge":0.25}
+  },
+  "tankerMedium": {
+    "IIRT_SD_Dim_Tanker":5,
+  "fallback":{"tankerSmall":1},
+  "fallback2":{"tankerLarge":0.5}
+  },
+  "tankerLarge": {
+  "fallback":{"tankerMedium":1},
+  "fallback2":{"tankerSmall":1}
+  },
+  "personnelSmall": {
+    "IIRT_Lab_Slander_Assault": 5,
+    "IIRT_Lab_Slander_Support": 5,
+    "IIRT_Lab_Pathfinder_Assault":5,
+
+    "IIRT_SD_Skirmisher_Assault":5,
+  "fallback":{"personnelSmall":1},
+  "fallback2":{"personnelLarge":0.5}
+  },
+  "personnelMedium": {
+  "fallback":{"personnelMedium":1},
+    "IIRT_Lab_Diffuse_Assault":2,
+    "IIRT_Lab_Diffuse_Attack":3,
+    "IIRT_Lab_Diffuse_Support":3,
+  "fallback2":{"personnelSmall":1}
+  },
+  "personnelLarge": {
+  "fallback":{"linerMedium":0.5},
+  "fallback2":{"linerLarge":0.25}
+  },
+  "linerSmall": {
+  "fallback":{"linerMedium":0.5},
+  "fallback2":{"linerLarge":0.25}
+  },
+  "linerMedium": {
+  "fallback":{"linerSmall":1},
+  "fallback2":{"linerLarge":0.5}
+  },
+  "linerLarge": {
+  "fallback":{"linerMedium":1},
+  "fallback2":{"linerSmall":1}
+  },
+  "tug": {
+  "fallback":{"utility":1}
+  },
+  "crig": {
+  "fallback":{"utility":1}
+  },
+  "utility": {
+  },
+}

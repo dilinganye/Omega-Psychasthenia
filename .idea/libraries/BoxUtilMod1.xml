@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="BoxUtilMod1">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../BoxUtil/jars/BoxUtilMod.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

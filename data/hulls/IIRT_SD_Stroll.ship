@@ -1,0 +1,257 @@
+{
+  "hullName": "IIRT_SD_Stroll",
+  "hullId": "IIRT_SD_Stroll",
+  "hullSize": "DESTROYER",
+  "spriteName": "graphics/ships/IIRT/IIRT_Stroll.png",
+  "style": "IIRT_TECH",
+  "height": 80,
+  "width": 138,
+  "center": [69, 34],
+  "collisionRadius": 102.5,
+  "shieldCenter": [-2.5, -0],
+  "shieldRadius": 91,
+  "viewOffset": 0,
+  "builtInMods": [
+    "IIRT_SD_Lab"
+  ],
+  "builtInWings": [
+    "IIRT_SD_Budge_PD_wing"
+  ],
+  "builtInWeapons": {
+    "WS0003": "IIRT_SD_Stroll_M",
+    "WS0007": "IIRT_SD_Stroll_R",
+    "WS0008": "IIRT_SD_Stroll_L",
+    "WS0010": "blinker_green",
+    "WS0011": "blinker_red"
+  },
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "MEDIUM",
+      "type": "ENERGY",
+      "mount": "TURRET",
+      "arc": 254,
+      "angle": -45,
+      "locations": [-4, -43],
+      "renderOrderMod": 5
+    },
+    {
+      "id": "WS0002",
+      "size": "MEDIUM",
+      "type": "ENERGY",
+      "mount": "TURRET",
+      "arc": 254,
+      "angle": 45,
+      "locations": [-4, 43],
+      "renderOrderMod": 5
+    },
+    {
+      "id": "WS0004",
+      "size": "MEDIUM",
+      "type": "HYBRID",
+      "mount": "HARDPOINT",
+      "arc": 7,
+      "angle": 0,
+      "locations": [37, -0]
+    },
+    {
+      "id": "WS0005",
+      "size": "MEDIUM",
+      "type": "MISSILE",
+      "mount": "HARDPOINT",
+      "arc": 7,
+      "angle": 45,
+      "locations": [33, 41]
+    },
+    {
+      "id": "WS0006",
+      "size": "MEDIUM",
+      "type": "MISSILE",
+      "mount": "HARDPOINT",
+      "arc": 7,
+      "angle": -45,
+      "locations": [33, -41]
+    },
+    {
+      "id": "WS0003",
+      "size": "MEDIUM",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 7,
+      "angle": 0,
+      "locations": [10, -0]
+    },
+    {
+      "id": "WS0007",
+      "size": "MEDIUM",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 7,
+      "angle": 0,
+      "locations": [18, -31]
+    },
+    {
+      "id": "WS0008",
+      "size": "MEDIUM",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 7,
+      "angle": -0,
+      "locations": [18, 31]
+    },
+    {
+      "id": "WS0010",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 7,
+      "angle": 0,
+      "locations": [-15, 25.5]
+    },
+    {
+      "id": "WS0011",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 7,
+      "angle": -0,
+      "locations": [-15, -25.5]
+    },
+    {
+      "id": "LB 1",
+      "size": "LARGE",
+      "type": "LAUNCH_BAY",
+      "mount": "HIDDEN",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        -15, -11.5,
+        -15, 11.5
+      ]
+    },
+    {
+      "id": "LB 2",
+      "size": "LARGE",
+      "type": "LAUNCH_BAY",
+      "mount": "HIDDEN",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        -16, 11.5,
+        -16, -11.5
+      ]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-22, -19.5],
+      "length": 45.9142,
+      "width": 5.616466,
+      "angle": 176.5,
+      "contrailSize": 5.616466,
+      "style": "IIRT_TECH"
+    },
+    {
+      "location": [-22, 19.5],
+      "length": 45.9142,
+      "width": 5.616466,
+      "angle": -176.5,
+      "contrailSize": 5.616466,
+      "style": "IIRT_TECH"
+    },
+    {
+      "location": [-24, -0],
+      "length": 61,
+      "width": 13,
+      "angle": 180,
+      "contrailSize": 13,
+      "style": "DEVK_TECH"
+    },
+    {
+      "location": [-18.5, -16],
+      "length": 72.334251,
+      "width": 9.850173,
+      "angle": 176.5,
+      "contrailSize": 9.850173,
+      "style": "IIRT_Smoke"
+    },
+    {
+      "location": [-18.5, 16],
+      "length": 72.334251,
+      "width": 9.850173,
+      "angle": -176.5,
+      "contrailSize": 9.850173,
+      "style": "IIRT_Smoke"
+    },
+    {
+      "location": [-19, -13],
+      "length": 45.9142,
+      "width": 5.616466,
+      "angle": 176.5,
+      "contrailSize": 5.616466,
+      "style": "IIRT_TECH"
+    },
+    {
+      "location": [-19, 13],
+      "length": 45.9142,
+      "width": 5.616466,
+      "angle": -176.5,
+      "contrailSize": 5.616466,
+      "style": "IIRT_TECH"
+    },
+    {
+      "location": [-23, 28.5],
+      "length": 10,
+      "width": 8,
+      "angle": 106.5,
+      "contrailSize": 8,
+      "style": "DEVK_TECH"
+    },
+    {
+      "location": [-23, -28.5],
+      "length": 10,
+      "width": 8,
+      "angle": -106.5,
+      "contrailSize": 8,
+      "style": "DEVK_TECH"
+    },
+    {
+      "location": [-24, 59.5],
+      "length": 11.667262,
+      "width": 6.363961,
+      "angle": -135,
+      "contrailSize": 6.363961,
+      "style": "IIRT_Smoke"
+    },
+    {
+      "location": [-24, -59.5],
+      "length": 11.667262,
+      "width": 6.363961,
+      "angle": 135,
+      "contrailSize": 6.363961,
+      "style": "IIRT_Smoke"
+    }
+  ],
+  "bounds": [
+    -27.5, 3.5,
+    -13.5, 8,
+    -11.5, 17.5,
+    -26.5, 22,
+    -14.5, 26.5,
+    -15.5, 42,
+    -7.5, 52,
+    -17, 62,
+    4.5, 62,
+    37, 30.5,
+    37, -30.5,
+    4.5, -62,
+    -17, -62,
+    -7.5, -52,
+    -15.5, -42,
+    -14.5, -26.5,
+    -26.5, -22,
+    -11.5, -17.5,
+    -13.5, -8,
+    -27.5, -3.5
+  ]
+}

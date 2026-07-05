@@ -1,0 +1,19 @@
+{
+	"id":"IIRT_Lab_Convergent_blast",
+	"specClass":"projectile",
+	"spawnType":"BALLISTIC_AS_BEAM",
+	"onHitEffect":"data.scripts.weapons.IIRT_Lab_Convergent_blastGlow",
+	"bulletSprite":"graphics/missiles/IIRT_Lab_HugeWave_Light.png",
+	"collisionClass":"RAY",
+	"collisionClassByFighter":"RAY_FIGHTER",
+	"length":80.0,
+	"width":10.0,
+	"fadeTime":0.3,
+	"fringeColor":[150,100,255,255],
+	"coreColor":[255,255,255,255],
+	"glowColor":[186,202,255,100],
+	"glowRadius":70,
+	"textureScrollSpeed":64.0,
+	"pixelsPerTexel":5.0,
+	"passThroughMissiles":true
+}

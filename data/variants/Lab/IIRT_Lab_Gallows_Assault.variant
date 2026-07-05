@@ -1,0 +1,34 @@
+{
+  "variantId": "IIRT_Lab_Gallows_Assault",
+  "hullId": "IIRT_Lab_Gallows",
+  "displayName": "Assault",
+  "goalVariant": true,
+  "fluxCapacitors": 0,
+  "fluxVents": 11,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "hardened_subsystems",
+    "magazines",
+    "autorepair"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0002": "IIRT_Lab_PhaseParticleBeam"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "ALTERNATING",
+      "weapons": {
+        "WS0003": "amblaster",
+        "WS0004": "amblaster"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

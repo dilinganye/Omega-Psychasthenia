@@ -1,0 +1,45 @@
+{
+  "id": "PTSD_Aftershockor",
+  "specClass": "projectile",
+  "projectileSpecId": "PTSD_Taslo_shot",
+  "type": "ENERGY",
+  "size": "MEDIUM",
+  "turretSprite": "graphics/weapons/PTSD_Aftershockor.png",
+  "turretGlowSprite": "graphics/weapons/PTSD_Aftershockor_L.png",
+  "hardpointSprite": "graphics/weapons/PTSD_Aftershockor_HD.png",
+  "hardpointGlowSprite": "graphics/weapons/PTSD_Aftershockor_HD_L.png",
+  "glowColor": [
+    255,
+    255,
+    255,
+    245
+  ],
+  "turretOffsets": [
+    23.5,
+    0,
+    22.5,
+    -2.5,
+    22.5,
+    2.5
+  ],
+  "turretAngleOffsets": [
+    0,
+    1.5,
+    -1.5
+  ],
+  "hardpointOffsets": [
+    22.5,
+    0,
+    21,
+    -2.5,
+    21,
+    2.5
+  ],
+  "hardpointAngleOffsets": [
+    0,
+    0,
+    -0
+  ],
+  "barrelMode": "ALTERNATING",
+  "animationType": "GLOW"
+}

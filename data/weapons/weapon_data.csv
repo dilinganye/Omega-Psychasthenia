@@ -1,0 +1,104 @@
+name,id,tier,rarity,base value,range,damage/second,damage/shot,emp,impact,turn rate,OPs,ammo,ammo/sec,reload size,type,energy/shot,energy/second,chargeup,chargedown,burst size,burst delay,min spread,max spread,spread/shot,spread decay/sec,beam speed,proj speed,launch speed,flight time,proj hitpoints,hints,tags,groupTag,tech/manufacturer,for weapon tooltip>>,primaryRoleStr,speedStr,trackingStr,turnRateStr,accuracyStr,customPrimary,customPrimaryHL,customAncillary,customAncillaryHL,noDPSInTooltip,number
+#新生- 大多数OP都暂定为5，这表示还没完事
+余波震荡器,PTSD_Aftershockor,3,,150000,800,250,,,100,100,5,,,,HIGH_EXPLOSIVE,,250,2,0.75,,,,,,,,450,,,,"STRIKE","energy15, pd15, omega",,未知,,反装甲,,,,,命中非未知船体或护甲时，根据受损装甲数值进行一比一的额外装甲损伤。,,,,,
+塔罗稳定器,PTSD_Fracture_Calculus,3,,150000,600,,10,,-50,25,5,,,,FRAGMENTATION,2,,0,0.01,,,0,12,1,10,,800,,,,,"energy15, omega",,未知,,通用,,,,,"命中非未知船体或护甲时，根据目标身上的 %s 层数产生影响：
+消耗当前的所有层数积攒，并在五秒内持续降低敌方时间流速，五秒内取当前最大消耗层数
+例：消耗 %s 层数，五秒内降低敌方时间流速 %s","塔罗影响 || 32层 || 32%",,,,
+裂隙挥发场,PTSD_Fracture_Volatilizatior,4,,500,500,,25,400,0,40,5,,,,ENERGY,30,,0.45,0,2,0.05,,,,,,1000,,,,,"energy8, omega",,未知,,通用,,,,,"此武器所在的 %s 范围内将随机产生裂隙风暴",1000,"此武器不能主动开火",,,1
+#实际上是伪随机，会在周围1000距离内索敌，(1000-敌人距离)判定，随后在其200距离内生成裂隙风暴，这个索敌包括lpc和其他任何战场物件，不限于舰船
+塔霜回旋器,PTSD_TasloSpinor,4,,100000,1500,,200,,100,10,5,10,1,1,ENERGY,300,,1,5,10,0.1,30,90,10,10,,900,50,7,500,"STRIKE","energy20, omega",,未知,,未知,,,,,"命中目标船体或护甲时，赋予其 %s 层 %s；若目标的 %s 层数高于 %s，则消耗所有层数并生成一次塔罗塌缩。","500 || 塔罗影响 || 塔罗影响 || 550",,,,
+隙质射枪,PTSD_Intertitial_Injection,4,,900,900,,35,1,,35,5,16,,,ENERGY,40,,0.1,0.3,4,0.05,0,10,0.5,15,,500,230,5.8,100,DO_NOT_AIM,"missile7, omega",,未知,,未知,,,,,"隙质徙入",
+#造成 隙质影响，影响层数大于30时消耗20层并生成一组 虹膜-级 类红雾的LPC
+#克劳斯姆
+比特冲程炮,IIRT_Lab_Bito_Cannon,1,,500,500,,60,,3,40,5,20,2,5,HIGH_EXPLOSIVE,60,,0,0.25,1,,0,5,1,2,,900,,,60,,"he7, KRM_bp",,克劳斯姆概念,,反装甲,非常快,,,,,,,,,
+齐射短刃,IIRT_Lab_Volley_Blade,1,,600,1000,,100,100,,30,7,12,0.33,6,KINETIC,80,,0,1,3,0.33,,10,8,5,,500,800,5,60,"CONSERVE_1, STRIKE, USE_VS_FRIGATES, MISSILE_SPREAD","missile19, strike15, KRM_bp, KRM_Com_bp",,克劳斯姆概念,,反护盾,良好,特殊,,,在最开始 %s，但如果偏失目标则会在一段距离后 %s 一次。,无制导 | 重新制导,,,TRUE,
+齐射短刃-战机版,IIRT_Lab_Volley_Blade_fighter,1,,600,600,,100,100,,30,7,6,0.75,6,KINETIC,0,,0,1.65,2,0.35,,10,8,5,,500,300,5,60,"ANTI_FTR, STRIKE, USE_VS_FRIGATES, MISSILE_SPREAD, SYSTEM","missile19, strike15, restricted",,克劳斯姆概念,,反护盾,良好,特殊,,,在最开始 %s，但如果偏失目标则会在一段距离后 %s 一次。,无制导 | 重新制导,,,TRUE,
+逐汐炮,IIRT_Lab_Tracicles,1,,500,500,,40,,1,30,6,16,2,4,ENERGY,38,,0.05,0.05,3,0.1,3,20,1,4,,750,800,1.25,75,GUIDED_POOR,"pd6, energy8, KRM_bp, KRM_Com_bp",,克劳斯姆概念,,通用,非常快,极佳,,,投射物会 %s 敌人。,自行追踪,,,,
+微型聚类雷,IIRT_Lab_Flow,1,,500,1000,,100,,20,30,5,1,0.55,2,ENERGY,100,,0,1,1,,,,,,,500,400,6,80,"DO_NOT_AIM, DO_NOT_CONSERVE, FIRE_WHEN_INEFFICIENT","strike15, missile7, KRM_bp, KRM_Com_bp",,克劳斯姆概念,,压制,良好,优秀,,,当命中船体或装甲时，有 %s 的概率产生打击武器与引擎的电弧，造成该武器命中目标时等值的额外伤害。,25%,,,TRUE,
+齐射刃巢,IIRT_Lab_Volley_Blade_Emitter,1,0.75,600,1500,,100,100,,30,14,32,0.1875,8,KINETIC,60,,0,1,4,0.25,,10,8,5,,500,800,5,60,"CONSERVE_1, USE_VS_FRIGATES, MISSILE_SPREAD","missile19, strike15, KRM_bp, KRM_Com_bp",,克劳斯姆概念,,反护盾,良好,特殊,,,在最开始 %s，但如果偏失目标则会在一段距离后 %s 一次。,无制导 | 重新制导,,,TRUE,
+聚类雷,IIRT_Missile_Mine,2,,1200,1000,,700,,15,10,14,10,0.045,2,ENERGY,500,,0,1,1,,,,,,,250,600,12.5,450,"DO_NOT_AIM, CONSERVE_5","strike15, missile7, KRM_bp",,克劳斯姆概念,,打击,快,良好,,,当命中船体或装甲时，有 %s 的概率产生打击武器与引擎的电弧，和武器伤害相等的额外伤害。,25%,,,TRUE,
+过载荷炮,IIRT_Lab_Overflow_Cannon,2,,1200,600,,100,,50,20,12,5,1,1,ENERGY,200,,0,1.25,1,0,0,5,1,2,,600,500,5,500,"CONSERVE_5, STRIKE","energy14, KRM_bp",,克劳斯姆概念,,突破,良好,,,,,,,,TRUE,
+塌缩冲程产生器,IIRT_Lab_Convergent_Blast,2,0.75,2000,600,,500,,100,15,16,20,,,ENERGY,550,,0.25,10,2,0.25,0,5,1,1,,600,600,,200,"STRIKE, GROUP_ALTERNATING",strike10,,克劳斯姆概念,,塌缩,良好,,,,"当命中船体或装甲时，有 %s 的概率进行一次塌缩判定。并直接擦除敌人对应的CR。
+%s = 武器实际伤害/对方剩余赋能
+-- %s --
+当 %s 结果 >= 1时，则直接抹除 %s CR；
+当 %s 结果 < 1时，则抹除 %s x %s 对应的CR。",30% | 塌缩比 | 判定| 塌缩比 | 10% | 塌缩比 | 10% | 塌缩比,,,TRUE,
+相位粒子发生器,IIRT_Lab_PhaseParticleBeam,2,,2000,600,1000,,,-10,30,10,,,,ENERGY,,1200,0.1,0.4,1,4,,,,,3200,,,,,"GUIDED_POOR, DO_NOT_CONSERVE, SYSTEM","energy14, beam10, KRM_bp",,克劳斯姆概念,,通用,,,,,在开火时会额外减少 %s 所需时间。,相位冷却,,,,
+#欧米伽
+塔罗中和子发生器,PTSD_TasloLauncher,3,,150000,600,,10,,-50,25,6,,,,FRAGMENTATION,2,,0,0.01,,,0,12,1,10,,800,,,,,"energy15, omega",,未知,,通用,极快,,,,"每次命中船体或装甲时，赋予目标一层 %s
+
+此影响无最大上限", "塔罗影响","塔罗影响：会受到其他塔罗粒子武器影响",,,
+不稳定粒子速射器,Omega_Vpdiver_S,3,,150000,600,,70,,10,20,16,30,3,15,KINETIC,70,,0.05,0.025,1,,0,10,1,10,,1000,,,,,"kinetic20, omega, restricted",,未知,,反护盾,,,,,投射物会失去凝聚力并分散，其中 %s 弹体能达到射程的一半， %s 能达到最大射程。,100% | 50%,,,,25
+熵增发生器,Omega_Entropy,3,,150000,800,250,,,100,100,15,,,,KINETIC,,250,0.05,0.02,,,,,,,10000,,,,,"PD, ANTI_FTR, IGNORES_FLARES","beam15, pd15, omega, restricted",,未知,,点防御,,,,,命中船体或装甲时大概率产生打击武器与引擎的电弧，造成额外 EMP 与能量伤害。当命中护盾时，将根据目标硬幅能水平随机产生穿透护盾的电弧。同时产生推力。,,,,,
+热虹吸 SRM 发射器,thermosiphonsrm,3,,150000,600,,350,,-15,20,8,20,0.5,4,ENERGY,250,,0,1.25,4,0.25,5,20,5,,,800,150,9,175,DO_NOT_CONSERVE,"missile15, strike11, omega, restricted",,未知,,通用,快,较差,,,投射物击中敌方后，会将自身部分幅能强制转接到敌方舰船。此过程会根据幅能对敌方舰船造成 %s 形式的额外伤害。,能量伤害,,,TRUE,12
+火烛史书,IIRT_Omega_Candle,4,,100000,1500,,200,,100,10,8,10,1,1,ENERGY,300,,1,5,10,0.1,30,90,10,10,,300,500,20,500,"GUIDED_POOR, SYSTEM","energy20, restricted",,未知,,未知,,,,,,,,,,
+#香草
+高速针刺,IIRT_Lab_0_lightneedler,,0,800,700,,50,,1,20,8,,,,KINETIC,40,,0,4.3,15,0.05,0,10,0.66,5,,1500,,,10,,"kinetic9, LR, restricted",,克劳斯姆概念,,反护盾,,,,,,,,,,3.65
+重型高速针刺,IIRT_Lab_0_heavyneedler,,0,2500,700,,50,,1,15,15,,,,KINETIC,40,,0,4.55,30,0.05,1,10,0.5,5,,1500,,,10,,"kinetic15, restricted",,克劳斯姆概念,,反护盾,,,,,,,,,,5.75
+相位离子炮,IIRT_Lab_0_ioncannon,,0,500,500,,25,400,0,40,6,,,,ENERGY,30,,0.45,0,2,0.05,,,,,,1000,,,,,"energy8, restricted",,克劳斯姆概念,,瘫痪,,,,,当命中船体或装甲时，有 %s 的概率产生打击武器与引擎的电弧，造成该武器命中目标时等值的额外伤害。,25%,,,,19
+#矿冲只有0.96a才加USE_LESS_VS_SHIELDS的hints
+相场冲击波,IIRT_Lab_0_miningblaster,,0,1000,500,,300,100,0,10,10,4,0.5,,ENERGY,400,,0,0.2,,,,,,,,1000,,,,,"energy12, restricted",,克劳斯姆概念,,通用,,,,,"Each bolt deals an additional %s damage to armor. This damage is not reduced by armor.
+[Work for 0.96a]",100,,,,22.125
+低能耗离子束,IIRT_Lab_0_ionbeam,,0,2500,1000,40,,400,0,20,12,,,,ENERGY,,100,0.1,0.1,,,,,,,2400,,,,,FIRE_WHEN_INEFFICIENT,"beam14, LR, restricted",,,,瘫痪,,,,,"命中船体或装甲时持续产生打击武器与引擎的电弧，造成额外 EMP 与能量伤害。当命中护盾时，将根据目标硬幅能水平随机产生穿透护盾的电弧。",,,,,22.85
+#装饰
+无,IIRT_NONE,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,SYSTEM,"restricted,SYSTEM",,,,,,,,,,,,,,
+DDOS武器,IIRT_Omega_DDOS_Weapon,,,,2000,,3000,,75,10,30,,,,ENERGY,3000,,0,1,1,,0,0,0,0,,200,100,20,2500,SYSTEM,"restricted,DO_NOT_CONSERVE,DO_NOT_AIM,SYSTEM",,未知,,追踪鱼雷,慢,优秀,,,,,,,TRUE,9
+十字架,IIRT_FSF_Helico_ten,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,SYSTEM,"restricted,SYSTEM",,,,,,,,,,,,,,
+魔方环,IIRT_Omega_Cube_Wave,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,SYSTEM,"restricted,SYSTEM",,,,,,,,,,,,,,
+红魔方环,IIRT_Omega_Cube_Wave_R,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,SYSTEM,"restricted,SYSTEM",,,,,,,,,,,,,,
+蓝魔方环,IIRT_Omega_Cube_Wave_B,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,SYSTEM,"restricted,SYSTEM",,,,,,,,,,,,,,
+散幅顶盖,IIRT_Omega_Watcher_Dec,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,SYSTEM,"restricted,SYSTEM",,,,,,,,,,,,,,
+散幅环带,IIRT_Omega_Watcher_Ring,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,SYSTEM,"restricted,SYSTEM",,,,,,,,,,,,,,
+散幅环柱,IIRT_Omega_Watcher_Line,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,SYSTEM,"restricted,SYSTEM",,,,,,,,,,,,,,
+漫游者L,IIRT_SD_Stroll_L,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,SYSTEM,"restricted,SYSTEM",,,,,,,,,,,,,,
+漫游者M,IIRT_SD_Stroll_M,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,SYSTEM,"restricted,SYSTEM",,,,,,,,,,,,,,
+漫游者R,IIRT_SD_Stroll_R,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,SYSTEM,"restricted,SYSTEM",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+月相脉冲,IIRT_Omega_Moon_PD,,,,600,750,,250,0,75,10,25,1.95,5,ENERGY,,200,0.01,0.01,0.08,0.03,,,,,15900,,,,,SYSTEM,"energy12, pd10, restricted,SYSTEM",,未知,,通用,,,,,命中护盾时造成 %s 实际伤害的硬幅能。,150%,,,TRUE,
+卫束聚导,IIRT_Omega_Moon_Rocket,,,,2500,,150,100,100,10,30,,,,ENERGY,150,,1,30,20,0.05,0,0,0,0,,500,1000,10,175,"SYSTEM, STRIKE, USE_VS_FRIGATES, DO_NOT_AIM, IGNORES_FLARES","missile8, strike3, restricted,SYSTEM",,克劳斯姆概念,,通用,良好,良好,,,从舰体后方发射。投射物最终将会在目标旁喷洒大量缓慢移动的小型能量团。,,,,TRUE,
+瞬发 PD biubiu,pdbubu,,,,600,350,,,0,100,7,3,0.5,,ENERGY,,60,0.1,0.02,5,0.1,,,,,10000,,,,,"PD,ANTI_FTR, IGNORES_FLARES","pd9, beam6, restricted,SYSTEM",,,,点防御,,,,,,,,,,19.6
+枚有风磁轨炮,IIRT_TDB_meiYouFeng,,,,1000,,800,180,20,10,25,,,,HIGH_EXPLOSIVE,960,,1,2,1,0.2,0,0,0,0,,1000,1250,3.75,250,"SYSTEM, STRIKE, USE_VS_FRIGATES, DO_NOT_AIM, IGNORES_FLARES","he18,restricted,SYSTEM",,未知,,反装甲,,,,,这是谁的武器呢？,,,,,1311
+发散卜防御激光,IIRT_TDB_unFocuspd,,,,600,95,,,0,100,5,,,,ENERGY,,55,0,0.1,,,,,,,3000,,,,,"SYSTEM, PD, ANTI_FTR","energy20,beam15,restricted,SYSTEM",,未知,,点防御,,,,,这是谁的武器呢？,,,,,701.4
+纸升机炮,IIRT_FSF_Helico_Gun,,,,1200,,50,,0,100,5,,,,KINETIC,,10,0.05,0.1,5,0.05,0,10,3,2,,800,1000,,50,"SYSTEM, PD, ANTI_FTR, IGNORES_FLARES","restricted,SYSTEM",,未知,,通用,,,,,这是谁的武器呢？,,,,,
+#以西卡研究所——————————————————————————临时ban掉，史山太多，不想动
+字节 Bito自卫单元,IIRT_Bito,1,,450,600,,20,1,,100,8,30,4.1,10,ENERGY,17,,0.01,0.045,1,,0,5,0.5,15,,780,,,50,,"energy8, SR, iirt_bp, iirt_all_bp, iirt_sd_10, iirt_have",,以西卡研究所,,突击,,,,,,,安装在以西卡舰船上时所需OP较少,,,50001
+透射 Transmiso激光单元,IIRT_Transmiso,1,,1000,1000,60,,,,100,7,,,,ENERGY,,50,0.05,0.2,,,,,,,3600,,,,,"PD,ANTI_FTR","pd7, beam5, iirt_bp, iirt_all_bp, iirt_sd_10, iirt_have",,以西卡研究所,,点防御,,,,,,,安装在以西卡舰船上时所需OP较少,,,
+折光 Refractivity激光单元,IIRT_Refractivity,1,,600,550,100,,350,2,90,6,,,,ENERGY,,90,0.1,0.1,0.1,,0,0,0,0,10000,,,,,"PD,ANTI_FTR","pd9, beam6, iirt_bp, iirt_all_bp, iirt_sd_10, iirt_have",,以西卡研究所,,点防御,,,,,,,安装在以西卡舰船上时所需OP较少,,,
+转流 Divert 自追踪脉冲单元,IIRT_Divert,1,,900,1000,,40,,,35,12,20,0.6,8,ENERGY,40,,0.1,0.3,4,0.05,0,10,0.5,15,,400,250,6,100,GUIDED_POOR,"missile7, iirt_all_bp, iirt_sd_10, iirt_have",,以西卡研究所,,压制,,,,,,,安装在以西卡舰船上时所需OP较少,,,
+转流-S DivertS 自追踪脉冲单元,IIRT_Divert_Any,1,,900,900,,35,1,,35,13,16,0.8,10,ENERGY,40,,0.1,0.3,4,0.05,0,10,0.5,15,,400,230,5.8,100,"DO_NOT_AIM, SYSTEM","missile7, iirt_all_bp, iirt_sd_10, iirt_have",,以西卡研究所,,压制,较快,良好,,,,,此版本的单元在发射时不会主动瞄准，并拥有更长的导弹持续时间,,,
+转流-T DivertT 自追踪脉冲单元,IIRT_Divert_Only,1,,900,900,,35,1,,35,13,16,,,ENERGY,40,,0.1,0.3,4,0.05,0,10,0.5,15,,500,230,5.8,100,"DO_NOT_AIM, SYSTEM","missile7, iirt_all_bp, iirt_sd_10, iirt_have",,以西卡研究所,,压制,较快,良好,,,,,,,,
+熵变 Comment熵防御装置,IIRT_Comment,2,,1000,800,300,,,5,90,17,,,,FRAGMENTATION,,150,0.1,0.1,,,,,,,3600,,,,,"PD, ANTI_FTR, IGNORES_FLARES","pd19, beam15, iirt_bp, iirt_all_bp, iirt_sd_10, iirt_have",,以西卡研究所,,点防御,,,,,,,安装在以西卡舰船上时所需OP较少,,,
+视线 Los高能粒子束,IIRT_Los,2,,1200,1000,170,,350,180,28,14,,,,ENERGY,,250,0.3,0.2,1,0.25,,,,,2400,,,,,,"beam10, pd15, iirt_all_bp, iirt_sd_10, iirt_have",,以西卡研究所,,控盾,,,,,[未实现]当命中护盾时，在短时间内削弱敌方护盾盾角，最多可削减50度，可形成一定范围的碎片粒子场。,,安装在以西卡舰船上时所需OP较少,,,
+哨兵 Sentry哨戒炮,IIRT_Sentry,2,,1500,600,1000,,,10,100,18,,,,FRAGMENTATION,,1000,0.03,0.2,1,0.02,,,,,1900,,,,,IGNORES_FLARES,"beam10, iirt_all_bp, iirt_sd_10, iirt_have",,以西卡研究所,,反结构,,,,,"产生硬辐能
+当对敌人结构造成伤害时引发一次低伤害的范围能量损伤场。",,安装在以西卡舰船上时所需OP较少,,,
+偏见 Prejudice高压束,IIRT_Prejudice,2,,1500,1000,60,,50,0,20,18,,,,ENERGY,,90,0.3,0.3,,,,,,,3200,,,,,,"energy14, beam10, iirt_sd_10, iirt_all_bp, iirt_have",,以西卡研究所,,压制,,,,,命中船体或装甲时大概率产生打击武器与引擎的电弧，造成额外 EMP 与能量伤害。当命中护盾时，将根据目标硬幅能水平随机产生穿透护盾的电弧。,,安装在以西卡舰船上时所需OP较少,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+正则 Regular自卫装置,IIRT_Regular,2,,1000,700,,90,,,30,17,,,,HIGH_EXPLOSIVE,70,,0,0.2,2,0.15,0,15,1,10,,1000,,,30,"ANTI_FTR,IGNORES_FLARES","he15, SR, hist1t, iirt_bp, iirt_all_bp, iirt_sd_10, iirt_have",,以西卡研究所,,反装甲,,,,,,,安装在以西卡舰船上时所需OP较少,,,
+无常 Unstable离子炮,IIRT_Unsable,2,,1000,600,,120,200,3,30,14,,,,ENERGY,140,,0,0.25,1,,0,10,1,9,,1600,,,30,,"he15, iirt_all_bp, iirt_sd_10, iirt_have",,以西卡研究所,,瘫痪,,,,,"产生硬辐能
+当命中船体或装甲时，有 %s 的概率立即形成一次小范围的EMP爆炸，造成一半面板数值的破片伤害以及大量随机伤害的EMP团。",25%,安装在以西卡舰船上时所需OP较少,,,
+暗昼 DownLight磁轨火炮,IIRT_Downlight,2,,1200,900,,140,,12,20,17,,,,ENERGY,130,,0,1.3,3,0.15,0,10,5,5,,1000,,,30,,"kinetic15, he11, iirt_all_bp, iirt_sd_10, iirt_have",,以西卡研究所,,远炮,,,,,"命中船体或装甲时产生一次伤害为 %s 高爆爆炸；
+当自身 %s 距离范围内没有敌人时，激活远炮系统；失去额外高爆效果，提升火炮额外 %s 射程。",100点 | 900单位 | 200单位,安装在以西卡舰船上时所需OP较少,,,
+恐吓 Theaten轨道炮,IIRT_Theaten,2,,1000,750,500,,,10,40,17,5,0.5,2,KINETIC,,600,0.25,0.5,1,,,,,,10000,,,,,,"kinetic8, LR, iirt_all_bp, iirt_sd_10, iirt_have",,以西卡研究所,,反护盾,,,,,产生硬辐能,,安装在以西卡舰船上时所需OP较少,,,
+恶意 Evil冲程炮,IIRT_Evil,2,,1000,700,400,,,10,18,17,,,,HIGH_EXPLOSIVE,,500,0.3,0.15,1.55,0.05,,,,,2400,,,,,,"kinetic15, iirt_all_bp, iirt_sd_10, iirt_have",,以西卡研究所,,反装甲,,,,,产生微弱硬辐能,,安装在以西卡舰船上时所需OP较少,,,
+递归 Recursion扩容自追踪脉冲装置,IIRT_Recursion,1,,1500,1200,,800,,100,15,17,10,0.5,4,ENERGY,120,,0.4,1.0,2,0.1,0,0,0,0,,260,130,8.5,200,"GUIDED_POOR, IGNORES_FLARES","utility18, hist1t, iirt_all_bp, iirt_sd_10, iirt_have",,以西卡研究所,,通用,中等,较差,,,,,安装在以西卡舰船上时所需OP较少,,,
+递归 Recursion扩容自追踪脉冲,IIRT_Recursion_S,1,,1500,1000,,800,,100,15,12,3,,,ENERGY,120,,0.4,1.0,2,0.1,0,0,0,0,,260,70,8,400,"GUIDED_POOR, IGNORES_FLARES, SYSTEM","utility18, ",,以西卡研究所,,通用,中等,较差,,,,,安装在以西卡舰船上时所需OP较少,,,
+流通 Okulo电浆发射装置,IIRT_Okulo,1,,1500,1200,,150,200,200,15,20,30,0.5,30,ENERGY,120,,0,5,8,0.1,0,0,0,0,,450,350,6,200,"STRIKE, CONSERVE_1","utility18, iirt_all_bp, iirt_sd_10, iirt_have",,以西卡研究所,,压制打击,中等,良好,,,,,安装在以西卡舰船上时所需OP较少,,TRUE,
+均衡 Balance电磁网络装置,IIRT_Balance,4,0,1500,1000,,100,30,0,15,20,4,0.55,2,ENERGY,400,,0,7.5,2,0.1,0,0,0,0,,240,150,7,630,"HEATSEEKER, SYSTEM","utility13, hist1t, iirt_all_bp, iirt_sd_10, iirt_have",,以西卡研究所,,瘫痪,中等,良好,,,瘫痪网将会造成少量能量伤害、 以及巨量的EMP伤害。,,安装在以西卡舰船上时所需OP较少,,,
+收割 Rago等离子炮,IIRT_Rago,3,,2250,950,,350,50,,11,28,6,2,4,ENERGY,290,,0.01,0.1,,,0,10,2,4,,1000,800,,450,,"kinetic8, SR, hist1t, iirt_all_bp, iirt_sd_10, iirt_have",,以西卡研究所,,通用,,,,,,,安装在以西卡舰船上时所需OP较少,,TRUE,
+#AC
+弯月面 LRFk-711,IIRT_Lab_Meniscus_LAG,,,,1000,,150,,200,15,6,,,,KINETIC,100,,0.5,0.5,1,0,0,0,0,0,1300,1300,,,500,"SYSTEM, IGNORES_FLARES","restricted,SYSTEM",,克劳斯姆概念,,通用,极佳,,,,这是 %s 的专用狙击兵器。,弯月面,,,,
+弯月面 右臂模块,IIRT_Lab_Meniscus_RA,,,,1000,0,,,,15,6,,,,ENERGY,,0,0,0,0,0,0,0,0,0,0,,,,,SYSTEM,"restricted,SYSTEM",,克劳斯姆概念,,,,,,,这是 %s 的结构部件。,弯月面,,,TRUE,
+弯月面 额外广角模块,IIRT_Lab_Meniscus_H,,,,1000,,20,50,-10,20,6,1,0.5,2,ENERGY,-10,,0.1,0.1,3,0.05,10,20,5,4,,150,0,,100,"SYSTEM,PD,ANTI_FTR","restricted,SYSTEM",,克劳斯姆概念,,点防御,,,,,这是 %s 的额外扩展媒体采集设备，同时内置了能将幅能消耗掉的能量团发生装置。,弯月面,,,TRUE,
+上弦月 左臂模块,IIRT_Lab_FirstQuarter_LA,,,,600,,40,100,10,15,6,30,1.5,10,ENERGY,25,,0,3,5,0.1,4,10,4,3,1000,1000,1000,,70,"SYSTEM, IGNORES_FLARES","restricted,SYSTEM",,克劳斯姆概念,,通用,,,,,"这是 %s 的结构部件以及主武器。
+当命中船体或装甲时，有 %s 的概率产生打击武器与引擎的电弧，和武器伤害相等的额外伤害。",上弦月 | 25%,,,,
+上弦月 右臂模块,IIRT_Lab_FirstQuarter_RA,,,,600,,40,100,10,15,6,30,1.5,10,ENERGY,25,,0,3,5,0.1,4,10,4,3,1000,1000,1000,,70,"SYSTEM, IGNORES_FLARES","restricted,SYSTEM",,克劳斯姆概念,,通用,,,,,"这是 %s 的结构部件以及主武器。
+当命中船体或装甲时，有 %s 的概率产生打击武器与引擎的电弧，和武器伤害相等的额外伤害。",上弦月 | 25%,,,,
+上弦月 PD模块,IIRT_Lab_FirstQuarter_Head,,,,600,10,,10,10,15,6,,,,ENERGY,,0,0.1,0.1,,,,,,,3000,,,,,"SYSTEM,PD,ANTI_FTR","restricted,SYSTEM",,克劳斯姆概念,,点防御,,,,,这是 %s 的额外扩展媒体采集设备，同时能用激光稍微解决点东西。,上弦月,,,,
+蛾眉月 HSGn-041,IIRT_Lab_Crescent_SG,,,,400,,50,,10,15,6,,,,HIGH_EXPLOSIVE,10,,0.75,4.25,2,0,10,28,4,3,,1600,2000,,70,"SYSTEM, IGNORES_FLARES","restricted,SYSTEM",,克劳斯姆概念,,打击,,,,,这是 %s 的专用重型高爆霰弹兵器。,x蛾眉月,,,,
+蛾眉月 PD模块,IIRT_Lab_Crescent_Head,,,,400,,,25,-10,15,6,,,,ENERGY,,0,0.1,0.1,,,,,,,3000,,,,,"SYSTEM,PD,ANTI_FTR, IGNORES_FLARES","restricted,SYSTEM",,克劳斯姆概念,,点防御,,,,,这是 %s 的额外扩展媒体采集设备，同时能用激光稍微解决点东西。,蛾眉月,,,,
+蛾眉月 身体模块,IIRT_Lab_Crescent_Body,,,,400,,,,,15,6,,,,ENERGY,,0,0,0,0,0,0,0,0,0,0,,,,,SYSTEM,"restricted,SYSTEM",,克劳斯姆概念,,,,,,,这是 %s 的结构部件。,蛾眉月,,,,
+塌缩冲程单元,IIRT_Lab_Pessimism_Main,,,,400,,1200,,200,10,,20,,,ENERGY,1200,,0.2,6,1,0.3,0,0,0,0,,1000,1000,,200,"SYSTEM, STRIKE, GROUP_ALTERNATING","restricted,SYSTEM",,克劳斯姆概念,,塌缩,良好,,,,"当命中船体或装甲时，有 %s 的概率进行一次塌缩判定。并直接擦除敌人对应的CR。
+%s = 武器实际伤害/对方剩余赋能
+-- %s --
+当 %s 结果 >= 1时，则直接抹除 %s CR；
+当 %s 结果 < 1时，则抹除 %s x %s 对应的CR。",30% | 塌缩比 | 判定| 塌缩比 | 10% | 塌缩比 | 10% | 塌缩比,,,TRUE,

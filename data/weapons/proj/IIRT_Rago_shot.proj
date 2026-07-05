@@ -1,0 +1,15 @@
+{
+	"id":"IIRT_Rago_shot",
+	"specClass":"projectile",
+	"spawnType":"BALLISTIC_AS_BEAM",
+	"collisionClass":"RAY",
+	"collisionClassByFighter":"RAY_FIGHTER",
+	"length":60.0,
+	"hitGlowRadius":50,
+	"width":18,
+	"fadeTime":0.5,
+	"fringeColor":[247,213,248,225],
+	"coreColor":[172,182,231,200],	
+	"textureScrollSpeed":64.0,
+	"pixelsPerTexel":5.0,
+}

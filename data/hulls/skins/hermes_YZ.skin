@@ -1,0 +1,17 @@
+{
+	"baseHullId":"hermes",
+	"skinHullId":"hermes_YZ",
+	"hullName":"由中国邮政送来的录取通知书",
+	"descriptionId":"hermes",  # optional
+	"descriptionPrefix":"中国邮政为您服务。",
+	"restoreToBaseHull":true,
+	"spriteName":"graphics/ships/hermes_YZ.png",
+	"baseValueMult":.65,
+	"removeWeaponSlots":[], 		# ids
+	"removeEngineSlots":[], 		# indices, as engine slots have no id in the .ship file
+	"removeBuiltInMods":[], 		# hullmod ids
+	"removeBuiltInWeapons":[], 		# weapon slot ids
+	"builtInMods":[],
+	"builtInWeapons":{
+    },
+}

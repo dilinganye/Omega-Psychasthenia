@@ -1,0 +1,38 @@
+{
+  "variantId": "IIRT_Lab_Slander_Omega_2",
+  "hullId": "IIRT_Lab_Slander",
+  "displayName": "Omega",
+  "goalVariant": false,
+  "fluxCapacitors": 10,
+  "fluxVents": 3,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "missleracks"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0003": "amsrm"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0007": "sabot_fighter"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "shockrepeater"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

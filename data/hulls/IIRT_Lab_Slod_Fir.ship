@@ -1,0 +1,128 @@
+{
+  "hullName": "IIRT_Lab_Slod_Fir",
+  "hullId": "IIRT_Lab_Slod_Fir",
+  "hullSize": "FIGHTER",
+  "spriteName": "graphics/ships/Lab/IIRT_Lab_Slod_Fir.png",
+  "style": "KRM_TECH",
+  "height": 51,
+  "width": 62,
+  "center": [31, 25.5],
+  "collisionRadius": 438.5,
+  "shieldCenter": [0, 0],
+  "shieldRadius": 437.5,
+  "viewOffset": 0,
+  "builtInMods": [
+    "fluxshunt",
+    "shield_always_on",
+    "fluxbreakers",
+    "IIRT_Lab_PhaseOverlay"
+  ],
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 23,
+      "angle": 0,
+      "locations": [15, -0]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-19, 24.5],
+      "length": 42,
+      "width": 11,
+      "angle": 161,
+      "contrailSize": 11,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-19, -24.5],
+      "length": 42,
+      "width": 11,
+      "angle": -161,
+      "contrailSize": 11,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-19, 17.5],
+      "length": 91.873093,
+      "width": 12.055722,
+      "angle": -172,
+      "contrailSize": 12.055722,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-19, -17.5],
+      "length": 91.873093,
+      "width": 12.055722,
+      "angle": 172,
+      "contrailSize": 12.055722,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-25.5, 4.5],
+      "length": 100.5,
+      "width": 9,
+      "angle": 170.5,
+      "contrailSize": 9,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-25.5, -4.5],
+      "length": 100.5,
+      "width": 9,
+      "angle": -170.5,
+      "contrailSize": 9,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [8.5, 27],
+      "length": 5.405291,
+      "width": 5.303898,
+      "angle": 63.5,
+      "contrailSize": 5.303898,
+      "style": "Cipher_Moon"
+    },
+    {
+      "location": [8.5, -27],
+      "length": 5.405291,
+      "width": 5.303898,
+      "angle": -63.5,
+      "contrailSize": 5.303898,
+      "style": "Cipher_Moon"
+    }
+  ],
+  "bounds": [
+    -24.5, 7.5,
+    -13.5, 11,
+    -13.5, 13,
+    -18.5, 14.5,
+    -18.5, 28.5,
+    -14, 30,
+    -3, 29,
+    1.5, 25.5,
+    3.5, 28,
+    9, 28,
+    9.5, 20,
+    20.5, 16,
+    24.5, 9,
+    24.5, 4.5,
+    21.5, -0,
+    24.5, -4.5,
+    24.5, -9,
+    20.5, -16,
+    9.5, -20,
+    9, -28,
+    3.5, -28,
+    1.5, -25.5,
+    -3, -29,
+    -14, -30,
+    -18.5, -28.5,
+    -18.5, -14.5,
+    -13.5, -13,
+    -13.5, -11,
+    -24.5, -7.5
+  ]
+}

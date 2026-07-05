@@ -1,0 +1,136 @@
+{
+  "hullName": "IIRT_Omega_Watcher",
+  "hullId": "IIRT_Omega_Watcher",
+  "hullSize": "DESTROYER",
+  "spriteName": "graphics/ships/Omega_Watcher.png",
+  "style": "OMEGA",
+  "height": 210,
+  "width": 197,
+  "center": [113, 94.5],
+  "collisionRadius": 163.5,
+  "shieldCenter": [26.5, -6],
+  "shieldRadius": 126,
+  "viewOffset": 0,
+  "builtInMods": [
+    "IIRT_Omega_WebShardSpawner",
+    "fluxbreakers",
+    "ecm",
+    "targetingunit",
+    "automated"
+  ],
+  "builtInWeapons": {
+    "WS0004": "IIRT_Omega_Watcher_Line",
+    "WS0005": "IIRT_Omega_Watcher_Ring",
+    "WS0006": "IIRT_Omega_Watcher_Dec",
+    "WS0007": "IIRT_NONE"
+  },
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 283,
+      "angle": 0,
+      "locations": [-3.5, 14],
+      "renderOrderMod": 15
+    },
+    {
+      "id": "WS0002",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 37.5,
+      "locations": [-29.5, 15],
+      "renderOrderMod": 5
+    },
+    {
+      "id": "WS0003",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 291,
+      "angle": -43,
+      "locations": [49.5, -48],
+      "renderOrderMod": 10
+    },
+    {
+      "id": "WS0004",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 19.5,
+      "locations": [53.5, -34.5]
+    },
+    {
+      "id": "WS0005",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [53.5, -34.5]
+    },
+    {
+      "id": "WS0006",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 0,
+      "angle": 0,
+      "locations": [47.5, -17.5],
+      "renderOrderMod": 5
+    },
+    {
+      "id": "WS0007",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 47,
+      "angle": 180,
+      "locations": [-59, 7.5]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-8, 50.5],
+      "length": 74.106163,
+      "width": 17.149559,
+      "angle": -149.5,
+      "contrailSize": 17.149559,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-1.5, -13],
+      "length": 32.583122,
+      "width": 20.331274,
+      "angle": -165.5,
+      "contrailSize": 20.331274,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-5, -14.5],
+      "length": 65.418564,
+      "width": 8.86819,
+      "angle": 177.5,
+      "contrailSize": 8.86819,
+      "style": "OMEGA"
+    }
+  ],
+  "bounds": [
+    26.5, 109.5,
+    30.5, 62.5,
+    64, -9.5,
+    109.5, -78.5,
+    52, -45,
+    24.5, -42.5,
+    -18.5, 0.5,
+    -43.5, -3,
+    -60, 6,
+    -36.5, 15.5,
+    7.5, 66.5,
+    7, 77
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "variantId": "IIRT_Omega_Riots_Normal_6",
+  "hullId": "IIRT_Omega_Riots",
+  "displayName": "Attack",
+  "goalVariant": false,
+  "fluxCapacitors": 3,
+  "fluxVents": 2,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "magazines",
+    "hardenedshieldemitter"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "cryoflux"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0002": "amsrm"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

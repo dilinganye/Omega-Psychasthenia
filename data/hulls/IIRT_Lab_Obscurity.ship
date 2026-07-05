@@ -1,0 +1,208 @@
+{
+  "hullName": "IIRT_Lab_Obscurity",
+  "hullId": "IIRT_Lab_Obscurity",
+  "hullSize": "DESTROYER",
+  "spriteName": "graphics/ships/Lab/IIRT_Lab_Obscurity.png",
+  "style": "KRM_TECH",
+  "height": 234,
+  "width": 160,
+  "center": [81, 99.5],
+  "collisionRadius": 157.5,
+  "shieldCenter": [10.5, -0],
+  "shieldRadius": 145.5,
+  "viewOffset": 0,
+  "builtInMods": [
+    "phasefield",
+    "IIRT_Lab_RPCM"
+  ],
+  "weaponSlots": [
+    {
+      "id": "WS0002",
+      "size": "SMALL",
+      "type": "ENERGY",
+      "mount": "TURRET",
+      "arc": 217,
+      "angle": 0,
+      "locations": [77.5, -21]
+    },
+    {
+      "id": "WS0003",
+      "size": "SMALL",
+      "type": "ENERGY",
+      "mount": "TURRET",
+      "arc": 217,
+      "angle": -0,
+      "locations": [77.5, 21]
+    },
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "ENERGY",
+      "mount": "TURRET",
+      "arc": 217,
+      "angle": -45,
+      "locations": [-19.5, -45]
+    },
+    {
+      "id": "WS0004",
+      "size": "SMALL",
+      "type": "ENERGY",
+      "mount": "TURRET",
+      "arc": 217,
+      "angle": 45,
+      "locations": [-19.5, 45]
+    },
+    {
+      "id": "WS0005",
+      "size": "SMALL",
+      "type": "ENERGY",
+      "mount": "TURRET",
+      "arc": 217,
+      "angle": -90,
+      "locations": [-52.5, -36]
+    },
+    {
+      "id": "WS0006",
+      "size": "SMALL",
+      "type": "ENERGY",
+      "mount": "TURRET",
+      "arc": 217,
+      "angle": 90,
+      "locations": [-52.5, 36]
+    },
+    {
+      "id": "LB 1",
+      "size": "LARGE",
+      "type": "LAUNCH_BAY",
+      "mount": "HIDDEN",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        60, -0,
+        71.5, -0,
+        104.5, -0
+      ]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-95.5, 32.5],
+      "length": 12,
+      "width": 4,
+      "angle": 180,
+      "contrailSize": 4,
+      "style": "Cipher_Moon"
+    },
+    {
+      "location": [-95.5, -32.5],
+      "length": 12,
+      "width": 4,
+      "angle": -180,
+      "contrailSize": 4,
+      "style": "Cipher_Moon"
+    },
+    {
+      "location": [-96.5, 22],
+      "length": 30,
+      "width": 10,
+      "angle": 180,
+      "contrailSize": 30,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-96.5, -22],
+      "length": 30,
+      "width": 10,
+      "angle": -180,
+      "contrailSize": 30,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-96.5, 16],
+      "length": 23.5,
+      "width": 7,
+      "angle": 180,
+      "contrailSize": 7,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-96.5, -16],
+      "length": 23.5,
+      "width": 7,
+      "angle": -180,
+      "contrailSize": 7,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-94.5, 25.5],
+      "length": 15.5,
+      "width": 6,
+      "angle": 180,
+      "contrailSize": 6,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-94.5, -25.5],
+      "length": 15.5,
+      "width": 6,
+      "angle": -180,
+      "contrailSize": 6,
+      "style": "HIGH_TECH"
+    }
+  ],
+  "bounds": [
+    -86, 6.5,
+    -93.5, 10.5,
+    -96, 15.5,
+    -96, 22,
+    -94, 27.5,
+    -99, 28.5,
+    -93.5, 33.5,
+    -82, 33.5,
+    -74, 52.5,
+    -69.5, 52.5,
+    -59.5, 68,
+    -63, 70,
+    -47, 79,
+    -28.5, 63,
+    0.5, 62,
+    0.5, 58,
+    16.5, 58,
+    26, 49,
+    47.5, 49,
+    56.5, 42,
+    62, 46,
+    84, 34,
+    88, 36,
+    101, 27,
+    111.5, 13,
+    125, 10.5,
+    132.5, -0,
+    125, -10.5,
+    111.5, -13,
+    101, -27,
+    88, -36,
+    84, -34,
+    62, -46,
+    56.5, -42,
+    47.5, -49,
+    26, -49,
+    16.5, -58,
+    0.5, -58,
+    0.5, -62,
+    -28.5, -63,
+    -47, -79,
+    -63, -70,
+    -59.5, -68,
+    -69.5, -52.5,
+    -74, -52.5,
+    -82, -33.5,
+    -93.5, -33.5,
+    -99, -28.5,
+    -94, -27.5,
+    -96, -22,
+    -96, -15.5,
+    -93.5, -10.5,
+    -86, -6.5
+  ]
+}

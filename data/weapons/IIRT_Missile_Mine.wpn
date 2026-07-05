@@ -1,0 +1,36 @@
+{
+  "id": "IIRT_Missile_Mine",
+  "specClass": "projectile",
+  "projectileSpecId": "IIRT_Lab_Missile_mine",
+  "type": "ENERGY",
+  "mountTypeOverride": "SYNERGY",
+  "size": "MEDIUM",
+  "renderHints": [
+    RENDER_LOADED_MISSILES
+  ],
+  "turretSprite": "graphics/weapons/Lab_Rocketpot/Lab_Rocketpot_t.png",
+  "hardpointSprite": "graphics/weapons/Lab_Rocketpot/Lab_Rocketpot_h.png",
+  "glowColor": [
+    255,
+    255,
+    255,
+    255
+  ],
+  "turretOffsets": [
+    3.5,
+    0
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    10,
+    0
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "barrelMode": "ALTERNATING",
+  "animationType": "GLOW",
+  "autocharge": true
+}

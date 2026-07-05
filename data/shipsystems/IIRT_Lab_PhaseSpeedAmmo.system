@@ -1,0 +1,22 @@
+{
+	"id":"IIRT_Lab_PhaseSpeedAmmo",
+	"type":"STAT_MOD",
+	"aiType":"WEAPON_BOOST",
+	
+	"statsScript":"data.scripts.shipsystems.IIRT_Lab_PhaseSpeedAmmo",
+	"canUseWhileRightClickSystemOn":true,
+
+	"weaponGlowColor":[255,229,255,255],
+	"weaponTypes":[MISSILE,BALLISTIC],
+	
+	"jitterColor":[255,229,255,155],
+	"jitterCopies":0,
+	"jitterRange":0,
+	"jitterRangeRadiusFraction":0.2,	
+	
+	"fadeActivationSoundOnChargedown":true,
+	"useSound":"system_damper_omega",
+	"loopSound":"system_damper_omega_loop",
+	"deactivateSound":"system_damper_omega_off",
+	"outOfUsesSound":"gun_out_of_ammo",
+}

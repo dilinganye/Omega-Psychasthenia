@@ -1,0 +1,33 @@
+{
+  "variantId": "PTSD_Threat_Tiny_variant",
+  "hullId": "PTSD_Threat_Tiny",
+  "displayName": "Type 175",
+  "goalVariant": true,
+  "fluxCapacitors": 8,
+  "fluxVents": 7,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "fragment_swarm",
+    "fragment_coordinator"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "seeker_fragment"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "ALTERNATING",
+      "weapons": {
+        "WS0004": "unstable_fragment",
+        "WS0005": "unstable_fragment"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

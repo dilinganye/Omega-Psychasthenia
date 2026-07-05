@@ -1,0 +1,26 @@
+{
+  "variantId": "IIRT_SD_Dim_Tanker",
+  "hullId": "IIRT_SD_Dim",
+  "displayName": "New Variant",
+  "goalVariant": false,
+  "fluxCapacitors": 0,
+  "fluxVents": 0,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "IIRT_Refractivity",
+        "WS0002": "IIRT_Transmiso",
+        "WS0003": "IIRT_Downlight",
+        "WS0004": "phasecl",
+        "WS0006": "sabot_single"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

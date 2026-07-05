@@ -1,0 +1,139 @@
+{
+  "hullName": "IIRT_Lab_Norm",
+  "hullId": "IIRT_Lab_Norm",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Lab/IIRT_Lab_Norm.png",
+  "style": "KRM_TECH",
+  "height": 115,
+  "width": 102,
+  "center": [51, 63],
+  "collisionRadius": 108,
+  "shieldCenter": [-12.5, 0],
+  "shieldRadius": 94,
+  "viewOffset": 0,
+  "builtInMods": [
+    "insulatedengine",
+    "phasefield",
+    "delicate",
+    "IIRT_Lab_RPCM"
+  ],
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 224,
+      "angle": 0,
+      "locations": [-10, 0]
+    },
+    {
+      "id": "WS0002",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": 0,
+      "locations": [41, 0]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-52, -0],
+      "length": 43.5,
+      "width": 8,
+      "angle": 180,
+      "contrailSize": 8,
+      "style": "Cipher_Moon"
+    },
+    {
+      "location": [-53.5, -0],
+      "length": 8.5,
+      "width": 9,
+      "angle": 180,
+      "contrailSize": 9,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-58, 11.5],
+      "length": 12.900869,
+      "width": 7.366837,
+      "angle": -132.5,
+      "contrailSize": 7.366837,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-58, -11.5],
+      "length": 12.900869,
+      "width": 7.366837,
+      "angle": 132.5,
+      "contrailSize": 7.366837,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-4.5, 37.5],
+      "length": 6.5,
+      "width": 3,
+      "angle": 180,
+      "contrailSize": 3,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-4.5, -37.5],
+      "length": 6.5,
+      "width": 3,
+      "angle": -180,
+      "contrailSize": 3,
+      "style": "OMEGA"
+    }
+  ],
+  "bounds": [
+    -61.5, -5.5,
+    -58, -7,
+    -58, -16,
+    -55.5, -19.5,
+    -56.5, -22.5,
+    -51.5, -29.5,
+    -52.5, -31.5,
+    -40, -43,
+    -40, -45.5,
+    -26, -49,
+    -24, -37.5,
+    -15, -22,
+    -10, -29.5,
+    -4, -28.5,
+    -0.5, -36.5,
+    -5.5, -37,
+    3, -40,
+    6.5, -46,
+    12.5, -49.5,
+    41, -27.5,
+    46, -26,
+    48, -22,
+    46, -19,
+    47.5, 0,
+    46, 19,
+    48, 22,
+    46, 26,
+    41, 27.5,
+    12.5, 49.5,
+    6.5, 46,
+    3, 40,
+    -5.5, 37,
+    -0.5, 36.5,
+    -4, 28.5,
+    -10, 29.5,
+    -15, 22,
+    -24, 37.5,
+    -26, 49,
+    -40, 45.5,
+    -40, 43,
+    -52.5, 31.5,
+    -51.5, 29.5,
+    -56.5, 22.5,
+    -55.5, 19.5,
+    -58, 16,
+    -58, 7,
+    -61.5, 5.5
+  ]
+}

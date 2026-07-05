@@ -1,0 +1,155 @@
+{
+  "hullName": "IIRT_Lab_Perplex",
+  "hullId": "IIRT_Lab_Perplex",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Lab/IIRT_Lab_Perplex.png",
+  "style": "KRM_TECH",
+  "height": 111,
+  "width": 94,
+  "center": [47, 55],
+  "collisionRadius": 83,
+  "shieldCenter": [2, -0],
+  "shieldRadius": 80.5,
+  "viewOffset": 0,
+  "builtInMods": [
+    "phasefield",
+    "IIRT_Lab_RPCM"
+  ],
+  "builtInWeapons": {
+    "WS0001": "ioncannon"
+  },
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 29,
+      "angle": 0,
+      "locations": [18.5, -0]
+    },
+    {
+      "id": "WS0002",
+      "size": "SMALL",
+      "type": "HYBRID",
+      "mount": "TURRET",
+      "arc": 205,
+      "angle": 45,
+      "locations": [34, 21]
+    },
+    {
+      "id": "WS0003",
+      "size": "SMALL",
+      "type": "HYBRID",
+      "mount": "TURRET",
+      "arc": 205,
+      "angle": -45,
+      "locations": [34, -21]
+    },
+    {
+      "id": "WS0004",
+      "size": "SMALL",
+      "type": "MISSILE",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": 0,
+      "locations": [15, 37]
+    },
+    {
+      "id": "WS0005",
+      "size": "SMALL",
+      "type": "MISSILE",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": -0,
+      "locations": [15, -37]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-42, 21],
+      "length": 30,
+      "width": 10,
+      "angle": 180,
+      "contrailSize": 30,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-42, -21],
+      "length": 30,
+      "width": 10,
+      "angle": -180,
+      "contrailSize": 30,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-46, 21],
+      "length": 32.5,
+      "width": 4,
+      "angle": 180,
+      "contrailSize": 4,
+      "style": "MIDLINE"
+    },
+    {
+      "location": [-46, -21],
+      "length": 32.5,
+      "width": 4,
+      "angle": -180,
+      "contrailSize": 4,
+      "style": "MIDLINE"
+    }
+  ],
+  "bounds": [
+    -42, 7,
+    -42, 25,
+    -41, 26.5,
+    -51.5, 27.5,
+    -51.5, 32,
+    -41, 35.5,
+    -35, 40.5,
+    -19, 36.5,
+    2.5, 38.5,
+    4.5, 42,
+    17.5, 39.5,
+    17.5, 34.5,
+    20, 29,
+    26.5, 28.5,
+    29, 26.5,
+    35.5, 26.5,
+    38.5, 25,
+    40, 21.5,
+    42.5, 20.5,
+    48.5, 20.5,
+    53.5, 15.5,
+    53.5, 10.5,
+    46.5, 7,
+    23, 5.5,
+    17.5, 2.5,
+    17.5, -2.5,
+    23, -5.5,
+    46.5, -7,
+    53.5, -10.5,
+    53.5, -15.5,
+    48.5, -20.5,
+    42.5, -20.5,
+    40, -21.5,
+    38.5, -25,
+    35.5, -26.5,
+    29, -26.5,
+    26.5, -28.5,
+    20, -29,
+    17.5, -34.5,
+    17.5, -39.5,
+    4.5, -42,
+    2.5, -38.5,
+    -19, -36.5,
+    -35, -40.5,
+    -41, -35.5,
+    -51.5, -32,
+    -51.5, -27.5,
+    -41, -26.5,
+    -42, -25,
+    -42, -7,
+    -45, -0
+  ]
+}

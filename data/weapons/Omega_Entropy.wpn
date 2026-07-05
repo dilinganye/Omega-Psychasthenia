@@ -1,0 +1,47 @@
+{
+  "id": "Omega_Entropy",
+  "specClass": "beam",
+  "beamEffect":"com.fs.starfarer.api.impl.combat.TachyonLanceEffect",
+  #"beamEffect":"data.scripts.weapons.IIRT_200HeavyBeam",
+  "type": "ENERGY",
+  "size": "MEDIUM",
+  "collisionClass": "RAY",
+  "collisionClassByFighter": "RAY_FIGHTER",
+  "turretSprite": "graphics/weapons/Omega_Entropy/Omega_Entropy.png",
+  "turretGlowSprite": "graphics/weapons/Omega_Entropy/Omega_Entropy_L.png",
+  "hardpointSprite": "graphics/weapons/Omega_Entropy/Omega_Entropy_H.png",
+  "hardpointGlowSprite": "graphics/weapons/Omega_Entropy/Omega_Entropy_HL.png",
+  "glowColor": [235,255,215,255],
+  "hitGlowRadius": 20,
+  "turretOffsets": [
+    0,
+    0
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    0,
+    0
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "fringeColor": [
+    219,
+    255,
+    253,
+    255
+  ],
+  "coreColor": [
+    208,
+    255,
+    202,
+    255
+  ],
+	"fireSoundTwo":"resonator_fire",
+  "width": 11,
+  "textureType": WEAVE,
+  "textureScrollSpeed": 900,
+  "pixelsPerTexel": 1
+}

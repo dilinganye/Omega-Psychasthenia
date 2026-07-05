@@ -1,0 +1,47 @@
+{
+  "variantId": "IIRT_Omega_Station_Common",
+  "hullId": "IIRT_Omega_Station",
+  "displayName": "Common",
+  "goalVariant": false,
+  "fluxCapacitors": 0,
+  "fluxVents": 0,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0002": "interdictorbeam"
+      }
+    }
+  ],
+  "modules": [
+    {
+      "WS0001": "IIRT_Omega_Weapon_Platfrom_2_Attack"
+    },
+    {
+      "WS0007": "IIRT_Omega_Weapon_Platfrom_2_Missile"
+    },
+    {
+      "WS0009": "IIRT_Omega_Weapon_Platfrom_2_Crack"
+    },
+    {
+      "WS0008": "IIRT_Omega_Weapon_Platfrom_2_Support"
+    },
+    {
+      "WS0011": "IIRT_Omega_Weapon_Platfrom_1_Missile"
+    },
+    {
+      "WS0010": "IIRT_Omega_Weapon_Platfrom_1_Crack"
+    },
+    {
+      "WS0006": "IIRT_Omega_Weapon_Platfrom_1_Support"
+    }
+  ],
+  "wings": [
+    "IIRT_Omega_Pupal_attack_wing",
+    "IIRT_Omega_Pupal_attack_wing"
+  ]
+}

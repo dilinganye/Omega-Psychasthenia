@@ -1,0 +1,31 @@
+name,id,flux/second,f/s (base rate),f/s (base cap),flux/use,f/u (base rate),f/u (base cap),cr/u,max uses,regen,charge up,active,down,cooldown,toggle,noDissipation,noHardDissipation,hardFlux,noFiring,noTurning,noStrafing,noAccel,noShield,noVent,isPhaseCloak,tags,icon
+点防机组,IIRT_Lab_Drone_pd_x4,,,,,,,,24,,0,,0,0,,
+介入位场,IIRT_PhaseInBattle,1,,,,,,,,,2,,2,0,TRUE,,,,TRUE,TRUE,TRUE,TRUE,TRUE,,,,graphics/icons/hullsys/burn_drive.png
+半相散幅,IIRT_Lab_Damper,-200,,,400,,,,2,0.05,0.25,3,0.25,2.5,,,,,,,,,,,,,graphics/icons/hullsys/damper_field.png
+短冲式 EMP 发生器,IIRT_Long_Emp,,,,100,,0.05,,7,0.1,0.5,1,0.5,0.1,,,,TRUE,TRUE,,,,,,,,graphics/icons/hullsys/emp_emitter.png
+相位折跃,IIRT_Lab_PhaseTeleporter,,,,,,0.1,,,,0.5,0,0.5,10,,,,TRUE,,,,,,,,,graphics/icons/hullsys/displacer.png
+短距相位折跃,IIRT_Lab_PhaseTeleporter_short,,,,,,0.05,,3,0.1,0.5,0,0.5,1.5,,,,,,,,,,,,,graphics/icons/hullsys/displacer.png
+时空新月驱动,IIRT_Lab_PhasePlasmajets,150,,,,,,,,,5,0.05,0.45,15,,,,TRUE,TRUE,,,,,,,,graphics/icons/hullsys/infernium_injector.png
+微型新月驱动,IIRT_Lab_PhasePlasmajets_Small,100,,,,,,,,,2,0.1,0.4,10,,,,TRUE,,,,,,,,,graphics/icons/hullsys/infernium_injector.png
+共相网络,IIRT_Lab_PhaseHold,250,,,-500,,,,,,1.5,6,0.5,5,,,,,,,,,,
+相场调制,IIRT_Lab_PhaseBuild,-1,,,,,,,5,0.05,1,5,5,4,
+相位薄层锁,IIRT_Lab_PhaseLock,-1,,,,,,,5,0.05,1,8,2,,,,,,,,,
+抛射加速相位场,IIRT_Lab_PhaseSpeedAmmo,,,,250,,,,2,0.05,0.25,3,0.5,,,,,TRUE
+能源过充,IIRT_Lab_MadEnergy,1,,,,,,,2,0.05,0.25,3,0.25,,,,TRUE
+固态溢出注射,IIRT_Omega_DDOS,,,,,,0.2,,2,0.04,0.5,3,0.5,5,,,TRUE,TRUE,TRUE,,,,TRUE,,TRUE,restricted,
+"#映射层#",IIRT_MappingLayer,,,,,,0.4,,8,,,0.5,0.25,8,,,,TRUE,TRUE,,,,,,,restricted,
+月相偏移,IIRT_Omega_Moon,1,,,,,0.25,,1,0.1,4,3,2,5,,,,TRUE,TRUE,,,,,,TRUE,restricted
+波能递进,IIRT_Omega_ShockWave,,,,800,,0.1,,3,0.1,0.5,1.5,2,6,,,,,TRUE,,,,,,,restricted,
+虚无造物,IIRT_Omega_PupalSwarm,,,,,,0.1,,12,,0.5,0.15,0.1,14.25,,,,,,,,,,,,restricted,
+虚无造物,IIRT_Omega_PupalSwarm_2,,,,,,0.1,,,0.035,0.5,0.15,5,5,,,,,,,,,,,,restricted,
+幻象,IIRT_Omega_displacer_shadow,,,,,,0.1,,5,0.1,0.25,0.25,0.25,0.75,,,,,TRUE,,,,,,,restricted,
+塌缩,IIRT_Omega_displacer_shock,,,,,,0.1,,2,0.05,1,2,0.1,1.9,,,,,TRUE,,,,,,,"restricted,movement",
+塌缩,IIRT_Omega_displacer_shock_02,,,,,,0.1,,5,0.1,0.5,0.15,0.1,1.25,,,,,TRUE,,,,,,,restricted,
+侵入,IIRT_Omega_ECM_hijack,,,,,,0.1,,,0.1,0.75,10,0.25,4,,,,,TRUE,,,,,,,restricted,
+映射,IIRT_Omega_microburn_RGB,1,,,,,,,3,0.1,0.5,0.5,0.5,,,,,,,,TRUE,TRUE,,,,"restricted, movement",
+引流,IIRT_Omega_Watcher_FluxCap,,,,,,-0.1,,,0.05,0.75,10,0.25,4,,,,,TRUE,,,TRUE,,,,restricted,
+侵入,IIRT_Omega_WingMan_Black,,,,,,0.1,,2,0.05,0.75,8,4,6,,,,,,,,,,,,restricted,
+奇点抑制层,drone_station_omega,,,,,,,,3,,0,,0,0,,,,,,,,,,,,restricted,
+隧穿呈像,IIRT_Omega_phaseteleporter,,,,,,,,,,3.0,0,2.5,30,,,,,TRUE,TRUE,TRUE,TRUE,,TRUE,,restricted,graphics/icons/hullsys/displacer.png
+超弦月相涂层,IIRT_Omega_Cipher_phasecloak,,,,,,,,,,0.5,,0.2,0.3,TRUE,,TRUE,TRUE,TRUE,,,,TRUE,,TRUE,restricted,graphics/icons/hullsys/phase_cloak.png
+超弦振动涂层,IIRT_Omega_phasecloak,,,,,,,,,,0.5,,0.3,1.5,TRUE,,TRUE,TRUE,TRUE,,,,TRUE,,TRUE,restricted,graphics/icons/hullsys/phase_cloak.png

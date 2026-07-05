@@ -1,0 +1,34 @@
+{
+  "variantId": "IIRT_Lab_Diffuse_Assault",
+  "hullId": "IIRT_Lab_Diffuse",
+  "displayName": "Assault",
+  "goalVariant": true,
+  "fluxCapacitors": 10,
+  "fluxVents": 5,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "targetingunit"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0002": "phasecl"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0004": "IIRT_Lab_Tracicles",
+        "WS0005": "IIRT_Lab_Tracicles"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": [
+    "IIRT_Lab_FirstQuarter_Assault_AC"
+  ]
+}

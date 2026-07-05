@@ -1,0 +1,133 @@
+{
+  "hullName": "IIRT_Lab_BurnDirt",
+  "hullId": "IIRT_Lab_BurnDirt",
+  "hullSize": "FIGHTER",
+  "spriteName": "graphics/ships/Lab/IIRT_Lab_BurnDirt.png",
+  "style": "KRM_TECH",
+  "height": 40,
+  "width": 35,
+  "center": [18, 20],
+  "collisionRadius": 32,
+  "shieldCenter": [0, -0],
+  "shieldRadius": 31,
+  "viewOffset": 0,
+  "builtInMods": [
+    "IIRT_Lab_RPCM"
+  ],
+  "builtInWeapons": {
+    "WS0003": "blinker_green",
+    "WS0004": "blinker_red"
+  },
+  "weaponSlots": [
+    {
+      "id": "WS0003",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 0,
+      "angle": -0,
+      "locations": [-7, 8]
+    },
+    {
+      "id": "WS0004",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 0,
+      "angle": 0,
+      "locations": [-7, -8]
+    },
+    {
+      "id": "WS0002",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 0,
+      "angle": 0,
+      "locations": [0.5, -10.5]
+    },
+    {
+      "id": "WS0005",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 0,
+      "angle": -0,
+      "locations": [0.5, 10.5]
+    },
+    {
+      "id": "WS0006",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 332,
+      "angle": 0,
+      "locations": [-5, -0]
+    },
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 5,
+      "angle": -0,
+      "locations": [-2.5, 14.5]
+    },
+    {
+      "id": "WS0007",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 5,
+      "angle": 0,
+      "locations": [-2.5, -14.5]
+    },
+    {
+      "id": "WS0008",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 159,
+      "angle": 0,
+      "locations": [17.5, -0]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-19, -0],
+      "length": 17,
+      "width": 24,
+      "angle": 180,
+      "contrailSize": 24,
+      "style": "IIRT_Smoke"
+    },
+    {
+      "location": [-18.5, 8],
+      "length": 22.436537,
+      "width": 2.099356,
+      "angle": 165,
+      "contrailSize": 2.099356,
+      "style": "KRSM_TECH"
+    },
+    {
+      "location": [-18.5, -8],
+      "length": 22.436537,
+      "width": 2.099356,
+      "angle": -165,
+      "contrailSize": 2.099356,
+      "style": "KRSM_TECH"
+    }
+  ],
+  "bounds": [
+    -18.5, 5.5,
+    -2, 16,
+    4, 7.5,
+    14.5, 4.5,
+    18.5, -0,
+    14.5, -4.5,
+    4, -7.5,
+    -2, -16,
+    -18.5, -5.5,
+    -15, -0
+  ]
+}

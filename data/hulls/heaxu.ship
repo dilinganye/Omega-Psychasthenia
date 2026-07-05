@@ -1,0 +1,160 @@
+{
+  "hullName": "Heaxu",
+  "hullId": "heaxu",
+  "hullSize": "CRUISER",
+  "spriteName": "graphics/ships/Valina/heaxu.png",
+  "style": "MIDLINE",
+  "coversColor": "255,255,255,255",
+  "height": 250,
+  "width": 140,
+  "center": [70, 89],
+  "collisionRadius": 205,
+  "shieldCenter": [35, 0],
+  "shieldRadius": 160,
+  "viewOffset": 0,
+  "builtInWings": [
+    "pura_wing",
+    "pura_wing",
+    "pura_wing"
+  ],
+  "builtInWeapons": {
+    "WS 005": "pdbubu"
+  },
+  "weaponSlots": [
+    {
+      "id": "WS 001",
+      "size": "SMALL",
+      "type": "ENERGY",
+      "mount": "TURRET",
+      "arc": 210,
+      "angle": 90,
+      "locations": [-12, 48]
+    },
+    {
+      "id": "WS 002",
+      "size": "SMALL",
+      "type": "ENERGY",
+      "mount": "TURRET",
+      "arc": 210,
+      "angle": -90,
+      "locations": [-12, -48]
+    },
+    {
+      "id": "WS 004",
+      "size": "SMALL",
+      "type": "ENERGY",
+      "mount": "TURRET",
+      "arc": 270,
+      "angle": 0,
+      "locations": [125, -3]
+    },
+    {
+      "id": "WS 005",
+      "size": "SMALL",
+      "type": "BUILT_IN",
+      "mount": "TURRET",
+      "arc": 245,
+      "angle": -30,
+      "locations": [88, -14]
+    },
+    {
+      "id": "WS 007",
+      "size": "LARGE",
+      "type": "LAUNCH_BAY",
+      "mount": "HIDDEN",
+      "arc": 5,
+      "angle": 0,
+      "locations": [
+        92, 39,
+        75, 33,
+        68, 20,
+        91, 21
+      ]
+    },
+    {
+      "id": "WS 008",
+      "size": "LARGE",
+      "type": "LAUNCH_BAY",
+      "mount": "HIDDEN",
+      "arc": 5,
+      "angle": 0,
+      "locations": [
+        79, -37,
+        62, -41,
+        44, -41,
+        25, -36
+      ]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-85, -22.5],
+      "length": 80,
+      "width": 16,
+      "angle": -179,
+      "contrailSize": 64,
+      "style": "MIDLINE"
+    },
+    {
+      "location": [-85, 22.5],
+      "length": 80,
+      "width": 16,
+      "angle": 179,
+      "contrailSize": 64,
+      "style": "MIDLINE"
+    },
+    {
+      "location": [-85.5, -32],
+      "length": 80,
+      "width": 16,
+      "angle": 180,
+      "contrailSize": 64,
+      "style": "MIDLINE"
+    },
+    {
+      "location": [-85.5, 32],
+      "length": 80,
+      "width": 16,
+      "angle": -180,
+      "contrailSize": 64,
+      "style": "MIDLINE"
+    },
+    {
+      "location": [-77.5, -42.5],
+      "length": 80,
+      "width": 16,
+      "angle": 179.5,
+      "contrailSize": 64,
+      "style": "MIDLINE"
+    },
+    {
+      "location": [-77.5, 42.5],
+      "length": 80,
+      "width": 16,
+      "angle": -179.5,
+      "contrailSize": 64,
+      "style": "MIDLINE"
+    }
+  ],
+  "bounds": [
+    161, 0,
+    140, 16,
+    92, 19,
+    83, 31,
+    115, 45,
+    46, 54,
+    -32, 66,
+    -46, 50,
+    -81, 52,
+    -81, 15,
+    -46, 10,
+    -46, -7,
+    -78, -14,
+    -81, -50,
+    -48, -47,
+    -31, -68,
+    44, -45,
+    91, -31,
+    115, -25
+  ]
+}

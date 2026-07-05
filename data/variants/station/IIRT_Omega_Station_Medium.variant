@@ -1,0 +1,41 @@
+{
+  "variantId": "IIRT_Omega_Station_Medium",
+  "hullId": "IIRT_Omega_Station",
+  "displayName": "Mid",
+  "goalVariant": false,
+  "fluxCapacitors": 0,
+  "fluxVents": 0,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0002": "interdictorbeam"
+      }
+    }
+  ],
+  "modules": [
+    {
+      "WS0007": "IIRT_Omega_Weapon_Platfrom_2_Attack"
+    },
+    {
+      "WS0001": "IIRT_Omega_Weapon_Platfrom_2_Missile"
+    },
+    {
+      "WS0006": "IIRT_Omega_Weapon_Platfrom_1_Crack"
+    },
+    {
+      "WS0010": "IIRT_Omega_Tranquil_Normal_2"
+    },
+    {
+      "WS0011": "IIRT_Omega_Torsion_2_Normal_2"
+    }
+  ],
+  "wings": [
+    "IIRT_Omega_Pupal_attack_wing",
+    "IIRT_Omega_Pupal_attack_wing"
+  ]
+}

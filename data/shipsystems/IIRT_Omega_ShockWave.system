@@ -1,0 +1,33 @@
+{
+	"id":"IIRT_Omega_ShockWave",
+	"type":"EMP",
+	"aiType":"EMP",
+
+	"range":1000,
+
+	"empDamage":0,
+	"damage":0,
+	"damageType":ENERGY,
+	
+	"statsScript":"data.scripts.shipsystems.IIRT_Omega_ShockWave",
+
+	"effectColor1":[255,150,255,0],
+	"effectColor2":[185,207,255,0],
+
+	"jitterColor":[255,243,232,200],
+	"jitterCopies":0,
+	"jitterRange":0,
+	"jitterRangeRadiusFraction":0.2,	
+	
+	"fadeActivationSoundOnChargedown":true,
+	"useSound":"system_damper_omega",
+	"loopSound":"system_damper_omega_loop",
+	"deactivateSound":"system_damper_omega_off",
+	"outOfUsesSound":"gun_out_of_ammo",
+
+	"aiHints":{
+		"activeSpeedIncrease":10,  # not right since it's ship-dependent, but hopefully close enough
+		"burstMovementPotential":0,
+		"averageSpeedMult":1.46,
+	}
+}

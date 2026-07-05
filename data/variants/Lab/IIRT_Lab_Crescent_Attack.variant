@@ -1,0 +1,30 @@
+{
+  "variantId": "IIRT_Lab_Crescent_Attack",
+  "hullId": "IIRT_Lab_Crescent",
+  "displayName": "Attack",
+  "goalVariant": false,
+  "fluxCapacitors": 0,
+  "fluxVents": 0,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "IIRT_Lab_Crescent_Body",
+        "WS0003": "IIRT_Lab_Crescent_SG"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0002": "IIRT_Lab_Crescent_Head"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

@@ -1,0 +1,45 @@
+{
+  "variantId": "IIRT_Omega01_Only",
+  "hullId": "IIRT_Omega01",
+  "displayName": "Omega01",
+  "goalVariant": true,
+  "fluxCapacitors": 14,
+  "fluxVents": 19,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "vpdriver"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0002": "cryoblaster"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0004": "shockrepeater"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0003": "minipulser",
+        "WS0005": "minipulser",
+        "WS0006": "minipulser"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

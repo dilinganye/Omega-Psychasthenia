@@ -1,0 +1,17 @@
+{
+	"id":"IIRT_Unstable_shot",
+	"onHitEffect":"data.scripts.weapons.IIRT_SD_Unstable",
+	"specClass":"projectile",
+	"spawnType":"BALLISTIC_AS_BEAM",
+	"collisionClass":"RAY",
+	"collisionClassByFighter":"RAY_FIGHTER",
+	"length":60.0,
+	"hitGlowRadius":60,
+	"width":30.0,
+	"fadeTime":0.2,
+	"fringeColor":[205,199,251,255],
+	"coreColor":[220,192,226,255],	
+	"textureScrollSpeed":64.0,
+	"pixelsPerTexel":5.0,
+	"bulletSprite":"graphics/missiles/Plasma_Entropy.png"
+}

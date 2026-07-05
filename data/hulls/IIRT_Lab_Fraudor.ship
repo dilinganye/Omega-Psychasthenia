@@ -1,0 +1,89 @@
+{
+  "hullName": "IIRT_Lab_Fraudor",
+  "hullId": "IIRT_Lab_Fraudor",
+  "hullSize": "FIGHTER",
+  "spriteName": "graphics/ships/Lab/IIRT_Lab_Fraudor.png",
+  "style": "KRM_TECH",
+  "height": 30,
+  "width": 28,
+  "center": [14, 14],
+  "collisionRadius": 42,
+  "shieldCenter": [1, 0],
+  "shieldRadius": 40.5,
+  "viewOffset": 0,
+  "builtInMods": [
+    "IIRT_Lab_PhaseOverlay"
+  ],
+  "builtInWeapons": {
+    "WS0003": "blinker_red",
+    "WS0004": "blinker_red"
+  },
+  "weaponSlots": [
+    {
+      "id": "WS0002",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": -0,
+      "locations": [-6.5, -0]
+    },
+    {
+      "id": "WS0003",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 0,
+      "angle": 0,
+      "locations": [4, -10.5]
+    },
+    {
+      "id": "WS0004",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 0,
+      "angle": -0,
+      "locations": [4, 10.5]
+    },
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "ENERGY",
+      "mount": "HIDDEN",
+      "arc": 5,
+      "angle": 0,
+      "locations": [7, -0]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [2, 13.5],
+      "length": 2.5,
+      "width": 7,
+      "angle": 90,
+      "contrailSize": 7,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [2, -13.5],
+      "length": 2.5,
+      "width": 7,
+      "angle": -90,
+      "contrailSize": 7,
+      "style": "HIGH_TECH"
+    }
+  ],
+  "bounds": [
+    -13, 2,
+    -0.5, 13,
+    8.5, 13,
+    15, 6,
+    11, 3,
+    11, -3,
+    15, -6,
+    8.5, -13,
+    -0.5, -13,
+    -13, -2
+  ]
+}

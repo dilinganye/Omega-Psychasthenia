@@ -1,0 +1,189 @@
+{
+  "hullName": "IIRT_Lab_Slod_Sec",
+  "hullId": "IIRT_Lab_Slod_Sec",
+  "hullSize": "FIGHTER",
+  "spriteName": "graphics/ships/Lab/IIRT_Lab_Slod_Sec.png",
+  "style": "KRM_TECH",
+  "height": 55,
+  "width": 110,
+  "center": [55, 23],
+  "collisionRadius": 76,
+  "shieldCenter": [-0.5, -0],
+  "shieldRadius": 69,
+  "viewOffset": 0,
+  "builtInMods": [
+    "turretgyros",
+    "adaptive_coils"
+  ],
+  "builtInWeapons": {
+    "WS0005": "blinker_green"
+  },
+  "weaponSlots": [
+    {
+      "id": "WS0002",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 52,
+      "angle": -0,
+      "locations": [0, -0]
+    },
+    {
+      "id": "WS0003",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 180,
+      "angle": -0,
+      "locations": [17, -0.5]
+    },
+    {
+      "id": "WS0004",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 180,
+      "angle": 0,
+      "locations": [17, 0.5]
+    },
+    {
+      "id": "WS0001",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 360,
+      "angle": 180,
+      "locations": [-5.5, -0]
+    },
+    {
+      "id": "WS0005",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 0,
+      "angle": -0,
+      "locations": [0, -0]
+    },
+    {
+      "id": "WS0006",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 360,
+      "angle": -0,
+      "locations": [15, -0]
+    },
+    {
+      "id": "WS0007",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 360,
+      "angle": 0,
+      "locations": [15, 0]
+    },
+    {
+      "id": "WS0008",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 360,
+      "angle": -0,
+      "locations": [16, -0]
+    },
+    {
+      "id": "WS0009",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 360,
+      "angle": 0,
+      "locations": [16, 0]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-9.5, -0],
+      "length": 132,
+      "width": 9,
+      "angle": 180,
+      "contrailSize": 9,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-5, -23.5],
+      "length": 22.08934,
+      "width": 6.945808,
+      "angle": -125.5,
+      "contrailSize": 6.945808,
+      "style": "Cipher_Moon"
+    },
+    {
+      "location": [-5, 23.5],
+      "length": 22.08934,
+      "width": 6.945808,
+      "angle": 125.5,
+      "contrailSize": 6.945808,
+      "style": "Cipher_Moon"
+    },
+    {
+      "location": [-13, -7],
+      "length": 58.233814,
+      "width": 11.193417,
+      "angle": 175,
+      "contrailSize": 11.193417,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-13, 7],
+      "length": 58.233814,
+      "width": 11.193417,
+      "angle": -175,
+      "contrailSize": 11.193417,
+      "style": "HIGH_TECH"
+    }
+  ],
+  "bounds": [
+    -8.5, 2,
+    -17.5, 3,
+    -21, 10,
+    -20, 17,
+    -4, 26,
+    -7, 31,
+    -7.5, 40,
+    -12, 41.5,
+    -3.5, 43.5,
+    1, 49.5,
+    -0.5, 53,
+    10, 50.5,
+    7, 46.5,
+    7, 43.5,
+    13, 42,
+    13, 38.5,
+    30, 24,
+    30.5, 18.5,
+    20, 6.5,
+    9, 5,
+    6.5, 0,
+    9, -5,
+    20, -6.5,
+    30.5, -18.5,
+    30, -24,
+    13, -38.5,
+    13, -42,
+    7, -43.5,
+    7, -46.5,
+    10, -50.5,
+    -0.5, -53,
+    1, -49.5,
+    -3.5, -43.5,
+    -12, -41.5,
+    -7.5, -40,
+    -7, -31,
+    -4, -26,
+    -20, -17,
+    -21, -10,
+    -17.5, -3,
+    -8.5, -2
+  ]
+}

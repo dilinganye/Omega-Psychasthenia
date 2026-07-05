@@ -1,0 +1,17 @@
+{
+	"baseHullId":"hermes",
+	"skinHullId":"hermes_TY",
+	"hullName":"纸上的画",
+	"descriptionId":"hermes",  # optional
+	"descriptionPrefix":"多可爱而又跃然纸上的东西呀。这类船通常标有\"涂鸦\"，表示\"可爱\"或\"脑子不太正常\" ",
+	"restoreToBaseHull":true,
+	"spriteName":"graphics/ships/hermes_TY.png",
+	"baseValueMult":.65,
+	"removeWeaponSlots":[], 		# ids
+	"removeEngineSlots":[], 		# indices, as engine slots have no id in the .ship file
+	"removeBuiltInMods":[], 		# hullmod ids
+	"removeBuiltInWeapons":[], 		# weapon slot ids
+	"builtInMods":[],
+	"builtInWeapons":{
+    },
+}

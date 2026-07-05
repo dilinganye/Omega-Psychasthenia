@@ -1,0 +1,43 @@
+{
+  "id": "IIRT_Lab_Pessimism_Main",
+  "specClass": "projectile",
+  "projectileSpecId": "IIRT_Lab_Convergent_blast",
+  "type": "ENERGY",
+  "size": "LARGE",
+  "turretSprite": "graphics/weapons/System/IIRT_Lab_Pessimism_Main.png",
+  "turretGlowSprite": "graphics/weapons/System/IIRT_Lab_Pessimism_Main_L.png",
+  "hardpointSprite": "graphics/weapons/System/IIRT_Lab_Pessimism_Main.png",
+  "hardpointGlowSprite": "graphics/weapons/System/IIRT_Lab_Pessimism_Main_L.png",
+  "glowColor": [
+    186,202,255,
+    255
+  ],
+  "turretOffsets": [
+    5,
+    0
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    27,
+    0
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "barrelMode": "ALTERNATING",
+  "animationType": "GLOW_AND_FLASH",
+  "muzzleFlashSpec": {
+    "length": 60,
+    "spread": 16,
+    "particleSizeMin": 10,
+    "particleSizeRange": 10,
+    "particleDuration": 0.5,
+    "particleCount": 10,
+    "particleColor": [
+      150,100,255,
+      200
+    ]
+  }
+}

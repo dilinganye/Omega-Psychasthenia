@@ -1,0 +1,63 @@
+{
+  "id": "IIRT_Lab_Crescent_SG",
+  "specClass": "projectile",
+  "projectileSpecId": "railgun_shot",
+  "type": "ENERGY",
+  "size": "SMALL",
+  "turretSprite": "graphics/weapons/AC/IIRT_Lab_Crescent/IIRT_Lab_Crescent_SG.png",
+  "turretGlowSprite": "graphics/weapons/AC/IIRT_Lab_Crescent/IIRT_Lab_Crescent_SG_L.png",
+  "turretGunSprite": "graphics/weapons/AC/IIRT_Lab_Crescent/IIRT_Lab_Crescent_SG_B.png",
+  "hardpointSprite": "graphics/weapons/AC/IIRT_Lab_Crescent/IIRT_Lab_Crescent_SG.png",
+  "hardpointGlowSprite": "graphics/weapons/AC/IIRT_Lab_Crescent/IIRT_Lab_Crescent_SG_L.png",
+  "hardpointGunSprite": "graphics/weapons/AC/IIRT_Lab_Crescent/IIRT_Lab_Crescent_SG_B.png",
+  "glowColor": [
+    255,
+    255,
+    255,
+    255
+  ],
+  "visualRecoil": 5,
+  "turretOffsets": [
+    35,
+    -9,
+    35,
+    -9.5,
+    35,
+    -8.5,
+    34.5,
+    -9,
+    34.5,
+    -9
+  ],
+  "turretAngleOffsets": [
+    0,
+    -5.5,
+    5.5,
+    5.5,
+    -5.5
+  ],
+  "hardpointOffsets": [
+    54.5,
+    -9
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "barrelMode": "LINKED",
+  "animationType": "GLOW_AND_FLASH",
+  "muzzleFlashSpec": {
+    "length": 40,
+    "spread": 20,
+    "particleSizeMin": 10,
+    "particleSizeRange": 14,
+    "particleDuration": 0.5,
+    "particleCount": 3,
+    "particleColor": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  "fireSoundTwo": "heavy_mortar_fire"
+}

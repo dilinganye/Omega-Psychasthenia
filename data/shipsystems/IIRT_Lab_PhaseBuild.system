@@ -1,0 +1,25 @@
+{
+	"id":"IIRT_Lab_PhaseBuild",
+	"type":"STAT_MOD",
+	"aiType":"TEMPORAL_SHELL",
+	
+	"statsScript":"data.scripts.shipsystems.IIRT_Lab_PhaseBuild",
+	"canUseWhileRightClickSystemOn":true,
+	
+	"jitterColor":[255,229,255,200],
+	"jitterCopies":0,
+	"jitterRange":0,
+	"jitterRangeRadiusFraction":0.2,	
+	
+	"fadeActivationSoundOnChargedown":true,
+	"useSound":"system_damper_omega",
+	"loopSound":"system_damper_omega_loop",
+	"deactivateSound":"system_damper_omega_off",
+	"outOfUsesSound":"gun_out_of_ammo",
+
+	"aiHints":{
+		"activeSpeedIncrease":10,  # not right since it's ship-dependent, but hopefully close enough
+		"burstMovementPotential":0,
+		"averageSpeedMult":1.46,
+	}
+}

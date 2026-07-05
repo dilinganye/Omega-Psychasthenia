@@ -1,0 +1,30 @@
+{
+	"specClass":"beam",
+	"id":"IIRT_Omega_Moon_PD",
+	"type":"ENERGY",
+	"size":"SMALL",
+	"beamEffect":"data.scripts.weapons.IIRT_Omega_50HeavyBeam",
+	"collisionClass":"RAY",
+	"collisionClassByFighter":"RAY_FIGHTER",
+	"turretSprite":"graphics/weapons/burstpd_turret_base.png",
+	"turretGlowSprite":"graphics/weapons/burstpd_turret_glow.png",
+	"hardpointSprite":"graphics/weapons/burstpd_hardpoint_base.png",
+	"hardpointGlowSprite":"graphics/weapons/burstpd_hardpoint_glow.png",
+	"turretOffsets":[10, 0],
+	"turretAngleOffsets":[0],
+	"hardpointOffsets":[15, 0],
+	"hardpointAngleOffsets":[0],
+	"fringeColor":[95,145,134,255],
+	"coreColor":[185,240,221,255],
+	"glowColor":[185,207,255,255],
+	"width":12.0,
+	"textureType": [
+	"graphics/fx/Cipher_Moon_32c.png",
+	"graphics/fx/Bomb_Lazer_Fringe.png"
+	],
+	"textureScrollSpeed":300.0,
+	"pixelsPerTexel":5.0,
+	"pierceSet":[PROJECTILE_FF,PROJECTILE_NO_FF,PROJECTILE_FIGHTER],
+	"fireSoundOne":"burst_pd_fire",
+	#"fireSoundTwo":"burst_pd_loop",IIRT_50HeavyBeam
+}

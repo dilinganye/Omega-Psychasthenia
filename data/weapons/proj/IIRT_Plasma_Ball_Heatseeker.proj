@@ -1,0 +1,43 @@
+{
+	"id":"IIRT_Plasma_Ball_Heatseeker",
+	"specClass":"missile",	
+	"missileType":"HEATSEEKER",
+	"onHitEffect":"com.fs.starfarer.api.impl.combat.BreachOnHitEffect",
+	"onFireEffect":"data.scripts.weapons.IIRT_BeamLinkMissile",
+	"sprite":"graphics/missiles/Plasma_Entropy.png",
+	"glowSprite":"graphics/missiles/Plasma_Entropy.png",
+	"size":[60,90],
+	"center":[30,45],
+	"collisionRadius":50,
+	"collisionClass":"MISSILE_NO_FF",
+	"explosionColor":[142,75,169,255],  # purely visual, will get a white additively blended core on top of this color
+	"explosionRadius":80,
+	"flameoutTime":2,
+	"noEngineGlowTime":0.6,
+	"fadeTime":0.8,
+  	"engineSpec":{"turnAcc":600,
+				  "turnRate":300,
+				  "acc":5500,
+				  "dec":3500},
+	"engineSlots":[{"id":"ES1",
+					"loc":[-6, 0],
+				    "style":"CUSTOM",
+					"styleSpec":{
+						"mode":"QUAD_STRIP", # PARTICLES or QUAD_STRIP, determines which params are used
+						"engineColor":[228,172,240,255],
+						"glowSizeMult":2,
+						"contrailDuration":0.5,
+						"contrailWidthMult":1,
+						"contrailWidthAddedFractionAtEnd":2.5,  # can be negative. makes trail spread out/narrow at the end
+						"contrailMinSeg":5, # min segment length, in pixels
+						"contrailMaxSpeedMult":0.5f,
+						"contrailAngularVelocityMult":0.5f,
+						#"contrailSpawnDistMult":0f, # how far away from engine it starts
+						"contrailColor":[189,152,240,150],
+						"type":"SMOKE" # GLOW or SMOKE; additive or regular blend mode
+					},
+				    "width":4.0,
+				    "length":25.0,
+				    "angle":180.0},
+				    ]
+}

@@ -1,0 +1,205 @@
+{
+  "hullName": "IIRT_Omega_Heart",
+  "hullId": "IIRT_Omega_Heart",
+  "hullSize": "CAPITAL_SHIP",
+  "spriteName": "graphics/ships/Omega_Heart.png",
+  "style": "OMEGA",
+  "height": 150,
+  "width": 90,
+  "center": [44.5, 79.5],
+  "collisionRadius": 86,
+  "shieldCenter": [0, -0],
+  "shieldRadius": 84.5,
+  "viewOffset": 0,
+  "builtInMods": [
+    "advancedcore",
+    "automated",
+    "fluxbreakers",
+    "IIRT_Omega_CubeShardSpawner",
+    "automated",
+    "do_not_back_off"
+  ],
+  "builtInWeapons": {
+    "WS0013": "realitydisruptor"
+  },
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "LARGE",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 0,
+      "angle": 0,
+      "locations": [-23, 7.5]
+    },
+    {
+      "id": "WS0002",
+      "size": "LARGE",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 239,
+      "angle": 0,
+      "locations": [-23.5, 7.5]
+    },
+    {
+      "id": "WS0003",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 280,
+      "angle": -45,
+      "locations": [19, -16.5]
+    },
+    {
+      "id": "WS0004",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 140,
+      "angle": 0,
+      "locations": [2.5, -1.5]
+    },
+    {
+      "id": "WS0005",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 270,
+      "angle": 135,
+      "locations": [-20.5, 31.5]
+    },
+    {
+      "id": "WS0006",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 270,
+      "angle": -135,
+      "locations": [-14.5, -27.5]
+    },
+    {
+      "id": "WS0007",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": -45,
+      "locations": [4.5, -34.5]
+    },
+    {
+      "id": "WS0008",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [28.5, 8.5]
+    },
+    {
+      "id": "WS0009",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HARDPOINT",
+      "arc": 0,
+      "angle": 0,
+      "locations": [50.5, -25.5]
+    },
+    {
+      "id": "WS0011",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "HARDPOINT",
+      "arc": 0,
+      "angle": 0,
+      "locations": [60.5, 16.5]
+    },
+    {
+      "id": "WS0012",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "HARDPOINT",
+      "arc": 0,
+      "angle": 0,
+      "locations": [54.5, -4.5]
+    },
+    {
+      "id": "WS0013",
+      "size": "LARGE",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 0,
+      "angle": 0,
+      "locations": [-22, -17]
+    },
+    {
+      "id": "WS0014",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HARDPOINT",
+      "arc": 0,
+      "angle": 0,
+      "locations": [64.5, 33.5]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-39.5, 21.5],
+      "length": 49.823338,
+      "width": 23.399572,
+      "angle": 180,
+      "contrailSize": 23.399572,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-48.5, -1],
+      "length": 31.236515,
+      "width": 16.19014,
+      "angle": 180,
+      "contrailSize": 16.19014,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-40, -8.5],
+      "length": 26,
+      "width": 12,
+      "angle": 180,
+      "contrailSize": 12,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-33, -14],
+      "length": 23.5,
+      "width": 10,
+      "angle": 180,
+      "contrailSize": 10,
+      "style": "OMEGA"
+    }
+  ],
+  "bounds": [
+    -31.5, 31.5,
+    -39, 31.5,
+    -55, 12.5,
+    -50.5, 5.5,
+    -56.5, 3,
+    -62, 6.5,
+    -75.5, 6,
+    -67.5, -2,
+    -78.5, -4,
+    -36.5, -39.5,
+    -22, -43,
+    -14.5, -38,
+    11, -42,
+    52.5, -30,
+    52.5, -21,
+    43, -15.5,
+    61.5, -11,
+    61.5, 3.5,
+    49.5, 4,
+    48, 7,
+    62.5, 8,
+    66.5, 37.5,
+    40, 41.5,
+    21.5, 36,
+    -22.5, 38.5
+  ]
+}

@@ -1,0 +1,176 @@
+{
+  "hullName": "IIRT_Omega_Cube",
+  "hullId": "IIRT_Omega_Cube",
+  "hullSize": "DESTROYER",
+  "spriteName": "graphics/ships/IIRT_Omega_Cube.png",
+  "style": "OMEGA",
+  "height": 219,
+  "width": 203,
+  "center": [99.5, 108.5],
+  "collisionRadius": 146,
+  "shieldCenter": [7, -1],
+  "shieldRadius": 130.5,
+  "viewOffset": 0,
+  "builtInMods": [
+    "high_scatter_amp",
+    "advancedcore",
+    "shield_always_on",
+    "IIRT_Omega_CubeShardSpawner",
+    "fluxshunt",
+    "automated"
+  ],
+  "builtInWeapons": {
+    "WS0007": "riftcascade",
+    "WS0008": "amsrm",
+    "WS0009": "amsrm",
+    "WS0010": "amsrm",
+    "WS0011": "IIRT_Omega_Cube_Wave_R",
+    "WS0012": "IIRT_Omega_Cube_Wave_B",
+    "WS0013": "IIRT_Omega_Cube_Wave"
+  },
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 252,
+      "angle": 179,
+      "locations": [-82.5, -1]
+    },
+    {
+      "id": "WS0002",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 232,
+      "angle": 117.5,
+      "locations": [-32.5, 71.5]
+    },
+    {
+      "id": "WS0003",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 222,
+      "angle": -120.5,
+      "locations": [-27, -71]
+    },
+    {
+      "id": "WS0004",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 244,
+      "angle": -65,
+      "locations": [39.5, -82.5]
+    },
+    {
+      "id": "WS0005",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 252,
+      "angle": -2.5,
+      "locations": [100, -6]
+    },
+    {
+      "id": "WS0006",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 230,
+      "angle": 64.5,
+      "locations": [39, 71]
+    },
+    {
+      "id": "WS0007",
+      "size": "LARGE",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 360,
+      "angle": -124.5,
+      "locations": [5.5, -1]
+    },
+    {
+      "id": "WS0008",
+      "size": "SMALL",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 0,
+      "angle": 36.5,
+      "locations": [-23, 56]
+    },
+    {
+      "id": "WS0009",
+      "size": "SMALL",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 0,
+      "angle": -20.5,
+      "locations": [60, 33]
+    },
+    {
+      "id": "WS0010",
+      "size": "SMALL",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 1,
+      "angle": -145.5,
+      "locations": [0.5, 0.5]
+    },
+    {
+      "id": "WS0012",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [7, -1]
+    },
+    {
+      "id": "WS0011",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [7, -1]
+    },
+    {
+      "id": "WS0013",
+      "size": "LARGE",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [7, -1]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-93, -2],
+      "length": 21.5,
+      "width": 33,
+      "angle": 180,
+      "contrailSize": 33,
+      "style": "OMEGA"
+    },
+    {
+      "location": [108, -6],
+      "length": 21.5,
+      "width": 33,
+      "angle": 0,
+      "contrailSize": 33,
+      "style": "OMEGA"
+    }
+  ],
+  "bounds": [
+    -93.5, -1,
+    -31, -77.5,
+    45.5, -92,
+    109.5, -6.5,
+    44.5, 74,
+    -33, 84.5
+  ]
+}

@@ -1,0 +1,148 @@
+{
+  "hullName": "IIRT_Omega_Station_move",
+  "hullId": "IIRT_Omega_Station_move",
+  "hullSize": "CAPITAL_SHIP",
+  "spriteName": "graphics/ships/Station/IIRT_Omega_Station_Center.png",
+  "style": "OMEGA_Plus",
+  "height": 84,
+  "width": 84,
+  "center": [42, 42],
+  "collisionRadius": 44.5,
+  "shieldCenter": [0, 0],
+  "shieldRadius": 41,
+  "viewOffset": 0,
+  "builtInMods": [
+    "vastbulk",
+    "supercomputer",
+    "shield_always_on",
+    "fluxshunt",
+    "do_not_fire_through",
+    "axialrotation",
+    "shared_flux_sink",
+    "automated",
+    "chassis_storage",
+    "no_weapon_flux",
+    "IIRT_Omega_CubeShardSpawner"
+  ],
+  "builtInWeapons": {
+    "WS0003": "IIRT_Omega_Cube_Wave_B",
+    "WS0004": "IIRT_Omega_Cube_Wave_B",
+    "WS0005": "IIRT_Omega_Cube_Wave_B"
+  },
+  "weaponSlots": [
+    {
+      "id": "WS0002",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 90,
+      "locations": [0, -0]
+    },
+    {
+      "id": "WS0006",
+      "size": "SMALL",
+      "type": "STATION_MODULE",
+      "mount": "TURRET",
+      "arc": 0,
+      "angle": 180,
+      "locations": [-127.5, 1]
+    },
+    {
+      "id": "WS0001",
+      "size": "MEDIUM",
+      "type": "STATION_MODULE",
+      "mount": "TURRET",
+      "arc": 0,
+      "angle": 45,
+      "locations": [238, 238]
+    },
+    {
+      "id": "WS0007",
+      "size": "MEDIUM",
+      "type": "STATION_MODULE",
+      "mount": "TURRET",
+      "arc": 0,
+      "angle": -45,
+      "locations": [238, -238]
+    },
+    {
+      "id": "WS0008",
+      "size": "MEDIUM",
+      "type": "STATION_MODULE",
+      "mount": "TURRET",
+      "arc": 0,
+      "angle": 135,
+      "locations": [-238, 258]
+    },
+    {
+      "id": "WS0009",
+      "size": "MEDIUM",
+      "type": "STATION_MODULE",
+      "mount": "TURRET",
+      "arc": 0,
+      "angle": -135,
+      "locations": [-238, -258]
+    },
+    {
+      "id": "WS0010",
+      "size": "SMALL",
+      "type": "STATION_MODULE",
+      "mount": "TURRET",
+      "arc": 0,
+      "angle": 51.5,
+      "locations": [74.5, 103]
+    },
+    {
+      "id": "WS0011",
+      "size": "SMALL",
+      "type": "STATION_MODULE",
+      "mount": "TURRET",
+      "arc": 0,
+      "angle": -55.5,
+      "locations": [72.5, -104.5]
+    },
+    {
+      "id": "WS0003",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 90,
+      "locations": [0, -0]
+    },
+    {
+      "id": "WS0004",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 45,
+      "locations": [0, -0]
+    },
+    {
+      "id": "WS0005",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [0, -0]
+    }
+  ],
+  "engineSlots": [],
+  "bounds": [
+    -21, -5,
+    -14, -16,
+    -4, -21,
+    5, -21,
+    14, -16,
+    21, -5,
+    21, 5,
+    14, 16,
+    5, 21,
+    -4, 21,
+    -14, 16,
+    -21, 5
+  ]
+}

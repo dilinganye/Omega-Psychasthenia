@@ -1,0 +1,83 @@
+{
+  "hullName": "IIRT_SD_Recall",
+  "hullId": "IIRT_SD_Recall",
+  "hullSize": "FIGHTER",
+  "spriteName": "graphics/ships/IIRT/IIRT_Recall.png",
+  "style": "IIRT_TECH",
+  "height": 33,
+  "width": 30,
+  "center": [15, 13],
+  "collisionRadius": 34,
+  "shieldCenter": [3.5, 0],
+  "shieldRadius": 30,
+  "viewOffset": 0,
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "MEDIUM",
+      "type": "ENERGY",
+      "mount": "HIDDEN",
+      "arc": 7,
+      "angle": 0,
+      "locations": [0.5, 0]
+    },
+    {
+      "id": "WS0002",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 77,
+      "angle": 33.5,
+      "locations": [0.5, 8]
+    },
+    {
+      "id": "WS0003",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 77,
+      "angle": -33.5,
+      "locations": [0.5, -8]
+    },
+    {
+      "id": "WS0004",
+      "size": "MEDIUM",
+      "type": "ENERGY",
+      "mount": "HIDDEN",
+      "arc": 7,
+      "angle": 0,
+      "locations": [5, -0]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-10.5, -0],
+      "length": 15.5,
+      "width": 6,
+      "angle": 180,
+      "contrailSize": 6,
+      "style": "DEVK_TECH"
+    },
+    {
+      "location": [-9, 9],
+      "length": 11.249438,
+      "width": 2.792946,
+      "angle": -131.5,
+      "contrailSize": 2.792946,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-9, -9],
+      "length": 11.249438,
+      "width": 2.792946,
+      "angle": 131.5,
+      "contrailSize": 2.792946,
+      "style": "OMEGA"
+    }
+  ],
+  "bounds": [
+    -4, 12,
+    12, -0,
+    -4, -12
+  ]
+}

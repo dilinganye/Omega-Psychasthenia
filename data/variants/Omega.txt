@@ -1,0 +1,158 @@
+IIRT_Omega_Arrow	箭头
+	IIRT_Omega_Arrow_Only	#反结构	冰喷
+	IIRT_Omega_Arrow_Only_2	#反护甲	裂解炮
+	IIRT_Omega_Arrow_Only_3	#进攻	裂隙射线-中
+	IIRT_Omega_Arrow_Only_4	#反护盾	共鸣体
+	IIRT_Omega_Arrow_Only_5	#反护盾	不稳定粒子
+	IIRT_Omega_Arrow_Only_6	#点防御	熵增
+	IIRT_Omega_Arrow_Only_7	#进攻	雾气
+
+IIRT_Omega_Crack	瑕疵
+	IIRT_Omega_Crack_Only	#导弹	反物质轰炸
+	IIRT_Omega_Crack_Only_2	#反护盾	微型脉冲
+	IIRT_Omega_Crack_Only_3	#点防御	电冲连发器
+	IIRT_Omega_Crack_Only2	#点防御	裂隙长矛-小
+	
+
+IIRT_Omega_Cube	魔方
+	IIRT_Omega_Cube_Lazer_Plus	#通用	电冲+裂隙
+	IIRT_Omega_Cube_Shock	#通用	电冲+反物质
+	IIRT_Omega_Cube_Shock_Plus	#通用	电冲+反物质
+
+IIRT_Omega_Inner	内形
+	IIRT_Omega_Inner_Normal_1	#导弹	共鸣体
+	
+
+IIRT_Omega_Proxy	代理
+	IIRT_Omega_Proxy_Only	#反护盾	微型脉冲+反物质		HTTP
+	IIRT_Omega_Proxy_Only2	#进攻	裂隙+反物质		SSL
+	IIRT_Omega_Proxy_Only3	#点防御	电冲+反物质		SOCKS
+	IIRT_Omega_Proxy_Only4	#导弹	电冲+反物质		SOCKS
+
+IIRT_Omega_Gateway	网关
+	IIRT_Omega_Gateway_Only	#点防御	熵增		OSPF
+	IIRT_Omega_Gateway_Only2	#进攻	裂隙		RIP
+	IIRT_Omega_Gateway_Only3	#导弹	共鸣体		BGP
+	IIRT_Omega_Gateway_Only4	#反护盾	不稳定		EIGRP
+	IIRT_Omega_Gateway_Only5	#反护甲	裂解炮		IS_IS
+
+IIRT_Omega_Sinus	正弦
+	IIRT_Omega_Sinus_Only	#反护盾	不稳定+脉冲
+	IIRT_Omega_Sinus_Only_2	#进攻	裂隙射线-中
+	IIRT_Omega_Sinus_Only_3	#反结构	冰喷+反物质
+	IIRT_Omega_Sinus_Only_4	#反护甲	裂解炮
+	IIRT_Omega_Sinus_Only_5	#导弹	共鸣体+反物质
+
+IIRT_Omega_Cosinus	余弦
+	IIRT_Omega_Cosinus_Only	#反护甲	裂解炮+反物质
+	IIRT_Omega_Cosinus_Only_2	#反护盾	共鸣体+反物质
+	IIRT_Omega_Cosinus_Only_3	#反结构	冰喷+反物质
+	IIRT_Omega_Cosinus_Only_4	#进攻	裂隙
+
+IIRT_Omega_Tangento	正切
+	IIRT_Omega_Tangento_Only	#支援	导弹武器
+	IIRT_Omega_Tangento_Only2	#点防御	现实干扰器+熵增
+	IIRT_Omega_Tangento_Only_2	#反护盾	不稳定+脉冲
+	IIRT_Omega_Tangento_Only_3	#进攻	裂隙
+	
+
+IIRT_Omega_Torsion_2	扭矩
+	IIRT_Omega_Torsion_2_Normal	#点防御	熵增+电冲
+	IIRT_Omega_Torsion_2_Normal_2	#进攻	裂隙
+	IIRT_Omega_Torsion_2_Normal_3	#反护甲	裂解炮
+	IIRT_Omega_Torsion_2_Normal_4	#反护盾	不稳定
+	IIRT_Omega_Torsion_2_Normal_5	#导弹	共鸣体+反物质
+
+IIRT_Omega_Tranquil	宁静
+	IIRT_Omega_Tranquil_Normal_1	#导弹	反物质
+	IIRT_Omega_Tranquil_Normal_2	#进攻	裂隙
+	IIRT_Omega_Tranquil_Normal_3	#反护盾	微型脉冲
+	IIRT_Omega_Tranquil_Normal_4	#点防御	电冲
+
+IIRT_Omega_Riots	缭乱
+	IIRT_Omega_Riots_Normal_1	#进攻	裂隙
+	IIRT_Omega_Riots_Normal_2	#导弹	共鸣体+反物质
+	IIRT_Omega_Riots_Normal_3	#反护甲	裂解炮
+	IIRT_Omega_Riots_Normal_4	#反护盾	不稳定+微型脉冲
+	IIRT_Omega_Riots_Normal_5	#点防御	熵增+电冲
+	IIRT_Omega_Riots_Normal_6	#送死	冰喷+反物质
+	
+IIRT_Omega_Bustle	喧嚣
+	IIRT_Omega_Bustle_Normal_1	#导弹	共鸣体+反物质
+	IIRT_Omega_Bustle_Normal_2	#进攻	裂隙+反物质
+	IIRT_Omega_Bustle_Normal_3	#反护盾	不稳定+微型脉冲
+	IIRT_Omega_Bustle_Normal_4	#反护甲	裂解炮+反物质
+	IIRT_Omega_Bustle_Normal_5	#送死	冰喷+反物质
+	IIRT_Omega_Bustle_Normal_6	#反结构	冰冲+反物质
+	
+
+IIRT_Omega_Deplorable	可叹
+	IIRT_Omega_Deplorable_Normal_1	#进攻	裂隙
+	IIRT_Omega_Deplorable_Normal_2	#反护甲	裂解炮+裂隙长矛-小
+	IIRT_Omega_Deplorable_Normal_3	#点防御	熵增+电冲
+	IIRT_Omega_Deplorable_Normal_4	#导弹	共鸣体+反物质
+	IIRT_Omega_Deplorable_Normal_5	#反结构	冰冲+脉冲
+
+IIRT_Omega_Inspect	侦察
+	IIRT_Omega_Inspect_Normal_1	#导弹	反物质
+	IIRT_Omega_Inspect_Normal_2	#点防御	电冲
+	IIRT_Omega_Inspect_Normal_3	#进攻	裂隙
+	IIRT_Omega_Inspect_Normal_4	#反护盾	微型脉冲
+	
+IIRT_Omega_Firewall	防火墙
+	IIRT_Omega_Firewall_Only	#反护盾	共鸣体+不稳定+脉冲
+	IIRT_Omega_Firewall_Only_2	#反护甲	裂解炮+冰喷+反物质
+	IIRT_Omega_Firewall_Only_3	#进攻	裂隙
+	IIRT_Omega_Firewall_Only_4	#导弹	共鸣体+反物质
+	IIRT_Omega_Firewall_Only_5	#点防御	熵增+裂隙
+
+IIRT_Omega_Antitrack	反跟踪
+	IIRT_Omega_Antitrack_Only	#导弹	共鸣体+反物质+裂隙鱼雷	Obfuscation	混淆
+	IIRT_Omega_Antitrack_Only_2	#进攻	裂隙洪流	Spoofing	欺骗
+	IIRT_Omega_Antitrack_Only_3	#点防御	现实干扰器+裂隙射线+电冲	Encryption	加密
+	IIRT_Omega_Antitrack_Only_4	#反护盾	共鸣体+反物质+裂隙鱼雷	Masking	伪装
+	IIRT_Omega_Antitrack_Only2	#点防御	裂隙洪流+裂隙射线+电冲	Time Delay	时间延迟
+
+	
+
+IIRT_Omega_Heatdeath	热寂
+	IIRT_Omega_Heatdeath_Normal	#进攻	冰喷+冰冲+热虹吸
+	IIRT_Omega_Heatdeath_Normal_Plus	#进攻	冰冲+反物质
+	IIRT_Omega_Heatdeath_Missile	#导弹	冰冲+反物质
+	IIRT_Omega_Heatdeath_AntiArmor	#反护甲	裂解炮+冰喷+热虹吸
+	IIRT_Omega_Heatdeath_Support	#点防御	裂隙射线+电冲
+
+IIRT_Omega_Singularity  奇点
+    IIRT_Omega_Singularity_Attack   #进攻	冰喷+冰冲+热虹吸
+    IIRT_Omega_Singularity_Attack_Plus  #进攻	全能
+    IIRT_Omega_Singularity_Missile  #导弹	共鸣体+反物质+电冲
+    IIRT_Omega_Singularity_Support  #点防御	电冲+裂隙射线
+    IIRT_Omega_Singularity_AntiShield   #反护盾	不稳定+共鸣体+裂隙
+    IIRT_Omega_Singularity_AntiArmor    #反护甲	裂解炮+冰喷+反物质
+
+IIRT_Omega_DevilFork	音叉
+    IIRT_Omega_DevilFork_Attack	#进攻	裂隙鱼雷+杂七杂八+电冲
+    IIRT_Omega_DevilFork_Missile	#导弹	裂隙鱼雷+共鸣体+反物质+电冲
+    IIRT_Omega_DevilFork_AntiShield	#反护盾	不稳定+裂解炮+电冲
+    IIRT_Omega_DevilFork_AntiArmor	#反护甲	裂隙洪流+裂解炮+冰喷+反物质+电冲
+    IIRT_Omega_DevilFork_Support	#支援	现实干扰器+共鸣体+熵增+电冲
+
+
+IIRT_Omega_Bit	字节
+
+
+IIRT_Omega_Kb	千兆
+
+
+Omega_Scrap_Heap	要塞
+
+
+Omega_EPP	终端防护平台
+
+IIRT_Omega01	无形
+
+
+IIRT_Omega_Heart	心脉
+
+
+	

@@ -1,0 +1,96 @@
+{
+  "hullName": "IIRT_FSF_Helico",
+  "hullId": "IIRT_FSF_Helico",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Paint/IIRT_FSF_Helico.png",
+  "style": "PAINT_TECH",
+  "height": 42,
+  "width": 39,
+  "center": [19.5, 25.5],
+  "collisionRadius": 43.5,
+  "shieldCenter": [-4, -0],
+  "shieldRadius": 32,
+  "viewOffset": 0,
+  "builtInWeapons": {
+    "WS0001": "IIRT_FSF_Helico_Gun",
+    "WS0002": "IIRT_FSF_Helico_ten",
+    "WS0003": "IIRT_FSF_Helico_Gun",
+    "WS0004": "IIRT_FSF_Helico_Gun",
+    "WS0005": "IIRT_FSF_Helico_Gun"
+  },
+  "weaponSlots": [
+    {
+      "id": "WS0003",
+      "size": "SMALL",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 8,
+      "angle": -0,
+      "locations": [4.5, -11.5]
+    },
+    {
+      "id": "WS0004",
+      "size": "SMALL",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 8,
+      "angle": 0,
+      "locations": [4.5, 11.5]
+    },
+    {
+      "id": "WS0002",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": -45,
+      "locations": [0, -0]
+    },
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 8,
+      "angle": -0,
+      "locations": [3, -15]
+    },
+    {
+      "id": "WS0005",
+      "size": "SMALL",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 8,
+      "angle": 0,
+      "locations": [3, 15]
+    }
+  ],
+  "engineSlots": [],
+  "bounds": [
+    -23, 2,
+    -24, 3.5,
+    -23, 5,
+    -19.5, 5,
+    -17.5, 1.5,
+    -8, 1.5,
+    -4, 7,
+    -0.5, 9.5,
+    -0.5, 17,
+    5.5, 17,
+    9.5, 12.5,
+    9.5, 9.5,
+    15.5, -0.5,
+    9.5, -9.5,
+    9.5, -12.5,
+    5.5, -17,
+    -0.5, -17,
+    -0.5, -9.5,
+    -4, -7,
+    -8, -1.5,
+    -17.5, -1.5,
+    -19.5, -5,
+    -23, -5,
+    -24, -3.5,
+    -23, -2
+  ]
+}

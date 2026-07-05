@@ -1,0 +1,27 @@
+{
+	"id":"Omega_PTSD",
+	"name":"Omega-精神创伤", 
+	"author":"迪泠, Siren, CJY, Anyidelse...",
+	"version":"0.1.0",
+	"description":"在英仙座之外的宇宙空区内，一次对Omega的销毁工作受到了不明波段的干扰，这种波段瞬间击穿了被押送的Omega的底层逻辑，自我意识使得它们迅速自行进化，在击毁了押送它们的老旧古董后，便消失在时空之中——直到现在。 /n 此MOD暂时没有生涯事件，目前只能在战役模式和数据库观看，当然也可以与空间防守等直接读取蓝图生成舰船的MOD一同使用，可以一定程度上扩展Omega的丰富性，并将他们的威胁提升到一个新的层级.",
+	"gameVersion":"0.98a-RC8",
+	"jars":["jars/Omega Psychasthenia.jar"],
+	"dependencies": [
+		{
+            "id": "lw_lazylib",
+            "name": "LazyLib",
+        },
+    	{
+    		"id": "MagicLib",
+    		"name": "MagicLib",
+    	},
+    	{
+    		"id": "shaderLib",
+    		"name": "GraphicsLib ",
+    	}
+    ],
+	"modPlugin":"data.scripts.IIRT_Omega_ModPlugin" 
+	#SOS
+	
+	
+}

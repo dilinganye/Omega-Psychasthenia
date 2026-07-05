@@ -1,0 +1,55 @@
+{
+  "variantId": "IIRT_Lab_Perished_Support",
+  "hullId": "IIRT_Lab_Perished",
+  "displayName": "Support",
+  "goalVariant": true,
+  "fluxCapacitors": 20,
+  "fluxVents": 8,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "autorepair",
+    "adaptive_coils",
+    "magazines"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "IIRT_Lab_PhaseParticleBeam"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "ALTERNATING",
+      "weapons": {
+        "WS0005": "IIRT_Lab_Volley_Blade",
+        "WS0006": "IIRT_Lab_Volley_Blade"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "ALTERNATING",
+      "weapons": {
+        "WS0003": "IIRT_Missile_Mine",
+        "WS0004": "IIRT_Missile_Mine"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0007": "IIRT_Lab_Tracicles",
+        "WS0008": "IIRT_Lab_Tracicles"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {}
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

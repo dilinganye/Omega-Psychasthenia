@@ -1,0 +1,156 @@
+{
+  "id": "IIRT_Army",
+  "showInIntelTab":false,
+  "color": [197,136,199,255],
+  "secondaryUIColor":[255,255,255,255],
+  "secondarySegments":8,
+  "baseUIColor": [214, 128, 255, 255],
+  #"darkUIColor": [32, 85, 0, 175],
+  #"gridUIColor": [95, 255, 0, 75],
+  "displayName": "以西卡外派武装部",
+  "displayNameWithArticle": "以西卡外派武装部",
+  "logo": "graphics/factions/IIRTT_Army.png",
+  "crest": "graphics/factions/IIRT_Army.png",
+  "shipNamePrefix": "IIRT",
+  "shipNameSources": {
+    "OMEGA":1,
+	"MERCANTILE":1,
+	"SPACE":1,
+	"DERELICT_DRONE":1,
+  },
+  "names": {
+	"future":1,
+	"myth":1,
+  },
+  # variantOverrides restricts hulls to listed variants and adjusts their probability
+  "variantOverrides": {
+  },
+  # multiplier for how often hulls show up in the faction's fleets
+  "hullFrequency": {
+    "tags": {
+    },
+    "hulls": {
+    },
+  },
+  # ships the faction gets access to when importing S&W out-of-faction
+  "shipsWhenImporting": {
+    "tags": [],
+    "hulls": [
+    ],
+  },
+  "knownShips": {
+    "tags": ["iirt_Army"],
+    "hulls": [
+    ],
+  },
+  # listing ships here will make the faction mostly use them even if other hulls become available
+  "priorityShips": {
+    "tags": ["iirt_Army"],
+    "hulls": [
+    ],
+  },
+  "knownFighters": {
+    "tags": ["iirt_have"],
+    "fighters": [
+    ],
+  },
+  "priorityFighters": {
+    "tags": ["iirt_have"],
+    "fighters": [
+    ],
+  },
+  "knownWeapons": {
+    "tags": ["missile_bp", "hightech_bp", "iirt_sd_bp"],
+    "weapons": [
+    ],
+  },
+  "priorityWeapons": {
+    "tags": ["iirt_have"],
+    "weapons": [
+    ],
+  },
+  "knownHullMods": {
+    "tags": ["merc", "midline_bp", "defensive", "engines", "iirt_all_bp"],
+    "hullMods": [
+    ],
+  },
+  "factionDoctrine": {
+    "warships": 3,
+    "carriers": 3,
+    "phaseShips": 3,
+    "officerQuality": 5,
+    "shipQuality": 1,
+    "numShips": 1,
+    "shipSize": 3,
+    "aggression": 4,
+    "combatFreighterProbability": 0.25, # instead of some portion of the freighters in a fleet
+    "combatFreighterCombatUseFraction": 0.5, # as part of the normal combat lineup
+    "combatFreighterCombatUseFractionWhenPriority": 1, # as part of normal combat lineup, when marked as priority ship
+    "autofitRandomizeProbability": 0.25,
+    "commanderSkillsShuffleProbability": 0.1,
+    "commanderSkills": [
+      "helmsmanship",
+      "systems_expertise",
+      "point_defense",
+      "damage_control",
+	  "tactical_drills",
+      "wolfpack_tactics",
+      "fighter_uplink",
+      "carrier_group",
+	  "electronic_warfare",
+      "force_concentration",
+      "ordnance_expert",
+      "makeshift_equipment",
+    ],
+  },
+  "illegalCommodities": [
+    "drugs",
+    "organs"
+  ],
+  "music": {
+    "theme": "music_luddite_market_neutral",
+    "market_neutral": "music_luddite_market_neutral",
+    "market_hostile": "music_luddite_market_hostile",
+    "market_friendly": "music_luddite_market_friendly",
+    "encounter_neutral": "music_luddite_encounter_neutral",
+    "encounter_hostile": "music_luddite_encounter_hostile",
+    "encounter_friendly": "music_luddite_encounter_friendly",
+  },
+  "portraits": {
+    "standard_male": [
+      "graphics/portraits/IIRT_Ai_G.png",
+      "graphics/portraits/IIRT_Ai_P.png",
+	  "graphics/portraits/IIRT_Ai_Webcam01.png",
+	  "graphics/portraits/IIRT_Ai_Webcam02.png",
+	  "graphics/portraits/IIRT_Ai_Webcam03.png",
+	  "graphics/portraits/IIRT_Ai_Webcam04.png"
+
+    ],
+    "standard_female": [
+      "graphics/portraits/IIRT_Ai_B.png",
+	  "graphics/portraits/IIRT_Ai_Server01.png",
+	  "graphics/portraits/IIRT_Ai_Server02.png"
+    ],
+  },
+  "ranks": {
+    "ranks": {
+	"spaceCommander": {"name": "浸没责令人"},
+    },
+    "posts": {
+    },
+  },
+  "custom": {
+		"engageWhenEvenStrength":true,
+		"allowsTransponderOffTrade":true, # to prevent cargoscan dialog from "patrols"
+		"postsNoBounties":true,
+		"fightToTheLast":true, # order a full assault instead of retreating, in most cases
+		"noAICoresFromAutomatedDefenses":true,
+		"officersOnAutomatedDefenses":true,
+  },
+  "fleetTypeNames": {
+    "patrolSmall": "军事武装单元",
+    "patrolMedium": "军事卫戍单元",
+    "patrolLarge": "军事矩阵单元"
+  },
+},
+

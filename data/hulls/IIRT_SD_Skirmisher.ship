@@ -1,0 +1,140 @@
+{
+  "hullName": "IIRT_SD_Skirmisher",
+  "hullId": "IIRT_SD_Skirmisher",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/IIRT/IIRT_Skirmisher.png",
+  "style": "IIRT_TECH",
+  "height": 92,
+  "width": 64,
+  "center": [30.5, 30.5],
+  "collisionRadius": 86,
+  "shieldCenter": [8, -0],
+  "shieldRadius": 74,
+  "viewOffset": 0,
+  "builtInMods": [
+    "IIRT_SD_Lab",
+    "civgrade"
+  ],
+  "builtInWings": [
+    "IIRT_SD_Budge_PD_wing"
+  ],
+  "builtInWeapons": {
+    "WS0003": "IIRT_Bito",
+    "WS0004": "ioncannon"
+  },
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 217,
+      "angle": 90,
+      "locations": [-8, 13.5]
+    },
+    {
+      "id": "WS0002",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 232,
+      "angle": 0,
+      "locations": [7.5, 0.5]
+    },
+    {
+      "id": "WS0003",
+      "size": "SMALL",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 7,
+      "angle": 0,
+      "locations": [39, -22.5]
+    },
+    {
+      "id": "WS0004",
+      "size": "SMALL",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 6,
+      "angle": 0,
+      "locations": [26.5, 0.5]
+    },
+    {
+      "id": "LB 1",
+      "size": "LARGE",
+      "type": "LAUNCH_BAY",
+      "mount": "HIDDEN",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        2, -11.5,
+        15, -11.5,
+        27.5, -11.5,
+        42, -11.5
+      ]
+    },
+    {
+      "id": "LB 2",
+      "size": "LARGE",
+      "type": "LAUNCH_BAY",
+      "mount": "HIDDEN",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        17, -24,
+        24.5, -23.5
+      ]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-26, -5.5],
+      "length": 42,
+      "width": 3,
+      "angle": 179,
+      "contrailSize": 3,
+      "style": "IIRT_TECH"
+    },
+    {
+      "location": [-26, -0.5],
+      "length": 50.5,
+      "width": 10,
+      "angle": 180,
+      "contrailSize": 10,
+      "style": "IIRT_Smoke"
+    },
+    {
+      "location": [-30, -16.5],
+      "length": 22,
+      "width": 12,
+      "angle": 180,
+      "contrailSize": 12,
+      "style": "DEVK_TECH"
+    },
+    {
+      "location": [-26, 4.5],
+      "length": 42,
+      "width": 3,
+      "angle": -179,
+      "contrailSize": 3,
+      "style": "IIRT_TECH"
+    }
+  ],
+  "bounds": [
+    56.5, -11.5,
+    37, -23,
+    -10, -30,
+    -26, -17,
+    -20.5, -9,
+    -23.5, -4.5,
+    -23.5, 6,
+    -13, 24,
+    14.5, 21,
+    34.5, 12,
+    47, 11.5,
+    55.5, 5.5,
+    23.5, 5.5,
+    15, -5.5,
+    56.5, -6
+  ]
+}

@@ -1,0 +1,17 @@
+﻿chiral_figment
+damper_omega
+displacer
+drone_station_high
+energy_lash
+entropyamplifier
+extraction_protocol
+forgevats
+highenergyfocus
+incursion_mode
+maneuveringjets
+microburn_omega
+phaseteleporter
+plasmajets
+reservewing
+targetingfeed
+temporalshell

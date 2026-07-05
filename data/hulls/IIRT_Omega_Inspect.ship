@@ -1,0 +1,98 @@
+{
+  "hullName": "IIRT_Omega_Inspect",
+  "hullId": "IIRT_Omega_Inspect",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Omega_Inspect.png",
+  "style": "OMEGA",
+  "height": 100,
+  "width": 100,
+  "center": [50, 44],
+  "collisionRadius": 56,
+  "shieldCenter": [-4, -0],
+  "shieldRadius": 61.5,
+  "viewOffset": 0,
+  "builtInMods": [
+    "IIRT_Omega_BugShardSpawner"
+  ],
+  "builtInWeapons": {
+    "WS0003": "amsrm",
+    "WS0004": "amsrm"
+  },
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 242,
+      "angle": -33,
+      "locations": [-6, -13]
+    },
+    {
+      "id": "WS0002",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 143,
+      "angle": 0,
+      "locations": [13, -5]
+    },
+    {
+      "id": "WS0003",
+      "size": "SMALL",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 0,
+      "angle": 0,
+      "locations": [31, -7]
+    },
+    {
+      "id": "WS0004",
+      "size": "SMALL",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 0,
+      "angle": 0,
+      "locations": [-4, 28]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-16, -5],
+      "length": 49.09,
+      "width": 18.16,
+      "angle": 177,
+      "contrailSize": 18.16,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-18, 14.5],
+      "length": 14.81,
+      "width": 9.3,
+      "angle": -177.5,
+      "contrailSize": 9.3,
+      "style": "OMEGA"
+    }
+  ],
+  "bounds": [
+    -15.5, -18.5,
+    7, -24,
+    32.5, -18,
+    40, -9.5,
+    40, -3,
+    47, -1.5,
+    26, 6,
+    26, 10.5,
+    35, 11,
+    11, 23.5,
+    8, 21,
+    5, 26,
+    5, 32.5,
+    -12.5, 35,
+    -11, 31.5,
+    -22.5, 7,
+    -21, 3.5,
+    -32, 1,
+    -14.5, -11
+  ]
+}

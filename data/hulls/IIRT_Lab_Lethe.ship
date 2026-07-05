@@ -1,0 +1,146 @@
+{
+  "hullName": "IIRT_Lab_Lethe",
+  "hullId": "IIRT_Lab_Lethe",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Lab/IIRT_Lab_Lethe.png",
+  "style": "KRM_TECH",
+  "height": 130,
+  "width": 62,
+  "center": [31, 60],
+  "collisionRadius": 81.5,
+  "shieldCenter": [1, -0],
+  "shieldRadius": 79.5,
+  "viewOffset": 0,
+  "builtInMods": [
+    "phasefield",
+    "IIRT_Lab_RPCM"
+  ],
+  "builtInWeapons": {
+    "WS0005": "sabot_single"
+  },
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "ENERGY",
+      "mount": "TURRET",
+      "arc": 220,
+      "angle": 41,
+      "locations": [-6, 20]
+    },
+    {
+      "id": "WS0002",
+      "size": "SMALL",
+      "type": "ENERGY",
+      "mount": "TURRET",
+      "arc": 220,
+      "angle": -41,
+      "locations": [-6, -20]
+    },
+    {
+      "id": "WS0003",
+      "size": "SMALL",
+      "type": "SYNERGY",
+      "mount": "TURRET",
+      "arc": 10,
+      "angle": 0,
+      "locations": [42, 16]
+    },
+    {
+      "id": "WS0004",
+      "size": "SMALL",
+      "type": "SYNERGY",
+      "mount": "TURRET",
+      "arc": 10,
+      "angle": -0,
+      "locations": [42, -16]
+    },
+    {
+      "id": "WS0005",
+      "size": "SMALL",
+      "type": "BUILT_IN",
+      "mount": "HARDPOINT",
+      "arc": 10,
+      "angle": 0,
+      "locations": [62, -0]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-59.5, -3],
+      "length": 46.748623,
+      "width": 5.316396,
+      "angle": 176.5,
+      "contrailSize": 5.316396,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-59.5, 3],
+      "length": 46.748623,
+      "width": 5.316396,
+      "angle": -176.5,
+      "contrailSize": 5.316396,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-24.5, -23.5],
+      "length": 13.51,
+      "width": 1.78,
+      "angle": 172,
+      "contrailSize": 1.78,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-24.5, 23.5],
+      "length": 13.51,
+      "width": 1.78,
+      "angle": -172,
+      "contrailSize": 1.78,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-62, -0],
+      "length": 59,
+      "width": 5,
+      "angle": 180,
+      "contrailSize": 5,
+      "style": "LOW_TECH_FIGHTER"
+    }
+  ],
+  "bounds": [
+    -58.5, 6.5,
+    -52, 7.5,
+    -51, 16,
+    -48.5, 24.5,
+    -24, 23,
+    -12, 27,
+    -6, 27.5,
+    0, 24.5,
+    2.5, 17,
+    19.5, 16.5,
+    25, 21.5,
+    40.5, 21,
+    45, 17.5,
+    46.5, 11,
+    53, 11,
+    60, 14,
+    67, 11,
+    67, -11,
+    60, -14,
+    53, -11,
+    46.5, -11,
+    45, -17.5,
+    40.5, -21,
+    25, -21.5,
+    19.5, -16.5,
+    2.5, -17,
+    0, -24.5,
+    -6, -27.5,
+    -12, -27,
+    -24, -23,
+    -48.5, -24.5,
+    -51, -16,
+    -52, -7.5,
+    -58.5, -6.5
+  ]
+}

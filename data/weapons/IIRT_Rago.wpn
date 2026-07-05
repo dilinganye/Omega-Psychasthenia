@@ -1,0 +1,55 @@
+{
+  "id": "IIRT_Rago",
+  "specClass": "projectile",
+  "projectileSpecId": "IIRT_Rago_shot",
+  "type": "ENERGY",
+  "mountTypeOverride": "HYBRID",
+  "size": "LARGE",
+  "turretSprite": "graphics/weapons/IIRT_Rago/IIRT_Rago_turret_base_00.png",
+  "turretGlowSprite": "graphics/weapons/IIRT_Rago/IIRT_Rago_turret_Light.png.png",
+  "hardpointSprite": "graphics/weapons/IIRT_Rago/IIRT_Rago_base_00.png.png",
+  "hardpointGlowSprite": "graphics/weapons/IIRT_Rago/IIRT_Rago_Light.png.png",
+  "glowColor": [
+      247,
+      213,
+      248,
+      230
+  ],
+  "turretOffsets": [
+    41.5,
+    0,
+    29.5,
+    0
+  ],
+  "turretAngleOffsets": [
+    0,
+    -0
+  ],
+  "hardpointOffsets": [
+    57.5,
+    0,
+    45.5,
+    0
+  ],
+  "hardpointAngleOffsets": [
+    0,
+    0
+  ],
+  "barrelMode": "ALTERNATING_BURST",
+  "animationType": "GLOW_AND_FLASH",
+  "muzzleFlashSpec": {
+    "length": 40,
+    "spread": 20,
+    "particleSizeMin": 10,
+    "particleSizeRange": 10,
+    "particleDuration": 0.5,
+    "particleCount": 15,
+    "particleColor": [
+      247,
+      213,
+      248,
+      150
+    ]
+  },
+  "fireSoundTwo": "IIRT_SD_CannonFire"
+}

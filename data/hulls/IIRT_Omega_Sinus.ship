@@ -1,0 +1,94 @@
+{
+  "hullName": "IIRT_Omega_Sinus",
+  "hullId": "IIRT_Omega_Sinus",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Omega_Sinus.png",
+  "style": "OMEGA",
+  "height": 98,
+  "width": 62,
+  "center": [31, 49],
+  "collisionRadius": 57.5,
+  "shieldCenter": [0, 0],
+  "shieldRadius": 55,
+  "viewOffset": 0,
+  "builtInMods": [
+    "IIRT_Omega_TranShardSpawner",
+    "advancedcore",
+    "automated",
+    "do_not_back_off"
+  ],
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 45,
+      "locations": [-6, 9]
+    },
+    {
+      "id": "WS0002",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 231,
+      "angle": 0,
+      "locations": [10, -0]
+    },
+    {
+      "id": "WS0003",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": 0,
+      "locations": [10, 22]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-32.5, -5.5],
+      "length": 41.815453,
+      "width": 20.441902,
+      "angle": 163,
+      "contrailSize": 20.441902,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-20, 16.5],
+      "length": 30.760616,
+      "width": 13.861384,
+      "angle": -178,
+      "contrailSize": 13.861384,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-21, 25],
+      "length": 24.780231,
+      "width": 15.740418,
+      "angle": -175,
+      "contrailSize": 15.740418,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-1.5, -16],
+      "length": 68.86895,
+      "width": 20.031736,
+      "angle": -159.5,
+      "contrailSize": 20.031736,
+      "style": "OMEGA"
+    }
+  ],
+  "bounds": [
+    -22, 31,
+    -17.5, 4.5,
+    -34, 5,
+    -28.5, -14.5,
+    -35, -28.5,
+    7, -12,
+    51, -1,
+    8, 17,
+    6, 26.5
+  ]
+}

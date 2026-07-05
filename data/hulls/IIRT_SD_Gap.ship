@@ -1,0 +1,155 @@
+{
+  "hullName": "IIRT_SD_Gap",
+  "hullId": "IIRT_SD_Gap",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/IIRT/IIRT_Gap.png",
+  "style": "IIRT_TECH",
+  "height": 144,
+  "width": 98,
+  "center": [49, 58.5],
+  "collisionRadius": 100.5,
+  "shieldCenter": [8, -0],
+  "shieldRadius": 89,
+  "viewOffset": 0,
+  "builtInMods": [
+    "IIRT_SD_Lab",
+    "civgrade"
+  ],
+  "builtInWings": [
+    "IIRT_SD_Budge_PD_wing"
+  ],
+  "builtInWeapons": {
+    "WS0005": "sabot_single",
+    "WS0006": "sabot_single"
+  },
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "HYBRID",
+      "mount": "TURRET",
+      "arc": 340,
+      "angle": 0,
+      "locations": [64.5, -0]
+    },
+    {
+      "id": "WS0002",
+      "size": "SMALL",
+      "type": "ENERGY",
+      "mount": "TURRET",
+      "arc": 195,
+      "angle": 79.5,
+      "locations": [-36.5, 12]
+    },
+    {
+      "id": "WS0003",
+      "size": "SMALL",
+      "type": "ENERGY",
+      "mount": "TURRET",
+      "arc": 195,
+      "angle": -79.5,
+      "locations": [-36.5, -12]
+    },
+    {
+      "id": "WS0005",
+      "size": "SMALL",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 7,
+      "angle": 0,
+      "locations": [7, 22]
+    },
+    {
+      "id": "WS0006",
+      "size": "SMALL",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 7,
+      "angle": -0,
+      "locations": [7, -22]
+    },
+    {
+      "id": "LB 1",
+      "size": "LARGE",
+      "type": "LAUNCH_BAY",
+      "mount": "HIDDEN",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        -14, 33.5,
+        -14, -33.5
+      ]
+    },
+    {
+      "id": "LB 2",
+      "size": "LARGE",
+      "type": "LAUNCH_BAY",
+      "mount": "HIDDEN",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        23.5, -18.5,
+        23.5, 18.5,
+        31.5, 18.5,
+        31.5, -18.5
+      ]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-40.5, -4.5],
+      "length": 47.011299,
+      "width": 2.179591,
+      "angle": 179,
+      "contrailSize": 2.179591,
+      "style": "IIRT_TECH"
+    },
+    {
+      "location": [-40, -0],
+      "length": 36,
+      "width": 8,
+      "angle": 180,
+      "contrailSize": 8,
+      "style": "IIRT_Smoke"
+    },
+    {
+      "location": [-40.5, 4.5],
+      "length": 47.011299,
+      "width": 2.179591,
+      "angle": -179,
+      "contrailSize": 2.179591,
+      "style": "IIRT_TECH"
+    },
+    {
+      "location": [-22, -35.5],
+      "length": 3.5,
+      "width": 9,
+      "angle": -90,
+      "contrailSize": 9,
+      "style": "DEVK_TECH"
+    },
+    {
+      "location": [-22, 35.5],
+      "length": 3.5,
+      "width": 9,
+      "angle": 90,
+      "contrailSize": 9,
+      "style": "DEVK_TECH"
+    }
+  ],
+  "bounds": [
+    -39, 5.5,
+    -54.5, 8.5,
+    -27, 32,
+    -7.5, 31.5,
+    10, 16.5,
+    71.5, 15,
+    77, 0,
+    71.5, -15,
+    10, -16.5,
+    -7.5, -31.5,
+    -27, -32,
+    -54.5, -8.5,
+    -39, -5.5
+  ]
+}

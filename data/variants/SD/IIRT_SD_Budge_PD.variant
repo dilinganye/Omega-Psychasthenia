@@ -1,0 +1,23 @@
+{
+  "variantId": "IIRT_SD_Budge_PD",
+  "hullId": "IIRT_SD_Budge",
+  "displayName": "PD Drone",
+  "goalVariant": false,
+  "fluxCapacitors": 0,
+  "fluxVents": 0,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [],
+  "weaponGroups": [
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "IIRT_Refractivity",
+        "WS0002": "IIRT_Transmiso"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

@@ -1,0 +1,26 @@
+{
+	"id":"IIRT_Lab_Missile_mine_Lit",
+	"specClass":"missile",	
+	"missileType":"MISSILE",
+	"onHitEffect":"com.fs.starfarer.api.impl.combat.IonCannonOnHitEffect",
+	#"missileType":"MISSILE_TWO_STAGE_SECOND_UNGUIDED",
+	"sprite":"graphics/missiles/IIRT_Lab_Missile_mine_Lit.png",
+	"size":[22,19],
+	"center":[11,9.5],
+	"collisionRadius":14,
+	"collisionClass":"MISSILE_NO_FF",
+	"explosionColor":[157, 104, 192,255],  # purely visual, will get a white additively blended core on top of this color
+	"explosionRadius":75, # purely visual
+	"maxFlightTime":8,
+	"engineSpec":{"turnAcc":1500,
+				  "turnRate":750,
+				  "maxSpeed":500,
+				  "acc":800,
+				  "dec":900},
+	"engineSlots":[{"id":"ES1",
+					"loc":[-11, 0],
+				    "style":"OMEGA",
+				    "width":4.0,
+				    "length":20.0,
+				    "angle":180.0}]
+}

@@ -1,0 +1,36 @@
+{
+  "hullName": "IIRT_Lab_ShieldBackpack",
+  "hullId": "IIRT_Lab_ShieldBackpack",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Lab/AC.png",
+  "style": "KRM_TECH",
+  "height": 28,
+  "width": 40,
+  "center": [20, 15],
+  "collisionRadius": 38,
+  "shieldCenter": [0, -0],
+  "shieldRadius": 37,
+  "viewOffset": 0,
+  "builtInMods": [
+    "IIRT_Lab_PhaseOverlay"
+  ],
+  "weaponSlots": [],
+  "engineSlots": [
+    {
+      "location": [-13, -0],
+      "length": 15,
+      "width": 14,
+      "angle": 180,
+      "contrailSize": 14,
+      "style": "HIGH_TECH"
+    }
+  ],
+  "bounds": [
+    -13.5, -6,
+    -11, -10.5,
+    -2, -12,
+    -2, 12,
+    -11, 10.5,
+    -13.5, 6
+  ]
+}

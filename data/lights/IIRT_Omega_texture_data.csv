@@ -1,0 +1,11 @@
+id,type,frame,magnitude,map,path
+#测试,ship,hardpoint,hardpointbarrel,turret,turretbarrel,missile
+#material,
+#IIRT_Lab_Slander,ship,,,material,graphics/shaders/material/IIRT_Lab_Slander_Roughness.png
+,,,,,
+#normal,
+#IIRT_Lab_Slander,ship,,,normal,graphics/shaders/normal/IIRT_Lab_Slander_Normal.png
+,,,,,
+#surface,
+#IIRT_Lab_Slander,ship,,,surface,graphics/shaders/surface/IIRT_Lab_Slander_Curvature.png
+,,,,,

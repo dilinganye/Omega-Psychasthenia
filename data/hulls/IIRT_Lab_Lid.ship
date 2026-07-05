@@ -1,0 +1,104 @@
+{
+  "hullName": "IIRT_Lab_Lid",
+  "hullId": "IIRT_Lab_Lid",
+  "hullSize": "FIGHTER",
+  "spriteName": "graphics/ships/Lab/IIRT_Lab_Lid.png",
+  "style": "KRM_TECH",
+  "height": 43,
+  "width": 33,
+  "center": [16.5, 21.5],
+  "collisionRadius": 33,
+  "shieldCenter": [3, -0],
+  "shieldRadius": 29.5,
+  "viewOffset": 0,
+  "builtInMods": [
+    "armoredweapons",
+    "IIRT_Lab_RPCM"
+  ],
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 0,
+      "angle": 0,
+      "locations": [1.5, -0.5]
+    },
+    {
+      "id": "WS0002",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 0,
+      "angle": 0,
+      "locations": [0, -0.5]
+    },
+    {
+      "id": "WS0003",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 0,
+      "angle": 0,
+      "locations": [0.5, -0.5]
+    },
+    {
+      "id": "WS0004",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 261,
+      "angle": 0,
+      "locations": [9, -1]
+    },
+    {
+      "id": "WS0005",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 0,
+      "angle": 0,
+      "locations": [-0.5, -0.5]
+    },
+    {
+      "id": "WS0006",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 0,
+      "angle": 0,
+      "locations": [1, -0.5]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-20.5, -2],
+      "length": 41,
+      "width": 12,
+      "angle": 180,
+      "contrailSize": 12,
+      "style": "HIGH_TECH"
+    }
+  ],
+  "bounds": [
+    20.5, -13,
+    20.5, -11,
+    15.5, -7,
+    18.5, -3.5,
+    18.5, 3.5,
+    4, 15.5,
+    -4.5, 10.5,
+    -10.5, 13.5,
+    -13, 11,
+    -6, 3,
+    -12, 3,
+    -13, 0.5,
+    -19.5, -0.5,
+    -19.5, -4.5,
+    -14.5, -7,
+    -12.5, -13.5,
+    9, -14.5,
+    12.5, -10.5
+  ]
+}

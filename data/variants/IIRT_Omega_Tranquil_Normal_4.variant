@@ -1,0 +1,33 @@
+{
+  "variantId": "IIRT_Omega_Tranquil_Normal_4",
+  "hullId": "IIRT_Omega_Tranquil",
+  "displayName": "PD",
+  "goalVariant": true,
+  "fluxCapacitors": 5,
+  "fluxVents": 1,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "hardenedshieldemitter",
+    "turretgyros",
+    "efficiency_overhaul"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "ALTERNATING",
+      "weapons": {
+        "WS0001": "shockrepeater"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0002": "shockrepeater"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

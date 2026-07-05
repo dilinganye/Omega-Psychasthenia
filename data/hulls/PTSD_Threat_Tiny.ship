@@ -1,0 +1,135 @@
+{
+  "hullName": "PTSD_Threat_Tiny",
+  "hullId": "PTSD_Threat_Tiny",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Threat/PTSD_Threat_TinyUnit.png",
+  "style": "THREAT",
+  "height": 80,
+  "width": 74,
+  "center": [37, 40],
+  "collisionRadius": 74,
+  "shieldCenter": [-6, -0],
+  "shieldRadius": 64,
+  "viewOffset": 0,
+  "builtInMods": [
+    "automated",
+    "threat_hullmod"
+  ],
+  "builtInWeapons": {
+    "WS0004": "unstable_fragment",
+    "WS0005": "unstable_fragment"
+  },
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HARDPOINT",
+      "arc": 13,
+      "angle": 0,
+      "locations": [28, -17]
+    },
+    {
+      "id": "WS0003",
+      "size": "MEDIUM",
+      "type": "SYSTEM",
+      "mount": "TURRET",
+      "arc": 44,
+      "angle": 180,
+      "locations": [-10, -0.5]
+    },
+    {
+      "id": "WS0002",
+      "size": "MEDIUM",
+      "type": "SYSTEM",
+      "mount": "TURRET",
+      "arc": 96,
+      "angle": -47.5,
+      "locations": [2, -1]
+    },
+    {
+      "id": "WS0004",
+      "size": "SMALL",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 97,
+      "angle": -48.5,
+      "locations": [4, -1]
+    },
+    {
+      "id": "WS0005",
+      "size": "SMALL",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 48,
+      "angle": 180,
+      "locations": [-11.5, -0.5]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-37.5, 11],
+      "length": 12.962078,
+      "width": 9.640441,
+      "angle": 119,
+      "contrailSize": 9.640441,
+      "style": "THREAT_DEC"
+    },
+    {
+      "location": [-37.5, -11],
+      "length": 12.962078,
+      "width": 9.640441,
+      "angle": -119,
+      "contrailSize": 9.640441,
+      "style": "THREAT_DEC"
+    },
+    {
+      "location": [-38.5, -6],
+      "length": 5.14,
+      "width": 12.9,
+      "angle": 155.5,
+      "contrailSize": 12.9,
+      "style": "THREAT_DEC"
+    },
+    {
+      "location": [-38.5, 6],
+      "length": 5.14,
+      "width": 12.9,
+      "angle": -155.5,
+      "contrailSize": 12.9,
+      "style": "THREAT_DEC"
+    },
+    {
+      "location": [-37, -13],
+      "length": 54.231525,
+      "width": 6.765122,
+      "angle": 173.5,
+      "contrailSize": 6.765122,
+      "style": "THREAT"
+    },
+    {
+      "location": [-37, 13],
+      "length": 54.231525,
+      "width": 6.765122,
+      "angle": -173.5,
+      "contrailSize": 6.765122,
+      "style": "THREAT"
+    }
+  ],
+  "bounds": [
+    33.5, -7.5,
+    33.5, 6.5,
+    24, 7,
+    12.5, 11.5,
+    12, 22,
+    -2, 11.5,
+    -19, 21.5,
+    -33.5, 13.5,
+    -33.5, -13.5,
+    -20.5, -22.5,
+    -1.5, -12.5,
+    9, -22,
+    20.5, -22,
+    20.5, -7.5
+  ]
+}

@@ -1,0 +1,84 @@
+{	
+	"KRM_Mcy1": {
+		"trigger_marketFaction_any":["KRM"],
+		"trigger_playerRelationship_atLeast": {"KRM":-0.1,},
+		"trigger_player_minLevel": 4,
+		"trigger_weight_mult": 0.7,
+
+		"job_name": "禁止盗窃",
+		"job_description": "由 $name 领头的一伙老道佣兵在几个叛徒的带领下袭击了实验室，在此过程中我们的一些舰船 - 包括几艘实验性的舰船 - 被趁乱夺取了控制权，我们在交火过程中破译了这伙佣兵小队使用的系统，并由此逆向追踪到了他们的所在地 -  $system ；虽说这些舰船的科技价值不菲，但我们了解到这些佣兵和速子科技内部某些高层研究人员有着私下的交易，而我们当然不喜欢对方这种恶意竞争行为 - 我们的正规舰船很难下场和速子官方起冲突。所以我们需要一支动向不稳定的、动机不明确的舰队对他们进行一次打击行动。",
+		"job_comm_reply": "这里是 克劳斯姆概念 的相位商队，有什么可以为您服务的吗？......嗯，看来你好像知道的有点多了，那我们打开天窗说实话吧，我干这行是为了钱，你也是为了钱，不如咱们来看看到底谁更值得拿到自己的那一份？/n如果你没有那个胆子，那就滚开！",
+		"job_intel_success": "战斗结束几分钟后，你的通讯官告知你，你们收到了一笔匿名付款，并附上了一篇 TriNews 文章的链接。文章是一篇讣告 - 几个死因不明的速子研究员的，浏览量惨淡无比。",
+		#"job_intel_failure": ,
+		"job_intel_expired": "你的通讯官转给了你一条在 TriNews 上的小道新闻，据说一伙佣兵被指控涉嫌重大不当竞争行为而被速子官方逮捕，但你不得不留意到另外几个新闻上写着一些速子成员的离奇死亡事件，可这与你又有什么关系呢。",
+		
+		"job_forFaction": "KRM",
+		"job_deadline": 100,
+		"job_credit_reward": 100000,
+		"job_reward_scaling": 0.2,
+		"job_reputation_reward": 5,
+		
+		"job_type":"obliteration",
+		"job_show_type":true,
+		"job_show_captain": true,
+		"job_show_fleet": "vanilla",
+		"job_show_distance": "exact",
+		"job_show_arrow": true, 
+		"job_difficultyDescription": "这些佣兵很有可能还在执行一些其他任务，他们的目标难以预测；但我们还是通过逆向追踪得到了他们的确切位置，此前他们一直在运动，暂时在此处停止，我们不能确保他们不会继续运动。但我们的定位团队会尽量为您提供他们的最新位置信息。",
+		
+		"job_pick_option":"一场无聊的科技竞争",
+		
+		"job_memKey": "$KRM_Mcy1",
+		"job_item_reward": {
+	        },
+		
+		"target_first_name": "Blosc",
+		"target_last_name": "Tronnos",
+		"target_gender": "MALE",
+		"target_rank": "spaceCaptain",
+		"target_post": "mercenary",
+		"target_personality": "steady",
+		"target_level": 6,
+		"target_elite_skills": 2,
+		"target_skill_preference": "YES_ENERGY_NO_BALLISTIC_NO_MISSILE_YES_DEFENSE",
+
+		"fleet_name": "佣兵小队",
+		"fleet_faction": "ML_bounty",
+		"fleet_flagship_variant": "IIRT_Lab_Coveye_Assault",
+		"fleet_flagship_name": "Orngon",
+		"fleet_flagship_recoverable": false,
+		"fleet_composition_quality": 2,
+		 "fleet_preset_ships": {
+			"IIRT_Lab_Coveye_Assault":2,
+			"IIRT_Lab_Ferryman_Support":1,
+			"IIRT_Lab_Lopes_Assault":2,
+			"IIRT_Lab_Nonsense_Attack":3,
+			"IIRT_Lab_FarBore_Support":1,
+		},
+		"fleet_transponder": true,
+		"fleet_behavior": "ROAMING",
+		"fleet_composition_faction": "KRM",
+		"fleet_min_FP": 140,
+
+		"location_distance": "FAR",
+		"location_marketFactions": ["tritachyon"],
+		"location_themes_blacklist":[
+			"theme_hidden",
+			"theme_already_occupied",
+			"theme_already_colonized"
+		],
+        "location_entities": [ 
+            "gate",
+            "wreck",
+            "debris",
+            "stable_location",
+            "comm_relay",
+            "nav_buoy",
+            "sensor_array",
+            "gas_giant",
+            "jump_point",
+        ],
+		"location_prioritizeUnexplored": true,
+		"location_defaultToAnyEntity": true
+	},
+}

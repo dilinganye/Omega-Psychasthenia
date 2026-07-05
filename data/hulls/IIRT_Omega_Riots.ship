@@ -1,0 +1,95 @@
+{
+  "hullName": "IIRT_Omega_Riots",
+  "hullId": "IIRT_Omega_Riots",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Omega_Riots.png",
+  "style": "OMEGA",
+  "height": 112,
+  "width": 110,
+  "center": [60.5, 59],
+  "collisionRadius": 77,
+  "shieldCenter": [-3, -4],
+  "shieldRadius": 70.5,
+  "viewOffset": 0,
+  "builtInMods": [
+    "IIRT_Omega_TranShardSpawner",
+    "fluxshunt",
+    "do_not_back_off",
+    "autorepair",
+    "automated"
+  ],
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [-3, 10.5]
+    },
+    {
+      "id": "WS0002",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 256,
+      "angle": -51.5,
+      "locations": [18, -29.5]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-9, -18.5],
+      "length": 33.989136,
+      "width": 22.448948,
+      "angle": 177,
+      "contrailSize": 22.448948,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-32.5, -1.5],
+      "length": 19.684742,
+      "width": 13.078363,
+      "angle": 177,
+      "contrailSize": 13.078363,
+      "style": "OMEGA"
+    },
+    {
+      "location": [5, 35],
+      "length": 22.154219,
+      "width": 9.042268,
+      "angle": -173.5,
+      "contrailSize": 9.042268,
+      "style": "OMEGA"
+    },
+    {
+      "location": [3.5, 43.5],
+      "length": 14.75903,
+      "width": 11.733889,
+      "angle": -173.5,
+      "contrailSize": 11.733889,
+      "style": "OMEGA"
+    }
+  ],
+  "bounds": [
+    -59, 14.5,
+    -40, 6,
+    -13, -28,
+    -19, -35,
+    10, -37.5,
+    13.5, -40,
+    46.5, -41,
+    31.5, -19.5,
+    29, 27.5,
+    15.5, 35,
+    6.5, 49.5,
+    -1, 47.5,
+    -6, 31.5,
+    -11, 25.5,
+    -15, 25.5,
+    -26, 17.5,
+    -45.5, 17.5,
+    -49.5, 14.5
+  ]
+}

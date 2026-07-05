@@ -1,0 +1,46 @@
+{
+  "variantId": "IIRT_Omega_Inspect_Normal_1",
+  "hullId": "IIRT_Omega_Inspect",
+  "displayName": "Missile",
+  "goalVariant": true,
+  "fluxCapacitors": 4,
+  "fluxVents": 9,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "missleracks",
+    "eccm"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "amsrm"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0002": "amsrm"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0003": "amsrm"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0004": "amsrm"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

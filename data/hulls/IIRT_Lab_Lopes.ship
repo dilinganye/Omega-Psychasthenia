@@ -1,0 +1,208 @@
+{
+  "hullName": "IIRT_Lab_Lopes",
+  "hullId": "IIRT_Lab_Lopes",
+  "hullSize": "DESTROYER",
+  "spriteName": "graphics/ships/Lab/IIRT_Lab_Lopes.png",
+  "style": "KRM_TECH",
+  "height": 182,
+  "width": 110,
+  "center": [57.5, 96.5],
+  "collisionRadius": 124.5,
+  "shieldCenter": [3.5, -0],
+  "shieldRadius": 120,
+  "viewOffset": 0,
+  "builtInMods": [
+    "automated",
+    "autorepair",
+    "delicate",
+    "phasefield",
+    "IIRT_Lab_PhaseOverlay",
+    "IIRT_Lab_RPCM"
+  ],
+  "builtInWings": [
+    "IIRT_Lab_Lid_Support_wing"
+  ],
+  "builtInWeapons": {
+    "WS0006": "amsrm"
+  },
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 286,
+      "angle": 0,
+      "locations": [14.5, -6.5]
+    },
+    {
+      "id": "WS0002",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HARDPOINT",
+      "arc": 20,
+      "angle": 0,
+      "locations": [36.5, -14.5]
+    },
+    {
+      "id": "WS0003",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HARDPOINT",
+      "arc": 20,
+      "angle": 0,
+      "locations": [53.5, -28.5]
+    },
+    {
+      "id": "WS0004",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HARDPOINT",
+      "arc": 20,
+      "angle": 0,
+      "locations": [79.5, -44.5]
+    },
+    {
+      "id": "WS0005",
+      "size": "MEDIUM",
+      "type": "SYNERGY",
+      "mount": "HARDPOINT",
+      "arc": 10,
+      "angle": 0,
+      "locations": [35.5, 12.5]
+    },
+    {
+      "id": "WS0006",
+      "size": "SMALL",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 0,
+      "angle": 0,
+      "locations": [-0.5, 33.5]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-9.5, -0],
+      "length": 30,
+      "width": 10,
+      "angle": 180,
+      "contrailSize": 30,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [8.5, -28.5],
+      "length": 5,
+      "width": 5,
+      "angle": -90,
+      "contrailSize": 5,
+      "style": "Cipher_Moon"
+    },
+    {
+      "location": [14.5, -28.5],
+      "length": 5,
+      "width": 5,
+      "angle": -90,
+      "contrailSize": 5,
+      "style": "Cipher_Moon"
+    },
+    {
+      "location": [-3.5, -13.5],
+      "length": 15.5,
+      "width": 5,
+      "angle": 180,
+      "contrailSize": 5,
+      "style": "Cipher_Moon"
+    },
+    {
+      "location": [-24.5, 15],
+      "length": 34.5,
+      "width": 4,
+      "angle": 180,
+      "contrailSize": 4,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-48, 30],
+      "length": 42.5,
+      "width": 13,
+      "angle": 180,
+      "contrailSize": 13,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-50.5, 30],
+      "length": 41.5,
+      "width": 4,
+      "angle": 180,
+      "contrailSize": 4,
+      "style": "LOW_TECH_FIGHTER"
+    },
+    {
+      "location": [-27, 15],
+      "length": 41.5,
+      "width": 4,
+      "angle": 180,
+      "contrailSize": 4,
+      "style": "LOW_TECH_FIGHTER"
+    },
+    {
+      "location": [-11.5, -0],
+      "length": 38.5,
+      "width": 6,
+      "angle": 180,
+      "contrailSize": 6,
+      "style": "LOW_TECH_FIGHTER"
+    }
+  ],
+  "bounds": [
+    79.5, -49.5,
+    64.5, -49.5,
+    34.5, -40.5,
+    31, -41.5,
+    19, -29.5,
+    -7.5, -30.5,
+    -22, -24.5,
+    -22.5, -18.5,
+    -8.5, -15,
+    -11.5, -10,
+    -8, -6,
+    -8.5, 3.5,
+    -18, 7,
+    -18.5, 12.5,
+    -24.5, 13.5,
+    -24.5, 17.5,
+    -35.5, 20.5,
+    -47, 29.5,
+    -48, 34.5,
+    -88.5, 11.5,
+    -96, 10.5,
+    -81.5, 23.5,
+    -51, 48.5,
+    -37.5, 50,
+    -28, 56,
+    -23.5, 47,
+    -12, 44,
+    -4, 36.5,
+    18, 37,
+    22.5, 31,
+    22.5, 25,
+    30, 24.5,
+    35.5, 20,
+    35.5, 5,
+    29.5, 3.5,
+    29.5, 1,
+    25, 0.5,
+    22.5, -2.5,
+    22.5, -7,
+    28.5, -10.5,
+    35.5, -10.5,
+    38.5, -19.5,
+    48.5, -25.5,
+    53.5, -25.5,
+    53.5, -31.5,
+    59, -32,
+    72, -41.5,
+    79.5, -41.5
+  ]
+}

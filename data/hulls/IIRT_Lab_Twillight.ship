@@ -1,0 +1,93 @@
+{
+  "hullName": "IIRT_Lab_Twillight",
+  "hullId": "IIRT_Lab_Twillight",
+  "hullSize": "FIGHTER",
+  "spriteName": "graphics/ships/Lab/IIRT_Lab_Twilight.png",
+  "style": "KRM_TECH",
+  "height": 44,
+  "width": 32,
+  "center": [16, 22],
+  "collisionRadius": 27.5,
+  "shieldCenter": [0, 0],
+  "shieldRadius": 27,
+  "viewOffset": 0,
+  "builtInMods": [
+    "IIRT_Lab_RPCM",
+    "eccm"
+  ],
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 80,
+      "angle": 0,
+      "locations": [-5, -0]
+    },
+    {
+      "id": "WS0003",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 5,
+      "angle": 0,
+      "locations": [-5.5, 9.5]
+    },
+    {
+      "id": "WS0004",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 5,
+      "angle": -0,
+      "locations": [-3.5, -9]
+    },
+    {
+      "id": "WS0002",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 5,
+      "angle": -0,
+      "locations": [-2.5, -9]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-17.5, -0],
+      "length": 40.5,
+      "width": 7,
+      "angle": 180,
+      "contrailSize": 7,
+      "style": "KRSM_TECH"
+    },
+    {
+      "location": [-13, 13.5],
+      "length": 14.416734,
+      "width": 1.27717,
+      "angle": 168.5,
+      "contrailSize": 1.27717,
+      "style": "KRSM_Smoke"
+    },
+    {
+      "location": [-13, -13.5],
+      "length": 14.416734,
+      "width": 1.27717,
+      "angle": -168.5,
+      "contrailSize": 1.27717,
+      "style": "KRSM_Smoke"
+    }
+  ],
+  "bounds": [
+    -19, 2,
+    -13, 2.5,
+    -12, 13.5,
+    -2.5, 3.5,
+    15.5, -0,
+    -2.5, -3.5,
+    -12, -13.5,
+    -13, -2.5,
+    -19, -2
+  ]
+}

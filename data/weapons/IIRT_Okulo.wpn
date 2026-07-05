@@ -1,0 +1,45 @@
+{
+  "id": "IIRT_Okulo",
+  "specClass": "projectile",
+  "projectileSpecId": "IIRT_Plasma_Ball_missile",
+  "type": "ENERGY",
+  "mountTypeOverride": "SYNERGY",
+  "size": "MEDIUM",
+  "turretSprite": "graphics/weapons/IIRT_Okulo/IIRT_Okulo_turret_base_00.png",
+  "turretGlowSprite": "graphics/weapons/IIRT_Okulo/IIRT_Okulo_turret_Light.png",
+  "hardpointSprite": "graphics/weapons/IIRT_Okulo/IIRT_Okulo_base_00.png",
+  "hardpointGlowSprite": "graphics/weapons/IIRT_Okulo/IIRT_Okulo_Light.png",
+  "turretOffsets": [
+    17,
+    0
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    23,
+    0
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "barrelMode": "ALTERNATING",
+  "animationType": "MUZZLE_FLASH",
+  "numFrames": 2,
+  "frameRate": 20,
+  "muzzleFlashSpec": {
+    "length": 30,
+    "spread": 10,
+    "particleSizeMin": 5,
+    "particleSizeRange": 5,
+    "particleDuration": 0.5,
+    "particleCount": 12,
+    "particleColor": [
+      185,
+      70,
+      255,
+      150
+    ]
+  },
+  "fireSoundTwo": "IIRT_SD_PitchFire"
+}

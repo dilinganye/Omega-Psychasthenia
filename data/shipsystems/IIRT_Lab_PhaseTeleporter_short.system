@@ -1,0 +1,38 @@
+{
+	"id":"IIRT_Lab_PhaseTeleporter_short",
+	"type":"TELEPORTER",
+	"aiType":"PHASE_TELEPORTER_2",
+	"canUseWhileRightClickSystemOn":true,
+	
+	"jitterColor":[185,207,255,150],
+	"jitterCopies":5,
+	"jitterRange":25,
+	"jitterRangeRadiusFraction":0,
+	
+	"weaponGlowColor":[91,103,143,0],
+	"weaponTypes":[ENERGY],
+
+	"engineGlowLengthMult":0,
+	"engineGlowWidthMult":0.2,
+	"engineGlowGlowMult":1.2,
+	
+	"range":500,
+	"randomRange":50,
+	"requiresZeroFluxBoost":false,
+	
+	"vulnerableChargeup":true,
+	"vulnerableChargedown":false,
+	"renderCopyDuringTeleport":true,
+	
+	"fadeActivationSoundOnChargedown":false,
+
+	"useSound":"system_phase_teleporter",	
+	"outOfUsesSound":"gun_out_of_ammo",
+	
+	
+	"aiHints":{
+		"activeSpeedIncrease":0,
+		"burstMovementPotential":300,
+		"averageSpeedIncrease":300,
+	}
+}

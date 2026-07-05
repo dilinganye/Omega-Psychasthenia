@@ -1,0 +1,64 @@
+{
+  "variantId": "IIRT_Omega_Firewall_Only_3",
+  "hullId": "IIRT_Omega_Firewall",
+  "displayName": "Attack",
+  "goalVariant": true,
+  "fluxCapacitors": 19,
+  "fluxVents": 27,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "fluxshunt",
+    "advancedoptics"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "ALTERNATING",
+      "weapons": {
+        "WS0001": "riftbeam",
+        "WS0002": "riftbeam"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0003": "riftbeam"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0008": "riftlance"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "ALTERNATING",
+      "weapons": {
+        "WS0004": "amsrm",
+        "WS0005": "amsrm",
+        "WS0006": "amsrm",
+        "WS0007": "amsrm"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0009": "shockrepeater"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0010": "realitydisruptor"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

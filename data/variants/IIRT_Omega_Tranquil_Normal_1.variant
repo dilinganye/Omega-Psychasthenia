@@ -1,0 +1,25 @@
+{
+  "variantId": "IIRT_Omega_Tranquil_Normal_1",
+  "hullId": "IIRT_Omega_Tranquil",
+  "displayName": "Missile",
+  "goalVariant": true,
+  "fluxCapacitors": 9,
+  "fluxVents": 2,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "eccm"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "ALTERNATING",
+      "weapons": {
+        "WS0001": "amsrm",
+        "WS0002": "amsrm"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

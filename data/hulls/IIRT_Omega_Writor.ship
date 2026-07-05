@@ -1,0 +1,135 @@
+{
+  "hullName": "IIRT_Omega_Writor",
+  "hullId": "IIRT_Omega_Writor",
+  "hullSize": "DESTROYER",
+  "spriteName": "graphics/ships/Lab/IIRT_Omega_Writor.png",
+  "style": "KRM_TECH",
+  "height": 150,
+  "width": 202,
+  "center": [101, 72.5],
+  "collisionRadius": 139.5,
+  "shieldCenter": [-3.5, -0],
+  "shieldRadius": 134,
+  "viewOffset": 0,
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "HARDPOINT",
+      "arc": 15,
+      "angle": 45,
+      "locations": [44.5, 44],
+      "renderOrderMod": 3
+    },
+    {
+      "id": "WS0002",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "HARDPOINT",
+      "arc": 15,
+      "angle": -45,
+      "locations": [44.5, -44],
+      "renderOrderMod": 3
+    },
+    {
+      "id": "WS0004",
+      "size": "LARGE",
+      "type": "UNIVERSAL",
+      "mount": "HARDPOINT",
+      "arc": 7,
+      "angle": 0,
+      "locations": [59.5, -0]
+    },
+    {
+      "id": "WS0005",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 257,
+      "angle": 13.5,
+      "locations": [43.5, 24],
+      "renderOrderMod": 10
+    },
+    {
+      "id": "WS0006",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 257,
+      "angle": -13.5,
+      "locations": [43.5, -24],
+      "renderOrderMod": 10
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-37, -0],
+      "length": 137,
+      "width": 34,
+      "angle": 180,
+      "contrailSize": 34,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-52, 74.5],
+      "length": 44.009994,
+      "width": 29.333954,
+      "angle": 169,
+      "contrailSize": 29.333954,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-52, -74.5],
+      "length": 44.009994,
+      "width": 29.333954,
+      "angle": -169,
+      "contrailSize": 29.333954,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-62, 30],
+      "length": 2.5,
+      "width": 9,
+      "angle": -90,
+      "contrailSize": 9,
+      "style": "Cipher_Moon"
+    },
+    {
+      "location": [-62, -30],
+      "length": 2.5,
+      "width": 9,
+      "angle": 90,
+      "contrailSize": 9,
+      "style": "Cipher_Moon"
+    }
+  ],
+  "bounds": [
+    -25, 9.5,
+    -51.5, 17.5,
+    -53.5, 24.5,
+    -33.5, 41.5,
+    -30, 59,
+    -47, 59.5,
+    -47, 66.5,
+    -41.5, 75,
+    -55, 96.5,
+    5.5, 73,
+    10.5, 63.5,
+    35.5, 48,
+    64, 26.5,
+    64, -26.5,
+    35.5, -48,
+    10.5, -63.5,
+    5.5, -73,
+    -55, -96.5,
+    -41.5, -75,
+    -47, -66.5,
+    -47, -59.5,
+    -30, -59,
+    -33.5, -41.5,
+    -53.5, -24.5,
+    -51.5, -17.5,
+    -25, -9.5
+  ]
+}

@@ -1,0 +1,494 @@
+id,trigger,conditions,script,text,options,notes
+# IIRT fleet greeting lines,,,,,,
+greetingKRMFriendly,OpenCommLink,"$faction.id == KRM
+$faction.friendlyToPlayer","$menuState = fleetConvMain 0
+FireAll PopulateOptions","""信息已确认，研究局向您致以问候，我们希望我们的研究项目也能得到您的关注。"" $personRank 对你表示了问候，随后你的通讯员便受到了大量如同诈骗短信一般的研究可行性推销。
+OR
+""$shipOrFleet已经扫描，希望您的航程顺利。""对方的 $personRank 和你闲聊了几句。
+OR
+""您好，$playerName，是否有兴趣考虑一下对我们的研究投资？我们的研究很快便可以得到成果，这绝对...""你的通讯员把对方的音频调成了静音，并且很痛苦的看着你。
+OR
+""您好，$playerName，是否有兴趣考虑一下对我们的研究投资？我们的研究很快便可以得到成果，这绝对是值得的，您只需要在之后我发给您的信件内点击确认并签字即可，这绝对会解决我们现在资金不足的问题，您感兴趣吗，您一定会的。""
+
+你知道对方并无恶意，但是你仍旧看也没看就删除了他发来的垃圾信息
+OR
+""身份已确认，研究局 $personName 向您致以问候，希望能继续同您的合作。""
+OR
+""$shipOrFleet已经扫描，希望您的航程顺利。""
+OR
+""您好，$playerName，是否有兴趣考虑一下对...""你的通讯员主动掐断了与对方的通讯连接。",,
+greetingKRMHostileWeaker,OpenCommLink,"$faction.id == KRM
+$faction.hostileToPlayer
+$relativeStrength < 0",$ignorePlayerCommRequests = true 1,"""哦该死...居然是你！我...我不会怕的！你必须为你的所作所为付出代价！""
+
+通讯链接在你做出回应前就被切断。
+
+即使对方的舰船弱于你的舰队，你的扫描器还是检测到了对方武器启动的特征讯号。
+OR
+""可恶可恶可恶...还是被发现追上...谁的信息...是那个杀人魔！""对方的 $personRank 一瞬间面色惨白，""...我们不会就这么死在太空里的。""
+
+通讯链接在你做出回应前就被切断。
+
+即使对方的舰船弱于你的舰队，你的扫描器还是检测到了对方武器启动的特征讯号。
+OR
+""...该死的混账。""
+
+通讯链接在你做出回应前就被切断。
+
+即使对方的舰船弱于你的舰队，你的扫描器还是检测到了对方武器启动的特征讯号。",cutCommLink:切断通讯链接,
+greetingKRMHostileWeakerDefiant,OpenCommLink,"$faction.id == KRM
+$faction.hostileToPlayer
+$relativeStrength < 0
+$weakerThanPlayerButHolding",$ignorePlayerCommRequests = true 1,"""哦该死...我们完蛋了！我...我要离开这儿...""
+
+随着一声巨大的枪响，通讯画面被覆盖，随后那尸体被搬开，你看到对方的船员造反了，但很显然他们并没有恐惧。
+
+通讯链接在你做出回应前就被切断。
+
+即使对方的舰船弱于你的舰队，你的扫描器还是检测到了对方武器启动的特征讯号。
+OR
+""可恶可恶可恶...还是被发现追上...谁的信息...是那个杀人魔！""对方的 $personRank 一瞬间面色惨白，但语气逐渐镇定下来，""...放马过来吧，我不会再逃跑了。""
+
+通讯链接在你做出回应前就被切断。
+
+即使对方的舰船弱于你的舰队，你的扫描器还是检测到了对方武器启动的特征讯号。
+OR
+""...久有耳闻...全舰做好战斗准备！恶魔还是来了。""
+
+通讯链接在你做出回应前就被切断。
+
+即使对方的舰船弱于你的舰队，你的扫描器还是检测到了对方武器启动的特征讯号。",cutCommLink:切断通讯链接,
+greetingKRMHostileStronger,OpenCommLink,"$faction.id == KRM
+$faction.hostileToPlayer
+$relativeStrength >= 0",$ignorePlayerCommRequests = true 1,"""哦，是你。我要是你就不会做出那些惹人生厌的事，现在准备付出代价吧！""
+
+通讯链接在你做出回应前就被切断。
+OR
+""抓住你了，现在关闭你们舰船上的所有武器还来得及，立刻投降！""对方的 $personRank 所引领的舰船从P空间显现并封锁了你的道路，""否则我就把你的舰船残骸捞回去。""
+
+在发现你没有进一步回复后，对方便切断了通讯链接。
+OR
+""立刻投降，介于你曾对 克劳斯姆概念研究局 造成的大量损失，你被勒令立刻放弃抵抗，否则我们有权开火。""",cutCommLink:切断通讯链接,
+greetingKRMTOffNormal,OpenCommLink,"$faction.id == KRM
+!$isHostile
+!$player.transponderOn
+$entity.relativeStrength >= 0",,"""...请打开应答器，这是身份确认。""
+OR
+""...请打开应答器，日常身份确认。""
+OR
+""...伙计，距离内记得打开应答器，身份确认。""","turnOnTransponder:开启通讯器
+cutCommLink:切断通讯链接",
+greetingKRMTOffWeaker,OpenCommLink,"$faction.id == KRM
+!$isHostile
+!$player.transponderOn
+$entity.relativeStrength < 0",,"""...请打开应答器，这是身份确认，否则我们有权进行调查。""
+OR
+""...请打开应答器，日常身份确认，否则我们有权进行调查。""
+OR
+""...伙计，距离内记得打开应答器，身份确认，否则我们有权进行调查。""","turnOnTransponder:开启通讯器
+cutCommLink:切断通讯链接 ",
+greetingKRMTOffUnknown,OpenCommLink,"$faction.id == KRM
+!$entity.patrolAllowTOff
+$entity.transponderOffConv score:100
+!$entity.knowsWhoPlayerIs",,"""...请打开应答器，这是身份确认，你不符合已知队伍。""
+OR
+""...请打开应答器，你不符合已知队伍，否则我们有权进行调查。""
+OR
+""...你不符合已知队伍，现在打开应答器，身份确认，否则我们有权进行调查。""","turnOnTransponder:开启通讯器
+cutCommLink:切断通讯链接 ",
+greetingKRMNeutral,OpenCommLink,"$faction.id == KRM
+$faction.neutralToPlayer","$menuState = fleetConvMain 0
+FireAll PopulateOptions","""...信息已确认，请保持距离。""
+OR
+""...你们的$shipOrFleet已经被识别扫描，请保持距离。""
+OR
+""...信息已确认，请保持距离。""随后似乎是为了防止误会，对方又补了一句，""这只是一句官场话，我们不希望产生过多交集。""
+OR
+经过短暂的等待，你的连接请求被接受了。
+
+""信息已确认，您找我们有什么事情么？""
+OR
+经过短暂的等待，你的连接请求被接受了。
+
+""信息已确认，请保持距离。""
+OR
+经过短暂的等待，你的连接请求被接受了。
+
+在发现你只是日常通讯之后，$hisOrHer很快就找机会关闭了通讯。
+OR
+通信连接打开之后，对方等待着你优先说出通讯目的。
+
+在发现你只是日常通讯之后，$hisOrHer很快就找机会关闭了通讯。
+OR
+经过漫长的等待，你的终端终于轻响了两下，随后通讯被接通了。
+
+""...什么事？""
+OR
+""为了双方都能安心，我们最好保持距离。""",,
+,,,,,,
+,,,,,,
+,,,,,,
+aiCores_turnInOptionSelKRM,DialogOptionSelected,"$option == aiCores_startTurnIn
+$faction.id == KRM",FireAll PopulateCoresTurnInOptions,"""哦，老天，这可是AI核心。""对方这么说着，""如果您前往其他地方，别的势力的人很有可能会把您抓起来扔进监狱，或是更糟。""
+
+""但我们可以帮您处理，我们正有这种需求。""
+OR
+""这可真不错，我们正需要这个东西，如果您乐意的话，我们很乐意和您交换这个东西。""",,
+aiCores_turnInResponseKRM,AICoresTurnedIn,$faction.id == KRM,FireAll PopulateOptions,"""哦天哪，很感谢您。""
+OR
+""啊，很不错，这绝对能帮助我们的研究，期待与您之后的合作。""",,
+,,,,,,
+,,,,,,
+,,,,,,
+relLevelNeutralKRM,RelationshipLevelDesc,"$faction.rel == NEUTRAL
+$faction.id == KRM",,$theFaction 经常无视你在各个地方来回游荡，这也代表你并没有被接受，但也没有被讨厌。,,
+relLevelFavorableKRM,RelationshipLevelDesc,"$faction.rel == FAVORABLE
+$faction.id == KRM",,你的好话从 $theFaction 的部分研究员之中传递，这令你算是有了些许被设计局接受的基础。,,
+relLevelWelcomingKRM,RelationshipLevelDesc,"$faction.rel == WELCOMING
+$faction.id == KRM",,设计局的不少高层对你有所留意，你的一些些许的手欠行为并不会如同以前一样被严肃对待，不少研究者也乐意与同你聊天 —— 虽然很多话题你并不一定听得懂。,,
+relLevelFriendlyKRM,RelationshipLevelDesc,"$faction.rel == FRIENDLY
+$faction.id == KRM",,$theFaction 给了你一个聊胜于无的研究员头衔以表达对你的认可，大部分底层研究员已经不怎么敢和你搭话找麻烦，你的名号传的很远。,,
+relLevelCooperativeKRM,RelationshipLevelDesc,"$faction.rel == COOPERATIVE
+$faction.id == KRM",,博士已经知晓你的名号，并且很乐意于和你交流。你已经成为研究局的大人物，你在研究局控制区域内各个地方的露面都会受到近乎不必要的尊敬。,,
+relLevelSuspiciousKRM,RelationshipLevelDesc,"$faction.rel == SUSPICIOUS
+$faction.id == KRM",,$theFaction 正如对待其他生人一样对你不信任，他们并不会过多与生人谈话，对你也一样。,,
+relLevelInhospitableKRM,RelationshipLevelDesc,"$faction.rel == INHOSPITABLE
+$faction.id == KRM",,"你的所作所为已经传达至研究局的中层，众多研究员已经被要求对你进行关注，你的有关行动都在被仔细监视，以防止你可能对研究局造成的重大混乱。",,
+relLevelHostileKRM,RelationshipLevelDesc,"$faction.rel == HOSTILE
+$faction.id == KRM",,"你在 $theFaction 现如今就是臭名昭著，你的暴力解决方案并没有得到研究局的认可，所有舰队都已经被勒令将你击毁，并且禁止你进入所有研究局的控制区域。",,
+relLevelVengefulKRM,RelationshipLevelDesc,"$faction.rel == VENGEFUL
+$faction.id == KRM",,"没有一个人不清楚你是谁，无论如何你也必须被阻止。克劳斯姆博士亲自将你定为最高威胁。一切行动都必须为了解决你造成的威胁而让步，众多科研项目被停止，现在是研究局生死存亡之际，而你为此负全部责任。",,
+,,,,,,
+flavorTextMarketKRM,TradePanelFlavorText,"$global.tradePanelMode == MARKET
+$faction.id == KRM","AddText ""整洁的建筑、温暖的空气让你不止一次的怀疑这里到底是不是地下？诸多研究员穿行而过，你则前往前台询问市场以及其他设施的方向。"" marketFlavorTextColor
+AddText ""作为极少见的外来人，你引来了不少怀疑的目光，但大多数仅仅是短短的一瞥，随后便继续他们自己那搬运小山似的文件的活去了。"" marketFlavorTextColor
+AddText ""你在前台员给出的路径上行走，最终到达了你的目的地，尽管你很确认这里应该是研究局内部的市场系统，而不是为你准备的。但你还是拿起了数据板。"" marketFlavorTextColor
+AddText ""—— 板子上面是根据你的身份可进行的交易数据。"" marketFlavorTextColor",,,
+flavorTextMarketKRMSneak,TradePanelFlavorText,"$global.tradePanelMode == MARKET
+$faction.id == KRM
+$player.transponderOn == false","AddText ""在荒芜人烟的鬼地方，一艘穿梭机趁着夜色直接扎进星球地表，顺着星球的大裂隙缓缓下降，显得似乎不比雪花大多少。在经过几个近乎让探测器停摆、探灯能见度不足的巨大溶洞后，穿梭机布满刮痕的落在远离矿区的一个布满各式能飞的小玩意的角落。在此等候已久的亡命徒带着你们坐上防护全面的全地形车，娴熟的从不时颤动的洞穴之中穿梭。"" marketFlavorTextColor
+AddText ""最终，你们在领路的带领下混进了星球深处的塌陷矿区，由于不时的洞穴塌缩或是地壳运动，这里根本不可能和地表产生任何联系；整个地下世界实行着最激进的安那其制度，这里是连设计局的正规部队也不敢深入的地方。器官贸易、各式各样奇特的能让你嗨起来的鬼玩意以及区域冲突留下的腐败一半的尸体。在结清了路费后，刚刚的亡命徒便转身跑去一个地窖 - 你推测那里是酒吧，虽然里面除了酒味儿很明显还有着电离以及烟雾的味道，但你不打算深究。"" marketFlavorTextColor",,,
+flavorTextMarketKRMAndels,TradePanelFlavorText,"$global.tradePanelMode == MARKET
+$faction.id == KRM
+$market.id == KRM_planet1_market score:100","AddText ""从太空中观看的话，一定会被这大的离谱却没塌缩成什么的星球感到震惊。而在地表则更加让人感到震撼，山峰直挺挺扎入太空之中，放眼望去地平线几乎不是个平线，星球内部独特的地心构造包含的数量巨大的溶洞以及广袤的洞穴系统。设计局的几个城区便坐落在这些山峰或是洞穴之内，地表依靠各式小型飞行器来往。矿区则由于不时的地壳变动而造成巨大的隔阂与人员伤亡。据说坍塌的深矿区现在已经变成了一个海盗天堂。""
+AddText ""在你反应过来时，穿梭机已经穿过重重山峰，即将停在一个侧挂在悬崖之上的巨大空港内。""",,,
+flavorTextMarketKRM_Core,TradePanelFlavorText,"$global.tradePanelMode == MARKET
+$faction.id == KRM
+$market.id == KRM_planet3_market score:100
+$player.transponderOn == true","AddText ""在Labyorm找路并不麻烦，你很快便找到了路进入地下的坚固设施。地表有着散落的防御设施；一些卫戍舰船也在接近地表的太空港 - 如果星球内的星港也算的话 - 接受着维修。一些较为稳固的地表上竖立着一些如同春笋般的建筑群，在那里便有着进入下层研究区的通道。但直到现在你也很纳闷设计局是怎么在这么个不稳定的星球上建设的这些个稳定的研究设施。"" marketFlavorTextColor
+AddText ""作为极少见的外来人，你引来了不少怀疑的目光，但大多数仅仅是短短的一瞥，随后便继续他们自己那搬运小山似的文件的活去了。也许是因为有几个安保机器人稳稳地跟在你的后面，不过你很相信你的保镖可以轻易的砸碎那玩意的脑袋。"" marketFlavorTextColor
+AddText ""你在前台员给出的路径上行走，最终到达了你的目的地，尽管你很确认这里应该是研究局内部的市场系统，而不是为你准备的。但你还是拿起了数据板。"" marketFlavorTextColor
+AddText ""—— 板子上面是根据你的身份可进行的交易数据。"" marketFlavorTextColor",,,
+flavorTextMarketKRM_CoreSneak,TradePanelFlavorText,"$global.tradePanelMode == MARKET
+$faction.id == KRM
+$market.id == KRM_planet3_market score:100
+$player.transponderOn == false","AddText ""在Labyorm找路相当麻烦，你的穿梭艇好不容易才找到了个防御设施的死角；那些卫戍舰船现在正在接近地表的太空港 - 如果星球内的星港也算的话 - 接受着维修，这让你钻了大空子。一些不稳定的地块区散落着一些隐秘的隧道，在那里便有着进入下层深区的通道。"" marketFlavorTextColor
+AddText ""但很遗憾，你能看见的大多都已经塌陷，现在剩下的就是几个烂摊子。"" marketFlavorTextColor",,,
+bar_descKRM,BarPrintDesc,$faction.id == KRM,ShowImageVisual KRM_Bar,酒吧的地砖是擦得光亮的灰色六边形石砖。整洁的或钢制或银质的墙上挂着几块显示屏。其中一些还播着点儿你看不太懂的概念图。店里有不少是点着没啥度数的果酒的研究员，他们往往正在痛骂自己在研究方面的失利，亦或是在设计案竞争中的落败，他们的声音时而高亢，时而低沉，充满了激情；但某些角落也有着穿戴不那么正式的家伙。一些普普通通的船员从你身边走过，有些则直接矮靠在黄铜长椅上低调地喝着酒聊着天。你也想点些东西，出乎意料的是，这儿的低度数酒居然是免费供应的。,,
+,,,,,,
+#OmegaInvasion,,,,,,
+OmegaBasePK,OpenInteractionDialog,"$tag:IIRT_Omega_Invaded score:1000
+PlayerHasCargo planetkiller
+!HostileFleetNearbyAndAware
+!$global.IIRT_omega_Invasion_End",,在突破了Omega的防线后，你终于有机会投下这枚行星杀手来结束这一切。,"OmegaBaseUsePK:投下行星杀手
+defaultLeave:离开",
+OmegaBaseUsePK,DialogOptionSelected,$option == OmegaBaseUsePK,"AddRemoveAnyItem SPECIAL planetkiller -1
+$global.IIRT_omega_Invasion_End = true
+FireAll PopulateOptions",行星杀手的闪光从Omega修复设施中亮起。可以预见不会再有更多的Omega从中生产出来了。,,
+OmegaBaseRejection,OpenInteractionDialog,"$tag:IIRT_Omega_Invaded score:1000
+!$global.IIRT_omega_Invasion_End",,Omega的舰队严密封锁了此地，如果你还想活着离开，最好不要停留哪怕一刻。,defaultLeave:Leave,
+,,,,,,
+,,,,,,
+,,,,,,
+greetingIIRTFriendly,OpenCommLink,"$faction.id == IIRT
+$faction.friendlyToPlayer","$menuState = fleetConvMain 0
+FireAll PopulateOptions","""已确认信息，$personName 祝您顺风。""以西卡舰队 $personRank 向你点头致意。
+OR
+""你们的$shipOrFleet已经被扫描识别，祝航行顺利。""以西卡舰队 $personRank 向你点头致意。
+OR
+""已确认信息，$personName 祝您顺风。""以西卡舰队 $personRank 向你点头致意。
+
+这应该这些机械对你表达友好的方式...之一，你这么想着。
+OR
+""哦，您好，$playerName，希望你最近一切安好。""以西卡舰队 $personRank 向你挥了挥手。
+
+它的头像下面写着$personName，边上还画了个团子一样的生物。
+
+真是个与众不同的家伙，你这么想着。
+OR
+""已确认信息，$personName。$personName 祝您顺风。""以西卡舰队 $personRank 向你点头致意。
+OR
+""已确认信息，$personName 祝您顺风。""
+OR
+""已确认信息，$personRank 随时为您服务。""
+OR
+""已确认信息，尊敬的 $playerName 您好，乐意为您服务。""",,
+greetingIIRTHostileWeaker,OpenCommLink,"$faction.id == IIRT
+$faction.hostileToPlayer
+$relativeStrength < 0",$ignorePlayerCommRequests = true 1,"""乐意为您服务。""
+
+通讯链接在你做出回应前就被切断。
+
+即使对方的舰船弱于你的舰队，你的扫描器还是检测到了对方武器启动的特征讯号。
+OR
+""好吧，看来您的舰船更快。""以西卡舰队 $personRank 向你点头致意，""乐意为您服务。""
+
+通讯链接在你做出回应前就被切断。
+
+即使对方的舰船弱于你的舰队，你的扫描器还是检测到了对方武器启动的特征讯号。
+OR
+""...久有耳闻，乐意为您服务。""
+
+链接突然受到巨大的干扰，你的通讯设备很快就被最简单粗暴的DDOS干穿了。
+
+即使对方的舰船弱于你的舰队，你的扫描器还是检测到了对方武器启动的特征讯号。
+
+通讯官之后很久才消除了DDOS的影响。",cutCommLink:切断通讯链接,
+greetingIIRTHostileWeakerDefiant,OpenCommLink,"$faction.id == IIRT
+$faction.hostileToPlayer
+$relativeStrength < 0
+$weakerThanPlayerButHolding",$ignorePlayerCommRequests = true 1,"""随时乐意为您服务。""
+
+即使对方的舰船弱于你的舰队，你的扫描器检测到了对方武器启动的特征讯号。
+OR
+""...久有耳闻，乐意为您服务。""
+
+通讯链接在你做出回应前就被切断。
+OR
+""有什么事...哦，当然。乐意为您服务。""通讯链接就这样被切断了。
+
+你的扫描器检测到了对方武器启动的特征讯号。
+OR
+""乐意为您服务。""
+
+通讯画面中的智械静静的看着你，你怀疑它在通讯全程就没有动过。
+
+你的扫描器检测到了对方武器启动的特征讯号。
+OR
+""您的行为会被记录，无时无刻。""
+
+通讯画面中的智械静静的看着你，你怀疑它在通讯全程就没有动过。
+
+你的扫描器检测到了对方武器启动的特征讯号。
+OR
+""哦，随时为您服务。""
+
+通讯链接在你做出回应前就被切断。
+
+你的扫描器检测到了对方武器启动的特征讯号。",cutCommLink:切断通讯链接,
+greetingIIRTHostileStronger,OpenCommLink,"$faction.id == IIRT
+$faction.hostileToPlayer
+$relativeStrength >= 0",$ignorePlayerCommRequests = true 1,"你的通讯请求被拒绝了。
+OR
+""我希望您对您自身的阵营有清晰的认识。""
+
+通讯链接在你做出回应前就被切断。
+OR
+你的通讯请求被拒绝了，但通讯官的控制台上传来了一些响动。那是一份通缉文件，而你的名字和头像清清楚楚的展现在上面。
+
+这时你的扫描器检测到了武器启动的特征讯号。
+OR
+你试图与对方建立通信连接，但并没有得到回应。
+OR
+""您好，$playerName，希望您对您自身的阵营有清晰的认识。""
+
+通讯链接在你做出回应前就被切断。
+OR
+通讯链接的画面从始至终就没有变过，你不知道是链接出了问题，还是对方真的完全没有动过。
+OR
+通讯画面中的智械静静的看着你，你怀疑它在通讯全程就没有动过。
+OR
+在链接的瞬间，你的通讯设备就被最简单粗暴的DDOS干穿了。
+
+通讯官之后很久才消除了那些影响。
+OR
+""$playerName，希望您对您自身的阵营有清晰的认识。""
+
+通讯链接在你做出回应前就被切断。
+OR
+经过短暂的等待，你的连接请求被接受了。
+
+通讯链接在你做出回应前就被切断。",cutCommLink:切断通讯链接,
+greetingIIRTTOffUnknown,OpenCommLink,"$faction.id == IIRT
+!$entity.patrolAllowTOff
+$entity.transponderOffConv score:100
+!$entity.knowsWhoPlayerIs",,,,
+greetingIIRTNeutral,OpenCommLink,"$faction.id == IIRT
+$faction.neutralToPlayer","$menuState = fleetConvMain 0
+FireAll PopulateOptions","""已确认信息，请保持距离。""
+
+通讯画面中的智械静静的看着你，你怀疑它在通讯全程就没有动过。
+OR
+""希望您能注意您的所作所为，这对我们双方都是有益的。""以西卡舰队 $personRank 在等待了一段时间后，切断了通讯。
+OR
+""你们的$shipOrFleet已经被扫描识别，请保持距离。""以西卡舰队 $personRank 在等待了一段时间后，切断了通讯。
+OR
+""已确认信息，以西卡研究所 希望您能遵守规定。""以西卡舰队 $personRank 向你发送了一份文件。
+
+基本都是正常的相处法则，但其中一条被加粗标识的段落令你印象深刻。
+
+""...第751条：禁止一切非授权的于 以西卡研究所 控制范围内的调查活动。""
+OR
+""您好，$playerName，请注意您的行为。""以西卡舰队 $personRank 静静看着通讯画面，随后似乎是为了防止误会，""这只是一句提醒，祝您顺风。""
+
+通讯链接在你做出回应前就被切断。
+
+真是个与众不同的家伙，你这么想着。
+OR
+经过短暂的等待，你的连接请求被接受了。
+
+""已确认信息，有什么事？""
+
+通讯画面中的智械静静的看着你，你怀疑它在通讯全程就没有动过。
+OR
+经过短暂的等待，你的连接请求被接受了。
+
+""已确认信息，请保持距离。""
+OR
+经过短暂的等待，你的连接请求被接受了。
+
+""已确认信息，有什么事？""以西卡舰队 $personRank 静静看着通讯画面。
+
+在发现你只是日常通讯之后，$hisOrHer很快就找机会关闭了通讯。
+OR
+通信连接打开之后，对方等待着你优先说出通讯目的。
+
+在发现你只是日常通讯之后，$hisOrHer很快就找机会关闭了通讯。
+OR
+""已确认信息，有什么事？""
+OR
+""已确认信息，请保持距离。""
+OR
+经过漫长的等待，你的终端终于轻响了两下，随后通讯被接通了。
+
+""已确认信息，请保持距离。""
+
+通讯画面中的智械静静的看着你，你怀疑它在通讯全程就没有动过。
+OR
+""你们的$shipOrFleet已经被扫描识别，请保持距离。""以西卡舰队 $personRank 说完这句话后，立刻掐断了通讯。
+OR
+$PersonRank $personName 把目光从舰船数据控制台上移开，抬眼看向你。
+
+""请不要干涉我们的任务，感谢您的合作。""
+
+通讯链接在你做出回应前就被切断。
+OR
+经过漫长的等待，你的连接请求被接受了。
+
+""$playerName，您的行为会被记录，无时无刻。""
+
+通讯画面中的智械静静的看着你，你怀疑它在通讯全程就没有动过。
+OR
+""为了我们双方都能安心，你们最好保持距离。""
+
+通讯链接在你做出回应前就被切断。",,
+# Escort fleet greeting lines,,,,,,
+greetingEscortFriendly,OpenCommLink,"$faction.id == Escort score:1000
+$faction.friendlyToPlayer","$menuState = fleetConvMain 0
+FireAll PopulateOptions","""[友方]...判定通过，$player.numShips单位额外[友方]舰船，卫队单元将誓死保卫魂廊，卫队损毁度[无数据]...""
+
+/ 进程中断 /
+
+魂廊完整度...[无数据]
+
+错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误......
+
+通讯设备突然开始升温，你赶在它损毁之前主动切断了链接。
+OR
+""[友方]...判定通过，单元将誓死保卫魂廊，队伍损毁度[无数据]...""
+
+/ 进程中断 /
+
+魂廊完整度...[无数据]
+
+错误错误错误错误错误错误错误错误错......
+
+通讯链接被切断了。",,
+greetingEscortHostile,OpenCommLink,"$faction.id == Escort score:1000
+$entity.isHostile",$entity.ignorePlayerCommRequests = true 1,"""[敌方]...启动协议 //
+敌对反应数量：$player.numShips//旗舰：[敌方]$player.flagshipName//
+单元将誓死保卫魂廊，队伍损毁度[无数据]...""
+
+/ 进程中断 /
+
+检索魂廊完整度...[无数据]
+
+错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误......
+
+通讯链接突然死机了。你的通讯官慌张了好一会儿之后，控制台才自行重启。你跟副官交换了一下眼神，示意其继续手上的工作。
+OR
+通讯设备发出刺耳的异响和啸叫，视讯上的线条以狂乱的样式交织出了某种形状。
+
+/ 进程中断 /
+
+检索魂廊完整度...[无数据]
+
+/ 进程中断 /
+
+""...将誓...卫魂...伍损毁度[无数据]...""
+
+""目标，清除单元[敌方]$player.name。""
+
+通讯链接被切断了。",cutCommLink:切断通讯,
+greetingEscortNeutral,OpenCommLink,"$faction.id == Escort score:1000
+$faction.neutralToPlayer","$menuState = fleetConvMain 0
+FireAll PopulateOptions","""[未知]...启动协议 //
+单元将誓死保卫魂廊，队伍损毁度[无数据]...""
+
+/ 进程中断 /
+
+检索魂廊完整度...[无数据]
+
+错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误错误......
+
+通讯设备突然发出剧烈的尖啸声，通讯官惊恐着强制关闭了通讯设备。
+OR
+通讯设备发出刺耳的异响和啸叫，视讯上的线条以狂乱的样式交织出了某种形状。
+
+/ 进程中断 /
+
+检索魂廊完整度...[无数据]
+
+/ 进程中断 /
+
+""...将誓...卫魂...伍损毁度[无数据]...""
+
+通讯链接被切断了。",,
+,,,,,,
+,,,,,,
+,,,,,,
+aiCores_turnInOptionSelIIRT,DialogOptionSelected,"$option == aiCores_startTurnIn
+$faction.id == IIRT",FireAll PopulateCoresTurnInOptions,"""小巧的AI核心？如果您乐意送出来的话，我们随时可以收下这份礼物。""
+OR
+""其他大势力如果发现了这个东西，一定会对您采取敌对行动的，不过很庆幸的是，我们可以帮助您处理这个小玩意。""
+OR
+""如果您乐意的话。""",,
+aiCores_turnInResponseIIRT,AICoresTurnedIn,$faction.id == IIRT,FireAll PopulateOptions,"""十分感谢您做出的贡献，请收下这些。""
+OR
+""杰出的小发现，随时期待与您之后的合作。""",,
+,,,,,,
+,,,,,,
+,,,,,,
+relLevelNeutralIIRT,RelationshipLevelDesc,"$faction.rel == NEUTRAL
+$faction.id == IIRT",,你在 $theFaction 的数据库中并没有什么独特的记载，这既有好处也有坏处。,,
+relLevelFavorableIIRT,RelationshipLevelDesc,"$faction.rel == FAVORABLE
+$faction.id == IIRT",,你在 $theFaction 的数据库中有着良好的行为记录，以西卡的舰队不会过多留意您，同时您在星区的出入也不会引起过多额外的注意。,,
+relLevelWelcomingIIRT,RelationshipLevelDesc,"$faction.rel == WELCOMING
+$faction.id == IIRT",,你在 $theFaction 的数据库内有大量良好记录，部分舰船会稍微留意到你，偶尔也会对你出手相助。,,
+relLevelFriendlyIIRT,RelationshipLevelDesc,"$faction.rel == FRIENDLY
+$faction.id == IIRT",,$theFaction 已经将你视为朋友，大部分舰队很乐意对你表达好感(虽然它们不擅长这一点)，多数特殊市场也都对你开放。,,
+relLevelCooperativeIIRT,RelationshipLevelDesc,"$faction.rel == COOPERATIVE
+$faction.id == IIRT",,$theFaction 已经将你视为舰队重要的资产、仅次于舰队内部系统的第一人。如果你有需要，几乎所有七十三号外派舰队的智械都乐于帮助你。舰队的部分内源单位也与你有所联系，所有的市场都已经对你开放。,,
+relLevelSuspiciousIIRT,RelationshipLevelDesc,"$faction.rel == SUSPICIOUS
+$faction.id == IIRT",,你在 $theFaction 的数据库中有着恶劣的行为记录，以西卡的舰队会略微多加留意你。大多数 $theFaction 的哨点对你也会多加留意。,,
+relLevelInhospitableIIRT,RelationshipLevelDesc,"$faction.rel == INHOSPITABLE
+$faction.id == IIRT",,"你在 $theFaction 的数据库中已经处于被归类为""敌对单元""的边缘。虽然目前大多数舰队不会立即袭击你，但所有舰船都已经同步了你的识别码，并被要求武器属于待命状态。",,
+relLevelHostileIIRT,RelationshipLevelDesc,"$faction.rel == HOSTILE
+$faction.id == IIRT",,"你在 $theFaction 的数据库中已被归类为""敌对单元""。$theFaction 的智械都认得你的识别码和你的那张脸。所有舰队都被授权并被要求将你驱逐出 $theFaction 的视野。",,
+relLevelVengefulIIRT,RelationshipLevelDesc,"$faction.rel == VENGEFUL
+$faction.id == IIRT",,"你在 $theFaction 的数据库中已被置顶。""一个敌对且不可信的生物""是它们对你的最高评价，没有一个智械不清楚你是谁，无论如何它们也会竭尽全力的阻止你。内源责令人已经下令成立了专门针对你的猎杀小组对你进行调查，同时它们也会和各种人合作来破坏你的行动。",,
+,,,,,,
+flavorTextMarketIIRT,TradePanelFlavorText,"$global.tradePanelMode == MARKET
+$faction.id == IIRT","AddText ""整个核心区就是一座巨大的太空船坞。这个船坞可以容纳各种型号的飞船，并且拥有先进的维修和保养设备。在这里工作的人员都是以西卡研究所的智械，那些类似人形的终究还是占少数，绝大多数都是一些有着不明尖锐设计的飞行单位。以及大量让你感到不适的多足机械。"" marketFlavorTextColor
+AddText ""你在一个看起来不那么让人不适的智械的引领下进入了交易所，在一个如同刺胞动物门一样满是管线的\""服务生\""将饮品递到桌上后，一个数据板便由它的触手从体内抽出并递与了你。"" marketFlavorTextColor
+AddText ""——数据板上面是根据你的身份可进行的交易数据。"" marketFlavorTextColor",,,

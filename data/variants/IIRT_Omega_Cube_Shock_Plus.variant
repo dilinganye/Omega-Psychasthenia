@@ -1,0 +1,45 @@
+{
+  "variantId": "IIRT_Omega_Cube_Shock_Plus",
+  "hullId": "IIRT_Omega_Cube",
+  "displayName": "Shock Cube Plus",
+  "goalVariant": true,
+  "fluxCapacitors": 20,
+  "fluxVents": 7,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "fluxbreakers",
+    "magazines"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "shockrepeater",
+        "WS0002": "shockrepeater",
+        "WS0003": "shockrepeater",
+        "WS0004": "shockrepeater",
+        "WS0005": "shockrepeater",
+        "WS0006": "shockrepeater",
+        "WS0007": "riftcascade"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "ALTERNATING",
+      "weapons": {
+        "WS0008": "amsrm",
+        "WS0009": "amsrm",
+        "WS0010": "amsrm"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "ALTERNATING",
+      "weapons": {}
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

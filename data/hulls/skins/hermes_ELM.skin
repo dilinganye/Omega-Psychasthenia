@@ -1,0 +1,17 @@
+{
+	"baseHullId":"hermes",
+	"skinHullId":"hermes_ELM",
+	"hullName":"您的饿了么骑手",
+	"descriptionId":"hermes",  # optional
+	"descriptionPrefix":"你把你美团给我关咯，不然有你好果汁吃 ",
+	"restoreToBaseHull":true,
+	"spriteName":"graphics/ships/hermes_ELM.png",
+	"baseValueMult":.65,
+	"removeWeaponSlots":[], 		# ids
+	"removeEngineSlots":[], 		# indices, as engine slots have no id in the .ship file
+	"removeBuiltInMods":[], 		# hullmod ids
+	"removeBuiltInWeapons":[], 		# weapon slot ids
+	"builtInMods":[],
+	"builtInWeapons":{
+    },
+}

@@ -1,0 +1,70 @@
+{
+  "hullName": "IIRT_Omega_Candelabrum",
+  "hullId": "IIRT_Omega_Candelabrum",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Lab/IIRT_Omega_Candelabrum.png",
+  "style": "OMEGA_Plus",
+  "height": 53,
+  "width": 71,
+  "center": [35, 25.5],
+  "collisionRadius": 77,
+  "shieldCenter": [-4.5, -0],
+  "shieldRadius": 69.5,
+  "viewOffset": 0,
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 61,
+      "angle": 0,
+      "locations": [-0.5, -2.5]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-9.5, 13],
+      "length": 73.942398,
+      "width": 15.168714,
+      "angle": -175,
+      "contrailSize": 15.168714,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-21, -22],
+      "length": 27.336037,
+      "width": 11.088925,
+      "angle": 54.5,
+      "contrailSize": 11.088925,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-10, -28],
+      "length": 21.369291,
+      "width": 12.586253,
+      "angle": 164.5,
+      "contrailSize": 12.586253,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-1, 27],
+      "length": 21.369291,
+      "width": 12.586253,
+      "angle": 128.5,
+      "contrailSize": 12.586253,
+      "style": "OMEGA"
+    }
+  ],
+  "bounds": [
+    21, 30.5,
+    -11.5, 20.5,
+    -3, -3.5,
+    -19, -26.5,
+    -7.5, -33,
+    13, -27.5,
+    7.5, 4,
+    15.5, 4.5,
+    15, 19
+  ]
+}

@@ -1,0 +1,16 @@
+{
+    "baseHullId": "IIRT_Omega_Bustle",
+    "skinHullId": "IIRT_Omega_Bustle_D",
+    "hullName": "喧嚣 (D)",
+    "baseValueMult": .75,
+    "descriptionId":"mercury",  # optional
+	"descriptionPrefix":"血液所含有的元素已经被彻底的融合入此舰船的结构之中。其虽标有\"D\"，但舰船本身似乎没有受到任何损伤。 ",
+    "spriteName": "graphics/ships/Wired/Omega_Bustle_Blood.png",
+	"removeWeaponSlots":[], 		# ids
+	"removeEngineSlots":[], 		# indices, as engine slots have no id in the .ship file
+	"removeBuiltInMods":[], 		# hullmod ids
+	"removeBuiltInWeapons":[], 		# weapon slot ids
+	"builtInMods":["safetyoverrides"],
+	"builtInWeapons":{
+    },
+}

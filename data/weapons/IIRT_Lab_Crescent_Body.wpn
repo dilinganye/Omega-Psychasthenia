@@ -1,0 +1,47 @@
+{
+  "id": "IIRT_Lab_Crescent_Body",
+  "specClass": "beam",
+  "type": "SYSTEM",
+  "size": "SMALL",
+  "collisionClass": "RAY",
+  "collisionClassByFighter": "RAY_FIGHTER",
+  "turretSprite": "graphics/weapons/AC/IIRT_Lab_FirstQuarter/IIRT_Lab_FirstQuarter_Body.png",
+  "hardpointSprite": "graphics/weapons/AC/IIRT_Lab_FirstQuarter/IIRT_Lab_FirstQuarter_Body.png",
+  "glowColor": [
+    255,
+    255,
+    255,
+    0
+  ],
+  "hitGlowRadius": 0,
+  "turretOffsets": [
+    -3.5,
+    0
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    3.5,
+    0
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "fringeColor": [
+    255,
+    255,
+    255,
+    0
+  ],
+  "coreColor": [
+    255,
+    255,
+    255,
+    0
+  ],
+  "width": 10,
+  "textureType": ROUGH,
+  "textureScrollSpeed": 64,
+  "pixelsPerTexel": 1
+}

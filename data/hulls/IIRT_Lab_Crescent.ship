@@ -1,0 +1,80 @@
+{
+  "hullName": "IIRT_Lab_Crescent",
+  "hullId": "IIRT_Lab_Crescent",
+  "hullSize": "FIGHTER",
+  "spriteName": "graphics/ships/Lab/IIRT_Lab_Crescent.png",
+  "style": "KRM_TECH",
+  "height": 28,
+  "width": 40,
+  "center": [20, 21],
+  "collisionRadius": 33.5,
+  "shieldCenter": [-1.5, -0],
+  "shieldRadius": 31.5,
+  "viewOffset": 0,
+  "builtInMods": [
+    "IIRT_Lab_RPCM"
+  ],
+  "builtInWeapons": {
+    "WS0001": "IIRT_Lab_Crescent_Body",
+    "WS0002": "IIRT_Lab_Crescent_Head",
+    "WS0003": "IIRT_Lab_Crescent_SG"
+  },
+  "weaponSlots": [
+    {
+      "id": "WS0002",
+      "size": "SMALL",
+      "type": "BUILT_IN",
+      "mount": "TURRET",
+      "arc": 157,
+      "angle": -0,
+      "locations": [-4, -0],
+      "renderOrderMod": 3
+    },
+    {
+      "id": "WS0003",
+      "size": "SMALL",
+      "type": "BUILT_IN",
+      "mount": "TURRET",
+      "arc": 87,
+      "angle": 46.5,
+      "locations": [4, 0.5],
+      "renderOrderMod": 1
+    },
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "BUILT_IN",
+      "mount": "TURRET",
+      "arc": 49,
+      "angle": 0,
+      "locations": [-4, -0],
+      "renderOrderMod": 2
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-19, -0],
+      "length": 7.5,
+      "width": 25,
+      "angle": 180,
+      "contrailSize": 25,
+      "style": "KRSM_Smoke"
+    },
+    {
+      "location": [-20, -0],
+      "length": 33.5,
+      "width": 5,
+      "angle": 180,
+      "contrailSize": 5,
+      "style": "KRSM_TECH"
+    }
+  ],
+  "bounds": [
+    -12, -5,
+    -6, -10.5,
+    1, -4.5,
+    1, 4.5,
+    -6, 10.5,
+    -12, 5
+  ]
+}

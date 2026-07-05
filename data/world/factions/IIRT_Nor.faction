@@ -1,0 +1,148 @@
+{
+  "id": "IIRT_Nor",
+  "showInIntelTab":false,
+  "color": [197,136,199,255],
+  "secondaryUIColor":[255,255,255,255],
+  "secondarySegments":8,
+  "baseUIColor": [214, 128, 255, 255],
+  #"darkUIColor": [32, 85, 0, 175],
+  #"gridUIColor": [95, 255, 0, 75],
+  "displayName": "以西卡客制舰群",
+  "displayNameWithArticle": "以西卡客制舰队",
+  "logo": "graphics/factions/IIRTT_Nor.png",
+  "crest": "graphics/factions/IIRT_Nor.png",
+  "shipNamePrefix": "IIRT",
+  "shipNameSources": {
+    "OMEGA":1,
+	"MERCANTILE":1,
+	"SPACE":1,
+	"DERELICT_DRONE":1,
+  },
+  "names": {
+	"future":1,
+	"myth":1,
+  },
+  # variantOverrides restricts hulls to listed variants and adjusts their probability
+  "variantOverrides": {
+  },
+  # multiplier for how often hulls show up in the faction's fleets
+  "hullFrequency": {
+    "tags": {
+    },
+    "hulls": {
+    },
+  },
+  # ships the faction gets access to when importing S&W out-of-faction
+  "shipsWhenImporting": {
+    "tags": [],
+    "hulls": [
+    ],
+  },
+  "knownShips": {
+    "tags": ["iirt_remade"],
+    "hulls": [
+    ],
+  },
+  # listing ships here will make the faction mostly use them even if other hulls become available
+  "priorityShips": {
+    "tags": ["iirt_remade"],
+    "hulls": [
+    ],
+  },
+  "knownFighters": {
+    "tags": ["iirt_bp"],
+    "fighters": [
+    ],
+  },
+  "priorityFighters": {
+    "tags": [iirt_bp],
+    "fighters": [
+    ],
+  },
+  "knownWeapons": {
+    "tags": ["base_bp", "cmc_bp", "midline_bp", "missile_bp", "hightech_bp", "iirt_bp"],
+    "weapons": [
+    ],
+  },
+  "priorityWeapons": {
+    "tags": ["iirt_have"],
+    "weapons": [
+    ],
+  },
+  "knownHullMods": {
+    "tags": ["merc", "midline_bp"],
+    "hullMods": [
+    ],
+  },
+  "factionDoctrine": {
+  "warships":3,
+		"carriers":3,
+		"phaseShips":3,
+		
+		"officerQuality":5,
+		"shipQuality":4,
+		"numShips":2,
+		
+		"shipSize":3,
+		
+		"aggression":5, # doesn't matter since automated ships are super aggressive regardless
+		
+		"combatFreighterProbability":0,     				# instead of some portion of the freighters in a fleet
+		"combatFreighterCombatUseFraction":1,				# as part of the normal combat lineup
+		"combatFreighterCombatUseFractionWhenPriority":1,   # as part of normal combat lineup, when marked as priority ship
+		"autofitRandomizeProbability":0.25,
+
+		"commanderSkillsShuffleProbability":1,
+		"commanderSkills":[
+		],
+  },
+  "illegalCommodities": [
+    "drugs",
+    "organs"
+  ],
+  "music": {
+    "theme": "music_luddite_market_neutral",
+    "market_neutral": "music_luddite_market_neutral",
+    "market_hostile": "music_luddite_market_hostile",
+    "market_friendly": "music_luddite_market_friendly",
+    "encounter_neutral": "music_luddite_encounter_neutral",
+    "encounter_hostile": "music_luddite_encounter_hostile",
+    "encounter_friendly": "music_luddite_encounter_friendly",
+  },
+  "portraits": {
+    "standard_male": [
+      "graphics/portraits/IIRT_Ai_G.png",
+      "graphics/portraits/IIRT_Ai_P.png",
+	  "graphics/portraits/IIRT_Ai_Webcam01.png",
+	  "graphics/portraits/IIRT_Ai_Webcam02.png",
+	  "graphics/portraits/IIRT_Ai_Webcam03.png",
+	  "graphics/portraits/IIRT_Ai_Webcam04.png"
+
+    ],
+    "standard_female": [
+      "graphics/portraits/IIRT_Ai_B.png",
+	  "graphics/portraits/IIRT_Ai_Server01.png",
+	  "graphics/portraits/IIRT_Ai_Server02.png"
+    ],
+  },
+  "ranks": {
+    "ranks": {
+    },
+    "posts": {
+    },
+  },
+  "custom": {
+		"engageWhenEvenStrength":true,
+		"allowsTransponderOffTrade":true, # to prevent cargoscan dialog from "patrols"
+		"postsNoBounties":true,
+		"fightToTheLast":true, # order a full assault instead of retreating, in most cases
+		"noAICoresFromAutomatedDefenses":true,
+		"officersOnAutomatedDefenses":true,
+  },
+  "fleetTypeNames": {
+    "patrolSmall": "客制武装单元",
+    "patrolMedium": "客制卫戍单元",
+    "patrolLarge": "客制矩阵单元"
+  },
+},
+

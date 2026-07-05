@@ -1,0 +1,198 @@
+{
+  "hullName": "IIRT_Omega_DevilFork",
+  "hullId": "IIRT_Omega_DevilFork",
+  "hullSize": "CRUISER",
+  "spriteName": "graphics/ships/Omega_DevilFork.png",
+  "style": "OMEGA_Plus",
+  "height": 300,
+  "width": 170,
+  "center": [92, 144],
+  "collisionRadius": 146,
+  "shieldCenter": [-6, 1],
+  "shieldRadius": 133,
+  "viewOffset": 0,
+  "builtInMods": [
+    "IIRT_Omega_BugShardSpawner"
+  ],
+  "builtInWeapons": {
+    "WS0008": "thermosiphonsrm",
+    "WS0009": "amsrm",
+    "WS0010": "amsrm"
+  },
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "LARGE",
+      "type": "UNIVERSAL",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": 0,
+      "locations": [32, -11]
+    },
+    {
+      "id": "WS0002",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": 0,
+      "locations": [35, -43]
+    },
+    {
+      "id": "WS0003",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 256,
+      "angle": 20.5,
+      "locations": [66, 16]
+    },
+    {
+      "id": "WS0004",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 341,
+      "angle": -172,
+      "locations": [-15, -3]
+    },
+    {
+      "id": "WS0005",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 165,
+      "angle": -42,
+      "locations": [1, -39]
+    },
+    {
+      "id": "WS0006",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 181,
+      "angle": -35.5,
+      "locations": [-32, -41]
+    },
+    {
+      "id": "WS0007",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 204,
+      "angle": 37.5,
+      "locations": [5, 16]
+    },
+    {
+      "id": "WS0008",
+      "size": "SMALL",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 3,
+      "angle": -26.5,
+      "locations": [12.5, 32]
+    },
+    {
+      "id": "WS0009",
+      "size": "SMALL",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 3,
+      "angle": -26.5,
+      "locations": [6, 36]
+    },
+    {
+      "id": "WS0010",
+      "size": "SMALL",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 3,
+      "angle": 0,
+      "locations": [-30, -5]
+    },
+    {
+      "id": "LB 1",
+      "size": "LARGE",
+      "type": "LAUNCH_BAY",
+      "mount": "HIDDEN",
+      "arc": 360,
+      "angle": 0,
+      "locations": [27, 11]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-40.5, 52.5],
+      "length": 92.480423,
+      "width": 18.068865,
+      "angle": 147.5,
+      "contrailSize": 18.068865,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-65.5, -51],
+      "length": 55.898621,
+      "width": 18.503429,
+      "angle": -166,
+      "contrailSize": 18.503429,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-43, -8.5],
+      "length": 31.060215,
+      "width": 29.086983,
+      "angle": -159.5,
+      "contrailSize": 29.086983,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-44.5, -6.5],
+      "length": 106.853355,
+      "width": 11.199894,
+      "angle": -175.5,
+      "contrailSize": 11.199894,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-93, 2],
+      "length": 33.195396,
+      "width": 7.01877,
+      "angle": 169.5,
+      "contrailSize": 7.01877,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-26, 21],
+      "length": 66.561523,
+      "width": 15.337946,
+      "angle": 175.5,
+      "contrailSize": 15.337946,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-21.5, 26.5],
+      "length": 44.290173,
+      "width": 8.861279,
+      "angle": 170.5,
+      "contrailSize": 8.861279,
+      "style": "OMEGA"
+    }
+  ],
+  "bounds": [
+    115, 10.5,
+    -69, 81,
+    -39.5, 59,
+    -37, 50,
+    -6, 17,
+    -114.5, 12.5,
+    -42.5, -4.5,
+    -19.5, -29.5,
+    -70.5, -64,
+    25, -44.5,
+    21, -28.5,
+    31, -17,
+    35, 3,
+    69, 6,
+    80.5, 13.5
+  ]
+}

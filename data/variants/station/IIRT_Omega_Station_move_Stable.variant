@@ -1,0 +1,41 @@
+{
+  "variantId": "IIRT_Omega_Station_move_Stable",
+  "hullId": "IIRT_Omega_Station_move",
+  "displayName": "Stable",
+  "goalVariant": false,
+  "fluxCapacitors": 0,
+  "fluxVents": 0,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0002": "interdictorbeam"
+      }
+    }
+  ],
+  "modules": [
+    {
+      "WS0010": "IIRT_Omega_Tranquil_Normal_2"
+    },
+    {
+      "WS0011": "IIRT_Omega_Tranquil_Normal_1"
+    },
+    {
+      "WS0006": "IIRT_Omega_Tranquil_Normal_3"
+    },
+    {
+      "WS0007": "IIRT_Omega_Torsion_2_Normal_2"
+    },
+    {
+      "WS0008": "IIRT_Omega_Torsion_2_Normal_4"
+    }
+  ],
+  "wings": [
+    "IIRT_Omega_Pupal_attack_wing",
+    "IIRT_Omega_Pupal_attack_wing"
+  ]
+}

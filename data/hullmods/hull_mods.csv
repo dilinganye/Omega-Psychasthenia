@@ -1,0 +1,53 @@
+name,id,tier,rarity,tech/manufacturer,tags,uiTags,base value,unlocked,hidden,hiddenEverywhere,cost_frigate,cost_dest,cost_cruiser,cost_capital,script,desc,short,sModDesc,sprite
+#压缩型武器,IIRT_No_weapon_flux,,,,,,,,TRUE,TRUE,0,0,0,0,data.hullmods.NoWeaponFlux,武器被放进去了小巧的战机却仍有以往的伤害呢~致命耶~~~,武器开火时将不产生幅能。,,
+#此机型武器只有一半面板伤害,IIRT_Half_Damage,,,,,,,,TRUE,TRUE,0,0,0,0,data.hullmods.IIRT_Half_Damage,此机型武器只有一半面板伤害,武器开火时将不产生幅能。,,
+0DP,IIRT_0DP,,,未知,special,特殊,,,TRUE,TRUE,0,0,0,0,data.hullmods.IIRT_0DP,把船变成0部署点(中介),0DP,,
+#克劳斯姆概念设计局,,,,,,,,,,,,,,,,,,,
+相位涂层,IIRT_Lab_PhaseOverlay,,,克劳斯姆概念,phase,特殊,,,TRUE,,0,0,0,0,com.fs.starfarer.api.impl.hullmods.PhaseField,"使舰船能如同相位舰船一样，在长距离航行时激活低水平相位场，从而使被侦测范围降低 %s。
+此涂层只能用于规避探查，它并不能在战斗中令舰船进入P空间。",相位涂层而非相位，降低被侦测范围。,,graphics/hullmods/IIRT_Lab_PhaseOverlay.png
+逆相构机,IIRT_Lab_RPCM,,,克劳斯姆概念,phase,特殊,,,TRUE,,0,0,0,0,data.hullmods.IIRT_Lab_Main,"此舰体运用了一些尚处于实验阶段的逆相位系统；这种由相位节点所衍生的相位冲程系统有各种型号，并会在一定程度上提升舰船表现。
+
+对于相位舰船，可令舰船在进入P空间时 %s 部分幅能。但安置相位锚点产生的极大干扰会使此效果无效化。
+对于非相位舰船，船体结构额外增加 %s 伤害抗性。其本质上是利用反冲系统精准控制舰船和外界的P空间立场影响层，从而一定程度上令舰船对外界投射物产生阻力。",设计局全局插,,graphics/hullmods/IIRT_Lab_Stand.png
+相场机库,IIRT_Lab_PhaseHangar,,,克劳斯姆概念,phase,特殊,,,TRUE,,0,0,0,0,data.hullmods.IIRT_Lab_PhaseHangar,"此舰内部含有独特的相场维护层以及和设计局设计相匹配的机库设施，能使克劳斯姆的非机兵类LPC获得加成。
+
+对于非机兵类设计局LPC，机体增加 %s 造成的伤害，机体降低 %s 承受伤害；
+提升战机恢复速率，提高 %s 整备恢复速率。
+[战机恢复速率于下方公式后显示]",设计局飞机航母全局插,,graphics/hullmods/IIRT_Lab_PhaseHangar.png
+克劳斯姆机兵维护库,IIRT_Lab_PhaseMeshHanger,,,克劳斯姆概念,phase,特殊,,,TRUE,,0,0,0,0,data.hullmods.IIRT_Lab_PhaseMeshHanger,"此舰内部含有大量机兵装甲的维护设备以及挂架层，同时还有配套的校准设备，能将克劳斯姆概念的机兵类LPC发挥到极致。
+
+对于机兵类设计局LPC，提升 %s 速度，减少 %s 相位维持，加快 %s 修复速度，降低机体所受 %s 伤害；
+对于非机兵类设计局LPC，提升 %s 速度，降低机体 %s 所受伤害；
+提升甲板恢复速率，提高 %s 整备恢复速率。
+[甲板恢复速率于下方公式后显示]",设计局机兵航母全局插,,graphics/hullmods/IIRT_Lab_PhaseMeshHanger.png
+机兵中枢,IIRT_Lab_PhaseMeshHangerOnly,,,克劳斯姆概念,phase,特殊,,,TRUE,,0,0,0,0,data.hullmods.IIRT_Lab_PhaseMeshHangerOnly,"此舰内部含有大量机兵装甲的维护设备以及挂架层，同时还有配套的校准设备，能将克劳斯姆概念的机兵类LPC发挥到极致。
+
+对于机兵类设计局LPC，提升 %s 速度，加快 %s 修复速度，降低机体所受 %s 伤害；
+提升 %s 甲板恢复速率，减少 %s 甲板装配需求，减少 %s 整备下降速率。
+-更改LPC装配后 请刷新界面以更新数据-",设计局机兵中枢全局插,,graphics/hullmods/IIRT_Lab_PhaseMeshHangerOnly.png
+#以西卡研究所,,,,,,,,,,,,,,,,,,,
+#以西卡通量化矩阵AI系统,IIRT_SD_AiCenter,1,,以西卡研究所,special,特殊,50000,,TRUE,,0,0,0,0,data.hullmods.IIRT_AiCenter,以西卡的量产AI核心，具有一定的反应能力，提升舰船的内部能源流动速率，同时其内置相当优秀的辐能管控系统，可以大幅集中护盾立场抵挡甚至无视来自敌人的伤害。但巨大的能量流对于过于协调的系统而言具有极大的不确定性。也使得对系统的保养变得异常重要。,+时间流速 -武器掉线概率 -护盾受动能、能量伤害 +护盾受高爆伤害 +受EMP伤害。,,graphics/hullmods/IIRT_AiCenter.png
+以西卡 -归墟- 设计方案,IIRT_SD_Lab,,,以西卡研究所,special,特殊,50000,,TRUE,,0,0,0,0,data.hullmods.IIRT_SD,"这艘船只由以西卡研究所设计，根据“归墟计划”的基础需求，对原本的科考船体进行了大幅度军事化翻新，并内置了特殊的适应装置来应对可能的威胁。
+
+根据船体等级减免自身受到的 %s/%s/%s/%s 光束武器伤害；
+降低船体受损时 %s 的人员伤亡；
+此舰上所有以西卡武器降低 %s OP装配需求。",+结构 -船体受损效果。,,graphics/hullmods/SD/IIRT_YisicLab.png
+#欧米伽,,,,,,,,,,,,,,,,,,,
+网络冥魂,IIRT_Omega_WebShardSpawner,,,未知,special,特殊,,,TRUE,,0,0,0,0,data.hullmods.shard.IIRT_WebShardSpawner,可以针对性的分裂成更小型的子机来攻击敌人。,网络冥魂 系列的通用子机分裂船插。,,data/missions/IIRT_Omega_test_2/Mega_Enginer.png
+介入灵质,IIRT_Omega_TranShardSpawner,,,未知,special,特殊,,,TRUE,,0,0,0,0,data.hullmods.shard.IIRT_TranShardSpawner,可以针对性的分裂成更小型的子机来攻击敌人。,介入灵质 系列的通用子机分裂船插。,,data/missions/IIRT_Omega_test_2/Mega_Enginer.png
+乱码尸骸,IIRT_Omega_BugShardSpawner,,,未知,special,特殊,,,TRUE,,0,0,0,0,data.hullmods.shard.IIRT_BugShardSpawner,可以针对性的分裂成更小型的子机来攻击敌人。,乱码尸骸 系列的通用子机分裂船插。,,data/missions/IIRT_Omega_test_2/Mega_Enginer.png
+热寂死界,IIRT_Omega_ColdShardSpawner,,,未知,special,特殊,,,TRUE,,0,0,0,0,data.hullmods.shard.IIRT_ColdShardSpawner,可以针对性的分裂成更小型的子机来攻击敌人。,热寂死界 系列的通用子机分裂船插。,,data/missions/IIRT_Omega_test_2/Mega_Enginer.png
+熵级运载,IIRT_Omega_CubeShardSpawner,,,未知,special,特殊,,,TRUE,,0,0,0,0,data.hullmods.shard.IIRT_CubeShardSpawner,在被击毁后会随机出现各种欧米伽物件,熵级运载 专属的盲盒分裂船插。,,data/missions/IIRT_Omega_test_2/Mega_Enginer.png
+#特殊,,,,,,,,,,,,,,,,,,,
+超弦月相涂层,IIRT_Omega_BeamShield,,,克劳斯姆概念,special,特殊,,,TRUE,,0,0,0,0,data.hullmods.IIRT_OmegaBeamShield,"来自克劳斯姆博士的概念设计，此舰与欧米伽结构融合后对某些伤害有了一定的免疫效果，会将其转化为机体材料的分子动能。
+
+常态会免疫EMP伤害、光束伤害完全转化为软幅能；
+舰船在进入P空间后可在一段时间内保持稳定态，同时每次进入相位状态都会蒸发大量幅能
+
+伤幅转换时，若幅容不足则将会导致此次伤幅转换为硬幅能，同时引发自身过载
+==过载时会对周围释放大量电击，并失去伤幅转换的能力==
+
+'运用'超弦振动涂层'的相关理论，将未知舰体的部分与舰船融合...简单来说就是可以令舰船在P空间内稳定更长时间，同时进一步优化赋能的消耗。'",克劳斯姆概念—密钥系列基础船插,,graphics/hullmods/IIRT_Omega_BeamShield.png
+目标定位巨型机,supercomputer,,,,,,,,TRUE,,0,0,0,0,data.hullmods.TargetingSupercomputer,"提高 %s 实弹与能量武器射程，但点防类武器仅提高 %s。
+
+同时也提高了瞄准精度，并大幅度提高战斗探测范围。",极大地提高非导弹武器的射程。,,graphics/hullmods/targeting_supercomputer.png

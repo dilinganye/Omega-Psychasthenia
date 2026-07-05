@@ -1,0 +1,14 @@
+{
+  "variantId": "IIRT_Lab_ShieldBackpack_Common",
+  "hullId": "IIRT_Lab_ShieldBackpack",
+  "displayName": "Common",
+  "goalVariant": false,
+  "fluxCapacitors": 0,
+  "fluxVents": 0,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [],
+  "weaponGroups": [],
+  "modules": [],
+  "wings": []
+}

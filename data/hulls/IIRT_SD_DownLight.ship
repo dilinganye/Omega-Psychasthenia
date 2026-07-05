@@ -1,0 +1,109 @@
+{
+  "hullName": "IIRT_SD_DownLight",
+  "hullId": "IIRT_SD_DownLight",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/IIRT/IIRT_DownLight.png",
+  "style": "IIRT_TECH",
+  "height": 62,
+  "width": 66,
+  "center": [33, 29.5],
+  "collisionRadius": 66.5,
+  "shieldCenter": [-1.5, -0],
+  "shieldRadius": 58,
+  "viewOffset": 0,
+  "builtInMods": [
+    "IIRT_SD_Lab"
+  ],
+  "builtInWings": [
+    "IIRT_SD_Recall_Support_wing"
+  ],
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "SYNERGY",
+      "mount": "TURRET",
+      "arc": 187,
+      "angle": 30,
+      "locations": [3, 19.5]
+    },
+    {
+      "id": "WS0002",
+      "size": "SMALL",
+      "type": "SYNERGY",
+      "mount": "TURRET",
+      "arc": 187,
+      "angle": -30,
+      "locations": [3, -19.5]
+    },
+    {
+      "id": "WS0003",
+      "size": "SMALL",
+      "type": "SYNERGY",
+      "mount": "TURRET",
+      "arc": 0,
+      "angle": 0,
+      "locations": [26.5, -0]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-15.5, 24],
+      "length": 29,
+      "width": 5,
+      "angle": 177.5,
+      "contrailSize": 5,
+      "style": "IIRT_TECH"
+    },
+    {
+      "location": [-15.5, -24],
+      "length": 29,
+      "width": 5,
+      "angle": -177.5,
+      "contrailSize": 5,
+      "style": "IIRT_TECH"
+    },
+    {
+      "location": [-27, -0],
+      "length": 29.5,
+      "width": 14,
+      "angle": 180,
+      "contrailSize": 14,
+      "style": "IIRT_Smoke"
+    },
+    {
+      "location": [-27, 8.5],
+      "length": 12.020815,
+      "width": 2.828427,
+      "angle": -135,
+      "contrailSize": 2.828427,
+      "style": "IIRT_TECH"
+    },
+    {
+      "location": [-27, -8.5],
+      "length": 12.020815,
+      "width": 2.828427,
+      "angle": 135,
+      "contrailSize": 2.828427,
+      "style": "IIRT_TECH"
+    }
+  ],
+  "bounds": [
+    27.5, -5.5,
+    10.5, -15,
+    10.5, -22,
+    3.5, -30.5,
+    -4.5, -24,
+    -15.5, -26,
+    -26, -10,
+    -22, -6,
+    -22, 6,
+    -26, 10,
+    -15.5, 26,
+    -4.5, 24,
+    3.5, 30.5,
+    10.5, 22,
+    10.5, 15,
+    27.5, 5.5
+  ]
+}

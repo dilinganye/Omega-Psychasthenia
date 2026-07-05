@@ -1,0 +1,31 @@
+{
+  "variantId": "IIRT_Omega_Kb_Only",
+  "hullId": "IIRT_Omega_Kb",
+  "displayName": "Kb",
+  "goalVariant": true,
+  "fluxCapacitors": 0,
+  "fluxVents": 5,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "hardenedshieldemitter"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0002": "irpulse_fighter"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "minipulser"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

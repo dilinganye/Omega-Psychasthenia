@@ -1,0 +1,67 @@
+WTF format:False
+Treshold state:False
+Treshold value:50
+Normal from Height:False
+Normal from Diffuse:True
+Combine Normals:False
+Combine Int:1
+Combine A Int:1
+Combine B Int:1
+Combine Z bias:1
+Generate profile:False
+Normal Intensity:1.987013
+Normal small:90
+Normal medium:4
+Normal large:2
+Normal medium radius:6
+Normal large radius:12
+Normal Dif small:62.98701
+Normal Dif medium:47.4026
+Normal Dif large:25.32467
+Normal Dif bBias:0.8376623
+Normal Dif bStr:0.001
+Normal Dif medium radius:8.285714
+Normal Dif large radius:14.68182
+Shape sel H med gauss:True
+Shape sel H med linear:False
+Shape sel H med flat:False
+Shape sel H large gauss:True
+Shape sel H large linear:False
+Shape sel H large flat:False
+Shape sel D med gauss:True
+Shape sel D med linear:False
+Shape sel D med flat:False
+Shape sel D large gauss:False
+Shape sel D large linear:True
+Shape sel D large flat:False
+Invert Xa:False
+Invert Ya:False
+Invert Xb:False
+Invert Yb:False
+Emission Intensity:1.220779
+Roughness base:0.5064935
+Roughtness from Normal:True
+Roughtness from Curvature:True
+Roughness curv Edge:0.6233766
+Roughness curv Cav:0.02597404
+Roughness curv Sobel:0.5194805
+Roughtness Brightness:0.02597404
+Roughtness Contrast:1
+Roughtness Clamp:0
+Curvature from Normal:True
+Volume range:2
+Volume blur:0
+Volume nrm intensity:40
+Volume from Normal:False
+&
+31,54_Linear
+55,54_Linear
+80,54_Linear
+110,75_Linear
+138,75_Linear
+168,54_Linear
+193,54_Linear
+217,54_Linear
+%
+-3,93_Linear
+252,-3_Linear

@@ -1,0 +1,128 @@
+{
+  "hullName": "IIRT_Lab_Lethe_Tanker",
+  "hullId": "IIRT_Lab_Lethe_Tanker",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Lab/IIRT_Lab_Lethe_Tank.png",
+  "style": "KRM_TECH",
+  "height": 131,
+  "width": 58,
+  "center": [29, 60],
+  "collisionRadius": 81.5,
+  "shieldCenter": [1, 0],
+  "shieldRadius": 79.5,
+  "viewOffset": 0,
+  "builtInMods": [
+    "phasefield",
+    "ground_support",
+    "IIRT_Lab_RPCM"
+  ],
+  "builtInWeapons": {
+    "WS0001": "vulcan",
+    "WS0002": "blinker_red",
+    "WS0003": "blinker_green"
+  },
+  "weaponSlots": [
+    {
+      "id": "WS0005",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HARDPOINT",
+      "arc": 10,
+      "angle": 0,
+      "locations": [61, -0]
+    },
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "BUILT_IN",
+      "mount": "TURRET",
+      "arc": 239,
+      "angle": 180,
+      "locations": [-20.5, -0]
+    },
+    {
+      "id": "WS0002",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 0,
+      "angle": 180,
+      "locations": [-41, -20.5]
+    },
+    {
+      "id": "WS0003",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 0,
+      "angle": -180,
+      "locations": [53, 11.5]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-59, -3.5],
+      "length": 46.748623,
+      "width": 5.316396,
+      "angle": 176.5,
+      "contrailSize": 5.316396,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-59, 3.5],
+      "length": 46.748623,
+      "width": 5.316396,
+      "angle": -176.5,
+      "contrailSize": 5.316396,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-31.5, -24.5],
+      "length": 13.51,
+      "width": 1.78,
+      "angle": 172,
+      "contrailSize": 1.78,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-31.5, 24.5],
+      "length": 13.51,
+      "width": 1.78,
+      "angle": -172,
+      "contrailSize": 1.78,
+      "style": "OMEGA"
+    }
+  ],
+  "bounds": [
+    -58.5, -6,
+    -52, -8,
+    -50, -24.5,
+    -46.5, -24,
+    -42, -27,
+    -32.5, -27,
+    -29.5, -25,
+    -15, -25,
+    -8, -25,
+    0, -20,
+    7, -18,
+    16.5, -18,
+    20, -14.5,
+    61, -13.5,
+    67, -10.5,
+    67, 10.5,
+    61, 13.5,
+    20, 14.5,
+    16.5, 18,
+    8, 18,
+    6, 22.5,
+    -2, 22.5,
+    -5, 25,
+    -29.5, 25,
+    -32.5, 27,
+    -42, 27,
+    -46.5, 24,
+    -50, 24.5,
+    -52, 8,
+    -58.5, 6
+  ]
+}

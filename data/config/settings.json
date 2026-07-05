@@ -1,0 +1,116 @@
+{
+    "plugins":{
+		"IIRT_Omega_PluginStarter":"data.scripts.everyframe.IIRT_Omega_PluginStarter",
+    },
+	
+    "designTypeColors":
+	{
+		"以西卡研究所":[197,136,199,255],
+		"以西卡蜂巢网络":[184,146,122,255],
+		"ⅦⅠⅣ":[191,170,255,255],
+		"交响曲-联队":[197,193,224,255],
+		
+		"克劳斯姆概念":[136,144,173,255],
+
+    },
+	"graphics":
+	{
+	   "intel":
+	   {
+	       	"Watcher_01":"graphics/portraits/Watcher_01.png",
+	       	"Watcher_02":"graphics/portraits/Watcher_02.png",
+	       	"Watcher_03":"graphics/portraits/Watcher_03.png",
+	       	"Watcher_03_2":"graphics/portraits/Watcher_03_2.png",
+	       	"Watcher_04":"graphics/portraits/Watcher_04.png",
+
+	       	"IIRT_Lab_Krausm_Class":"graphics/portraits/Lab/IIRT_Lab_Krausm_Class.png",
+	       	"IIRT_Lab_Krausm_Work":"graphics/portraits/Lab/IIRT_Lab_Krausm_Work.png",
+	       	"IIRT_Lab_Krausm_Hunt":"graphics/portraits/Lab/IIRT_Lab_Krausm_Hunt.png",
+	       	"IIRT_Lab_Yisic":"graphics/portraits/Lab/IIRT_Lab_Yisic.png",
+
+		   "IIRT_Davis_K_Ougust":"graphics/portraits/Ai_Core/Madness_Ai_Core_Y01.png",
+		   "IIRT_Silver_X":"graphics/portraits/IIRT_Ai_Webcam04.png",
+		   "IIRT_Army":"graphics/factions/IIRT_Army.png",
+
+		   "PTSD_Core_00":"graphics/portraits/Ai_Core/PTSD_Core_00.png",
+		   "PTSD_Core_01":"graphics/portraits/Ai_Core/PTSD_Core_01.png",
+		   "PTSD_Core_02":"graphics/portraits/Ai_Core/PTSD_Core_02.png",
+		   "PTSD_Core_03":"graphics/portraits/Ai_Core/PTSD_Core_03.png",
+		   "PTSD_Core_05":"graphics/portraits/Ai_Core/PTSD_Core_05.png",
+
+		   "PTSD_Core_10":"graphics/portraits/Ai_Core/PTSD_Core_10.png",
+		   "PTSD_Core_11":"graphics/portraits/Ai_Core/PTSD_Core_11.png",
+		   "PTSD_Core_12":"graphics/portraits/Ai_Core/PTSD_Core_12.png",
+		   "PTSD_Core_13":"graphics/portraits/Ai_Core/PTSD_Core_13.png",
+		   "PTSD_Core_14":"graphics/portraits/Ai_Core/PTSD_Core_14.png",
+		   "PTSD_Core_20":"graphics/portraits/Ai_Core/PTSD_Core_20.png"
+	   },
+	   "campaignMissions":
+	   {
+	   },
+	   "illustrations":{
+			"KRM_Bar":"graphics/illustrations/KRM_Bar.png",
+			"KRM_Platform":"graphics/illustrations/KRM_Platform.png",
+	   },
+	   "fx":{
+		   "IIRT_Lab_Wave":"graphics/fx/IIRT_Lab_Wave.png",
+
+		   "IIRT_Omega_Flare128":"graphics/fx/IIRT_light_flare1.png",
+		   "IIRT_Omega_lightLong":"graphics/fx/IIRT_lightLong.png",
+
+		   "IIRT_Omega_Trail1":"graphics/fx/IIRT_trail_1.png",
+		   "IIRT_Omega_Trail2":"graphics/fx/IIRT_trail_Normal.png",
+		   "IIRT_Omega_sub":"graphics/fx/IIRT_trail_Omega_Sub.png",
+		   "IIRT_Omega_Cloud64":"graphics/fx/IIRT_Omega_Cloud_64.png",
+
+		   "IIRT_Omega_X":"graphics/fx/IIRT_Omega_xXray.png",
+		   "IIRT_Omega_BombLazer":"graphics/fx/Bomb_Lazer_Fringe.png",
+
+		   "IIRT_Omega_Moon":"graphics/fx/Cipher_Moon_32.png",
+		   "IIRT_Omega_MoonC":"graphics/fx/Cipher_Moon_32c.png",
+
+
+		   "IIRT_Omega_spaceWave":"graphics/fx/IIRT_spaceWave.png",
+
+		   "IIRT_Omega_EX":"graphics/fx/IIRT_Omega_nebula_EX.png",
+		   "IIRT_Omega_fluxShockVent":"graphics/fx/IIRT_Omega_fluxShockVent.png",
+		   "IIRT_Omega_Radial64":"graphics/fx/IIRT_Omega_radial_64.png",
+
+		   "IIRT_Omega_Shock_00":"graphics/fx/Shock/IIRT_Lab_Shock_00.png",
+		   "IIRT_Omega_Shock_01":"graphics/fx/Shock/IIRT_Lab_Shock_01.png",
+		   "IIRT_Omega_Shock_02":"graphics/fx/Shock/IIRT_Lab_Shock_02.png",
+		   "IIRT_Omega_Shock_03":"graphics/fx/Shock/IIRT_Lab_Shock_03.png",
+		   "IIRT_Omega_Shock_04":"graphics/fx/Shock/IIRT_Lab_Shock_04.png",
+		   "IIRT_Omega_Shock_05":"graphics/fx/Shock/IIRT_Lab_Shock_05.png",
+		   "IIRT_Omega_Shock_06":"graphics/fx/Shock/IIRT_Lab_Shock_06.png",
+		   "IIRT_Omega_Shock_07":"graphics/fx/Shock/IIRT_Lab_Shock_07.png",
+		   "IIRT_Omega_Shock_08":"graphics/fx/Shock/IIRT_Lab_Shock_08.png",
+		   "IIRT_Omega_Shock_09":"graphics/fx/Shock/IIRT_Lab_Shock_09.png",
+		   
+		   "IIRT_Impact_Directional_01":"graphics/fx/Impact/IIRT_Impact_Directional_01.png",
+	},
+	"blueprint_packages":{
+		"KRM_bp_package":"graphics/icons/cargo/KRM_bp_package.png",
+		"KRM_Com_bp_package":"graphics/icons/cargo/KRM_Com_bp_package.png",
+		"IIRT_package":"graphics/icons/cargo/IIRT_package.png",
+		"IIRT_All_package":"graphics/icons/cargo/IIRT_All_package.png"
+	},
+	"fighterSkinsPlayerAndNPC":{
+		"wasp_KRM_TECH":"graphics/ships/fighters/wasp_krm.png",
+		"broadsword_KRM_TECH":"graphics/ships/fighters/broadsword_krm.png",
+		"talon_KRM_TECH":"graphics/ships/fighters/talon_krm.png",
+		"xyphos_KRM_TECH":"graphics/ships/fighters/xyphos_krm.png",
+		"IIRT_Lab_BurnDirt_LOW_TECH":"graphics/ships/fighters/BurnDirt_lowline.png",
+		"IIRT_Lab_BurnDirt_MIDLINE":"graphics/ships/fighters/BurnDirt_midline.png",
+		#"xyphos_KRM_TECH":"graphics/ships/fighters/xyphos_krm.png"
+	},
+	"fighterSkinsPlayerOnly":{
+	},
+		
+		# Unless listed in fighterSkinsExcludeFromSharing, fighter skins may show up on
+		# ships of other tech types that do not have a fighter skin defined specifically for them.
+		# In that case, the closest average-color matching scheme is used.
+	"fighterSkinsExcludeFromSharing":{
+	  },
+	}
+}

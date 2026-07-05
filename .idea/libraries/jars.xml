@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="jars">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../../../Starsector/mods/Omega Psychasthenia/jars/Omega_Psychasthenia.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../../Starsector/mods/Omega Psychasthenia/jars/Omega_Psychasthenia_oldest.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../../Starsector/mods/Omega Psychasthenia/jars/Omega_Psychasthenia_old.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

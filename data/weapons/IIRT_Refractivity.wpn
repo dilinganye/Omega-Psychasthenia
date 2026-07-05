@@ -1,0 +1,50 @@
+{
+  "id": "IIRT_Refractivity",
+  "specClass": "beam",
+  "type": "ENERGY",
+  "size": "SMALL",
+  "collisionClass": "RAY",
+  "collisionClassByFighter": "RAY_FIGHTER",
+  "turretSprite": "graphics/weapons/IIRT_Transmiso/IIRT_Transmiso_turret.png",
+  "turretGlowSprite": "graphics/weapons/IIRT_Transmiso/IIRT_Transmiso_turret_Light.png",
+  "hardpointSprite": "graphics/weapons/IIRT_Transmiso/IIRT_Transmiso.png",
+  "hardpointGlowSprite": "graphics/weapons/IIRT_Transmiso/IIRT_Transmiso_Light.png",
+  "glowColor": [
+    247,
+    213,
+    248,
+    255
+  ],
+  "hitGlowRadius": 0,
+  "turretOffsets": [
+    14,
+    0
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    24,
+    0
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "fringeColor": [
+    200,
+    110,
+    255,
+    255
+  ],
+  "coreColor": [
+    221,
+    210,
+    255,
+    255
+  ],
+  "width": 10,
+  "textureType": WEAVE,
+  "textureScrollSpeed": -800,
+  "pixelsPerTexel": 5,
+  "fireSoundTwo":"phase_beam_loop",
+}

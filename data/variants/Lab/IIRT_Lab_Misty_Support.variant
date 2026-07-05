@@ -1,0 +1,48 @@
+{
+  "variantId": "IIRT_Lab_Misty_Support",
+  "hullId": "IIRT_Lab_Misty",
+  "displayName": "Support",
+  "goalVariant": true,
+  "fluxCapacitors": 14,
+  "fluxVents": 1,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0006": "hil"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0002": "IIRT_Lab_Tracicles",
+        "WS0003": "IIRT_Lab_Tracicles"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "ALTERNATING",
+      "weapons": {
+        "WS0004": "IIRT_Lab_Flow",
+        "WS0005": "IIRT_Lab_Flow"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "IIRT_Lab_Flow"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": [
+    "IIRT_Lab_Liquidation_Assault",
+    "IIRT_Lab_BurnDirt_Rocket_wing"
+  ]
+}

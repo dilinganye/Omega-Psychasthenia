@@ -1,0 +1,104 @@
+{
+  "hullName": "IIRT_Omega_AttackChain",
+  "hullId": "IIRT_Omega_AttackChain",
+  "hullSize": "DESTROYER",
+  "spriteName": "graphics/ships/Omega_AttackChain.png",
+  "style": "OMEGA_Plus",
+  "height": 156,
+  "width": 164,
+  "center": [96, 70],
+  "collisionRadius": 124.5,
+  "shieldCenter": [10, 0],
+  "shieldRadius": 108.5,
+  "viewOffset": 0,
+  "builtInMods": [
+    "IIRT_Omega_WebShardSpawner",
+    "automated",
+    "autorepair"
+  ],
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 270,
+      "angle": 0,
+      "locations": [-3, -17]
+    },
+    {
+      "id": "WS0002",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 301,
+      "angle": -36,
+      "locations": [27, -41]
+    },
+    {
+      "id": "WS0003",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 270,
+      "angle": 38.5,
+      "locations": [-19, 10]
+    },
+    {
+      "id": "WS0004",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "HARDPOINT",
+      "arc": 7,
+      "angle": 0,
+      "locations": [76, -13]
+    },
+    {
+      "id": "WS0005",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HARDPOINT",
+      "arc": 7,
+      "angle": 0,
+      "locations": [69, 13]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-25.5, -27.5],
+      "length": 36.837864,
+      "width": 10.577689,
+      "angle": 178,
+      "contrailSize": 10.577689,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-37, -15],
+      "length": 50.156662,
+      "width": 14.738954,
+      "angle": -173.5,
+      "contrailSize": 14.738954,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-3, 58.5],
+      "length": 45.983097,
+      "width": 15.336842,
+      "angle": -151,
+      "contrailSize": 15.336842,
+      "style": "OMEGA"
+    }
+  ],
+  "bounds": [
+    70, -65,
+    20, 85,
+    16, 72,
+    -47.5, 22.5,
+    -54.5, 12,
+    -40, -4.5,
+    -32, -6.5,
+    -5, -42,
+    14, -44,
+    45, -63.5
+  ]
+}

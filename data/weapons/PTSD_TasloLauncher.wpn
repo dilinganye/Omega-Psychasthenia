@@ -1,0 +1,61 @@
+{
+  "id": "PTSD_TasloLauncher",
+  "specClass": "projectile",
+  "projectileSpecId": "PTSD_Taslo_shot",
+  "type": "BALLISTIC",
+  "size": "SMALL",
+  "turretSprite": "graphics/weapons/PTSD_TasloLauncher.png",
+  "turretGlowSprite": "graphics/weapons/PTSD_TasloLauncher_L.png",
+  "hardpointSprite": "graphics/weapons/PTSD_TasloLauncher_HD.png",
+  "hardpointGlowSprite": "graphics/weapons/PTSD_TasloLauncher_HD_L.png",
+  "glowColor": [
+    255,
+    225,
+    255,
+    225
+  ],
+  "turretOffsets": [
+    0.5,
+    -1,
+    4.5,
+    -1,
+    2.5,
+    -1
+  ],
+  "turretAngleOffsets": [
+    0,
+    0,
+    0
+  ],
+  "hardpointOffsets": [
+    4.5,
+    -1,
+    6.5,
+    -1,
+    8.5,
+    -1
+  ],
+  "hardpointAngleOffsets": [
+    0,
+    0,
+    0
+  ],
+  "barrelMode": "DUAL",
+  "animationType": "GLOW_AND_FLASH",
+  "autocharge": true,
+  "muzzleFlashSpec": {
+    "length": 100,
+    "spread": 6,
+    "particleSizeMin": 5,
+    "particleSizeRange": 7,
+    "particleDuration": 0.5,
+    "particleCount": 4,
+    "particleColor": [
+      150,
+      225,
+      250,
+      52
+    ]
+  },
+  "fireSoundTwo": "vpdriver_fire"
+}

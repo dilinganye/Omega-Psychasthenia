@@ -1,0 +1,338 @@
+{
+#ALL USED WEAPON SOUND
+	"IIRT_PAINT_DEAD":
+	[
+		{"file":"sounds/bgm/s.wav","pitch":0.5,"volume":0.45},
+	],
+	"IIRT_paintFire":
+	[
+		{"file":"sounds/Paint/IIRT_paintFire.wav","pitch":0.5,"volume":0.325},
+	],
+	"IIRT_paintHit":
+	[
+		{"file":"sounds/Paint/IIRT_paintHit.wav","pitch":0.5,"volume":0.35},
+	],
+	"IIRT_Banshee_fire":
+	[
+		{"file":"sounds/IIRT_Lab_Banshee_fire_1.ogg","pitch":0.45,"volume":0.3},
+	],
+	"IIRT_plasma_shot1":
+	[
+		{"file":"sounds/IIRT_plasma_shot1.ogg","pitch":0.2,"volume":0.26},
+		{"file":"sounds/IIRT_plasma_shot1.ogg","pitch":0.15,"volume":0.25},
+		{"file":"sounds/IIRT_plasma_shot1.ogg","pitch":0.13,"volume":0.19},
+		{"file":"sounds/IIRT_plasma_shot1.ogg","pitch":0.1,"volume":0.2},
+	],
+	"IIRT_plasma_shot2":
+	[
+		{"file":"sounds/IIRT_plasma_shot1.ogg","pitch":0.33,"volume":0.23},
+		{"file":"sounds/IIRT_plasma_shot1.ogg","pitch":0.22,"volume":0.25},
+		{"file":"sounds/IIRT_plasma_shot1.ogg","pitch":0.5,"volume":0.19},
+		{"file":"sounds/IIRT_plasma_shot1.ogg","pitch":0.45,"volume":0.2},
+	],
+	"IIRT_Ricochet01":
+	[
+		{"file":"sounds/IIRT_ricochet.ogg","pitch":0.3,"volume":0.24},
+		{"file":"sounds/IIRT_ricochet.ogg","pitch":0.25,"volume":0.22},
+		{"file":"sounds/IIRT_ricochet.ogg","pitch":0.45,"volume":0.2},
+	],
+	"IIRT_MainGun":
+	[
+		{"file":"sounds/IIRT_MainGun.ogg","pitch":0.45,"volume":0.3},
+	],
+	"IIRT_Lab_Scan":
+	[
+		{"file":"sounds/IIRT_Lab_Scan.ogg","pitch":0.45,"volume":0.3},
+	],
+	"IIRT_Lab_Assault_Rifle":
+	[
+		{"file":"sounds/IIRT_Lab_Assault_Rifle_01.wav","pitch":0.03,"volume":0.3},
+		{"file":"sounds/IIRT_Lab_Assault_Rifle_02.wav","pitch":0.03,"volume":0.3},
+	],
+	"IIRT_Lab_Heavy_Rifle":
+	[
+		{"file":"sounds/IIRT_Lab_Assault_Rifle_02.wav","pitch":0.25,"volume":0.3},
+		{"file":"sounds/IIRT_Lab_Assault_Rifle_03.wav","pitch":0.25,"volume":0.3},
+		{"file":"sounds/IIRT_Lab_Assault_Rifle_04.wav","pitch":0.25,"volume":0.3},
+	],
+	"IIRT_Lab_Heavy_Rifle_more":
+	[
+		{"file":"sounds/IIRT_Lab_Assault_Rifle_02.wav","pitch":0.5,"volume":0.25},
+		{"file":"sounds/IIRT_Lab_Assault_Rifle_03.wav","pitch":0.5,"volume":0.25},
+		{"file":"sounds/IIRT_Lab_Assault_Rifle_04.wav","pitch":0.5,"volume":0.25},
+	],
+	"IIRT_Windup":
+	[
+		{"file":"sounds/IIRT_Windup.wav","pitch":0.2,"volume":0.25},
+		{"file":"sounds/IIRT_Windup.wav","pitch":0.05,"volume":0.3},
+		{"file":"sounds/IIRT_Windup.wav","pitch":0.36,"volume":0.2},
+	],
+	"IIRT_Sound_Wenn":
+	[
+		{"file":"sounds/IIRT_Sound_Wenn.ogg","pitch":0.23,"volume":0.25},
+		{"file":"sounds/IIRT_Sound_Wenn.ogg","pitch":0.15,"volume":0.3},
+		{"file":"sounds/IIRT_Sound_Wenn.ogg","pitch":0.5,"volume":0.27},
+	],
+	
+	
+	"IIRT_SD_MidGun":
+	[
+		{"file":"sounds/IIRT_SD/IIRT_SD_Chopper.wav","pitch":0.45,"volume":0.25},
+		{"file":"sounds/IIRT_SD/IIRT_SD_Chopper.wav","pitch":0.43,"volume":0.3},
+		{"file":"sounds/IIRT_SD/IIRT_SD_Chopper.wav","pitch":0.40,"volume":0.27},
+	],
+	"IIRT_SD_SLM_fire":
+	[
+		{"file":"sounds/IIRT_SD/IIRT_SD_SLM_fire.wav","pitch":0.4,"volume":0.22},
+		{"file":"sounds/IIRT_SD/IIRT_SD_SLM_fire.wav","pitch":0.38,"volume":0.2},
+		{"file":"sounds/IIRT_SD/IIRT_SD_SLM_fire.wav","pitch":0.35,"volume":0.18},
+	],
+	"IIRT_SD_CannonFire":
+	[
+		{"file":"sounds/IIRT_SD/IIRT_SD_CannonFire_01.ogg","pitch":0.40,"volume":0.25},
+		{"file":"sounds/IIRT_SD/IIRT_SD_CannonFire_01.ogg","pitch":0.38,"volume":0.22},
+		{"file":"sounds/IIRT_SD/IIRT_SD_CannonFire_02.ogg","pitch":0.40,"volume":0.23},
+		{"file":"sounds/IIRT_SD/IIRT_SD_CannonFire_02.ogg","pitch":0.43,"volume":0.26},
+	],
+	"IIRT_SD_LaserRifles":
+	[
+		{"file":"sounds/IIRT_SD/IIRT_SD_LaserRifles_01.ogg","pitch":0.40,"volume":0.25},
+		{"file":"sounds/IIRT_SD/IIRT_SD_LaserRifles_01.ogg","pitch":0.38,"volume":0.22},
+		{"file":"sounds/IIRT_SD/IIRT_SD_LaserRifles_02.ogg","pitch":0.40,"volume":0.23},
+		{"file":"sounds/IIRT_SD/IIRT_SD_LaserRifles_02.ogg","pitch":0.43,"volume":0.26},
+	],
+	"IIRT_SD_PitchFire":
+	[
+		{"file":"sounds/IIRT_SD/IIRT_SD_LaserRifles_01.ogg","pitch":0.60,"volume":0.25},
+		{"file":"sounds/IIRT_SD/IIRT_SD_LaserRifles_01.ogg","pitch":0.58,"volume":0.22},
+		{"file":"sounds/IIRT_SD/IIRT_SD_LaserRifles_02.ogg","pitch":0.60,"volume":0.23},
+		{"file":"sounds/IIRT_SD/IIRT_SD_LaserRifles_02.ogg","pitch":0.63,"volume":0.26},
+	],
+	"IIRT_SD_WaveGun":
+	[
+		{"file":"sounds/IIRT_SD/WavegunFire.ogg","pitch":0.38,"volume":0.25},
+		{"file":"sounds/IIRT_SD/WavegunFire.ogg","pitch":0.42,"volume":0.23},
+		{"file":"sounds/IIRT_SD/WavegunFire.ogg","pitch":0.5,"volume":0.19},
+	],
+	"IIRT_SD_Evil":
+	[
+		{"file":"sounds/IIRT_SD/Railgun_01.ogg","pitch":0.25,"volume":0.25},
+		{"file":"sounds/IIRT_SD/Railgun_01.ogg","pitch":0.27,"volume":0.23},
+		{"file":"sounds/IIRT_SD/Railgun_01.ogg","pitch":0.3,"volume":0.21},
+	],
+	"IIRT_SD_Theaten":
+	[
+		{"file":"sounds/IIRT_SD/Railgun_01.ogg","pitch":0.20,"volume":0.25},
+		{"file":"sounds/IIRT_SD/Railgun_01.ogg","pitch":0.18,"volume":0.23},
+		{"file":"sounds/IIRT_SD/Railgun_01.ogg","pitch":0.14,"volume":0.21},
+	],
+	"IIRT_SD_Los":
+	[
+		{"file":"sounds/IIRT_SD/Railgun_02.ogg","pitch":0.25,"volume":0.25},
+		{"file":"sounds/IIRT_SD/Railgun_02.ogg","pitch":0.27,"volume":0.23},
+		{"file":"sounds/IIRT_SD/Railgun_02.ogg","pitch":0.3,"volume":0.21},
+	],
+	"IIRT_SD_Sentry":
+	[
+		{"file":"sounds/IIRT_SD/50APFire.ogg","pitch":0.25,"volume":0.25},
+		{"file":"sounds/IIRT_SD/50APFire.ogg","pitch":0.3,"volume":0.2},
+		{"file":"sounds/IIRT_SD/50APFire.ogg","pitch":0.35,"volume":0.22},
+	], 
+	"IIRT_SD_RailRifles":
+	[
+		{"file":"sounds/IIRT_SD/RailRifles_01.ogg","pitch":0.3,"volume":0.22},
+		{"file":"sounds/IIRT_SD/RailRifles_01.ogg","pitch":0.35,"volume":0.2},
+		{"file":"sounds/IIRT_SD/RailRifles_01.ogg","pitch":0.34,"volume":0.16},
+	],
+#BGM
+"music":{
+	"music_KRM_theme":
+	[
+		{
+		"source":"sounds/bgm",
+		"file":"music_KRM_theme.ogg",
+		"volume":0.5,
+		"randomStart":false, 
+		},
+	],
+#FACTION BGM
+	"music_KRM_market_neutral":
+	[
+		{
+		"source":"sounds/bgm",
+		"file":"music_KRM_market_neutral.ogg",
+		"volume":0.5,
+		"randomStart":false, 
+		},
+	],
+	"music_KRM_market_hostile":
+	[
+		{
+		"source":"sounds/bgm",
+		"file":"music_KRM_market_hostile.ogg",
+		"volume":0.5,
+		"randomStart":false, 
+		},
+	],
+	"music_KRM_market_friendly":
+	[
+		{
+		"source":"sounds/bgm",
+		"file":"music_KRM_market_friendly.ogg",
+		"volume":0.5,
+		"randomStart":false, 
+		},
+	],
+	"music_KRM_encounter_neutral":
+	[
+		{
+		"source":"sounds/bgm",
+		"file":"music_KRM_encounter_neutral.ogg",
+		"volume":0.5,
+		"randomStart":false, 
+		},
+	],
+	"music_KRM_encounter_hostile":
+	[
+		{
+		"source":"sounds/bgm",
+		"file":"music_KRM_encounter_hostile.ogg",
+		"volume":0.5,
+		"randomStart":false, 
+		},
+	],
+
+	"music_KRM_encounter_friendly":
+	[
+		{
+		"source":"sounds/bgm",
+		"file":"music_KRM_encounter_friendly.ogg",
+		"volume":0.5,
+		"randomStart":false,
+		},
+	],
+	"music_Omega_encounter_hostile":
+	[
+		{
+		"source":"sounds/bgm",
+		"file":"music_Omega_encounter_hostile.ogg",
+		"volume":0.5,
+		"randomStart":false, 
+		},
+	],
+	"music_Omega_encounter_hostile_2":
+	[
+		{
+		"source":"sounds/bgm",
+		"file":"music_Omega_encounter_hostile_2.ogg",
+		"volume":0.5,
+		"randomStart":false, 
+		},
+	],
+
+
+
+"faction_iirt_encounter_hostile":
+[
+{
+"source":"sounds/bgm",
+"file":"faction_iirt_FrankBells.ogg",
+"volume":0.5,
+"randomStart":false,
+},
+],
+"faction_iirt_encounter_neutral":
+[
+{
+"source":"sounds/bgm",
+"file":"faction_iirt_NoEscape.ogg",
+"volume":0.5,
+"randomStart":false,
+},
+],
+"faction_iirt_encounter_friendly":
+[
+{
+"source":"sounds/bgm",
+"file":"faction_iirt_Freedom.ogg",
+"volume":0.5,
+"randomStart":false,
+},
+],
+"faction_iirt_market_hostile":
+[
+{
+"source":"sounds/bgm",
+"file":"faction_iirt_ShopTheme.ogg",
+"volume":0.5,
+"randomStart":false,
+},
+],
+"faction_iirt_market_neutral":
+[
+{
+"source":"sounds/bgm",
+"file":"faction_iirt_Menu.ogg",
+"volume":0.5,
+"randomStart":false,
+},
+],
+"faction_iirt_market_friendly":
+[
+{
+"source":"sounds/bgm",
+"file":"faction_iirt_MainMenu.ogg",
+"volume":0.5,
+"randomStart":false,
+},
+],
+
+"faction_ecsort_encounter_hostile":
+[
+{
+"source":"sounds/bgm",
+"file":"faction_iirt_InsideMechanism.ogg",
+"volume":0.5,
+"randomStart":false,
+},
+],
+"faction_ecsort_encounter_neutral":
+[
+{
+"source":"sounds/bgm",
+"file":"faction_iirt_InsideMechanism.ogg",
+"volume":0.5,
+"randomStart":false,
+},
+],
+"faction_ecsort_encounter_friendly":
+[
+{
+"source":"sounds/bgm",
+"file":"faction_iirt_InsideMechanism.ogg",
+"volume":0.5,
+"randomStart":false,
+},
+],
+
+#PLACE BGM
+	"music_KRM_Aleph_site":
+	[
+		{
+		"source":"sounds/bgm",
+		"file":"music_KRM_Aleph_site.ogg",
+		"volume":0.5,
+		"randomStart":true, 
+		},
+	],
+	"music_Omega_Pre01":
+	[
+		{
+		"source":"sounds/bgm",
+		"file":"music_Omega_Pre01.ogg",
+		"volume":0.5,
+		"randomStart":false, 
+		},
+	],
+	},
+}

@@ -1,0 +1,38 @@
+{
+  "variantId": "IIRT_Lab_Nonsense_Omega",
+  "hullId": "IIRT_Lab_Nonsense",
+  "displayName": "Omega",
+  "goalVariant": false,
+  "fluxCapacitors": 10,
+  "fluxVents": 3,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "hardenedshieldemitter"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "disintegrator"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0002": "minipulser"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0003": "shockrepeater"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

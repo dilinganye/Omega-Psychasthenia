@@ -1,0 +1,2 @@
+command,class,tags,syntax,help
+GoToCurr,org.lazywizard.console.commands.GoToCurr,"core,cheat,campaign",goto [Vector2D],"Teleports your fleet to a accurate Vector2D loc, such as: goto 100,-100 ."

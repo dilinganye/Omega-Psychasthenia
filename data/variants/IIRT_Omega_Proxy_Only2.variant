@@ -1,0 +1,41 @@
+{
+  "variantId": "IIRT_Omega_Proxy_Only2",
+  "hullId": "IIRT_Omega_Proxy",
+  "displayName": "SSL",
+  "goalVariant": true,
+  "fluxCapacitors": 5,
+  "fluxVents": 6,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "advancedoptics",
+    "hardenedshieldemitter"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "riftlance",
+        "WS0004": "riftlance"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "ALTERNATING",
+      "weapons": {
+        "WS0005": "amsrm",
+        "WS0006": "amsrm"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0003": "shockrepeater"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

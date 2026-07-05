@@ -1,0 +1,32 @@
+{
+  "variantId": "IIRT_Omega_Riots_Normal_5",
+  "hullId": "IIRT_Omega_Riots",
+  "displayName": "PD",
+  "goalVariant": true,
+  "fluxCapacitors": 3,
+  "fluxVents": 1,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "targetingunit",
+    "hardenedshieldemitter"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "Omega_Entropy"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0002": "shockrepeater"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

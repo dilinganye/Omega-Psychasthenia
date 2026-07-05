@@ -1,0 +1,44 @@
+{
+  "variantId": "IIRT_SD_Gap_Tanker_Tanker",
+  "hullId": "IIRT_SD_Gap_Tanker",
+  "displayName": "Tanker",
+  "goalVariant": true,
+  "fluxCapacitors": 0,
+  "fluxVents": 10,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "advancedshieldemitter",
+    "advancedoptics",
+    "hardened_subsystems",
+    "hardenedshieldemitter",
+    "auxiliary_fuel_tanks"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "ALTERNATING",
+      "weapons": {
+        "WS0005": "atropos_single",
+        "WS0006": "atropos_single"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "IIRT_Refractivity",
+        "WS0002": "IIRT_Refractivity"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0003": "taclaser"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

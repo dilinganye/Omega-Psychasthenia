@@ -1,0 +1,83 @@
+{
+  "variantId": "Omega_Scrap_Heap_Garbage",
+  "hullId": "Omega_Scrap_Heap",
+  "displayName": "Main",
+  "goalVariant": true,
+  "fluxCapacitors": 50,
+  "fluxVents": 47,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "hardenedshieldemitter",
+    "nav_relay",
+    "ecm",
+    "eccm"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "riftcascade",
+        "WS0002": "rifttorpedo",
+        "WS0005": "vpdriver",
+        "WS0007": "riftbeam",
+        "WS0009": "riftbeam",
+        "WS0015": "riftlance",
+        "WS0016": "riftlance"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0003": "riftcascade",
+        "WS0006": "resonatormrm",
+        "WS0008": "resonatormrm",
+        "WS0019": "amsrm",
+        "WS0022": "amsrm"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0011": "minipulser",
+        "WS0014": "minipulser",
+        "WS0020": "minipulser",
+        "WS0021": "minipulser"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0017": "Omega_Vpdiver_S",
+        "WS0018": "Omega_Vpdiver_S"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0010": "shockrepeater",
+        "WS0012": "shockrepeater",
+        "WS0013": "shockrepeater"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {}
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0004": "realitydisruptor"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

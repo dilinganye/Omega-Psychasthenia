@@ -1,0 +1,39 @@
+{
+  "id": "PTSD_Fracture_Calculus",
+  "specClass": "projectile",
+  "projectileSpecId": "PTSD_Taslo_shot",
+  "type": "BALLISTIC",
+  "size": "MEDIUM",
+  "turretSprite": "graphics/weapons/PTSD_Fracture_Calculus.png",
+  "turretGlowSprite": "graphics/weapons/PTSD_Fracture_Calculus_L.png",
+  "hardpointSprite": "graphics/weapons/PTSD_Fracture_Calculus_HD.png",
+  "hardpointGlowSprite": "graphics/weapons/PTSD_Fracture_Calculus_HD_L.png",
+  "glowColor": [
+    255,
+    255,
+    255,
+    245
+  ],
+  "turretOffsets": [
+    1.5,
+    -4,
+    1.5,
+    4
+  ],
+  "turretAngleOffsets": [
+    1.5,
+    -1.5
+  ],
+  "hardpointOffsets": [
+    7,
+    -2.5,
+    7,
+    2.5
+  ],
+  "hardpointAngleOffsets": [
+    0,
+    -0
+  ],
+  "barrelMode": "ALTERNATING",
+  "animationType": "GLOW"
+}

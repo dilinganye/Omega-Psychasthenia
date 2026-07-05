@@ -1,0 +1,22 @@
+{
+	"id":"IIRT_Lab_MadEnergy",
+	"type":"STAT_MOD",
+	"aiType":"WEAPON_BOOST",
+	
+	"statsScript":"data.scripts.shipsystems.IIRT_Lab_MadEnergy",
+	"canUseWhileRightClickSystemOn":true,
+	
+	"weaponGlowColor":[198,200,242,255],
+	"weaponTypes":[ENERGY,BALLISTIC],
+	
+	#"jitterColor":[255,229,255,155],
+	#"jitterCopies":10,
+	#"jitterRange":0,
+	#"jitterRangeRadiusFraction":0.8,	
+	
+	"useSound":"system_high_energy_focus_activate",
+	"deactivateSound":"system_high_energy_focus_deactivate",
+	
+	"outOfUsesSound":"gun_out_of_ammo",
+	"loopSound":"system_high_energy_focus_loop",	
+}

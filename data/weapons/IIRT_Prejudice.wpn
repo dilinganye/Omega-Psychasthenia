@@ -1,0 +1,49 @@
+{
+  "id": "IIRT_Prejudice",
+  "specClass": "beam",
+  "type": "ENERGY",
+  "size": "MEDIUM",
+  "collisionClass": "RAY",
+  "collisionClassByFighter": "RAY_FIGHTER",
+  "turretSprite": "graphics/weapons/IIRT_Prejudice/IIRT_Prejudice.png",
+  "turretGlowSprite": "graphics/weapons/IIRT_Prejudice/IIRT_Prejudice_HL.png",
+  "hardpointSprite": "graphics/weapons/IIRT_Prejudice/IIRT_Prejudice_H_old.png",
+  "hardpointGlowSprite": "graphics/weapons/IIRT_Prejudice/IIRT_Prejudice_HL.png",
+  "glowColor": [
+    182,70,255,
+    255
+  ],
+  "hitGlowRadius": 0,
+  "beamEffect":"com.fs.starfarer.api.impl.combat.TachyonLanceEffect",
+  "turretOffsets": [
+    3,
+    0
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    15,
+    0
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "fringeColor": [
+    182,70,255,
+    255
+  ],
+  "coreColor": [
+    175,170,255,
+    255
+  ],
+  "width": 8,
+  "textureType": [
+    "graphics/fx/IIRT_trail_Normal.png",
+    "graphics/fx/IIRT_trail_Sub.png"
+  ],
+  "textureScrollSpeed": 1300,
+  "pixelsPerTexel": 1,
+  "fireSoundOne": "IIRT_SD_LaserRifles",
+  "fireSoundTwo":"phase_beam_loop",
+}

@@ -1,0 +1,17 @@
+{
+	"id":"IIRT_Lab_Meniscus_LAG_shot",
+	"onHitEffect":"data.scripts.weapons.IIRT_Lab_FirstQuarter_blastGlow",
+	"specClass":"projectile",
+	"spawnType":"BALLISTIC_AS_BEAM",
+	"collisionClass":"RAY",
+	"collisionClassByFighter":"RAY_FIGHTER",
+	"length":500.0,
+	"width":25.0,
+	"hitGlowRadius":100,
+	"fadeTime":0.25,
+	"fringeColor":[186,202,255,255],
+	"coreColor":[255,255,255,255],
+	"textureType":"SMOOTH",  # only needed for BEAM spawnType
+	"textureScrollSpeed":75.0,
+	"pixelsPerTexel":1.0	
+}

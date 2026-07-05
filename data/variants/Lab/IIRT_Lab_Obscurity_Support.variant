@@ -1,0 +1,39 @@
+{
+  "variantId": "IIRT_Lab_Obscurity_Support",
+  "hullId": "IIRT_Lab_Obscurity",
+  "displayName": "Support",
+  "goalVariant": true,
+  "fluxCapacitors": 13,
+  "fluxVents": 0,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "expanded_deck_crew",
+    "magazines",
+    "adaptive_coils"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0005": "IIRT_Lab_Flow",
+        "WS0006": "IIRT_Lab_Flow"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {}
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {}
+    }
+  ],
+  "modules": [],
+  "wings": [
+    "IIRT_Lab_Twillight_Assault_wing"
+  ]
+}

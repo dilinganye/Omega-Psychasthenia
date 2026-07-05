@@ -1,0 +1,54 @@
+{
+  "id": "IIRT_Balance",
+  "specClass": "projectile",
+  "projectileSpecId": "IIRT_Plasma_Ball_Heatseeker",
+  "type": "MISSILE",
+  "mountTypeOverride": "ENERGY",
+  "size": "MEDIUM",
+  "turretSprite": "graphics/weapons/IIRT_Balance/IIRT_Balance.png",
+  "turretGlowSprite": "graphics/weapons/IIRT_Balance/IIRT_Balance_L.png",
+  "hardpointSprite": "graphics/weapons/IIRT_Balance/IIRT_Balance_H.png",
+  "hardpointGlowSprite": "graphics/weapons/IIRT_Balance/IIRT_Balance_HL.png",
+  "glowColor": [
+    229,
+    208,
+    255,
+    200
+  ],
+  "turretOffsets": [
+    -7.5,
+    7,
+    -7.5,
+    -7
+  ],
+  "turretAngleOffsets": [
+    14,
+    -14
+  ],
+  "hardpointOffsets": [
+    2,
+    7,
+    2,
+    -7
+  ],
+  "hardpointAngleOffsets": [
+    14,
+    -14
+  ],
+  "barrelMode": "ALTERNATING",
+  "animationType": "GLOW_AND_FLASH",
+  "muzzleFlashSpec": {
+    "length": 18,
+    "spread": 20,
+    "particleSizeMin": 5,
+    "particleSizeRange": 8,
+    "particleDuration": 0.5,
+    "particleCount": 5,
+    "particleColor": [
+      229,
+      208,
+      255,
+      150
+    ]
+  }
+}

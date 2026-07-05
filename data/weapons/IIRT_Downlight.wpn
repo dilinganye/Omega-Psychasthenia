@@ -1,0 +1,55 @@
+{
+  "id": "IIRT_Downlight",
+  "specClass": "projectile",
+  "projectileSpecId": "IIRT_DarkLight_shot",
+  "everyFrameEffect":"data.scripts.weapons.IIRT_SD_DownLight",
+
+  "type": "ENERGY",
+  "size": "MEDIUM",
+  "turretSprite": "graphics/weapons/IIRT_Downlight/IIRT_Downlight.png",
+  "turretGlowSprite": "graphics/weapons/IIRT_Downlight/IIRT_Downlight_Light.png",
+  "turretGunSprite": "graphics/weapons/IIRT_Downlight/IIRT_Downlight_turret.png",
+  "hardpointSprite": "graphics/weapons/IIRT_Downlight/IIRT_Downlight_hardpoint.png",
+  "hardpointGlowSprite": "graphics/weapons/IIRT_Downlight/IIRT_Downlight_hardpoint_Light.png",
+  "hardpointGunSprite": "graphics/weapons/IIRT_Downlight/IIRT_Downlight_hardpoint_turret.png",
+  "glowColor": [
+    255,
+    255,
+    255,
+    150
+  ],
+  "visualRecoil": 5,
+  "turretOffsets": [
+    30.5,
+    0
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    44,
+    0
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "barrelMode": "ALTERNATING",
+  "animationType": "GLOW_AND_FLASH",
+  "interruptibleBurst": true,
+  "autocharge": true,
+  "muzzleFlashSpec": {
+    "length": 30,
+    "spread": 20,
+    "particleSizeMin": 10,
+    "particleSizeRange": 10,
+    "particleDuration": 0.5,
+    "particleCount": 10,
+    "particleColor": [
+      255,
+      255,
+      255,
+      150
+    ]
+  },
+  "fireSoundTwo": "IIRT_SD_RailRifles"
+}

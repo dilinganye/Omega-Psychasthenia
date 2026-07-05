@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="bkup">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/jars/bkup/Omega_Psychasthenia_oldest.jar!/" />
+      <root url="jar://$PROJECT_DIR$/jars/bkup/Omega_Psychasthenia_old.jar!/" />
+      <root url="jar://$PROJECT_DIR$/jars/bkup/Omega_Psychasthenia.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

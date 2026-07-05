@@ -1,0 +1,56 @@
+{
+  "id": "IIRT_Evil",
+  "specClass": "beam",
+  "beamEffect":"data.scripts.weapons.IIRT_50HeavyBeam",
+  "type": "ENERGY",
+  "mountTypeOverride": "HYBRID",
+  "size": "MEDIUM",
+  "collisionClass": "RAY",
+  "collisionClassByFighter": "RAY_FIGHTER",
+  "turretSprite": "graphics/weapons/IIRT_Evil/IIRT_Evil.png",
+  "turretGlowSprite": "graphics/weapons/IIRT_Evil/IIRT_Evil_Light.png",
+  "hardpointSprite": "graphics/weapons/IIRT_Evil/IIRT_Evil_Hardpoint.png",
+  "hardpointGlowSprite": "graphics/weapons/IIRT_Evil/IIRT_Evil_Hardpoint_Light.png",
+  "glowColor": [
+    229,
+    208,
+    255,
+    200
+  ],
+  "hitGlowRadius": 10,
+  "turretOffsets": [
+    3.5,
+    0
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    16.5,
+    0
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "fringeColor": [
+    229,
+    208,
+    255,
+    250
+  ],
+  "coreColor": [
+    255,
+    255,
+    255,
+    255
+  ],
+  "width": 22,
+  "textureType": [
+    "graphics/fx/Evil/EvilFringe.png",
+    "graphics/fx/Evil/EvilCore.png"
+  ],
+  "textureScrollSpeed": 2500,
+  "pixelsPerTexel": 1,
+  "fireSoundOne":"IIRT_SD_Evil",
+  "fireSoundTwo":"phase_beam_loop",	
+}

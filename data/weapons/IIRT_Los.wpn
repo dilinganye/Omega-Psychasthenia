@@ -1,0 +1,54 @@
+{
+  "id": "IIRT_Los",
+  "specClass": "beam",
+  "type": "ENERGY",
+  "size": "MEDIUM",
+  "collisionClass": "RAY",
+  "collisionClassByFighter": "RAY_FIGHTER",
+  "turretSprite": "graphics/weapons/IIRT_Los/IIRT_Los.png",
+  "turretGlowSprite": "graphics/weapons/IIRT_Los/IIRT_Los_Light.png",
+  "hardpointSprite": "graphics/weapons/IIRT_Los/IIRT_Los_Hardpoint.png",
+  "hardpointGlowSprite": "graphics/weapons/IIRT_Los/IIRT_Los_Light.png",
+  "glowColor": [
+    222,
+    180,
+    255,
+    185
+  ],
+  "hitGlowRadius": 3,
+  "turretOffsets": [
+    19,
+    0
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    33.5,
+    0
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "fringeColor": [
+    222,
+    180,
+    255,
+    255
+  ],
+  "coreColor": [
+    255,
+    255,
+    230,
+    255
+  ],
+  "width": 16,
+  "textureType": [
+    "graphics/fx/projtrail.png",
+    "graphics/fx/beamfringec.png"
+  ],
+  "textureScrollSpeed": 150,
+  "pixelsPerTexel": 1,
+  "fireSoundTwo":"phase_beam_loop",	
+  "fireSoundOne": "IIRT_SD_Los"
+}

@@ -1,0 +1,55 @@
+{
+  "variantId": "IIRT_Lab_Perished_Assault",
+  "hullId": "IIRT_Lab_Perished",
+  "displayName": "Assault",
+  "goalVariant": true,
+  "fluxCapacitors": 20,
+  "fluxVents": 4,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "autorepair",
+    "adaptive_coils",
+    "magazines"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "ALTERNATING",
+      "weapons": {
+        "WS0007": "amblaster",
+        "WS0008": "amblaster"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "ALTERNATING",
+      "weapons": {
+        "WS0003": "IIRT_Lab_PhaseParticleBeam",
+        "WS0004": "IIRT_Lab_PhaseParticleBeam"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "ALTERNATING",
+      "weapons": {
+        "WS0005": "sabot",
+        "WS0006": "sabot"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "autopulse"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {}
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

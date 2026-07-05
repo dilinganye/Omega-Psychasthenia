@@ -1,0 +1,125 @@
+{
+  "hullName": "IIRT_SD_Lens",
+  "hullId": "IIRT_SD_Lens",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/IIRT/IIRT_Placode.png",
+  "style": "IIRT_TECH",
+  "height": 120,
+  "width": 100,
+  "center": [48.5, 56],
+  "collisionRadius": 86,
+  "shieldCenter": [-0.5, -0],
+  "shieldRadius": 79,
+  "viewOffset": 0,
+  "builtInMods": [
+    "IIRT_SD_Lab",
+    "automated"
+  ],
+  "builtInWings": [
+    "IIRT_SD_Recall_Support_wing"
+  ],
+  "weaponSlots": [
+    {
+      "id": "WS0002",
+      "size": "SMALL",
+      "type": "ENERGY",
+      "mount": "TURRET",
+      "arc": 270,
+      "angle": -45,
+      "locations": [23, -16.5],
+      "renderOrderMod": 1
+    },
+    {
+      "id": "WS0003",
+      "size": "SMALL",
+      "type": "ENERGY",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [-1, -22.5],
+      "renderOrderMod": 2
+    },
+    {
+      "id": "WS0005",
+      "size": "MEDIUM",
+      "type": "ENERGY",
+      "mount": "TURRET",
+      "arc": 0,
+      "angle": 0,
+      "locations": [35, 1.5]
+    },
+    {
+      "id": "WS0006",
+      "size": "MEDIUM",
+      "type": "ENERGY",
+      "mount": "TURRET",
+      "arc": 270,
+      "angle": 45,
+      "locations": [-0.5, 19],
+      "renderOrderMod": 2
+    },
+    {
+      "id": "LB 1",
+      "size": "LARGE",
+      "type": "LAUNCH_BAY",
+      "mount": "HIDDEN",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        21.5, 26.5,
+        3.5, -3
+      ]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-48, -7.5],
+      "length": 46.5,
+      "width": 5,
+      "angle": 180,
+      "contrailSize": 5,
+      "style": "IIRT_TECH"
+    },
+    {
+      "location": [-46, -4.5],
+      "length": 50.5,
+      "width": 10,
+      "angle": 180,
+      "contrailSize": 10,
+      "style": "IIRT_Smoke"
+    },
+    {
+      "location": [-24.5, 20],
+      "length": 40,
+      "width": 20,
+      "angle": 180,
+      "contrailSize": 20,
+      "style": "DEVK_TECH"
+    },
+    {
+      "location": [-48, -1.5],
+      "length": 46.5,
+      "width": 5,
+      "angle": 180,
+      "contrailSize": 5,
+      "style": "IIRT_TECH"
+    }
+  ],
+  "bounds": [
+    35.5, 14,
+    36, -8,
+    19, -28.5,
+    -8.5, -29,
+    -36, -9.5,
+    -46.5, -7,
+    -46.5, -2,
+    -29, 2,
+    -21.5, 8.5,
+    -21.5, 28,
+    -14, 29,
+    -5, 37.5,
+    8, 37.5,
+    25, 22,
+    25, 15
+  ]
+}

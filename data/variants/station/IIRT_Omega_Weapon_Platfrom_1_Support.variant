@@ -1,0 +1,49 @@
+{
+  "variantId": "IIRT_Omega_Weapon_Platfrom_1_Support",
+  "hullId": "IIRT_Omega_Weapon_Platfrom_1",
+  "displayName": "Support",
+  "goalVariant": false,
+  "fluxCapacitors": 10,
+  "fluxVents": 0,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "missleracks",
+    "blast_doors",
+    "magazines"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "realitydisruptor"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0002": "Omega_Vpdiver_S"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0003": "cryoblaster"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0004": "thermosiphonsrm"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": [
+    "IIRT_Omega_Record_shock_wing"
+  ]
+}

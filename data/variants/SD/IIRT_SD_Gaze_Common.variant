@@ -1,0 +1,68 @@
+{
+  "variantId": "IIRT_SD_Gaze_Common",
+  "hullId": "IIRT_SD_Gaze",
+  "displayName": "Common",
+  "goalVariant": false,
+  "fluxCapacitors": 0,
+  "fluxVents": 0,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0002": "IIRT_Rago"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0005": "IIRT_Okulo",
+        "WS0006": "IIRT_Okulo"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0003": "IIRT_Prejudice",
+        "WS0004": "IIRT_Prejudice"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0009": "IIRT_Divert",
+        "WS0010": "IIRT_Divert",
+        "WS0011": "IIRT_Divert",
+        "WS0012": "IIRT_Divert",
+        "WS0019": "IIRT_Divert",
+        "WS0020": "IIRT_Divert"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0007": "IIRT_Lab_Bito_Cannon",
+        "WS0008": "IIRT_Lab_Bito_Cannon"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0013": "IIRT_Bito",
+        "WS0014": "IIRT_Bito",
+        "WS0017": "IIRT_Bito",
+        "WS0018": "IIRT_Bito"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

@@ -1,0 +1,163 @@
+{
+  "hullName": "IIRT_Lab_Vague",
+  "hullId": "IIRT_Lab_Vague",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Lab/IIRT_Lab_Vague.png",
+  "style": "KRM_TECH",
+  "height": 126,
+  "width": 106,
+  "center": [53, 52],
+  "collisionRadius": 92,
+  "shieldCenter": [2.5, -0],
+  "shieldRadius": 88.5,
+  "viewOffset": 0,
+  "builtInMods": [
+    "phasefield",
+    "IIRT_Lab_RPCM"
+  ],
+  "weaponSlots": [
+    {
+      "id": "WS0002",
+      "size": "MEDIUM",
+      "type": "MISSILE",
+      "mount": "TURRET",
+      "arc": 96,
+      "angle": -22.5,
+      "locations": [12, -27]
+    },
+    {
+      "id": "WS0003",
+      "size": "MEDIUM",
+      "type": "MISSILE",
+      "mount": "TURRET",
+      "arc": 96,
+      "angle": 22.5,
+      "locations": [12, 27]
+    },
+    {
+      "id": "WS0004",
+      "size": "SMALL",
+      "type": "ENERGY",
+      "mount": "TURRET",
+      "arc": 237,
+      "angle": -28,
+      "locations": [52, -21]
+    },
+    {
+      "id": "WS0005",
+      "size": "SMALL",
+      "type": "ENERGY",
+      "mount": "TURRET",
+      "arc": 237,
+      "angle": 28,
+      "locations": [52, 21]
+    },
+    {
+      "id": "WS0006",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": 0,
+      "locations": [35, -6]
+    },
+    {
+      "id": "WS0007",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": -0,
+      "locations": [35, 6]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-35, -0],
+      "length": 33.5,
+      "width": 8,
+      "angle": 180,
+      "contrailSize": 8,
+      "style": "Cipher_Moon"
+    },
+    {
+      "location": [-41, 12],
+      "length": 9.534761,
+      "width": 1.163333,
+      "angle": -99.5,
+      "contrailSize": 1.163333,
+      "style": "Cipher_Moon"
+    },
+    {
+      "location": [-41, -12],
+      "length": 9.534761,
+      "width": 1.163333,
+      "angle": 99.5,
+      "contrailSize": 1.163333,
+      "style": "Cipher_Moon"
+    },
+    {
+      "location": [-30, -0],
+      "length": 13,
+      "width": 13,
+      "angle": 180,
+      "contrailSize": 13,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-4.5, 43.5],
+      "length": 9.03,
+      "width": 3.71,
+      "angle": 151,
+      "contrailSize": 3.71,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-4.5, -43.5],
+      "length": 9.03,
+      "width": 3.71,
+      "angle": -151,
+      "contrailSize": 3.71,
+      "style": "HIGH_TECH"
+    }
+  ],
+  "bounds": [
+    -32.5, -8,
+    -41.5, -12.5,
+    -50, -14,
+    -47.5, -21,
+    -47.5, -33.5,
+    -40, -47.5,
+    -23.5, -50,
+    -7.5, -43,
+    5, -50.5,
+    27.5, -46.5,
+    60.5, -36,
+    73, -32,
+    67, -31,
+    64, -26,
+    64, -18,
+    66, -15.5,
+    64, -11,
+    38.5, -11,
+    34, -0,
+    38.5, 11,
+    64, 11,
+    66, 15.5,
+    64, 18,
+    64, 26,
+    67, 31,
+    73, 32,
+    60.5, 36,
+    27.5, 46.5,
+    5, 50.5,
+    -7.5, 43,
+    -23.5, 50,
+    -40, 47.5,
+    -47.5, 33.5,
+    -47.5, 21,
+    -50, 14,
+    -41.5, 12.5,
+    -32.5, 8
+  ]
+}

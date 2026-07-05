@@ -1,0 +1,62 @@
+{
+  "variantId": "IIRT_Lab_NightMare_Assault",
+  "hullId": "IIRT_Lab_NightMare",
+  "displayName": "Assault",
+  "goalVariant": true,
+  "fluxCapacitors": 29,
+  "fluxVents": 0,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "missleracks",
+    "targetingunit"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "ALTERNATING",
+      "weapons": {
+        "WS0002": "tachyonlance",
+        "WS0003": "tachyonlance"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "ALTERNATING",
+      "weapons": {
+        "WS0012": "phasecl",
+        "WS0013": "phasecl"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0010": "ionpulser",
+        "WS0011": "ionpulser"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "ALTERNATING",
+      "weapons": {
+        "WS0004": "IIRT_Lab_Tracicles",
+        "WS0005": "IIRT_Lab_Tracicles"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0006": "IIRT_Lab_Flow",
+        "WS0007": "IIRT_Lab_Flow"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": [
+    "IIRT_Lab_FirstQuarter_Assault_AC",
+    "IIRT_Lab_FirstQuarter_Assault_AC",
+    "IIRT_Lab_Crescent_Attack_AC"
+  ]
+}

@@ -1,0 +1,263 @@
+{
+  "id": "IIRT",
+  "color": [197,136,199,255],
+  "secondaryUIColor":[255,255,255,255],
+  "secondarySegments":8,
+  "baseUIColor": [214, 128, 255, 255],
+  #"darkUIColor": [32, 85, 0, 175],
+  #"gridUIColor": [95, 255, 0, 75],
+  "displayName": "以西卡研究所",
+  "displayNameWithArticle": "以西卡 遗迹部外派舰队",
+  "displayNameLong": "以西卡研究所",
+  "displayNameLongWithArticle": "以西卡 遗迹部外派舰队",
+  "logo": "graphics/factions/IIRTT.png",
+  "crest": "graphics/factions/IIRT.png",
+  "shipNamePrefix": "IIRT",
+  "shipNameSources": {
+    "OMEGA":1,
+	"MERCANTILE":1,
+	"SPACE":1,
+	"DERELICT_DRONE":1,
+  },
+  "names": {
+	"future":1,
+	"myth":1,
+  },
+  # variantOverrides restricts hulls to listed variants and adjusts their probability
+  "variantOverrides": {
+  },
+  # multiplier for how often hulls show up in the faction's fleets
+  "hullFrequency": {
+    "tags": {
+      "iirt_sd_bp": 2
+    },
+    "hulls": {
+		"buffalo2":0, # just say no
+    },
+  },
+  # ships the faction gets access to when importing S&W out-of-faction
+  "shipsWhenImporting": {
+    "tags": [],
+    "hulls": [
+    ],
+  },
+  "knownShips": {
+    "tags": ["hightech_bp","iirt_bp","iirt_have"],
+    "hulls": [
+    ],
+  },
+  # listing ships here will make the faction mostly use them even if other hulls become available
+  "priorityShips": {
+    "tags": ["iirt_714","iirt_Army","iirt_sd_bp"],
+    "hulls": [
+    ],
+  },
+  "knownFighters": {
+    "tags": ["iirt_sd_bp", "iirt_bp", "iirt_have"],
+    "fighters": [
+    ],
+  },
+  "priorityFighters": {
+    "tags": [iirt_have,iirt_sd_bp],
+    "fighters": [
+    ],
+  },
+  "knownWeapons": {
+    "tags": ["iirt_bp", "iirt_have","iirt_sd_bp"],
+    "weapons": [
+	  "ionpulser",
+	  "ionbeam",
+	  "hil",
+	  "plasma",
+	  "tachyonlance",
+	  "pdlaser",
+	  "taclaser",
+	  "guardian",
+	  "harpoon",
+	  "harpoon_single",
+	  "breach",
+	  "sabot",
+	  "harpoonpod",
+	  "breachpod",
+	  "sabotpod",
+	  "reaper",
+	  "atropos",
+	  "atropos_single",
+	  "annihilator",
+	  "annihilatorpod",
+	  "pilum",
+	  "phasecl",
+	  "squall"
+    ],
+  },
+  "priorityWeapons": {
+    "tags": ["iirt_sd_bp"],
+    "weapons": [
+	  "ionpulser",
+	  "ionbeam",
+	  "hil",
+	  "plasma",
+	  "tachyonlance",
+	  "pdlaser",
+	  "taclaser",
+	  "irpulse",
+	  "pdburst",
+	  "heavyblaster",
+	  "heavyburst",
+	  "guardian",
+	  "harpoon",
+	  "harpoon_single",
+	  "breach",
+	  "sabot",
+	  "sabot_single",
+	  "sabot_fighter",
+	  "harpoonpod",
+	  "breachpod",
+	  "sabotpod",
+	  "reaper",
+	  "atropos",
+	  "atropos_single",
+	  "hammer",
+	  "hammer_single",
+	  "swarmer",
+	  "annihilator",
+	  "annihilatorpod",
+	  "pilum",
+	  "phasecl",
+	  "squall"
+    ],
+  },
+  "knownHullMods": {
+    "tags": ["merc", "req_spaceport", "special", "shields", "weapons", "no_build_in", "midline_bp", "defensive", "engines", "iirt_sd_bp"],
+    "hullMods": [
+      "advancedshieldemitter",
+	  "advancedoptics",
+      "turretgyros",
+      "armoredweapons",
+	  "assault_package",
+	  "autorepair",
+	  "auxiliarythrusters",
+	  "ballistic_rangefinder",
+	  "blast_doors",
+	  "dedicated_targeting_core",
+	  "eccm",
+	  "ecm",
+	  "escort_package",
+	  "expanded_deck_crew",
+	  "magazines",
+	  "missleracks",
+	  "extendedshieldemitter",
+	  "fluxcoil",
+	  "fluxdistributor",
+	  "frontemitter",
+	  "expanded_deck_crew",
+	  "pointdefenseai",
+	  "nav_relay",
+	  "reinforcedhull",
+	  "fluxbreakers",
+	  "stabilizedshieldemitter",
+    ],
+  },
+  "factionDoctrine": {
+    "warships": 3,
+    "carriers": 2,
+    "phaseShips": 2,
+    "officerQuality": 4,
+    "shipQuality": 5,
+    "numShips": 4,
+    "shipSize": 3,
+    "aggression": 4,
+    "combatFreighterProbability": 0.25, # instead of some portion of the freighters in a fleet
+    "combatFreighterCombatUseFraction": 0.5, # as part of the normal combat lineup
+    "combatFreighterCombatUseFractionWhenPriority": 1, # as part of normal combat lineup, when marked as priority ship
+    "autofitRandomizeProbability": 0.1,
+    "commanderSkillsShuffleProbability": 0.1,
+    "commanderSkills": [
+      "helmsmanship",
+      "systems_expertise",
+      "point_defense",
+      "damage_control",
+	  "tactical_drills",
+      "wolfpack_tactics",
+      "fighter_uplink",
+      "carrier_group",
+	  "electronic_warfare",
+      "force_concentration",
+      "ordnance_expert",
+      "makeshift_equipment",
+    ],
+  },
+  "illegalCommodities": [
+    "rare_metals"
+  ],
+  "music": {
+    "theme": "faction_iirt_encounter_neutral",
+    "market_neutral": "faction_iirt_market_neutral",
+    "market_hostile": "faction_iirt_market_hostile",
+    "market_friendly": "faction_iirt_market_friendly",
+    "encounter_neutral": "faction_iirt_encounter_neutral",
+    "encounter_hostile": "faction_iirt_encounter_hostile",
+    "encounter_friendly": "faction_iirt_encounter_friendly",
+  },
+  "portraits": {
+    "standard_male": [
+      "graphics/portraits/IIRT_Ai_G.png",
+      "graphics/portraits/IIRT_Ai_P.png",
+	  "graphics/portraits/IIRT_Ai_Webcam01.png",
+	  "graphics/portraits/IIRT_Ai_Webcam02.png",
+	  "graphics/portraits/IIRT_Ai_Webcam03.png",
+	  "graphics/portraits/IIRT_Ai_Webcam04.png"
+
+    ],
+    "standard_female": [
+      "graphics/portraits/IIRT_Ai_B.png",
+	  "graphics/portraits/IIRT_Ai_Server01.png",
+	  "graphics/portraits/IIRT_Ai_Server02.png"
+    ],
+  },
+  "ranks": {
+    "ranks": {
+	  "spaceAdmiral":{"name":"高级控制理事人"},
+      "spaceCommander": {"name": "控制理事人"},
+	  "factionLeader":{"name":"遗迹部外派启控人"},
+    },
+    "posts": {
+	  "factionLeader":{"name":"遗迹部外派启控人"},
+      "patrolCommander": {"name": "制裁责令人"},
+      "fleetCommander": {"name": "制裁理事人"},
+      "baseCommander": {"name": "外派内源"},
+      "administrator": {"name": "AIM联络人"},
+	  "specialAgent": {"name": "执法特工"},
+    },
+  },
+  "custom": {
+    "offersCommissions": true,
+    "engagesInHostilities": true,
+    "buysAICores": true,
+    "AICoreValueMult": 2,
+    "AICoreRepMult": 3,
+    "buysSurveyData": true,
+    "hostilityImpactOnGrowth": true,
+    "caresAboutAtrocities": true,
+    "punitiveExpeditionData": {
+		"vsCompetitors":false,
+		"vsFreePort":false,
+		"canBombard":true,
+		"territorial":false,
+    },
+  },
+  "fleetTypeNames": {
+    "trade": "科研合作单元",
+    "smallTrader": "实地科研单元",
+    "tradeLiner": "科研探测单元",
+    "patrolSmall": "武装单元",
+    "patrolMedium": "卫戍单元",
+    "patrolLarge": "矩阵单元",
+    "inspectionFleet": "遗迹部外派分遣队",
+	
+    "taskForce": "归墟",
+	
+	"foodReliefFleet":"救援单元",
+  },
+},
+

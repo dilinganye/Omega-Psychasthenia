@@ -1,0 +1,34 @@
+{
+  "variantId": "IIRT_Omega_Inspect_Normal_2",
+  "hullId": "IIRT_Omega_Inspect",
+  "displayName": "Support",
+  "goalVariant": true,
+  "fluxCapacitors": 10,
+  "fluxVents": 10,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "autorepair",
+    "advancedshieldemitter"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "shockrepeater",
+        "WS0002": "shockrepeater"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0003": "amsrm",
+        "WS0004": "amsrm"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

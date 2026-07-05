@@ -1,0 +1,40 @@
+{
+  "variantId": "IIRT_Omega_Bustle_D_Normal_1",
+  "hullId": "IIRT_Omega_Bustle_D",
+  "displayName": "Missile",
+  "goalVariant": true,
+  "fluxCapacitors": 2,
+  "fluxVents": 1,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "missleracks"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "resonatormrm"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "ALTERNATING",
+      "weapons": {
+        "WS0003": "amsrm",
+        "WS0004": "amsrm",
+        "WS0005": "amsrm"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0002": "shockrepeater"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

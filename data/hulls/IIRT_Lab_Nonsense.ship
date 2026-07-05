@@ -1,0 +1,138 @@
+{
+  "hullName": "IIRT_Lab_Nonsense",
+  "hullId": "IIRT_Lab_Nonsense",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Lab/IIRT_Lab_Nonsense.png",
+  "style": "KRM_TECH",
+  "height": 76,
+  "width": 68,
+  "center": [37, 39],
+  "collisionRadius": 62.5,
+  "shieldCenter": [3, 0.5],
+  "shieldRadius": 59,
+  "viewOffset": 0,
+  "builtInMods": [
+    "autorepair",
+    "automated",
+    "delicate",
+    "IIRT_Lab_PhaseOverlay",
+    "IIRT_Lab_RPCM"
+  ],
+  "builtInWeapons": {
+    "WS0003": "shockrepeater"
+  },
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "HARDPOINT",
+      "arc": 10,
+      "angle": 0,
+      "locations": [27, -7]
+    },
+    {
+      "id": "WS0002",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 286,
+      "angle": 0,
+      "locations": [19, 11],
+      "renderOrderMod": 4
+    },
+    {
+      "id": "WS0003",
+      "size": "SMALL",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 360,
+      "angle": 0,
+      "locations": [0, -0]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-29.5, 17],
+      "length": 76,
+      "width": 9,
+      "angle": 180,
+      "contrailSize": 9,
+      "style": "Cipher_Moon"
+    },
+    {
+      "location": [-30.5, 22],
+      "length": 29.5,
+      "width": 5,
+      "angle": -175,
+      "contrailSize": 5,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-30.5, 12],
+      "length": 29.5,
+      "width": 5,
+      "angle": 175,
+      "contrailSize": 5,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-31, -3],
+      "length": 22,
+      "width": 12,
+      "angle": 180,
+      "contrailSize": 12,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-7, -25.5],
+      "length": 5.5,
+      "width": 3,
+      "angle": 14.5,
+      "contrailSize": 3,
+      "style": "Cipher_Moon"
+    },
+    {
+      "location": [-13, -27],
+      "length": 5.5,
+      "width": 3,
+      "angle": -90,
+      "contrailSize": 3,
+      "style": "Cipher_Moon"
+    }
+  ],
+  "bounds": [
+    31, -13,
+    31, -1,
+    25.5, 9,
+    24, 15.5,
+    18, 19,
+    17, 22,
+    8, 25.5,
+    1, 35,
+    -8, 33.5,
+    -18, 29,
+    -18, 26,
+    -30, 23,
+    -30, 11,
+    -24.5, 7.5,
+    -34, 0.5,
+    -34, -2.5,
+    -38, -9,
+    -33, -12.5,
+    -17.5, -15,
+    -15, -18,
+    -15, -26,
+    -3, -24,
+    1, -15.5,
+    8.5, -15,
+    12, -23.5,
+    6, -25.5,
+    -0.5, -20.5,
+    -3.5, -25,
+    0.5, -29,
+    11, -29,
+    17.5, -25.5,
+    21.5, -16
+  ]
+}

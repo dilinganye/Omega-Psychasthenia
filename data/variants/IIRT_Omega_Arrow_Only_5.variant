@@ -1,0 +1,34 @@
+{
+  "variantId": "IIRT_Omega_Arrow_Only_5",
+  "hullId": "IIRT_Omega_Arrow",
+  "displayName": "Exert",
+  "goalVariant": true,
+  "fluxCapacitors": 6,
+  "fluxVents": 0,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "fluxshunt",
+    "targetingunit",
+    "extendedshieldemitter",
+    "magazines"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "Omega_Vpdiver_S"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0002": "shockrepeater"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

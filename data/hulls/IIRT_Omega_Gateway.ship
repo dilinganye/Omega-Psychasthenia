@@ -1,0 +1,128 @@
+{
+  "hullName": "IIRT_Omega_Gateway",
+  "hullId": "IIRT_Omega_Gateway",
+  "hullSize": "DESTROYER",
+  "spriteName": "graphics/ships/Omega_Gateway.png",
+  "style": "OMEGA",
+  "height": 130,
+  "width": 68,
+  "center": [25, 69],
+  "collisionRadius": 75.5,
+  "shieldCenter": [0, -0],
+  "shieldRadius": 74,
+  "viewOffset": 0,
+  "builtInMods": [
+    "IIRT_Omega_WebShardSpawner",
+    "ecm",
+    "automated"
+  ],
+  "builtInWeapons": {
+    "SSF": "IIRT_NONE",
+    "SS_01": "IIRT_NONE",
+    "SS_02": "IIRT_NONE",
+    "SS_03": "IIRT_NONE"
+  },
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 228,
+      "angle": 45,
+      "locations": [10, 2]
+    },
+    {
+      "id": "WS0002",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 270,
+      "angle": -45,
+      "locations": [22, -14]
+    },
+    {
+      "id": "WS0003",
+      "size": "MEDIUM",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [-9, 2]
+    },
+    {
+      "id": "WS0004",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": 0,
+      "locations": [53, 6]
+    },
+    {
+      "id": "SS_01",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 70,
+      "angle": 28,
+      "locations": [44, 20.5]
+    },
+    {
+      "id": "SS_02",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 39,
+      "angle": -60,
+      "locations": [48, -32.5]
+    },
+    {
+      "id": "SS_03",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 90,
+      "angle": -15.5,
+      "locations": [24.5, 13]
+    },
+    {
+      "id": "SSF",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 4,
+      "angle": 0,
+      "locations": [74, -0]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-35.5, -7],
+      "length": 53.324982,
+      "width": 25.995867,
+      "angle": 159.5,
+      "contrailSize": 25.995867,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-33, 17.5],
+      "length": 44.642426,
+      "width": 24.601141,
+      "angle": -170.5,
+      "contrailSize": 24.601141,
+      "style": "OMEGA"
+    }
+  ],
+  "bounds": [
+    -66, 10.5,
+    -11, -18,
+    56.5, -43,
+    42, -1,
+    50, 1,
+    46, 15,
+    54.5, 25.5,
+    0, 20.5,
+    -18.5, 21.5
+  ]
+}

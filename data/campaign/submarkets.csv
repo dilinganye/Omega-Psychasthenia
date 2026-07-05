@@ -1,0 +1,10 @@
+id,name,faction,desc,script,icon,order
+IIRT_SD_Market,ⅦⅠⅣ,IIRT," $theFaction 并不介意将一些退役的无人机、实验性机体乃至主力舰出售给正确的人。只有足够被信赖的人才能购买这些库存。
+
+拥有雇佣协议并与 $theFaction 享有着更好的关系，就能够买更多/更好的特殊产品。",data.scripts.campaign.submarkets.IIRT_SD_Market,,0
+IIRT_SD_Market_Army,军事贸易船坞,IIRT," $theFaction 的军事舰船船坞内，许多并不能被划分为民用舰船的改型及众多军事舰船停泊在这里。
+
+这些船中相当一部分都由于或大或小的原因等待拆解。当然，一些势力亦或是星际散户也可以选择买下一些尚未拆卸的舰船以供己用。
+
+拥有雇佣协议并与 $theFaction 享有着更好的关系，就能够买更多/更好的特殊产品。",data.scripts.campaign.submarkets.IIRT_SD_Market_Army,,0
+IIRT_SD_Market_Nor,客制舰船市场,IIRT,以西卡研究所曾重置过一些英仙座的经典舰船并推向市场，这里就是可以随意购买到这些特殊舰船和一部分以西卡小型船只的地方。,data.scripts.campaign.submarkets.IIRT_SD_Market_Nor,,0

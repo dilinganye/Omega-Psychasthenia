@@ -1,0 +1,48 @@
+{
+  "id": "IIRT_Omega_Watcher_Ring",
+  "specClass": "beam",
+  "type": "DECORATIVE",
+  "size": "SMALL",
+  "everyFrameEffect": "data.weapons.IIRT_RotateEveryFrameEffect",
+  "collisionClass": "RAY",
+  "collisionClassByFighter": "RAY_FIGHTER",
+  "turretSprite": "graphics/weapons/Omega_Watcher_Ring.png",
+  "hardpointSprite": "graphics/ships/IIRT_Omega_Cube_Wave_B.png",
+  "glowColor": [
+    255,
+    255,
+    255,
+    255
+  ],
+  "hitGlowRadius": 0,
+  "turretOffsets": [
+    0,
+    0
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    10,
+    0
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "fringeColor": [
+    255,
+    255,
+    255,
+    255
+  ],
+  "coreColor": [
+    255,
+    255,
+    255,
+    255
+  ],
+  "width": 1,
+  "textureType": WEAVE,
+  "textureScrollSpeed": 1,
+  "pixelsPerTexel": 1
+}

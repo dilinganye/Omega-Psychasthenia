@@ -1,0 +1,116 @@
+{
+  "hullName": "IIRT_Lab_Diffuse",
+  "hullId": "IIRT_Lab_Diffuse",
+  "hullSize": "DESTROYER",
+  "spriteName": "graphics/ships/Lab/IIRT_Lab_Fraud.png",
+  "style": "KRM_TECH",
+  "height": 120,
+  "width": 124,
+  "center": [62, 54],
+  "collisionRadius": 96,
+  "shieldCenter": [6, -0],
+  "shieldRadius": 89,
+  "viewOffset": 0,
+  "builtInMods": [
+    "IIRT_Lab_PhaseOverlay",
+    "IIRT_Lab_PhaseMeshHangerOnly"
+  ],
+  "weaponSlots": [
+    {
+      "id": "WS0002",
+      "size": "MEDIUM",
+      "type": "MISSILE",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": 0,
+      "locations": [7, 0]
+    },
+    {
+      "id": "WS0004",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 270,
+      "angle": 45,
+      "locations": [-15, 22]
+    },
+    {
+      "id": "WS0005",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 270,
+      "angle": -45,
+      "locations": [-15, -22]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-38, -0],
+      "length": 63.5,
+      "width": 3,
+      "angle": 180,
+      "contrailSize": 3,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-38.5, 14],
+      "length": 21,
+      "width": 12,
+      "angle": 180,
+      "contrailSize": 12,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-38.5, -14],
+      "length": 21,
+      "width": 12,
+      "angle": -180,
+      "contrailSize": 12,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-38.5, -0],
+      "length": 63.5,
+      "width": 3,
+      "angle": 180,
+      "contrailSize": 3,
+      "style": "HIGH_TECH"
+    }
+  ],
+  "bounds": [
+    -37, 2,
+    -43, 2,
+    -42.5, 4,
+    -38, 6,
+    -37.5, 19.5,
+    -52, 36,
+    -52.5, 43.5,
+    -46, 39,
+    -38, 38,
+    -8.5, 55,
+    8.5, 57,
+    13, 60.5,
+    26.5, 50,
+    27.5, 43,
+    35.5, 42.5,
+    57.5, 17,
+    65, -0,
+    57.5, -17,
+    35.5, -42.5,
+    27.5, -43,
+    26.5, -50,
+    13, -60.5,
+    8.5, -57,
+    -8.5, -55,
+    -38, -38,
+    -46, -39,
+    -52.5, -43.5,
+    -52, -36,
+    -37.5, -19.5,
+    -38, -6,
+    -42.5, -4,
+    -43, -2,
+    -37, -2
+  ]
+}

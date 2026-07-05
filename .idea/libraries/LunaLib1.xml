@@ -1,0 +1,14 @@
+<component name="libraryTable">
+  <library name="LunaLib1">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../Lunalib/jars/LunaLib.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../Lunalib/jars/Lunalib-Kotlin.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/../Lunalib/jars/LunaLib.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../Lunalib/jars/LunaLib.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../Lunalib/jars/Lunalib-Kotlin.jar!/" />
+    </SOURCES>
+  </library>
+</component>

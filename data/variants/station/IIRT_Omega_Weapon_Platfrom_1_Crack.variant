@@ -1,0 +1,45 @@
+{
+  "variantId": "IIRT_Omega_Weapon_Platfrom_1_Crack",
+  "hullId": "IIRT_Omega_Weapon_Platfrom_1",
+  "displayName": "Attack",
+  "goalVariant": false,
+  "fluxCapacitors": 5,
+  "fluxVents": 0,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [],
+  "weaponGroups": [
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "riftcascade"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0002": "riftbeam"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0003": "riftbeam"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0004": "riftlance"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": [
+    "IIRT_Omega_Pupal_point_wing"
+  ]
+}

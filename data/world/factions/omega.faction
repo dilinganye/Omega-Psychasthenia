@@ -1,0 +1,44 @@
+{
+	# ships the faction gets access to when importing S&W out-of-faction
+	"shipsWhenImporting":{
+		"tags":["omega"],
+		"hulls":[
+		],
+	},
+	"knownShips":{
+		"tags":["omega"],
+		"hulls":[
+	  "IIRT_Omega_Arrow",
+	  "IIRT_Omega_Crack",
+	  "IIRT_Omega_Record",
+	  "IIRT_Omega_Proxy",
+	  "IIRT_Omega_Gateway",
+		],
+	},
+	# listing ships here will make the faction mostly use them even if other hulls become available
+	"priorityShips":{
+		"tags":[omega],
+		"hulls":[
+		],
+	},
+	"knownFighters":{
+		"tags":["omega"],
+		"fighters":[
+		],
+	},
+	"priorityFighters":{
+		"tags":[],
+		"fighters":[
+		],
+	},
+	"knownWeapons":{
+		"tags":["omega"],
+		"weapons":[
+		],
+	},
+	"priorityWeapons":{
+		"tags":[],
+		"weapons":[
+		],
+	},
+},

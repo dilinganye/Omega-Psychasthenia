@@ -1,0 +1,46 @@
+{
+  "variantId": "IIRT_Omega_Bustle_D_Normal_5",
+  "hullId": "IIRT_Omega_Bustle_D",
+  "displayName": "Attack",
+  "goalVariant": false,
+  "fluxCapacitors": 3,
+  "fluxVents": 2,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "targetingunit",
+    "magazines"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "cryoflux"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "ALTERNATING",
+      "weapons": {
+        "WS0004": "amsrm",
+        "WS0005": "amsrm"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "ALTERNATING",
+      "weapons": {
+        "WS0002": "shockrepeater",
+        "WS0003": "shockrepeater"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {}
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

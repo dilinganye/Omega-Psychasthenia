@@ -1,0 +1,50 @@
+{
+  "id": "IIRT_Lab_PhaseParticleBeam",
+  "specClass": "beam",
+  "type": "ENERGY",
+  "size": "MEDIUM",
+  "collisionClass": "RAY",
+  #"collisionClass": "MISSILE_NO_FF",
+  # How can i got some NO FF RAY!!! o-o
+  "collisionClassByFighter": "RAY_FIGHTER",
+  "beamEffect":"data.scripts.weapons.IIRT_Omega_PhaseBeam",
+  "turretSprite": "graphics/weapons/PhaseParticleBeam/PhaseParticleBeam_Main.png",
+  "turretGlowSprite": "graphics/weapons/PhaseParticleBeam/PhaseParticleBeam_Main_L.png",
+  "hardpointSprite": "graphics/weapons/PhaseParticleBeam/PhaseParticleBeam_Front.png",
+  "hardpointGlowSprite": "graphics/weapons/PhaseParticleBeam/PhaseParticleBeam_Gront_L.png",
+  "glowColor": [
+    56,
+    25,
+    153,
+    200
+  ],
+  "hitGlowRadius": 25,
+  "turretOffsets": [
+    18.5,
+    0
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    22,
+    0
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "beamFireOnlyOnFullCharge": true,
+  "fringeColor": [228,172,240,
+    255
+  ],
+  "coreColor": [186, 202, 255,
+    255
+  ],
+  "width": 16,
+  "textureType": [
+    "graphics/fx/Cipher_Moon_32c.png",
+    "graphics/fx/IIRT_trail_Omega_Sub.png"
+  ],
+  "textureScrollSpeed": 500,
+  "pixelsPerTexel": 1
+}

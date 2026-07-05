@@ -1,0 +1,241 @@
+{
+
+	"KRSM_TECH":{
+		"engineColor":[96,111,165,195],
+		"contrailDuration":1.5,
+		"contrailWidthAddedFractionAtEnd":2f,  # can be negative. makes trail spread out/narrow at the end
+		"contrailMinSeg":5, # min segment length, in pixels
+		"contrailParticleSizeMult":0.25f,
+		"contrailParticleDuration":0.572f,
+		"contrailParticleFinalSizeMult":0.1f,
+		"contrailMaxSpeedMult":0.5f,
+		"contrailAngularVelocityMult":0f,
+		"contrailColor":[255,170,255,75],
+		"contrailCampaignColor":[140,138,204,75],
+		"glowSprite":"graphics/fx/engineflame_KRSMC_32.png",
+		"glowOutline":"graphics/fx/engineflame_KRSM_glow32N.png",
+		"glowAlternateColor":[178,152,255,200],
+		"type":"GLOW", # GLOW or SMOKE
+		# "omegaMode":true
+	},
+
+	"KRSM_TECH_L":{
+		"engineColor":[96,111,165,200],
+		"contrailDuration":1.5,
+		"contrailWidthAddedFractionAtEnd":2f,  # can be negative. makes trail spread out/narrow at the end
+		"contrailMinSeg":5, # min segment length, in pixels
+		"contrailParticleSizeMult":1f,
+		"contrailParticleDuration":0.7f,
+		"contrailParticleFinalSizeMult":0.25f,
+		"contrailMaxSpeedMult":0.5f,
+		"contrailAngularVelocityMult":0f,
+		"contrailColor":[255,170,255,75],
+		"contrailCampaignColor":[140,138,204,75],
+		"glowSprite":"graphics/fx/engineflame_KRSMC_32.png",
+		"glowOutline":"graphics/fx/engineflame_KRSM_glow32N.png",
+		"glowAlternateColor":[178,152,255,200],
+		"type":"GLOW", # GLOW or SMOKE
+		# "omegaMode":true
+	},
+
+	"KRSM_Smoke":{
+		"engineColor":[96,111,165,200],
+		"contrailDuration":1.5,
+		"contrailMaxSpeedMult":1f,
+		"contrailWidthMult":0.67,
+		"contrailWidthAddedFractionAtEnd":-1f,  # can be negative. makes trail spread out/narrow at the end
+		"contrailMinSeg":5, # min segment length, in pixels
+		"contrailParticleSizeMult":1f,
+		"contrailParticleDuration":1,
+		"contrailParticleFinalSizeMult":0f,
+		"contrailAngularVelocityMult":0f,
+		"contrailColor":[96,111,165,80],
+		"contrailCampaignColor":[96,111,165,75],
+		"glowSprite":"graphics/fx/engineflame_KRSM_32.png",
+		"glowOutline":"graphics/fx/engineflame_KRSM_glow32.png",
+		"glowAlternateColor":[178,152,240,200],
+		"type":"GLOW", # GLOW or SMOKE
+		"mode":"QUAD_STRIP",
+		"omegaMode":true
+	},
+
+	"IIRT_TECH":{
+		"engineColor":[142,75,169,255],
+		"contrailDuration":1.5,
+		"contrailWidthAddedFractionAtEnd":2f,  # can be negative. makes trail spread out/narrow at the end
+		"contrailMinSeg":5, # min segment length, in pixels
+		"contrailParticleSizeMult":0f,
+		"contrailParticleDuration":2,
+		"contrailParticleFinalSizeMult":1f,
+		"contrailMaxSpeedMult":0.5f,
+		"contrailAngularVelocityMult":0f,
+		"contrailColor":[255,170,255,75],
+		"contrailCampaignColor":[140,138,204,75],
+		"glowSprite":"graphics/fx/engineflame32b.png",
+		"glowOutline":"graphics/fx/IIRT_Engine1.png",
+		"glowAlternateColor":[178,152,255,200],
+		"type":"GLOW", # GLOW or SMOKE
+		"omegaMode":true
+	},
+
+	"IIRT_Smoke":{
+		"engineColor":[142,86,169,255],
+		"contrailDuration":1.5,
+		"contrailMaxSpeedMult":1f,
+		"contrailWidthMult":0.67,
+		"contrailWidthAddedFractionAtEnd":-1f,  # can be negative. makes trail spread out/narrow at the end
+		"contrailMinSeg":5, # min segment length, in pixels
+		"contrailParticleSizeMult":1f,
+		"contrailParticleDuration":1,
+		"contrailParticleFinalSizeMult":0f,
+		"contrailAngularVelocityMult":0f,
+		"contrailColor":[132,113,255,80],
+		"contrailCampaignColor":[140,138,204,75],
+		"glowSprite":"graphics/fx/IIRT_Engine1.png",
+		"glowOutline":"graphics/fx/engineflame32b.png",
+		"glowAlternateColor":[178,152,240,200],
+		"type":"GLOW", # GLOW or SMOKE
+		"mode":"QUAD_STRIP",
+		"omegaMode":true
+	},
+
+	"DEVK_TECH":{
+		"engineColor":[228,172,240,255],
+		"glowAlternateColor":[228,172,255,200],
+		"contrailParticleSizeMult":0,
+		"contrailParticleDuration":2,
+		"contrailParticleFinalSizeMult":1.5,
+		"contrailWidthMult":0.67,
+		"contrailWidthAddedFractionAtEnd":-1f,
+		"contrailDuration":1.5,
+		"contrailMaxSpeedMult":1f,
+		"contrailAngularVelocityMult":0f,
+		"contrailColor":[189,152,255,75],
+		"contrailCampaignColor":[189,152,255,75],
+		"glowSprite":"graphics/fx/Grain.png",
+		"glowOutline":"graphics/fx/IIRT_Engine1.png",
+		"type":"GLOW", # GLOW or SMOKE
+		"mode":"QUAD_STRIP"
+	},
+	"THREAT_DEC":{
+	"engineColor":[130,155,145,100],
+	"glowAlternateColor":[213,255,237,200],
+
+	"glowSprite":"graphics/fx/beam_laser_core.png",
+	"glowOutline":"graphics/fx/empty.png",
+	"glowSizeMult":0.35,
+	"withSpread":false,
+	"mode":"NONE",
+	"contrailParticleSizeMult":4,
+	"contrailParticleDuration":1,
+	"contrailParticleFinalSizeMult":1,
+	"contrailMaxSpeedMult":0.5f,
+	"contrailAngularVelocityMult":0f,
+	"contrailColor":[130,155,145,25],
+	"type":"GLOW" # GLOW or SMOKE
+},
+
+	"Mindustry":{
+		"engineColor":[253,158,128,255],
+		"contrailWidthMult":0.8,
+		"contrailDuration":1,
+		"contrailWidthAddedFractionAtEnd":0f,  # can be negative. makes trail spread out/narrow at the end
+		"contrailMinSeg":5, # min segment length, in pixels
+		"contrailParticleSizeMult":0f,
+		"contrailParticleDuration":0.2,
+		"contrailParticleFinalSizeMult":1f,
+		"contrailMaxSpeedMult":0.95f,
+		"contrailAngularVelocityMult":0f,
+		"contrailColor":[217,119,112,75],
+		"contrailCampaignColor":[253,158,128,75],
+		"glowSprite":"graphics/fx/Escort_flame.png",
+		"glowOutline":"graphics/fx/Escort_flame.png",
+		"glowAlternateColor":[253,158,128,140],
+		"type":"GLOW",
+		"mode":"QUAD_STRIP",
+		"omegaMode":true
+	},
+
+	"Escort":{
+		"engineColor":[116,149,211,255],
+		"contrailWidthMult":0.8,
+		"contrailDuration":1,
+		"contrailWidthAddedFractionAtEnd":0f,  # can be negative. makes trail spread out/narrow at the end
+		"contrailMinSeg":5, # min segment length, in pixels
+		"contrailParticleSizeMult":0f,
+		"contrailParticleDuration":0.2,
+		"contrailParticleFinalSizeMult":1f,
+		"contrailMaxSpeedMult":0.95f,
+		"contrailAngularVelocityMult":0f,
+		"contrailColor":[201,218,255,75],
+		"contrailCampaignColor":[116,149,211,75],
+		"glowSprite":"graphics/fx/Escort_flame.png",
+		"glowOutline":"graphics/fx/Escort_flame.png",
+		"glowAlternateColor":[116,149,211,140],
+		"type":"GLOW", # GLOW or SMOKE
+		"mode":"QUAD_STRIP",
+		"omegaMode":true
+	},
+
+	"Lab_Weapon_Small":{
+		"mode":"QUAD_STRIP",
+		"contrailDuration":1.5,
+		"contrailWidthMult":0.8,
+		"contrailWidthAddedFractionAtEnd":-1f,
+		"contrailMinSeg":5,
+		"contrailMaxSpeedMult":1f,
+		"contrailAngularVelocityMult":0.8f,
+		"contrailColor":[
+			56,
+			25,
+			153,
+			255],
+		"type":"GLOW",
+
+		"glowSprite":"graphics/fx/Cipher_Moon_32c.png",
+		"glowOutline":"graphics/fx/IIRT_trail_Omega_Sub.png",
+		"glowSizeMult":0.95,
+		"glowAlternateColor":[186, 202, 255, 255],
+		"engineColor":[228,172,240, 0],
+		"omegaMode":true
+	},
+
+	"Lab_Weapon_Track":{
+		"mode":"QUAD_STRIP",
+		"engineColor":[186, 202, 255,0],
+		"glowSprite":"graphics/fx/Cipher_Moon_32c.png",
+		"glowSizeMult":1.25,
+		"glowAlternateColor":[186, 202, 255,150],
+		"contrailDuration":2,
+		"contrailWidthMult":1,
+		"contrailWidthAddedFractionAtEnd":2,
+		"contrailMinSeg":5,
+		"contrailMaxSpeedMult":0f,
+		"contrailAngularVelocityMult":0.5f,
+		"contrailSpawnDistMult":0.5,
+		"contrailColor":[185,207,255,75],
+		"type":"GLOW"
+	},
+
+
+	#// "CUSTOM_OMEGA_MODE"//
+	"Cipher_Moon":{
+		"mode":"QUAD_STRIP", 
+		"contrailDuration":1.5,
+		"contrailWidthMult":0.67,
+		"contrailWidthAddedFractionAtEnd":-1f,  
+		"contrailMinSeg":5, 
+		"contrailMaxSpeedMult":1f,
+		"contrailAngularVelocityMult":0f,
+		"contrailColor":[95,145,134,255],
+		"type":"GLOW", 
+						
+		"glowSprite":"graphics/fx/Cipher_Moon_32.png",
+		"glowOutline":"graphics/fx/engineflame32b.png",
+		"omegaMode":true,
+		"glowSizeMult":0.95,
+		"glowAlternateColor":[185,207,255,255],
+		"engineColor":[185,240,221,255],
+	},
+}
+

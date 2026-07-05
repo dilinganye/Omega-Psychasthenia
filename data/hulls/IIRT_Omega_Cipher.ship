@@ -1,0 +1,205 @@
+{
+  "hullName": "IIRT_Omega_Cipher",
+  "hullId": "IIRT_Omega_Cipher",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Cipher/Cipher_Moon.png",
+  "style": "HIGH_TECH",
+  "height": 101,
+  "width": 79,
+  "center": [39.5, 39.5],
+  "collisionRadius": 101.5,
+  "shieldCenter": [11, 0],
+  "shieldRadius": 87.5,
+  "viewOffset": 0,
+  "builtInMods": [
+    "IIRT_Omega_BeamShield",
+    "delicate",
+    "phasefield",
+    "IIRT_Lab_RPCM"
+  ],
+  "builtInWeapons": {
+    "WS0007": "blinker_green",
+    "WS0008": "blinker_red",
+    "WS0009": "IIRT_Omega_Moon_PD",
+    "WS0010": "IIRT_Omega_Moon_PD",
+    "WS0011": "IIRT_Omega_Moon_Rocket"
+  },
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": 0,
+      "locations": [0.5, 26.5]
+    },
+    {
+      "id": "WS0002",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": 0,
+      "locations": [0.5, -26.5]
+    },
+    {
+      "id": "WS0003",
+      "size": "MEDIUM",
+      "type": "HYBRID",
+      "mount": "HIDDEN",
+      "arc": 17,
+      "angle": 0,
+      "locations": [9, -0]
+    },
+    {
+      "id": "WS0005",
+      "size": "SMALL",
+      "type": "ENERGY",
+      "mount": "HIDDEN",
+      "arc": 5,
+      "angle": 0,
+      "locations": [10, 11.5]
+    },
+    {
+      "id": "WS0006",
+      "size": "SMALL",
+      "type": "ENERGY",
+      "mount": "HIDDEN",
+      "arc": 5,
+      "angle": -0,
+      "locations": [10, -11.5]
+    },
+    {
+      "id": "WS0004",
+      "size": "SMALL",
+      "type": "SYSTEM",
+      "mount": "TURRET",
+      "arc": 261,
+      "angle": 180,
+      "locations": [-10, -0]
+    },
+    {
+      "id": "WS0007",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 5,
+      "angle": 0,
+      "locations": [22, 15]
+    },
+    {
+      "id": "WS0008",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 5,
+      "angle": 0,
+      "locations": [-20, -12]
+    },
+    {
+      "id": "WS0009",
+      "size": "SMALL",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 5,
+      "angle": -0,
+      "locations": [16, -12.5]
+    },
+    {
+      "id": "WS0010",
+      "size": "SMALL",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 5,
+      "angle": 0,
+      "locations": [16, 12.5]
+    },
+    {
+      "id": "WS0011",
+      "size": "SMALL",
+      "type": "BUILT_IN",
+      "mount": "TURRET",
+      "arc": 0,
+      "angle": 0,
+      "locations": [11, -0]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-29, 7],
+      "length": 72.696503,
+      "width": 13.448863,
+      "angle": -175.5,
+      "contrailSize": 13.448863,
+      "style": "Cipher_Moon"
+    },
+    {
+      "location": [-29, -7],
+      "length": 72.696503,
+      "width": 13.448863,
+      "angle": 175.5,
+      "contrailSize": 13.448863,
+      "style": "Cipher_Moon"
+    },
+    {
+      "location": [-16.5, 21.5],
+      "length": 12.111406,
+      "width": 4.822383,
+      "angle": 159.5,
+      "contrailSize": 4.822383,
+      "style": "Cipher_Moon"
+    },
+    {
+      "location": [-16.5, -21.5],
+      "length": 12.111406,
+      "width": 4.822383,
+      "angle": -159.5,
+      "contrailSize": 4.822383,
+      "style": "Cipher_Moon"
+    }
+  ],
+  "bounds": [
+    -29.5, -3.5,
+    -27.5, -4.5,
+    -23.5, -16.5,
+    -34, -14.5,
+    -33.5, -16.5,
+    -23, -18.5,
+    -15, -21,
+    -21, -32,
+    -14, -35.5,
+    -8.5, -32.5,
+    5.5, -33.5,
+    20.5, -15.5,
+    23.5, -15,
+    25.5, -11.5,
+    20, -12.5,
+    12.5, -19.5,
+    9, -19,
+    20.5, -9.5,
+    28.5, -9,
+    41.5, -4,
+    59.5, -0,
+    41.5, 4,
+    28.5, 9,
+    20.5, 9.5,
+    9, 19,
+    12.5, 19.5,
+    20, 12.5,
+    25.5, 11.5,
+    23.5, 15,
+    20.5, 15.5,
+    5.5, 33.5,
+    -8.5, 32.5,
+    -14, 35.5,
+    -21, 32,
+    -15, 21,
+    -23, 18.5,
+    -33.5, 16.5,
+    -34, 14.5,
+    -23.5, 16.5,
+    -27.5, 4.5,
+    -29.5, 3.5
+  ]
+}

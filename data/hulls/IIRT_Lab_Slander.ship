@@ -1,0 +1,175 @@
+{
+  "hullName": "IIRT_Lab_Slander",
+  "hullId": "IIRT_Lab_Slander",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Lab/IIRT_Lab_Slander.png",
+  "style": "KRM_TECH",
+  "height": 95,
+  "width": 60,
+  "center": [30, 34],
+  "collisionRadius": 89,
+  "shieldCenter": [6, -0],
+  "shieldRadius": 75.5,
+  "viewOffset": 0,
+  "builtInMods": [
+    "phasefield",
+    "fluxbreakers",
+    "IIRT_Lab_RPCM"
+  ],
+  "builtInWeapons": {
+    "WS0005": "blinker_green",
+    "WS0006": "blinker_red",
+    "WS0007": "sabot_fighter"
+  },
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 298,
+      "angle": 0,
+      "locations": [-12, 0]
+    },
+    {
+      "id": "WS0003",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HARDPOINT",
+      "arc": 10,
+      "angle": 0,
+      "locations": [21, 0]
+    },
+    {
+      "id": "WS0005",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 0,
+      "angle": 0,
+      "locations": [60.5, 7.5]
+    },
+    {
+      "id": "WS0006",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 0,
+      "angle": 0,
+      "locations": [-1.5, -22]
+    },
+    {
+      "id": "WS0007",
+      "size": "SMALL",
+      "type": "BUILT_IN",
+      "mount": "HIDDEN",
+      "arc": 0,
+      "angle": 0,
+      "locations": [9.5, -23.5]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-20.5, 24.5],
+      "length": 39.046696,
+      "width": 7.030085,
+      "angle": -169,
+      "contrailSize": 7.030085,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-20.5, -24.5],
+      "length": 39.046696,
+      "width": 7.030085,
+      "angle": 169,
+      "contrailSize": 7.030085,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-25, -19.5],
+      "length": 49.735397,
+      "width": 7.110565,
+      "angle": 173,
+      "contrailSize": 7.110565,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-25, 19.5],
+      "length": 49.735397,
+      "width": 7.110565,
+      "angle": -173,
+      "contrailSize": 7.110565,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-32, -13],
+      "length": 64.936829,
+      "width": 7.926699,
+      "angle": 175,
+      "contrailSize": 7.926699,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-32, 13],
+      "length": 64.936829,
+      "width": 7.926699,
+      "angle": -175,
+      "contrailSize": 7.926699,
+      "style": "HIGH_TECH"
+    },
+    {
+      "location": [-29.5, -0],
+      "length": 20.5,
+      "width": 17,
+      "angle": 180,
+      "contrailSize": 17,
+      "style": "Cipher_Moon"
+    },
+    {
+      "location": [-38, 12.5],
+      "length": 76.449997,
+      "width": 3.69,
+      "angle": -175,
+      "contrailSize": 3.69,
+      "style": "LOW_TECH_FIGHTER"
+    },
+    {
+      "location": [-38, -12.5],
+      "length": 76.449997,
+      "width": 3.69,
+      "angle": 175,
+      "contrailSize": 3.69,
+      "style": "LOW_TECH_FIGHTER"
+    }
+  ],
+  "bounds": [
+    27, -4,
+    27, 4.5,
+    54, 5,
+    54, 13,
+    46, 13.5,
+    13, 24,
+    10.5, 26.5,
+    3.5, 20,
+    -7, 28,
+    -15, 28,
+    -33, 10.5,
+    -28, 6.5,
+    -31, 5,
+    -31, 2,
+    -26, 1,
+    -26, -1,
+    -31, -2,
+    -31, -5,
+    -28, -6.5,
+    -33, -10.5,
+    -15, -28,
+    -7, -28,
+    1, -22,
+    15, -22,
+    37, -14.5,
+    48, -12,
+    48, -8,
+    40, -4.5
+  ]
+}

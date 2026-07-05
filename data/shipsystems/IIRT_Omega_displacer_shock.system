@@ -1,0 +1,25 @@
+{
+	"id":"IIRT_Omega_displacer_shock",
+	"type":"DISPLACER",
+	"aiType":"PHASE_DISPLACER",
+
+	"engineGlowColor":[255,100,100,255],
+
+	"range":150,
+	"randomRange":400,
+	
+	"renderCopyDuringTeleport":false,
+
+	"runScriptWhileIdle":true,
+	"statsScript":"data.scripts.shipsystems.IIRT_Omega_displacer_shock",
+	
+	"fadeActivationSoundOnChargedown":false,
+	"useSound":"system_phase_skimmer",
+	"outOfUsesSound":"gun_out_of_ammo",
+	
+	"aiHints":{
+		"activeSpeedIncrease":100,
+		"burstMovementPotential":0,
+		"averageSpeedIncrease":200,
+	}
+}

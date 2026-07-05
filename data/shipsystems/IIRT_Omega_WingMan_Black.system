@@ -1,0 +1,28 @@
+{
+	"id":"IIRT_Omega_WingMan_Black",
+	"type":"ENGINE_MOD",
+	"aiType":"MANEUVERING_JETS",
+
+	"statsScript":"data.scripts.shipsystems.IIRT_Omega_WingMan_Black",
+
+	"effectColor1":[200, 100, 255, 100],
+	"effectColor2":[150, 80, 220, 80],
+
+	"jitterColor":[140, 100, 220, 200],
+	"jitterCopies":0,
+	"jitterRange":0,
+	"jitterRangeRadiusFraction":0.15,
+
+	"fadeActivationSoundOnChargedown":true,
+	"useSound":"ship_deploy",
+	"loopSound":"",
+	"deactivateSound":"ship_stasis_pod_end",
+	"outOfUsesSound":"gun_out_of_ammo",
+
+	"aiHints":{
+		"activeSpeedIncrease":500,
+		"burstMovementPotential":0,
+		"averageSpeedMult":1.0
+	}
+}
+

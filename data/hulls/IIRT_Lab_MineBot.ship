@@ -1,0 +1,87 @@
+{
+  "hullName": "IIRT_Lab_MineBot",
+  "hullId": "IIRT_Lab_MineBot",
+  "hullSize": "FIGHTER",
+  "spriteName": "graphics/ships/Lab/IIRT_Lab_MineBot.png",
+  "style": "KRM_TECH",
+  "height": 25,
+  "width": 23,
+  "center": [12.5, 12.5],
+  "collisionRadius": 21,
+  "shieldCenter": [-0.5, -0],
+  "shieldRadius": 20,
+  "viewOffset": 0,
+  "builtInMods": [
+    "armoredweapons"
+  ],
+  "builtInWeapons": {
+    "WS0002": "blinker_green"
+  },
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 360,
+      "angle": 0,
+      "locations": [3, 3]
+    },
+    {
+      "id": "WS0002",
+      "size": "SMALL",
+      "type": "DECORATIVE",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 0,
+      "locations": [2.5, -6]
+    },
+    {
+      "id": "WS0003",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 360,
+      "angle": 0,
+      "locations": [3, 3]
+    },
+    {
+      "id": "WS0004",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "HIDDEN",
+      "arc": 152,
+      "angle": 0,
+      "locations": [5, 8.5]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-7, 3.5],
+      "length": 7,
+      "width": 6,
+      "angle": 90,
+      "contrailSize": 6,
+      "style": "KRSM_TECH"
+    },
+    {
+      "location": [-7, -5.5],
+      "length": 7,
+      "width": 6,
+      "angle": -90,
+      "contrailSize": 6,
+      "style": "KRSM_TECH"
+    }
+  ],
+  "bounds": [
+    8.5, 11,
+    8.5, -6,
+    3.5, -10.5,
+    -2.5, -10.5,
+    -2.5, -5.5,
+    -11.5, -3.5,
+    -11.5, 2.5,
+    -3.5, 4.5,
+    -3.5, 11.5
+  ]
+}

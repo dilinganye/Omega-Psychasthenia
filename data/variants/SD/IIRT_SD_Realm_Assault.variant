@@ -1,0 +1,30 @@
+{
+  "variantId": "IIRT_SD_Realm_Assault",
+  "hullId": "IIRT_SD_Realm",
+  "displayName": "Assault",
+  "goalVariant": true,
+  "fluxCapacitors": 0,
+  "fluxVents": 0,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0003": "amblaster",
+        "WS0004": "amblaster"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "IIRT_Theaten"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

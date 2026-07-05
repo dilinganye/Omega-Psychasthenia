@@ -1,0 +1,17 @@
+        //最终可以实现只能装载机兵，原因不明
+        //获取甲板数量
+        List<String> wingslist = stats.getVariant().getWings();
+        for(int i=0;i<wingslist.size();i++){
+            REFIT_TIME_REDUCTION_BAYNUB = i;
+        }
+        // 获取机兵LPC数量2
+        int Nub = 0;
+        ArrayList<String> ids = new ArrayList<String>();
+        ids.add("IIRT_Lab_Meniscus_Rifle_AC");
+        ids.add("IIRT_Lab_FirstQuarter_Assault_AC");
+        ids.add("IIRT_Lab_Crescent_Attack_AC");
+
+        wingslist.retainAll(ids);
+        for(int i=0;i<wingslist.size();i++){
+            Nub = i;
+        }

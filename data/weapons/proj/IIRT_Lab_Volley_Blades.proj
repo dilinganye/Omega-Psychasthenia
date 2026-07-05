@@ -1,0 +1,29 @@
+{
+	"id":"IIRT_Lab_Volley_Blades",
+	"specClass":"missile",	
+	"onHitEffect":"data.scripts.weapons.IIRT_Lab_Volley_Blade_blastGlow",
+	"missileType":"MISSILE_TWO_STAGE_SECOND_UNGUIDED",
+	"sprite":"graphics/missiles/IIRT_Lab_Volley_Blades.png",
+	"glowSprite":"graphics/missiles/IIRT_Lab_Volley_Blades_glow.png",
+	"size":[22,19],
+	"center":[11,9.5],
+	"collisionRadius":14,
+	"collisionClass":"MISSILE_NO_FF",
+	"explosionColor":[157, 104, 192,255],  # purely visual, will get a white additively blended core on top of this color
+	"explosionRadius":90, # purely visual
+	"flameoutTime":0.5,
+	"noEngineGlowTime":0.25,
+	"fadeTime":0.5, # fadeout duration
+	"engineSpec":{"turnAcc":360,
+				  "turnRate":180,
+				  "acc":1000,
+				  "dec":0},
+	"engineSlots":[{"id":"ES1",
+					"loc":[-5, 0],
+                    "length": 5,
+                    "width": 11,
+                    "angle": 180,
+                    "contrailSize": 11,
+                    "style": "LOW_TECH_FIGHTER",
+                    }],
+}

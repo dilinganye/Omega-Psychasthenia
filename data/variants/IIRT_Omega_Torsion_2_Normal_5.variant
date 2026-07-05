@@ -1,0 +1,36 @@
+{
+  "variantId": "IIRT_Omega_Torsion_2_Normal_5",
+  "hullId": "IIRT_Omega_Torsion_2",
+  "displayName": "Missile",
+  "goalVariant": true,
+  "fluxCapacitors": 17,
+  "fluxVents": 11,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "missleracks"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "resonatormrm",
+        "WS0002": "amsrm",
+        "WS0003": "shockrepeater"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {}
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {}
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

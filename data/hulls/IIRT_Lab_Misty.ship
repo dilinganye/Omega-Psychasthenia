@@ -1,0 +1,238 @@
+{
+  "hullName": "IIRT_Lab_Misty",
+  "hullId": "IIRT_Lab_Misty",
+  "hullSize": "DESTROYER",
+  "spriteName": "graphics/ships/Lab/IIRT_Lab_Misty.png",
+  "style": "KRM_TECH",
+  "height": 179,
+  "width": 120,
+  "center": [60, 84.5],
+  "collisionRadius": 122,
+  "shieldCenter": [5, 0],
+  "shieldRadius": 116,
+  "viewOffset": 0,
+  "builtInMods": [
+    "phasefield",
+    "IIRT_Lab_RPCM",
+    "IIRT_Lab_PhaseHangar"
+  ],
+  "weaponSlots": [
+    {
+      "id": "LB 1",
+      "size": "LARGE",
+      "type": "LAUNCH_BAY",
+      "mount": "HIDDEN",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        -7, -0,
+        -13.5, -0,
+        -21, -0
+      ]
+    },
+    {
+      "id": "LB 2",
+      "size": "LARGE",
+      "type": "LAUNCH_BAY",
+      "mount": "HIDDEN",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        -12, 23.5,
+        -12, -23.5
+      ]
+    },
+    {
+      "id": "LB 5",
+      "size": "LARGE",
+      "type": "LAUNCH_BAY",
+      "mount": "HIDDEN",
+      "arc": 360,
+      "angle": 0,
+      "locations": [
+        -12, -16.5,
+        -12, 16.5
+      ]
+    },
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "ENERGY",
+      "mount": "TURRET",
+      "arc": 252,
+      "angle": 0,
+      "locations": [74.5, -0]
+    },
+    {
+      "id": "WS0002",
+      "size": "SMALL",
+      "type": "ENERGY",
+      "mount": "TURRET",
+      "arc": 237,
+      "angle": -90,
+      "locations": [26.5, -49]
+    },
+    {
+      "id": "WS0003",
+      "size": "SMALL",
+      "type": "ENERGY",
+      "mount": "TURRET",
+      "arc": 237,
+      "angle": 90,
+      "locations": [26.5, 49]
+    },
+    {
+      "id": "WS0004",
+      "size": "SMALL",
+      "type": "ENERGY",
+      "mount": "TURRET",
+      "arc": 237,
+      "angle": 24.5,
+      "locations": [-34.5, 20]
+    },
+    {
+      "id": "WS0005",
+      "size": "SMALL",
+      "type": "ENERGY",
+      "mount": "TURRET",
+      "arc": 237,
+      "angle": -24.5,
+      "locations": [-34.5, -20]
+    },
+    {
+      "id": "WS0006",
+      "size": "LARGE",
+      "type": "SYNERGY",
+      "mount": "HARDPOINT",
+      "arc": 5,
+      "angle": 0,
+      "locations": [22.5, -0]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-52, -33],
+      "length": 8.945518,
+      "width": 11.397846,
+      "angle": -167.5,
+      "contrailSize": 11.397846,
+      "style": "KRSM_Smoke"
+    },
+    {
+      "location": [-52, 33],
+      "length": 8.945518,
+      "width": 11.397846,
+      "angle": 167.5,
+      "contrailSize": 11.397846,
+      "style": "KRSM_Smoke"
+    },
+    {
+      "location": [-54.5, -31],
+      "length": 17.67767,
+      "width": 5.656854,
+      "angle": -135,
+      "contrailSize": 5.656854,
+      "style": "KRSM_Smoke"
+    },
+    {
+      "location": [-54.5, 31],
+      "length": 17.67767,
+      "width": 5.656854,
+      "angle": 135,
+      "contrailSize": 5.656854,
+      "style": "KRSM_Smoke"
+    },
+    {
+      "location": [-62, -25.5],
+      "length": 8.130392,
+      "width": 17.904942,
+      "angle": -100,
+      "contrailSize": 17.904942,
+      "style": "KRSM_Smoke"
+    },
+    {
+      "location": [-62, 25.5],
+      "length": 8.130392,
+      "width": 17.904942,
+      "angle": 100,
+      "contrailSize": 17.904942,
+      "style": "KRSM_Smoke"
+    },
+    {
+      "location": [-63, -26.5],
+      "length": 25.78725,
+      "width": 6.005914,
+      "angle": -171,
+      "contrailSize": 6.005914,
+      "style": "KRSM_Smoke"
+    },
+    {
+      "location": [-63, 26.5],
+      "length": 25.78725,
+      "width": 6.005914,
+      "angle": 171,
+      "contrailSize": 6.005914,
+      "style": "KRSM_Smoke"
+    },
+    {
+      "location": [-26.5, -34.5],
+      "length": 32.809502,
+      "width": 4.913928,
+      "angle": -167.5,
+      "contrailSize": 4.913928,
+      "style": "KRSM_TECH"
+    },
+    {
+      "location": [-26.5, 34.5],
+      "length": 32.809502,
+      "width": 4.913928,
+      "angle": 167.5,
+      "contrailSize": 4.913928,
+      "style": "KRSM_TECH"
+    },
+    {
+      "location": [-77.5, -13],
+      "length": 12.521406,
+      "width": 25.176527,
+      "angle": -167.5,
+      "contrailSize": 25.176527,
+      "style": "KRSM_TECH"
+    },
+    {
+      "location": [-77.5, 13],
+      "length": 12.521406,
+      "width": 25.176527,
+      "angle": 167.5,
+      "contrailSize": 25.176527,
+      "style": "KRSM_TECH"
+    }
+  ],
+  "bounds": [
+    -81.5, -3,
+    -79, -6.5,
+    -68.5, -8,
+    -57.5, -16,
+    -45.5, -28.5,
+    -29.5, -21,
+    -13.5, -26.5,
+    -1.5, -33.5,
+    23.5, -53,
+    67.5, -48.5,
+    68.5, -34,
+    58.5, -26.5,
+    74, -10.5,
+    74, 10.5,
+    58.5, 26.5,
+    68.5, 34,
+    67.5, 48.5,
+    23.5, 53,
+    -1.5, 33.5,
+    -13.5, 26.5,
+    -29.5, 21,
+    -45.5, 28.5,
+    -57.5, 16,
+    -68.5, 8,
+    -79, 6.5,
+    -81.5, 3
+  ]
+}

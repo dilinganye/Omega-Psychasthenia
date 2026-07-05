@@ -1,0 +1,47 @@
+{
+  "variantId": "IIRT_Omega_Boltzmann_Missile",
+  "hullId": "IIRT_Omega_Boltzmann",
+  "displayName": "Missile",
+  "goalVariant": true,
+  "fluxCapacitors": 9,
+  "fluxVents": 4,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "missleracks"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0003": "shockrepeater"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "rifttorpedo",
+        "WS0004": "amsrm",
+        "WS0005": "amsrm"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0006": "resonatormrm"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0002": "thermosiphonsrm"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

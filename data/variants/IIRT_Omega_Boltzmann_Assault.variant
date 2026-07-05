@@ -1,0 +1,29 @@
+{
+  "variantId": "IIRT_Omega_Boltzmann_Assault",
+  "hullId": "IIRT_Omega_Boltzmann",
+  "displayName": "Assault",
+  "goalVariant": false,
+  "fluxCapacitors": 8,
+  "fluxVents": 4,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "advancedoptics"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "riftcascade",
+        "WS0002": "thermosiphonsrm",
+        "WS0003": "shockrepeater",
+        "WS0004": "riftlance",
+        "WS0005": "riftlance",
+        "WS0006": "riftbeam"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

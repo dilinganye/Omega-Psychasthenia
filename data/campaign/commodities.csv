@@ -1,0 +1,2 @@
+name,id,demand class,base price,export value,price variability,utility,origin,tags,stack size,cargo space,icon,sound id,sound id drop,order,economyTier,econUnit,iconWidthMult,plugin,desc
+未知之物,PTSD_core,PTSD_core,500000,,0,200,,"nonecon,no_loss_from_combat, no_drop",1000,1,graphics/icons/cargo/PTSD_core.png,ai_core_pickup,ui_alpha_core_drop,50,,,1,,

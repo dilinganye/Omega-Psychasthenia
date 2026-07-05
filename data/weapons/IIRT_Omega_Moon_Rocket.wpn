@@ -1,0 +1,68 @@
+{
+  "id": "IIRT_Omega_Moon_Rocket",
+  "specClass": "projectile",
+  "projectileSpecId": "IIRT_Lab_HugePhase",
+  "type": "MISSILE",
+  "size": "SMALL",
+  "turretSprite": "graphics/None.png",
+  "hardpointSprite": "graphics/None.png",
+  "turretOffsets": [
+    -28.5,
+    22,
+    -28.5,
+    -22,
+    -30.5,
+    -21.5,
+    -30.5,
+    21.5,
+    -33,
+    -21,
+    -33,
+    21,
+    -31.5,
+    -21.5,
+    -31.5,
+    21.5,
+    -29.5,
+    21.5,
+    -29.5,
+    -21.5
+  ],
+  "turretAngleOffsets": [
+    127,
+    -127,
+    -161.5,
+    161.5,
+    -166,
+    166,
+    -135,
+    135,
+    135,
+    -135
+  ],
+  "hardpointOffsets": [
+    0,
+    0
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "barrelMode": "ALTERNATING",
+  "animationType": "MUZZLE_FLASH",
+  "autocharge": true,
+  "requiresFullCharge": false,
+  "muzzleFlashSpec": {
+    "length": 40,
+    "spread": 10,
+    "particleSizeMin": 10,
+    "particleSizeRange": 12,
+    "particleDuration": 0.5,
+    "particleCount": 15,
+    "particleColor": [
+      255,
+      255,
+      255,
+      255
+    ]
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "variantId": "IIRT_Omega_Candelabrum_Candle",
+  "hullId": "IIRT_Omega_Candelabrum",
+  "displayName": "Candle",
+  "goalVariant": true,
+  "fluxCapacitors": 10,
+  "fluxVents": 10,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "ecm",
+    "eccm"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "IIRT_Omega_Candle"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

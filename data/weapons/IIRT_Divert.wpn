@@ -1,0 +1,64 @@
+{
+  "id": "IIRT_Divert",
+  "specClass": "projectile",
+  "projectileSpecId": "IIRT_33Light_missile",
+  "type": "ENERGY",
+  "mountTypeOverride": "SYNERGY",
+  "size": "SMALL",
+  "turretSprite": "graphics/weapons/IIRT_Divert/IIRT_Divert.png",
+  "turretGlowSprite": "graphics/weapons/IIRT_Divert/IIRT_Divert_L.png",
+  "hardpointSprite": "graphics/weapons/IIRT_Divert/IIRT_Divert.png",
+  "hardpointGlowSprite": "graphics/weapons/IIRT_Divert/IIRT_Divert_L.png",
+  "glowColor": [
+    228,172,255,
+    250
+  ],
+  "turretOffsets": [
+    6,
+    2,
+    6,
+    -2,
+    2,
+    2,
+    2,
+    -2
+  ],
+  "turretAngleOffsets": [
+    8,
+    -8,
+    8,
+    -8
+  ],
+  "hardpointOffsets": [
+    12,
+    2,
+    12,
+    -2,
+    8,
+    -2,
+    8,
+    2
+  ],
+  "hardpointAngleOffsets": [
+    8,
+    -8,
+    -8,
+    8
+  ],
+  "barrelMode": "ALTERNATING",
+  "renderHints":[RENDER_LOADED_MISSILES],
+  "animationType": "GLOW_AND_FLASH",
+  "muzzleFlashSpec": {
+    "length": 30,
+    "spread": 20,
+    "particleSizeMin": 5,
+    "particleSizeRange": 5,
+    "particleDuration": 0.5,
+    "particleCount": 10,
+    "particleColor": [
+      189,152,255,
+      200
+    ]
+  },
+  "fireSoundTwo": "IIRT_SD_SLM_fire"
+}

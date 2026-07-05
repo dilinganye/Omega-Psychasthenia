@@ -1,0 +1,66 @@
+{
+  "hullName": "IIRT_Omega_Nigility",
+  "hullId": "IIRT_Omega_Nihility",
+  "hullSize": "FIGHTER",
+  "spriteName": "graphics/ships/Omega_Nihility.png",
+  "style": "OMEGA",
+  "height": 101,
+  "width": 77,
+  "center": [40, 46.5],
+  "collisionRadius": 48,
+  "shieldCenter": [2.5, -0],
+  "shieldRadius": 45.5,
+  "viewOffset": 0,
+  "builtInMods": [
+    "automated",
+    "magazines",
+    "insulatedengine"
+  ],
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 360,
+      "angle": 45,
+      "locations": [6.5, 3]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-13, -1.5],
+      "length": 44,
+      "width": 10,
+      "angle": 177.5,
+      "contrailSize": 10,
+      "style": "OMEGA"
+    },
+    {
+      "location": [3, -13.5],
+      "length": 33.959316,
+      "width": 8.188971,
+      "angle": -149,
+      "contrailSize": 8.188971,
+      "style": "OMEGA"
+    }
+  ],
+  "bounds": [
+    -29.5, 22,
+    -14, 2,
+    -26, 3.5,
+    -18.5, 1,
+    -13.5, -3.5,
+    -19.5, -9,
+    -14, -9,
+    -11.5, -13.5,
+    -1.5, -12.5,
+    4, -16.5,
+    8.5, -13.5,
+    26, -14,
+    13, -2.5,
+    15, 5.5,
+    7.5, 11,
+    -6.5, 8
+  ]
+}

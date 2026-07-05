@@ -1,0 +1,35 @@
+{
+  "id": "IIRT_Lab_Flow",
+  "specClass": "projectile",
+  "projectileSpecId": "IIRT_Lab_Missile_mine_Lit",
+  "type": "MISSILE",
+  "mountTypeOverride": "SYNERGY",
+  "size": "SMALL",
+  "renderHints": [
+    RENDER_LOADED_MISSILES
+  ],
+  "turretSprite": "graphics/weapons/Lab_Rocketpot/Lab_Small_Rocketpot_t.png",
+  "hardpointSprite": "graphics/weapons/Lab_Rocketpot/Lab_Small_Rocketpot_h.png",
+  "glowColor": [
+    255,
+    255,
+    255,
+    255
+  ],
+  "turretOffsets": [
+    0,
+    0
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    4,
+    0
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "barrelMode": "ALTERNATING",
+  "animationType": "GLOW"
+}

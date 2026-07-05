@@ -1,0 +1,17 @@
+{
+	"id":"IIRT_Lab_FirstQuarter",
+	"specClass":"projectile",
+	"spawnType":"BALLISTIC_AS_BEAM",
+	"collisionClass":"RAY",
+	"collisionClassByFighter":"RAY_FIGHTER",
+	"onHitEffect":"com.fs.starfarer.api.impl.combat.IonCannonOnHitEffect",
+	"length":80.0,
+	"width":15.0,
+	#"hitGlowRadius":30,
+	"fadeTime":0.25,
+	"fringeColor":[186,202,255,255],
+	"coreColor":[255,255,255,255],
+	"textureType":"SMOOTH",  # only needed for BEAM spawnType
+	"textureScrollSpeed":-256.0,
+	"pixelsPerTexel":1.0	
+}

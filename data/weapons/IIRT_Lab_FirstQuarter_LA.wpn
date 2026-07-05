@@ -1,0 +1,48 @@
+{
+  "id": "IIRT_Lab_FirstQuarter_LA",
+  "specClass": "projectile",
+  "projectileSpecId": "IIRT_Lab_FirstQuarter",
+	"fireSoundTwo":"ion_pulser_fire",
+  "type": "ENERGY",
+  "size": "SMALL",
+  "turretSprite": "graphics/weapons/AC/IIRT_Lab_FirstQuarter/IIRT_Lab_FirstQuarter_LA.png",
+  "turretGlowSprite": "graphics/weapons/AC/IIRT_Lab_FirstQuarter/IIRT_Lab_FirstQuarter_LA_L.png",
+  "hardpointSprite": "graphics/weapons/AC/IIRT_Lab_FirstQuarter/IIRT_Lab_FirstQuarter_LA.png",
+  "hardpointGlowSprite": "graphics/weapons/AC/IIRT_Lab_FirstQuarter/IIRT_Lab_FirstQuarter_LA_L.png",
+  "glowColor": [
+    255,
+    255,
+    255,
+    255
+  ],
+  "turretOffsets": [
+    23,
+    7.5
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    36,
+    8
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "barrelMode": "ALTERNATING",
+  "animationType": "GLOW_AND_FLASH",
+  "muzzleFlashSpec": {
+    "length": 40,
+    "spread": 20,
+    "particleSizeMin": 10,
+    "particleSizeRange": 14,
+    "particleDuration": 0.5,
+    "particleCount": 15,
+    "particleColor": [
+      255,
+      255,
+      255,
+      255
+    ]
+  }
+}

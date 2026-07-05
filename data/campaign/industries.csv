@@ -1,0 +1,10 @@
+id,name,cost mult,build time,income,upkeep,downgrade,upgrade,tags,data,image,plugin,desc,order,disruptDanger
+IIRT_Lab_DarkCity,阴暗都市,200,90,10,8,,,"grounddefenses, unraidable, tactical_bombardment, structure",,graphics/icons/industry/IIRT_Lab_DarkCity.png,data.scripts.campaign.industries.IIRT_Lab_DarkCity,"由于整个星系完全不具备光照能力，一切地表乃至地下的建筑设施都极度依靠各种设施的自发光来为居民们无时无刻的指引方向。星球级别的不夜城所需的电力消耗无疑是笔巨大的支出，但也足以令整个星球的维生系统、光照、基础设施、工业、娱乐业、研究设施等一切人造物运转起来。
+这种独特的城市很依赖于对于各个电力节点的监守部队。断电的节点不会影响全球的电力网络，但会将这片区域与其他地方的电力网剥离开来，这很容易造成这片区域的电力短缺。更多的陆战队会被要求参与必要的戍卫工作，这同时也变相增强了星球范围内部署的预备部队。",2800,
+IIRT_Lab_UnderMine,矿场深处,150,120,,1,,,"grounddefenses, unraidable, structure",,graphics/icons/industry/IIRT_Lab_UnderMine.png,data.scripts.campaign.industries.IIRT_Lab_UnderMine,"因为地壳运动所造成的板块移动，采矿业设施被星球残酷的分成了两个部分。下层失去了所有正规渠道的援助，据悉只有一些极为穷凶极恶的亡命徒才能找得到下去的方法。
+在深层旧居的居民已经变成了一些诸如强盗的不稳定因素；不时从某个废弃矿道冲出让勘探队断了信号的掠夺者，亦或是不可深究的大量黑色产业；这里是设计局官方也无法触碰的深渊之处，但此处恶人横行的特性也导致这里可以是优秀的兵源点 - 只要你不在意丢东西的话。",2800,
+IIRT_Lab_TheCore,设计局核心总部,600,360,101,100,,,"military, unraidable, structure",,graphics/icons/industry/IIRT_Lab_TheCore.png,data.scripts.campaign.industries.IIRT_Lab_TheCore,克劳斯姆概念设计局总部所在地，大量昂贵的器械被放置于此，无数奇奇怪怪的设计案以及原型机在此处被调试，此处所造成的巨大开销和利用花里胡哨玩意取得的收益常年处于一个勉强不赤字的状态。其中为了让人减缓相位造成的精神衰弱所提供的酒精就占了设计局开销的十分之一。,2800,
+IIRT_SD_Yisic_Lab,以西卡研究所分部,300,90,,8,,,"grounddefenses, unraidable, tactical_bombardment, structure",,graphics/icons/industry/IIRT_Yisic_Lab.png,data.scripts.campaign.industries.IIRT_SD_Yisic_Lab,"以西卡研究所的核心部门，作为科研机的分部在此处设立，利用各种元素转换从而为组织提供各类资源。
+被许多居心揣测的势力试图夺取，但一旦不在以西卡控制之下时，研究设施便会自行分解为纳米机械。",2800,,
+IIRT_SD_Army_Tran,智械制造宏单元,150,120,,4,,,"grounddefenses, military, unraidable, tactical_bombardment, structure",,graphics/icons/industry/IIRT_Army_Tran.png,data.scripts.campaign.industries.IIRT_SD_Army_Tran,"利用AI以及大量生产系统构建智械单元，并在此处进行校准，从而形成足够数量的地表作战单元。
+而遍布全球的生产单元与智械部队使得地表的防御能力达到了一个极其恐怖的地步，同时大量无人机对舰船工业的辅助使得舰船生产水准得到极大提升。",2800,,

@@ -1,0 +1,69 @@
+{
+  "variantId": "IIRT_Omega_DevilFork_Support",
+  "hullId": "IIRT_Omega_DevilFork",
+  "displayName": "Support",
+  "goalVariant": false,
+  "fluxCapacitors": 30,
+  "fluxVents": 13,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "hardenedshieldemitter",
+    "advancedoptics"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "realitydisruptor"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0006": "Omega_Entropy",
+        "WS0007": "Omega_Entropy"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {}
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0002": "resonatormrm"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0008": "thermosiphonsrm"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0005": "amsrm",
+        "WS0009": "amsrm",
+        "WS0010": "amsrm"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0003": "shockrepeater",
+        "WS0004": "shockrepeater"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

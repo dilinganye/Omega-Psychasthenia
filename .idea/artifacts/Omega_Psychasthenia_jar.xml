@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="Omega Psychasthenia:jar">
+    <output-path>$PROJECT_DIR$/jars</output-path>
+    <root id="archive" name="Omega Psychasthenia.jar">
+      <element id="module-output" name="Omega Psychasthenia" />
+    </root>
+  </artifact>
+</component>

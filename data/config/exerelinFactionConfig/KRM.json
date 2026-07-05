@@ -1,0 +1,94 @@
+{
+	"playableFaction":true,
+	"corvusCompatible":true,
+    
+	"rebelFleetSuffix":"叛徒",
+    
+	"marketSpawnWeight":0.8,
+
+	"startRelationships":{ 
+		"tritachyon": 0.6, 
+		"persean":-0.1,
+		"hegemony":-0.45, 
+		"luddic_path":-1, 
+		"remnants":-0.6, 
+		"independent":0.05, 
+		"pirates":-0.8
+	},
+    	"maxRelationships":{
+		"hegemony": 0.6,
+		"pirates": -0.6,
+		"luddic_church": 0.2,
+		"luddic_path": -0.6,
+	},
+	"alignments":{
+	"technocratic":0.8,
+	"militarist":0.1,
+	"diplomatic":0.5,
+	"ideological":-2.0,
+	},
+	"diplomacyPositiveChance":{
+	"hegemony":-0.5, 
+	"tritachyon":0.8,
+	"luddic_church":0.4,
+	"luddic_path":0.2
+	},
+	"diplomacyNegativeChance":{
+	"luddic_church":1.2,
+	"luddic_path":2.0
+	},
+	"diplomacyTraits":["neutralist","lowprofile", "likes_ai","devious"],
+	
+	# chance of the faction being picked to send a colony expedition. Default 0 (disabled)
+	"colonyExpeditionChance":0.5,	# baseline expansion behaviour
+	"colonyTargetValuator":"exerelin.campaign.colony.IndustrialColonyTargetValuator",
+
+	"specialForcesNamerClass":"exerelin.campaign.intel.specialforces.namer.PlanetNamer",
+
+	"startShipsSolo":[
+	["IIRT_Lab_Norm_Standard"],
+	["IIRT_Lab_Pioneer_Assault"], 
+	["IIRT_Lab_Lethe_Assault"]
+	],
+	"startShipsCombatSmall":[
+	["IIRT_Lab_Lethe_Common", "IIRT_Lab_Lethe_Assault"],
+	["IIRT_Lab_Vague_Common_Assault", "IIRT_Lab_Lethe_Common"],
+	["IIRT_Lab_Norm_Standard", "IIRT_Lab_Lethe_Common"]
+	],
+	"startShipsCombatLarge":[
+	["IIRT_Lab_LongKnives_Assault", "IIRT_Lab_Vague_Common_Assault", "IIRT_Lab_Norm_Standard", "IIRT_Lab_Lethe_Assault", "IIRT_Lab_Obscurity_Cargo"],
+	["IIRT_Lab_LongKnives_Assault", "IIRT_Lab_Misty_Assault", "IIRT_Lab_Norm_Standard", "IIRT_Lab_Obscurity_Cargo"],
+	["IIRT_Lab_LongKnives_Assault", "IIRT_Lab_Misty_Support", "IIRT_Lab_Vague_Common_Assault", "IIRT_Lab_Obscurity_Cargo"]		],
+	"startShipsTradeSmall":[
+	["IIRT_Lab_Lethe_Common", "IIRT_Lab_Lethe_Assault","IIRT_Lab_Lethe_Tanker_Common","revenant_Elite"]
+	],
+	"startShipsTradeMedium":[
+	["IIRT_Lab_LongKnives_Assault", "IIRT_Lab_Lethe_Assault", "IIRT_Lab_Lethe_Tanker_Common", "IIRT_Lab_Obscurity_Cargo", "revenant_Elite"]
+	],
+	"startShipsSuper":[
+	["IIRT_Lab_Pathfinder_Omega"]],
+
+    "startSpecialItems":[
+        [["KRM_Com_bp_package", "beta_core"]]
+    ],
+
+    "defenceStations":[
+        {"ids":["orbitalstation", "battlestation", "starfortress"]},
+        {"ids":["orbitalstation_high", "battlestation_high", "starfortress_high"], "weight":0.5},
+    ],
+    
+    "industrySeeds":[
+        {"id":"orbitalworks", "mult":0.1},
+        {"id":"fuelprod", "mult":0.1},
+        {"id":"lightindustry", "mult":0.1},
+    ],
+    
+    "bonusSeeds":[
+        {"id":"population_upsize", "count":1},
+        {"id":"nanoforge_pristine", "count":1},
+		{"id":"aiCore_station", "count":2, "mult":0.35},
+        {"id":"aiCore_military", "mult":0.8},
+        {"id":"aiCore_heavyindustry", "count":2},
+        {"id":"aiCore_any", "mult":1}
+    ],
+}

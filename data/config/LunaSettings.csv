@@ -1,0 +1,24 @@
+fieldID,fieldName,fieldType,defaultValue,secondaryValue,fieldDescription,minValue,maxValue,tab
+,,,,,,,,
+PTSDSettingHeader,Header,Header,生涯模式设置,,,,,生涯
+PTSDSettingText,TextField,Text,新建/加载存档或重启游戏才能应用变更后的设置,,,,,生涯
+PTSD_omega_invasion_enabled,开启入侵系统,Boolean,true,,是否启用入侵系统（需要开启Dev模式才能修改）,,,生涯
+PTSD_start_stage_time,初始阶段时长（天）,Int,65,,入侵开始前的等待时间（天数）,1,365,生涯
+PTSD_collect_data_time,侦察阶段时长（天）,Int,60,,侦察持续的时间（天数）,1,365,生涯
+PTSD_invade_time,初期入侵时长（天）,Int,30,,进行初期入侵的时间（天数）,1,365,生涯
+PTSD_repair_time,核心建设时长（天）,Int,30,,核心建设和修复的时间（天数）,1,365,生涯
+PTSD_scout_min_interval,侦察队最小间隔（天）,Int,10,,生成侦察队之间的最小时间间隔（天数）,1,60,生涯
+PTSD_scout_max_interval,侦察队最大间隔（天）,Int,25,,生成侦察队之间的最大时间间隔（天数）,1,60,生涯
+PTSD_scout_spawn_radius,侦察队生成半径,Int,300,,侦察队在目标周围的生成半径,100,2000,生涯
+PTSD_max_guard_fleets,最大守卫舰队数,Int,10,,核心建设期间生成的最大守卫舰队数量,1,20,生涯
+PTSD_final_invasion_max_strength,最终入侵最大强度,Int,200,,全面攻击阶段的最大攻击舰队强度,100,5000,生涯
+PTSD_Future,开启不稳定内容,Boolean,true,,"启用较新但可能具备稳定性问题的内容",,,生涯
+PTSD_Diff,特性选择,Radio,mode1,"mode1, mode2, mode3","mode1：曙光[Easy]
+mode2：虚影[Normal]
+mode3：弥漫[Hard]",,,生涯
+PTSD_DefStat_onNewGame,设置新开局状态(Dev),Radio,Sar,"Sar, Cod, Inv,Rep, FuA, End","Sar：Sar
+Cod：Cod
+Inv：Inv
+Rep：Rep
+FuA：FuA
+End：End",,,生涯

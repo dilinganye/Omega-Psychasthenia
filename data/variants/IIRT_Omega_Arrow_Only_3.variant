@@ -1,0 +1,33 @@
+{
+  "variantId": "IIRT_Omega_Arrow_Only_3",
+  "hullId": "IIRT_Omega_Arrow",
+  "displayName": "Lighter",
+  "goalVariant": true,
+  "fluxCapacitors": 6,
+  "fluxVents": 2,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "advancedoptics",
+    "magazines",
+    "fluxshunt"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "riftbeam"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0002": "riftlance"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

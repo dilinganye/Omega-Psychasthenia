@@ -231,15 +231,15 @@ public final class PTSDOccupiedColonyInteraction implements InteractionDialogPlu
             return;
         }
 
-        float strength = negotiationResponse ? 32f : 52f;
+        float strength = negotiationResponse ? 140f : 450f;
         PTSDCrisisState state = PTSDCrisisState.get();
         if (state != null && market.getStarSystem() != null) {
             strength += state.getSystemData(market.getStarSystem().getId()).conversionLevel * 7f;
         }
         Vector2f spawn = Misc.getPointWithinRadius(market.getPrimaryEntity().getLocation(), 900f);
         FleetParamsV3 params = new FleetParamsV3(spawn,
-                IIRT_Omega_Invasion.PSYCHASTHENIA_FACTION, 0.7f,
-                FleetTypes.PATROL_SMALL, strength, 0f, 0f, 0f, 0f, 0f, 0f);
+                IIRT_Omega_Invasion.PSYCHASTHENIA_FACTION, 1f,
+                FleetTypes.PATROL_MEDIUM, strength, 0f, 0f, 0f, 0f, 0f, 0f);
         params.maxNumShips = Math.max(5, Global.getSettings().getMaxShipsInFleet() / 2);
         CampaignFleetAPI fleet = FleetFactoryV3.createFleet(params);
         if (fleet == null) {

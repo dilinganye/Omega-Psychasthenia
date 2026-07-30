@@ -21,6 +21,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Ranks;
 import com.fs.starfarer.api.impl.campaign.procgen.themes.RemnantOfficerGeneratorPlugin;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import data.scripts.campaign.invasion.PTSDCrisisDevIntel;
 
 public class PTSD_OmegaOfficerGeneratorPlugin extends RemnantOfficerGeneratorPlugin {
 	
@@ -47,12 +48,19 @@ public class PTSD_OmegaOfficerGeneratorPlugin extends RemnantOfficerGeneratorPlu
 		if (members.isEmpty()) return;
 		
 		WeightedRandomPicker<FleetMemberAPI> withOfficers = new WeightedRandomPicker<FleetMemberAPI>(random);
-		AICoreOfficerPlugin plugin = Misc.getAICoreOfficerPlugin("PTSD_core");
+		AICoreOfficerPlugin plugin = Misc.getAICoreOfficerPlugin(PTSDOmegaFleetSupport.CORE_ID);
+		int created = 0;
+		int coreCount = 0;
 		for (FleetMemberAPI member : members) {
 			if (member.isFighterWing()) continue;
-			
-			PersonAPI person = plugin.createPerson("PTSD_core", faction.getId(), random);
-			member.setCaptain(person);
+			PersonAPI person = member.getCaptain();
+			if (person == null || person.isDefault()) {
+				person = plugin.createPerson(PTSDOmegaFleetSupport.CORE_ID, faction.getId(), random);
+				if (person == null) continue;
+				member.setCaptain(person);
+				created++;
+			}
+			if (PTSDOmegaFleetSupport.CORE_ID.equals(person.getAICoreId())) coreCount++;
 			withOfficers.add(member, (float) Math.pow(member.getFleetPointCost(), 5f));
 			// they're all assumed integrated and have the extra skill baked in
 			//integrateAndAdaptCoreForAIFleet(member);
@@ -67,6 +75,22 @@ public class PTSD_OmegaOfficerGeneratorPlugin extends RemnantOfficerGeneratorPlu
 			fleet.getFleetData().setFlagship(flagship);
 			addCommanderSkills(commander, fleet, params, 2, random);			
 		}
+		PTSDOmegaFleetSupport.installSalvageConfigIfAbsent(fleet);
+		fleet.getMemoryWithoutUpdate().set("$PTSD_core_officer_count", coreCount);
+		fleet.getMemoryWithoutUpdate().set("$PTSD_core_reward_item", PTSDOmegaFleetSupport.FRAGMENT_ITEM_ID);
+		if (created > 0 && com.fs.starfarer.api.Global.getSettings().isDevMode()) {
+			String systemId = fleet.getStarSystem() == null ? null : fleet.getStarSystem().getId();
+			PTSDCrisisDevIntel.report("核心军官编成",
+					fleet.getName() + "：新增 " + created + " 个 PTSD_core 舰船人格",
+					systemId, fleet.getId());
+		}
+	}
+
+	/** Repairs fleets created by older saves, before the three-argument core factory was fixed. */
+	public static void repairExistingFleet(CampaignFleetAPI fleet) {
+		if (!PTSDOmegaFleetSupport.isSupportedFleet(fleet)) return;
+		new PTSD_OmegaOfficerGeneratorPlugin().addCommanderAndOfficers(fleet, null,
+				new Random(Misc.getSalvageSeed(fleet)));
 	}
 
 	

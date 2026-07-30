@@ -71,6 +71,11 @@ public final class PTSDCrisisDevIntel extends BaseIntelPlugin {
         if (Global.getSector() == null || Global.getSettings() == null) return;
         if (Global.getSettings().isDevMode()) {
             ensureIntel();
+            PTSDCrisisState state = PTSDCrisisState.get();
+            if (state != null && state.legacyTimelineMigrated && !state.timelineMigrationReported) {
+                state.timelineMigrationReported = true;
+                report("状态迁移", "旧存档负数时间轴已整体迁移至稳定的正数战役日；既有事件间隔保持不变。", null, null);
+            }
             return;
         }
         for (IntelInfoPlugin intel : new ArrayList<IntelInfoPlugin>(
@@ -173,15 +178,15 @@ public final class PTSDCrisisDevIntel extends BaseIntelPlugin {
             return;
         }
 
-        info.addPara("阶段 %s（开始于第 %s 天）｜可见阶段 %s｜接触 %s｜侦察目击 %s｜逃脱 %s",
+        info.addPara("阶段 %s（已持续 %s）｜可见阶段 %s｜接触 %s｜侦察目击 %s｜逃脱 %s",
                 opad, Misc.getHighlightColor(), state.phase.name(),
-                format(state.phaseStartedDay), String.valueOf(state.visibleStage),
+                elapsed(state.phaseStartedDay), String.valueOf(state.visibleStage),
                 String.valueOf(state.totalOmegaEncounters), String.valueOf(state.totalScoutSightings),
                 String.valueOf(state.totalScoutEscapes));
         info.addPara("下一侦察 %s｜权重更新 %s｜扩张 %s｜要塞 %s｜Omega 回合 %s｜人类回合 %s",
-                3f, Misc.getHighlightColor(), format(state.nextScoutDay), format(state.nextWeightUpdateDay),
-                format(state.nextExpansionDay), format(state.nextFortressDay),
-                format(state.nextOmegaTurnDay), format(state.nextHumanTurnDay));
+                3f, Misc.getHighlightColor(), remaining(state.nextScoutDay), remaining(state.nextWeightUpdateDay),
+                remaining(state.nextExpansionDay), remaining(state.nextFortressDay),
+                remaining(state.nextOmegaTurnDay), remaining(state.nextHumanTurnDay));
         String baseName = locationName(state.baseSystemId, null);
         info.addPara("基地：%s｜软警告 %s｜全面警告 %s｜第四窥视移交 %s",
                 3f, Misc.getHighlightColor(), baseName,
@@ -281,8 +286,8 @@ public final class PTSDCrisisDevIntel extends BaseIntelPlugin {
         for (int i = records.size() - 1; i >= 0 && shown < MAX_EVENT_BUTTONS; i--) {
             DevRecord record = records.get(i);
             String where = locationName(record.systemId, record.entityId);
-            info.addPara("第 %s 天 [%s] %s @ %s", shown == 0 ? 6f : 8f,
-                    Misc.getHighlightColor(), format(record.day), record.kind, record.description, where);
+            info.addPara("%s前 [%s] %s @ %s", shown == 0 ? 6f : 8f,
+                    Misc.getHighlightColor(), elapsed(record.day), record.kind, record.description, where);
             addNavigationButtons(info, width, base, dark,
                     new DevButton(false, null, record.systemId, record.entityId),
                     new DevButton(true, null, record.systemId, record.entityId), where);
@@ -400,6 +405,16 @@ public final class PTSDCrisisDevIntel extends BaseIntelPlugin {
         return system == null ? "未知位置" : system.getName();
     }
 
+    private static String remaining(float targetDay) {
+        float days = targetDay - PTSDCrisisState.getDay();
+        if (days <= 0f) return "已到期";
+        return format(days) + " 天后";
+    }
+
+    private static String elapsed(float startDay) {
+        float days = Math.max(0f, PTSDCrisisState.getDay() - startDay);
+        return format(days) + " 天";
+    }
     private static String format(float value) {
         return String.valueOf(Math.round(value * 10f) / 10f);
     }

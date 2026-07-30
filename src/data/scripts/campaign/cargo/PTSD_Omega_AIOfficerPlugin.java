@@ -20,14 +20,22 @@ import static com.fs.starfarer.api.impl.campaign.events.OfficerManagerEvent.pick
 public class PTSD_Omega_AIOfficerPlugin extends BaseAICoreOfficerPluginImpl implements AICoreOfficerPlugin {
     public PTSD_Omega_AIOfficerPlugin() {
     }
-    public PersonAPI createPerson(String aiCoreId, String factionId, Random random,int PTSD_Level) {
+    @Override
+    public PersonAPI createPerson(String aiCoreId, String factionId, Random random) {
+        if (random == null) random = new Random();
+        return createPerson(aiCoreId, factionId, random, 8 + random.nextInt(7));
+    }
+
+    public PersonAPI createPerson(String aiCoreId, String factionId, Random random, int PTSD_Level) {
         FactionAPI theFaction = Global.getSector().getFaction(factionId);
         PersonAPI person = Global.getFactory().createPerson();
         person.setFaction(factionId);
         person.setAICoreId(aiCoreId);
         CommoditySpecAPI spec = Global.getSettings().getCommoditySpec(aiCoreId);
         person.getStats().setSkipRefresh(true);
-        person.setName(new FullName(spec.getName(), "", Gender.ANY));
+        String designation = PTSDOmegaFleetSupport.WATCHER_FACTION_ID.equals(factionId)
+                ? "Unknown target" : "P.T.S.D. Scout";
+        person.setName(new FullName(designation + "-" + (1000 + random.nextInt(9000)), "", Gender.ANY));
         //person.setPortraitSprite("graphics/portraits/special/portraits_GravenAI.png");
         person.setPortraitSprite(pickPortraitPreferNonDuplicate(theFaction, person.getGender()));
         person.getStats().setLevel(PTSD_Level);
@@ -52,7 +60,7 @@ public class PTSD_Omega_AIOfficerPlugin extends BaseAICoreOfficerPluginImpl impl
 
         }
         float mult = AICoreOfficerPluginImpl.OMEGA_MULT;
-        person.getMemoryWithoutUpdate().set("$autoPointsMult", mult);
+        person.getMemoryWithoutUpdate().set(AICoreOfficerPlugin.AUTOMATED_POINTS_MULT, mult);
         person.setPersonality("reckless");
         person.setRankId(Ranks.SPACE_CAPTAIN); //临时，之后也要让他随机
         person.setPostId((String)null);

@@ -5,6 +5,8 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.ModSpecAPI;
 import com.fs.starfarer.api.campaign.CampaignPlugin;
 import com.fs.starfarer.api.campaign.GenericPluginManagerAPI;
+import com.fs.starfarer.api.campaign.LocationAPI;
+import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.SectorAPI;
 import com.fs.starfarer.api.impl.campaign.intel.bar.events.BarEventManager;
 import com.fs.starfarer.api.impl.campaign.procgen.ProcgenUsedNames;
@@ -168,6 +170,11 @@ public static float final_invasion_max_strength = 200f;
 		GenericPluginManagerAPI plugins = sector.getGenericPlugins();
 		if (!plugins.hasPlugin(PTSD_OmegaOfficerGeneratorPlugin.class)) {
 			plugins.addPlugin(new PTSD_OmegaOfficerGeneratorPlugin(), true);
+		}
+		for (LocationAPI location : sector.getAllLocations()) {
+			for (CampaignFleetAPI fleet : location.getFleets()) {
+				PTSD_OmegaOfficerGeneratorPlugin.repairExistingFleet(fleet);
+			}
 		}
 	}
 	@Override

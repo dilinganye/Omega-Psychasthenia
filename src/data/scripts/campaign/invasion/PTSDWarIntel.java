@@ -13,11 +13,8 @@ import com.fs.starfarer.api.ui.ButtonAPI;
 import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.IntelUIAPI;
 import com.fs.starfarer.api.ui.LabelAPI;
-import com.fs.starfarer.api.ui.MapParams;
-import com.fs.starfarer.api.ui.MarkerData;
 import com.fs.starfarer.api.ui.SectorMapAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
-import com.fs.starfarer.api.ui.UIPanelAPI;
 import com.fs.starfarer.api.util.Misc;
 
 import java.awt.Color;
@@ -29,7 +26,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-/** The formal war room: native hyperspace map, fronts, orders and player task forces. */
+/** The formal war room: safe custom hyperspace map, fronts, orders and player task forces. */
 public final class PTSDWarIntel extends BaseIntelPlugin {
     private static final long serialVersionUID = 1L;
     private boolean devOnlyPreview;
@@ -115,97 +112,44 @@ public final class PTSDWarIntel extends BaseIntelPlugin {
     @Override
     public void createLargeDescription(CustomPanelAPI panel, float width, float height) {
         PTSDCrisisState state = PTSDCrisisState.get();
-        TooltipMakerAPI info = panel.createUIElement(width, height, true);
-        float opad = 10f;
         Color omega = getFactionForUIColors().getBaseUIColor();
         Color human = Global.getSector().getPlayerFaction().getBaseUIColor();
+        float gap = 10f;
+        float sideWidth = Math.max(285f, Math.min(340f, width * 0.29f));
+        float mapWidth = width - sideWidth - gap;
 
-        info.addSectionHeading("全星域战线", omega, getFactionForUIColors().getDarkUIColor(),
+        PTSDFrontMapPanel mapPlugin = new PTSDFrontMapPanel();
+        CustomPanelAPI mapPanel = panel.createCustomPanel(mapWidth, height, mapPlugin);
+        TooltipMakerAPI mapHeader = mapPanel.createUIElement(mapWidth - 24f, 74f, false);
+        mapHeader.addSectionHeading("全星域战线", omega, getFactionForUIColors().getDarkUIColor(),
                 com.fs.starfarer.api.ui.Alignment.MID, 0f);
-        info.addPara("势力色标记表示大致控制区；宽箭头表示正在推进，反向的人类侧箭头表示防卫、增援或阻滞。战线不是实时刷新，各方面会在彼此错开的战略回合中更新。", opad);
+        LabelAPI help = mapHeader.addPara("滚轮缩放；按住左键拖动；右键重置视野。战线、控制区与推进箭头均为战略推演。", 5f);
+        help.setColor(new Color(180, 190, 205));
+        mapPanel.addUIElement(mapHeader).inTL(12f, 8f);
 
-        if (state != null) {
-            info.addSectionHeading("交互式战线边缘", omega, getFactionForUIColors().getDarkUIColor(),
-                    com.fs.starfarer.api.ui.Alignment.MID, opad);
-            PTSDFrontMapPanel frontPlugin = new PTSDFrontMapPanel();
-            CustomPanelAPI frontPanel = panel.createCustomPanel(width, 285f, frontPlugin);
-            TooltipMakerAPI hoverInfo = frontPanel.createUIElement(width - 24f, 42f, false);
-            LabelAPI hoverLabel = hoverInfo.addPara("将鼠标移到推进箭头、阻滞箭头、战线边缘或星系节点上查看局部态势。", 0f);
-            hoverLabel.setColor(new Color(180, 190, 205));
-            frontPanel.addUIElement(hoverInfo).inBL(12f, 7f);
-            frontPlugin.setHoverLabel(hoverLabel);
-            info.addCustom(frontPanel, opad);
+        TooltipMakerAPI hoverInfo = mapPanel.createUIElement(mapWidth - 24f, 48f, false);
+        LabelAPI hoverLabel = hoverInfo.addPara("将鼠标移到推进箭头、战线边缘或星系节点上查看局部态势。", 0f);
+        hoverLabel.setColor(new Color(180, 190, 205));
+        mapPanel.addUIElement(hoverInfo).inBL(12f, 8f);
+        mapPlugin.setHoverLabel(hoverLabel);
+        panel.addComponent(mapPanel).inTL(0f, 0f);
 
-            MapParams params = buildMapParams(state);
-            float mapHeight = Math.max(420f, Math.min(620f, width * 0.64f));
-            UIPanelAPI map = info.createSectorMap(width, mapHeight, params, "危机战区总览");
-            info.addCustom(map, opad);
-
-            addFrontSummary(info, state, width, opad, omega, human);
-            addOrderControls(info, state, width, opad, omega, human);
-            addTaskForceControls(info, state, width, opad, human);
+        TooltipMakerAPI side = panel.createUIElement(sideWidth, height, true);
+        side.addSectionHeading("战区态势控制台", omega, getFactionForUIColors().getDarkUIColor(),
+                com.fs.starfarer.api.ui.Alignment.MID, 0f);
+        side.addPara("远方战况由战略层异步结算；舰队仅在玩家接近相关星系时临时实体化。", 8f);
+        if (state == null) {
+            side.addPara("战略数据尚未初始化。", Misc.getNegativeHighlightColor(), 10f);
         } else {
-            info.addPara("战略数据尚未初始化。", Misc.getNegativeHighlightColor(), opad);
+            side.addPara("活动战线 %s　精神创伤实控 %s　玩家舰队 %s/8", 6f,
+                    Misc.getHighlightColor(), String.valueOf(state.getActiveEvents().size()),
+                    String.valueOf(countOmegaSystems(state)), String.valueOf(state.countActiveTaskForces()));
+            addFrontSummary(side, state, sideWidth, 10f, omega, human);
+            addOrderControls(side, state, sideWidth, 10f, omega, human);
+            addTaskForceControls(side, state, sideWidth, 10f, human);
         }
-
-        panel.addUIElement(info).inTL(0f, 0f);
+        panel.addUIElement(side).inTR(0f, 0f);
     }
-
-    private MapParams buildMapParams(PTSDCrisisState state) {
-        MapParams params = new MapParams();
-        params.showFilter = false;
-        params.showTabs = false;
-        params.smallFilter = true;
-        params.withLayInCourse = false;
-        params.starAlphaMult = 0.35f;
-        params.useFullAlphaForShownSystems = true;
-        params.showSystems = new HashSet<StarSystemAPI>();
-        params.markers = new ArrayList<MarkerData>();
-        params.arrows = getArrowData(null);
-        Set<String> activeSystemIds = new HashSet<String>();
-        for (PTSDCrisisState.StrategicEvent event : state.getActiveEvents()) {
-            if (event.sourceSystemId != null) activeSystemIds.add(event.sourceSystemId);
-            if (event.targetSystemId != null) activeSystemIds.add(event.targetSystemId);
-        }
-
-        for (PTSDCrisisState.SystemData data : state.systems.values()) {
-            StarSystemAPI system = state.resolveSystem(data.systemId);
-            if (system == null) continue;
-            boolean relevant = data.omegaControl > 0.01f || data.humanControl < 0.99f ||
-                    data.knownToPlayer || state.playerMarkers.containsKey(data.systemId) ||
-                    activeSystemIds.contains(data.systemId);
-            if (!relevant) continue;
-            params.showSystem(system);
-            Color color = data.omegaControl >= 0.5f
-                    ? getFactionForUIColors().getBaseUIColor()
-                    : Global.getSector().getPlayerFaction().getBaseUIColor();
-            float scale = 0.38f + Math.min(0.75f, Math.max(data.omegaControl, 1f - data.humanControl));
-            params.markers.add(new MarkerData(system.getLocation(), Global.getSector().getHyperspace(), color, scale));
-        }
-        for (PTSDCrisisState.PlayerMarker marker : state.playerMarkers.values()) {
-            StarSystemAPI system = state.resolveSystem(marker.systemId);
-            if (system == null) continue;
-            params.showSystem(system);
-            Color color = "OMEGA_BASE".equals(marker.type) ? Color.ORANGE : Color.CYAN;
-            params.markers.add(new MarkerData(system.getLocation(), Global.getSector().getHyperspace(), color, 1.15f));
-        }
-        for (PTSDCrisisAPI.ForceContribution force : PTSDCrisisAPI.getForceContributions()) {
-            StarSystemAPI system = state.resolveSystem(force.systemId);
-            if (system == null) continue;
-            params.showSystem(system);
-            FactionAPI faction = force.factionId == null ? null : Global.getSector().getFaction(force.factionId);
-            Color color = faction == null ? Color.LIGHT_GRAY : faction.getBaseUIColor();
-            params.markers.add(new MarkerData(system.getLocation(), Global.getSector().getHyperspace(), color,
-                    0.4f + Math.min(0.8f, force.strength / 250f)));
-        }
-        if (params.showSystems.isEmpty()) {
-            StarSystemAPI fallback = state.resolveSystem(state.baseSystemId);
-            if (fallback != null) params.showSystem(fallback);
-        }
-        params.positionToShowAllMarkersAndSystems(true, 520f);
-        return params;
-    }
-
     private void addFrontSummary(TooltipMakerAPI info, PTSDCrisisState state, float width, float opad,
                                  Color omega, Color human) {
         info.addSectionHeading("活动战线", omega, getFactionForUIColors().getDarkUIColor(),

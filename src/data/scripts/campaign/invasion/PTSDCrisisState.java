@@ -19,7 +19,8 @@ public final class PTSDCrisisState implements Serializable {
     private static final long serialVersionUID = 1L;
 
     public static final String PERSISTENT_KEY = "$PTSD_crisis_state_v2";
-    public static final int CURRENT_VERSION = 2;
+    public static final int CURRENT_VERSION = 3;
+    public static final float CAMPAIGN_DAY_EPOCH_OFFSET = 700000f;
 
     public enum Phase {
         DORMANT,
@@ -205,6 +206,8 @@ public final class PTSDCrisisState implements Serializable {
     public boolean watcherTransferred;
     public boolean preWarIntelCreated;
     public boolean warIntelCreated;
+    public boolean legacyTimelineMigrated;
+    public boolean timelineMigrationReported;
 
     public String baseSystemId;
     public String baseMarketId;
@@ -270,7 +273,8 @@ public final class PTSDCrisisState implements Serializable {
 
     public static float getDay() {
         if (Global.getSector() == null || Global.getSector().getClock() == null) return 0f;
-        return Global.getSector().getClock().getTimestamp() / 86400000f;
+        return (float) (Global.getSector().getClock().getTimestamp() / 86400000d +
+                CAMPAIGN_DAY_EPOCH_OFFSET);
     }
 
     public void repairCollections() {
@@ -281,9 +285,47 @@ public final class PTSDCrisisState implements Serializable {
         if (committedProduction == null) committedProduction = new LinkedHashMap<String, Integer>();
         if (occupations == null) occupations = new LinkedHashMap<String, OccupationData>();
         if (aftermathCooldowns == null) aftermathCooldowns = new LinkedHashMap<String, Float>();
+        if (version < 3) migrateLegacyTimeline();
         version = CURRENT_VERSION;
     }
 
+    private void migrateLegacyTimeline() {
+        phaseStartedDay = migrateDay(phaseStartedDay);
+        nextScoutDay = migrateDay(nextScoutDay);
+        nextWeightUpdateDay = migrateDay(nextWeightUpdateDay);
+        nextOmegaTurnDay = migrateDay(nextOmegaTurnDay);
+        nextHumanTurnDay = migrateDay(nextHumanTurnDay);
+        nextExpansionDay = migrateDay(nextExpansionDay);
+        nextFortressDay = migrateDay(nextFortressDay);
+        lastSimulationDay = migrateDay(lastSimulationDay);
+        for (SystemData data : systems.values()) {
+            data.lastObservedDay = migrateDay(data.lastObservedDay);
+            data.lastWeightUpdateDay = migrateDay(data.lastWeightUpdateDay);
+        }
+        for (StrategicEvent event : events) {
+            event.createdDay = migrateDay(event.createdDay);
+            event.resolveDay = migrateDay(event.resolveDay);
+            event.materializedDay = migrateDay(event.materializedDay);
+            event.projectionExpiresDay = migrateDay(event.projectionExpiresDay);
+            event.nextProjectionDay = migrateDay(event.nextProjectionDay);
+        }
+        for (PlayerMarker marker : playerMarkers.values()) marker.placedDay = migrateDay(marker.placedDay);
+        for (PlayerTaskForce force : playerTaskForces) {
+            force.createdDay = migrateDay(force.createdDay);
+            force.nextRedeployDay = migrateDay(force.nextRedeployDay);
+        }
+        for (OccupationData occupation : occupations.values()) {
+            occupation.lastInteractionDay = migrateDay(occupation.lastInteractionDay);
+        }
+        for (Map.Entry<String, Float> entry : aftermathCooldowns.entrySet()) {
+            entry.setValue(migrateDay(entry.getValue()));
+        }
+        legacyTimelineMigrated = true;
+    }
+
+    private static float migrateDay(float day) {
+        return day < -100000f ? day + CAMPAIGN_DAY_EPOCH_OFFSET : day;
+    }
     public SystemData getSystemData(String systemId) {
         if (systemId == null) return null;
         SystemData result = systems.get(systemId);

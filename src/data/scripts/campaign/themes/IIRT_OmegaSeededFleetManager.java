@@ -1,10 +1,12 @@
 package data.scripts.campaign.themes;
 
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
+import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
 import com.fs.starfarer.api.combat.BattleCreationContext;
+import com.fs.starfarer.api.impl.campaign.FleetEncounterContext;
 import com.fs.starfarer.api.impl.campaign.FleetInteractionDialogPluginImpl.BaseFIDDelegate;
 import com.fs.starfarer.api.impl.campaign.FleetInteractionDialogPluginImpl.FIDConfig;
 import com.fs.starfarer.api.impl.campaign.FleetInteractionDialogPluginImpl.FIDConfigGen;
@@ -19,6 +21,7 @@ import com.fs.starfarer.api.impl.campaign.procgen.StarSystemGenerator;
 import com.fs.starfarer.api.impl.campaign.procgen.themes.RemnantAssignmentAI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import data.scripts.campaign.cargo.PTSDOmegaFleetSupport;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.util.Random;
@@ -32,6 +35,11 @@ public class IIRT_OmegaSeededFleetManager extends SeededFleetManager {
 			FIDConfig config = new FIDConfig();
 			config.showTransponderStatus = false;
 			config.delegate = new BaseFIDDelegate() {
+				@Override
+				public void postPlayerSalvageGeneration(InteractionDialogAPI dialog,
+						FleetEncounterContext context, CargoAPI salvage) {
+					PTSDOmegaFleetSupport.addCoreFragments(dialog, context, salvage);
+				}
 				//				public void postPlayerSalvageGeneration(InteractionDialogAPI dialog, FleetEncounterContext context, CargoAPI salvage) {
 				//					if (!(dialog.getInteractionTarget() instanceof CampaignFleetAPI)) return;
 				//
@@ -134,7 +142,7 @@ public class IIRT_OmegaSeededFleetManager extends SeededFleetManager {
 				0f, // utilityPts
 				0f // qualityMod
 		);
-		params.withOfficers = false;
+		params.withOfficers = true;
 		params.random = random;
 
 		CampaignFleetAPI fleet = FleetFactoryV3.createFleet(params);

@@ -128,7 +128,13 @@
 
 		"commanderSkillsShuffleProbability":1,
 		"commanderSkills":[
-		],
+            "coordinated_maneuvers",
+            "electronic_warfare",
+            "crew_training",
+            "flux_regulation",
+            "tactical_drills",
+            "support_doctrine"
+        ],
 	},
 	#"shipRoles":{
 	#},

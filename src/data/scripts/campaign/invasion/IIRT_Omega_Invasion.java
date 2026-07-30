@@ -214,33 +214,126 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
         spawnScout(state);
     }
 
+    private static final class ScoutMissionPlan {
+        final IIRT_Omega_ScoutAI.MissionType type;
+        final SectorEntityToken target;
+        final String systemId;
+        final float stationDays;
+
+        ScoutMissionPlan(IIRT_Omega_ScoutAI.MissionType type, SectorEntityToken target,
+                         String systemId, float stationDays) {
+            this.type = type;
+            this.target = target;
+            this.systemId = systemId;
+            this.stationDays = stationDays;
+        }
+    }
+
+    /** Invalid mod-added targets are retried instead of aborting the campaign heartbeat. */
     private void spawnScout(PTSDCrisisState state) {
+        Throwable lastFailure = null;
+        for (int attempt = 1; attempt <= 8; attempt++) {
+            try {
+                ScoutMissionPlan plan = pickScoutMission(state);
+                if (plan != null && createScout(plan)) return;
+            } catch (Throwable ex) {
+                lastFailure = ex;
+                Global.getLogger(IIRT_Omega_Invasion.class).warn(
+                        "Failed to prepare PTSD scout mission; retrying candidate " + attempt, ex);
+            }
+        }
+        state.nextScoutDay = Math.min(state.nextScoutDay, PTSDCrisisState.getDay() + 2f);
+        PTSDCrisisDevIntel.report("侦察任务生成失败",
+                lastFailure == null ? "未找到有效目标；两日后重试" :
+                        lastFailure.getClass().getSimpleName() + "；两日后重试", null, null);
+    }
+
+    private ScoutMissionPlan pickScoutMission(PTSDCrisisState state) {
+        WeightedRandomPicker<IIRT_Omega_ScoutAI.MissionType> types =
+                new WeightedRandomPicker<IIRT_Omega_ScoutAI.MissionType>(random);
+        types.add(IIRT_Omega_ScoutAI.MissionType.RELAY, 8f);
+        types.add(IIRT_Omega_ScoutAI.MissionType.HYPERSPACE_WATCH, 4f);
+        types.add(IIRT_Omega_ScoutAI.MissionType.WILDERNESS_ROAM, 3f);
+        if (state.totalScoutSightings >= Math.max(2, warning_encounter_threshold / 2)) {
+            types.add(IIRT_Omega_ScoutAI.MissionType.COLONY_INFILTRATION,
+                    2f + Math.min(6f, state.totalScoutSightings));
+        }
+        IIRT_Omega_ScoutAI.MissionType type = types.pick();
+        if (type == null) return null;
         WeightedRandomPicker<SectorEntityToken> targets = new WeightedRandomPicker<SectorEntityToken>(random);
-        for (StarSystemAPI system : Global.getSector().getStarSystems()) {
-            if (system == null || system.hasTag(Tags.SYSTEM_CUT_OFF_FROM_HYPER)) continue;
-            PTSDCrisisState.SystemData data = state.getSystemData(system.getId());
-            float systemWeight = (system.isEnteredByPlayer() ? 1.15f : 1f) / (1f + data.scoutVisits * 0.28f);
-            for (SectorEntityToken relay : system.getEntitiesWithTag(Tags.COMM_RELAY)) targets.add(relay, 8f * systemWeight);
-            for (MarketAPI market : Global.getSector().getEconomy().getMarkets(system)) {
-                if (!market.isPlanetConditionMarketOnly() && market.getPrimaryEntity() != null) {
-                    targets.add(market.getPrimaryEntity(), (1.5f + market.getSize()) * systemWeight);
+        String selectedSystemId = null;
+
+        if (type == IIRT_Omega_ScoutAI.MissionType.COLONY_INFILTRATION) {
+            for (MarketAPI market : Global.getSector().getEconomy().getMarketsCopy()) {
+                if (market == null || market.isPlanetConditionMarketOnly() || market.getPrimaryEntity() == null ||
+                        market.getStarSystem() == null || market.getFactionId() == null ||
+                        WATCHER_FACTION.equals(market.getFactionId()) ||
+                        PSYCHASTHENIA_FACTION.equals(market.getFactionId())) continue;
+                PTSDCrisisState.SystemData data = state.getSystemData(market.getStarSystem().getId());
+                targets.add(market.getPrimaryEntity(),
+                        (2f + market.getSize()) / (1f + data.scoutVisits * 0.3f));
+            }
+        } else {
+            WeightedRandomPicker<StarSystemAPI> systems = new WeightedRandomPicker<StarSystemAPI>(random);
+            for (StarSystemAPI system : Global.getSector().getStarSystems()) {
+                if (system == null || system.hasTag(Tags.SYSTEM_CUT_OFF_FROM_HYPER)) continue;
+                PTSDCrisisState.SystemData data = state.getSystemData(system.getId());
+                float weight = (system.isEnteredByPlayer() ? 1.2f : 1f) /
+                        (1f + data.scoutVisits * 0.28f);
+                if (type == IIRT_Omega_ScoutAI.MissionType.RELAY) {
+                    for (SectorEntityToken relay : system.getEntitiesWithTag(Tags.COMM_RELAY)) {
+                        targets.add(relay, 8f * weight);
+                    }
+                } else if (type == IIRT_Omega_ScoutAI.MissionType.WILDERNESS_ROAM) {
+                    boolean populated = false;
+                    for (MarketAPI market : Global.getSector().getEconomy().getMarkets(system)) {
+                        if (market != null && !market.isPlanetConditionMarketOnly()) { populated = true; break; }
+                    }
+                    if (!populated) systems.add(system, weight);
+                } else {
+                    systems.add(system, weight);
                 }
             }
-            if (system.getCenter() != null) targets.add(system.getCenter(), 0.45f * systemWeight);
+            if (type != IIRT_Omega_ScoutAI.MissionType.RELAY) {
+                StarSystemAPI system = systems.pick();
+                if (system != null) {
+                    selectedSystemId = system.getId();
+                    if (type == IIRT_Omega_ScoutAI.MissionType.HYPERSPACE_WATCH) {
+                        Vector2f point = new Vector2f(system.getLocation());
+                        Vector2f offset = Misc.getUnitVectorAtDegreeAngle(random.nextFloat() * 360f);
+                        offset.scale(1800f + random.nextFloat() * 4200f);
+                        Vector2f.add(point, offset, point);
+                        targets.add(Global.getSector().getHyperspace().createToken(point), 1f);
+                    } else {
+                        for (PlanetAPI planet : system.getPlanets()) targets.add(planet, 2f);
+                        if (system.getCenter() != null) targets.add(system.getCenter(), 1f);
+                    }
+                }
+            }
         }
         SectorEntityToken target = targets.pick();
-        if (target == null || target.getStarSystem() == null) return;
-        float radius = Math.max(900f, scout_spawn_radius + random.nextFloat() * scout_spawn_radius * 2.5f);
-        Vector2f location = Misc.getUnitVectorAtDegreeAngle(random.nextFloat() * 360f);
-        location.scale(radius);
-        Vector2f.add(target.getLocation(), location, location);
-        FleetParamsV3 params = new FleetParamsV3(location, WATCHER_FACTION, 0.4f,
+        if (target == null) return null;
+        if (selectedSystemId == null && target.getStarSystem() != null) selectedSystemId = target.getStarSystem().getId();
+        float days = type == IIRT_Omega_ScoutAI.MissionType.HYPERSPACE_WATCH ?
+                16f + random.nextFloat() * 28f :
+                (type == IIRT_Omega_ScoutAI.MissionType.WILDERNESS_ROAM ?
+                        24f + random.nextFloat() * 36f : 4f + random.nextFloat() * 8f);
+        return new ScoutMissionPlan(type, target, selectedSystemId, days);
+    }
+
+    private boolean createScout(ScoutMissionPlan plan) {
+        Vector2f destination = plan.target.getLocationInHyperspace();
+        if (destination == null) return false;
+        Vector2f source = Misc.getUnitVectorAtDegreeAngle(random.nextFloat() * 360f);
+        source.scale(18000f + random.nextFloat() * 26000f);
+        Vector2f.add(destination, source, source);
+        FleetParamsV3 params = new FleetParamsV3(source, WATCHER_FACTION, 0.4f,
                 FleetTypes.MERC_SCOUT, 12f + random.nextFloat() * 14f, 0f, 0f, 0f, 0f, 0f, 0f);
         params.maxNumShips = Math.max(3, Global.getSettings().getMaxShipsInFleet() / 4);
         CampaignFleetAPI scout = FleetFactoryV3.createFleet(params);
-        if (scout == null) return;
-        target.getStarSystem().addEntity(scout);
-        scout.setLocation(location.x, location.y);
+        if (scout == null) return false;
+        Global.getSector().getHyperspace().addEntity(scout);
+        scout.setLocation(source.x, source.y);
         scout.setName("无法识别的微弱信号");
         scout.setNoFactionInName(true);
         scout.setSensorProfile(120f);
@@ -251,13 +344,22 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
         scout.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_MAKE_NON_AGGRESSIVE, true);
         scout.getMemoryWithoutUpdate().set(MemFlags.CAN_ONLY_BE_ENGAGED_WHEN_VISIBLE_TO_PLAYER, true);
         scout.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_NO_SHIP_RECOVERY, true);
-        scout.addScript(new IIRT_Omega_ScoutAI(scout, target));
-        PTSDCrisisState.SystemData data = state.getSystemData(target.getStarSystem().getId());
-        data.scoutVisits++;
-        data.lastObservedDay = PTSDCrisisState.getDay();
-        PTSDCrisisDevIntel.report("侦察舰队生成",
-                "目标 " + target.getFullName() + "；侦察次数 " + data.scoutVisits,
-                target.getStarSystem().getId(), scout.getId());
+        scout.addScript(new IIRT_Omega_ScoutAI(scout, plan.target, plan.type, plan.systemId, plan.stationDays));
+        PTSDCrisisDevIntel.report("侦察舰队启航",
+                "任务 " + plan.type.name() + "；目标 " + plan.target.getFullName() +
+                        "；驻留 " + Math.round(plan.stationDays) + " 日；航行时间不计入驻留",
+                plan.systemId, scout.getId());
+        return true;
+    }
+
+    public static void reportScoutMissionStage(String systemId, String fleetId, String missionType, String stage) {
+        PTSDCrisisState state = PTSDCrisisState.get();
+        if (state != null && systemId != null && "抵达任务区".equals(stage)) {
+            PTSDCrisisState.SystemData data = state.getSystemData(systemId);
+            data.scoutVisits++;
+            data.lastObservedDay = PTSDCrisisState.getDay();
+        }
+        PTSDCrisisDevIntel.report("侦察任务阶段", missionType + "：" + stage, systemId, fleetId);
     }
     public static void reportScoutSighting(String systemId) {
         PTSDCrisisState state = PTSDCrisisState.get();

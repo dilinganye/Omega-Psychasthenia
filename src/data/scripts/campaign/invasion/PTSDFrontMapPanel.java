@@ -37,6 +37,10 @@ public final class PTSDFrontMapPanel extends BaseCustomUIPanelPlugin {
     private float maxX;
     private float minY;
     private float maxY;
+    private float zoom = 1f;
+    private float centerX;
+    private float centerY;
+    private boolean dragging;
 
     public PTSDFrontMapPanel() {
         computeBounds();
@@ -56,14 +60,36 @@ public final class PTSDFrontMapPanel extends BaseCustomUIPanelPlugin {
 
     @Override
     public void processInput(List<InputEventAPI> events) {
-        if (position == null || hoverLabel == null) return;
+        if (position == null) return;
         for (InputEventAPI event : events) {
-            if (event.isConsumed() || !event.isMouseMoveEvent()) continue;
-            if (!position.containsEvent(event)) {
-                setDefaultHover();
+            if (event.isConsumed()) continue;
+            boolean inside = position.containsEvent(event);
+            if (event.isLMBUpEvent()) dragging = false;
+            if (!inside) {
+                if (event.isMouseMoveEvent()) setDefaultHover();
                 continue;
             }
-            updateHover(event.getX(), event.getY());
+            if (event.isRMBDownEvent()) { resetView(); event.consume(); continue; }
+            if (event.isRMBEvent()) { event.consume(); continue; }
+            if (event.isMouseScrollEvent()) {
+                zoomAt(event.getX(), event.getY(), event.getEventValue() > 0 ? 1.22f : 1f / 1.22f);
+                event.consume();
+                continue;
+            }
+            if (event.isLMBDownEvent()) { dragging = true; event.consume(); continue; }
+            if (event.isMouseMoveEvent()) {
+                int mouseX = event.getX();
+                int mouseY = event.getY();
+                if (dragging) {
+                    int mouseDX = event.getDX();
+                    int mouseDY = event.getDY();
+                    centerX -= mouseDX * viewSpanX() / Math.max(1f, mapRight() - mapLeft());
+                    centerY -= mouseDY * viewSpanY() / Math.max(1f, mapTop() - mapBottom());
+                    clampCenter();
+                }
+                updateHover(mouseX, mouseY);
+                if (dragging) event.consume();
+            }
         }
     }
 
@@ -162,16 +188,18 @@ public final class PTSDFrontMapPanel extends BaseCustomUIPanelPlugin {
             if (event.targetSystemId != null) active.add(event.targetSystemId);
         }
         for (PTSDCrisisState.SystemData data : state.systems.values()) {
-            if (data.omegaControl <= 0f && !data.knownToPlayer && !active.contains(data.systemId) &&
-                    !state.playerMarkers.containsKey(data.systemId)) continue;
             Vector2f point = getScreenPoint(data.systemId);
             if (point == null) continue;
             Color color = data.omegaControl >= 0.5f
                     ? getFactionColor(IIRT_Omega_Invasion.PSYCHASTHENIA_FACTION, new Color(210, 45, 230))
                     : Global.getSector().getPlayerFaction().getBaseUIColor();
             if (state.playerMarkers.containsKey(data.systemId)) color = Color.CYAN;
-            float radius = data.blackHoleFortress ? 6f : 3.5f + Math.min(2.5f, data.strategicValue / 180f);
-            drawNode(point.x, point.y, radius, color, alphaMult);
+            float relevance = Math.max(data.omegaControl, 1f - data.humanControl);
+            if (relevance > 0.01f) drawControlZone(point.x, point.y, 12f + relevance * 18f, color, alphaMult);
+            boolean relevant = relevance > 0f || data.knownToPlayer || active.contains(data.systemId) ||
+                    state.playerMarkers.containsKey(data.systemId);
+            float radius = relevant ? (data.blackHoleFortress ? 6f : 3.5f + Math.min(2.5f, data.strategicValue / 180f)) : 1.4f;
+            drawNode(point.x, point.y, radius, relevant ? color : new Color(110, 125, 150, 150), alphaMult);
         }
         for (PTSDCrisisAPI.ForceContribution force : contributions) {
             Vector2f point = getScreenPoint(force.systemId);
@@ -181,6 +209,16 @@ public final class PTSDFrontMapPanel extends BaseCustomUIPanelPlugin {
         }
     }
 
+    private void drawControlZone(float x, float y, float radius, Color color, float alphaMult) {
+        setColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), 38), alphaMult);
+        GL11.glBegin(GL11.GL_TRIANGLE_FAN);
+        GL11.glVertex2f(x, y);
+        for (int i = 0; i <= 24; i++) {
+            double angle = Math.PI * 2d * i / 24d;
+            GL11.glVertex2f(x + (float) Math.cos(angle) * radius, y + (float) Math.sin(angle) * radius);
+        }
+        GL11.glEnd();
+    }
     private void drawNode(float x, float y, float radius, Color color, float alphaMult) {
         setColor(color, alphaMult * 0.9f);
         GL11.glBegin(GL11.GL_TRIANGLE_FAN);
@@ -305,32 +343,50 @@ public final class PTSDFrontMapPanel extends BaseCustomUIPanelPlugin {
         StarSystemAPI system = Global.getSector().getStarSystem(systemId);
         if (system == null) return null;
         Vector2f location = system.getLocation();
-        float x = mapLeft() + (location.x - minX) / Math.max(1f, maxX - minX) * (mapRight() - mapLeft());
-        float y = mapBottom() + (location.y - minY) / Math.max(1f, maxY - minY) * (mapTop() - mapBottom());
+        float x = mapLeft() + (location.x - (centerX - viewSpanX() * 0.5f)) / viewSpanX() * (mapRight() - mapLeft());
+        float y = mapBottom() + (location.y - (centerY - viewSpanY() * 0.5f)) / viewSpanY() * (mapTop() - mapBottom());
         return new Vector2f(x, y);
     }
 
     private void computeBounds() {
         minX = minY = Float.MAX_VALUE;
         maxX = maxY = -Float.MAX_VALUE;
-        if (Global.getSector() == null) { minX = minY = -10000f; maxX = maxY = 10000f; return; }
+        if (Global.getSector() == null) { minX = minY = -10000f; maxX = maxY = 10000f; resetView(); return; }
         for (StarSystemAPI system : Global.getSector().getStarSystems()) {
             Vector2f p = system.getLocation();
-            minX = Math.min(minX, p.x);
-            maxX = Math.max(maxX, p.x);
-            minY = Math.min(minY, p.y);
-            maxY = Math.max(maxY, p.y);
+            minX = Math.min(minX, p.x); maxX = Math.max(maxX, p.x);
+            minY = Math.min(minY, p.y); maxY = Math.max(maxY, p.y);
         }
         float padX = Math.max(2500f, (maxX - minX) * 0.05f);
         float padY = Math.max(2500f, (maxY - minY) * 0.05f);
         minX -= padX; maxX += padX; minY -= padY; maxY += padY;
+        resetView();
     }
 
+    private void resetView() { zoom = 1f; centerX = (minX + maxX) * 0.5f; centerY = (minY + maxY) * 0.5f; }
+
+    private void zoomAt(float mouseX, float mouseY, float factor) {
+        float oldSpanX = viewSpanX(), oldSpanY = viewSpanY();
+        float fx = (mouseX - mapLeft()) / Math.max(1f, mapRight() - mapLeft()) - 0.5f;
+        float fy = (mouseY - mapBottom()) / Math.max(1f, mapTop() - mapBottom()) - 0.5f;
+        float worldX = centerX + fx * oldSpanX, worldY = centerY + fy * oldSpanY;
+        zoom = Math.max(1f, Math.min(8f, zoom * factor));
+        centerX = worldX - fx * viewSpanX(); centerY = worldY - fy * viewSpanY();
+        clampCenter();
+    }
+
+    private void clampCenter() {
+        float hx = viewSpanX() * 0.5f, hy = viewSpanY() * 0.5f;
+        centerX = Math.max(minX + hx, Math.min(maxX - hx, centerX));
+        centerY = Math.max(minY + hy, Math.min(maxY - hy, centerY));
+    }
+
+    private float viewSpanX() { return Math.max(1f, maxX - minX) / zoom; }
+    private float viewSpanY() { return Math.max(1f, maxY - minY) / zoom; }
     private float mapLeft() { return position.getX() + 12f; }
     private float mapRight() { return position.getX() + position.getWidth() - 12f; }
-    private float mapBottom() { return position.getY() + 48f; }
-    private float mapTop() { return position.getY() + position.getHeight() - 12f; }
-
+    private float mapBottom() { return position.getY() + 58f; }
+    private float mapTop() { return position.getY() + position.getHeight() - 82f; }
     private static float distanceToSegment(float x, float y, Vector2f a, Vector2f b) {
         float dx = b.x - a.x;
         float dy = b.y - a.y;

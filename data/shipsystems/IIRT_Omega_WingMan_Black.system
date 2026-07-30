@@ -3,7 +3,7 @@
 	"type":"ENGINE_MOD",
 	"aiType":"MANEUVERING_JETS",
 
-	"statsScript":"data.scripts.shipsystems.IIRT_Omega_WingMan_Black",
+	"statsScript":"data.shipsystems.scripts.IIRT_Omega_WingMan_Black",
 
 	"effectColor1":[200, 100, 255, 100],
 	"effectColor2":[150, 80, 220, 80],

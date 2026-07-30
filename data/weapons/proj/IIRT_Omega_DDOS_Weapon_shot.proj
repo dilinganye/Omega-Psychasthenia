@@ -3,8 +3,8 @@
 	"specClass":"missile",	
 	"missileType":"MISSILE",
 
-	"onHitEffect": "data.weapons.IIRT_Omega_DDOS_Weapon_EffectPlugin",
-	"onFireEffect":"data.weapons.IIRT_Omega_DDOS_Weapon_EffectPlugin",
+	"onHitEffect": "data.scripts.weapons.IIRT_Omega_DDOS_Weapon_EffectPlugin",
+	"onFireEffect":"data.scripts.weapons.IIRT_Omega_DDOS_Weapon_EffectPlugin",
 	
 	"sprite":"graphics/weapons/BHM/B_1.png",
 	"size":[14,16],	

@@ -6,7 +6,7 @@ import com.fs.starfarer.api.combat.DamagingProjectileAPI;
 import com.fs.starfarer.api.combat.OnHitEffectPlugin;
 import com.fs.starfarer.api.combat.listeners.ApplyDamageResultAPI;
 import static com.fs.starfarer.api.util.Misc.ZERO;
-import data.utils.iirt_omega.IIRT_Omega_Color;
+import data.scripts.util.IIRT_Omega_Color;
 import org.lazywizard.lazylib.MathUtils;
 import org.lazywizard.lazylib.VectorUtils;
 import org.lwjgl.util.vector.Vector2f;

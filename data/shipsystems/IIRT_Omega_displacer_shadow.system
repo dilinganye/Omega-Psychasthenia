@@ -11,7 +11,7 @@
 	"renderCopyDuringTeleport":true,
 	
 	"runScriptWhileIdle":true,
-	"statsScript":"data.scripts.shipsystems.IIRT_Omega_displacer_shadow",
+	"statsScript":"data.shipsystems.scripts.IIRT_Omega_displacer_shadow",
 	
 	"fadeActivationSoundOnChargedown":false,
 	"useSound":"system_phase_skimmer",

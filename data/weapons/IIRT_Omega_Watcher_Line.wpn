@@ -3,7 +3,7 @@
   "specClass": "beam",
   "type": "DECORATIVE",
   "size": "SMALL",
-  "everyFrameEffect": "data.weapons.IIRT_RotateEveryFrameEffect",
+  "everyFrameEffect": "data.scripts.weapons.IIRT_RotateEveryFrameEffect",
   "collisionClass": "RAY",
   "collisionClassByFighter": "RAY_FIGHTER",
   "turretSprite": "graphics/weapons/Omega_Watcher_Line.png",

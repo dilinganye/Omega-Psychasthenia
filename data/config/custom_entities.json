@@ -17,7 +17,7 @@
 		"interactionImage":"graphics/illustrations/cargo_pod_drift.jpg",
 		"layers":[TERRAIN_7A],
 		"tags":["has_interaction_dialog", "salvageable", "neutrino_high"],
-		"pluginClass":"data.scripts.campaign.IIRT_Lab_Cargo",
+		"pluginClass":"data.scripts.campaign.entities.IIRT_Lab_Cargo",
 	},
 	
 	"weapons_cache_KRM":{

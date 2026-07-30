@@ -4,7 +4,6 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.impl.campaign.econ.BaseMarketConditionPlugin;
 import com.fs.starfarer.api.impl.campaign.ids.Stats;
 import data.scripts.IIRT_Omega_ModPlugin;
-import data.scripts.campaign.IIRT_Omega_Invasion;
 
 public class IIRT_Omega_Repair_Facility extends BaseMarketConditionPlugin {
 
@@ -23,6 +22,7 @@ public class IIRT_Omega_Repair_Facility extends BaseMarketConditionPlugin {
 
 	@Override
 	public void advance(float amount) {
+		if (!IIRT_Omega_ModPlugin.isInvasionEnabled()) return;
 		elapsed += Global.getSector().getClock().convertToDays(amount);
 		if (elapsed >= IIRT_Omega_ModPlugin.repair_time) elapsed = IIRT_Omega_ModPlugin.repair_time;
 	}

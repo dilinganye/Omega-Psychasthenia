@@ -11,6 +11,10 @@
             "id": "lw_lazylib",
             "name": "LazyLib",
         },
+		{
+			"id": "lunalib",
+			"name": "LunaLib",
+		},
     	{
     		"id": "MagicLib",
     		"name": "MagicLib",

@@ -8,7 +8,7 @@ import com.fs.starfarer.api.combat.listeners.WeaponOPCostModifier;
 import com.fs.starfarer.api.loading.WeaponSpecAPI;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
-import data.utils.iirt_omega.IIRT_Omega_Color;
+import data.scripts.util.IIRT_Omega_Color;
 import org.magiclib.util.MagicAnim;
 import org.magiclib.util.MagicUI;
 

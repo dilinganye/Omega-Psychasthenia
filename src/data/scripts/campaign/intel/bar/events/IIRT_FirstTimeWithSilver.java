@@ -15,8 +15,8 @@ import com.fs.starfarer.api.impl.campaign.intel.bar.events.BarEventManager;
 import com.fs.starfarer.api.impl.campaign.intel.bar.events.BaseBarEventWithPerson;
 import com.fs.starfarer.api.impl.campaign.intel.contacts.ContactIntel;
 import com.fs.starfarer.api.impl.campaign.missions.hub.BaseMissionHub;
-import static data.utils.iirt_omega.IIRT_Omega_Color.IIRT_SD_Story_Words;
-import data.utils.iirt_omega.IIRT_SD_OfficerData;
+import static data.scripts.util.IIRT_Omega_Color.IIRT_SD_Story_Words;
+import data.scripts.util.IIRT_SD_OfficerData;
 
 import java.awt.Color;
 import java.util.Map;

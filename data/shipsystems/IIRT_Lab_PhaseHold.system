@@ -2,8 +2,8 @@
 	"id":"IIRT_Lab_PhaseHold",
 	"type":"STAT_MOD",
 	"aiType":"TEMPORAL_SHELL",
-	#"aiScript":"data.scripts.shipsystems.ai.IIRT_SupportPhaseAI",
-	"statsScript":"data.scripts.shipsystems.IIRT_Lab_PhaseHold",
+	#"aiScript":"data.shipsystems.scripts.ai.IIRT_SupportPhaseAI",
+	"statsScript":"data.shipsystems.scripts.IIRT_Lab_PhaseHold",
 	"canUseWhileRightClickSystemOn":true,
 	
 	"jitterColor":[91, 103, 143,155],

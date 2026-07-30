@@ -3,7 +3,7 @@
 	"type":"PHASE_CLOAK",
 	"aiType":"PHASE_CLOAK",
 	
-	"statsScript":"data.scripts.shipsystems.IIRT_Omega_DDOS",
+	"statsScript":"data.shipsystems.scripts.IIRT_Omega_DDOS",
 	"runScriptWhilePaused":true, # only for the player's ship
 	"runScriptWhileIdle":true,  # this means unapply() never gets called
 	"blockActionsWhileChargingDown":false,

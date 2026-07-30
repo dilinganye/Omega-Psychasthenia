@@ -3,7 +3,7 @@
 	"specClass":"beam",
 	"type":"DECORATIVE",
   "size": "SMALL",
-	"everyFrameEffect":"data.weapons.IIRT_RotateEveryFrameEffect",
+	"everyFrameEffect":"data.scripts.weapons.IIRT_RotateEveryFrameEffect",
   "turretSprite": "graphics/weapons/Paint/IIRT_FSF_Helico_ten/IIRT_FSF_Helico_ten.png",
   "hardpointSprite": "graphics/weapons/Paint/IIRT_FSF_Helico_ten/IIRT_FSF_Helico_ten.png",
   "turretOffsets": [

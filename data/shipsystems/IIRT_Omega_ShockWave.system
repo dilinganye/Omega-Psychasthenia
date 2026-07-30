@@ -9,7 +9,7 @@
 	"damage":0,
 	"damageType":ENERGY,
 	
-	"statsScript":"data.scripts.shipsystems.IIRT_Omega_ShockWave",
+	"statsScript":"data.shipsystems.scripts.IIRT_Omega_ShockWave",
 
 	"effectColor1":[255,150,255,0],
 	"effectColor2":[185,207,255,0],

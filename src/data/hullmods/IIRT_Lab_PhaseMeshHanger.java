@@ -15,7 +15,7 @@ import com.fs.starfarer.api.loading.FighterWingSpecAPI;
 import com.fs.starfarer.api.loading.WeaponSpecAPI;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
-import data.utils.iirt_omega.IIRT_Omega_Color;
+import data.scripts.util.IIRT_Omega_Color;
 
 import java.util.HashSet;
 import java.util.Set;

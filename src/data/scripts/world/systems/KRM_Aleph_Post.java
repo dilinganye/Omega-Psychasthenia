@@ -22,7 +22,7 @@ import com.fs.starfarer.api.impl.campaign.terrain.MagneticFieldTerrainPlugin;
 import com.fs.starfarer.api.impl.campaign.world.TTBlackSite;
 import com.fs.starfarer.api.util.Misc;
 import static data.scripts.world.IIRT_Omega_ModGen.addMarketplace;
-import data.utils.iirt_omega.I18nUtil;
+import data.scripts.util.I18nUtil;
 
 import java.awt.Color;
 import java.util.ArrayList;

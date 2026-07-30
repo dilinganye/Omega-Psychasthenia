@@ -3,7 +3,7 @@
 	"type":"ENGINE_MOD",
 	"aiType":"NONE",
 
-	"statsScript":"data.scripts.shipsystems.IIRT_PhaseInBattle",
+	"statsScript":"data.shipsystems.scripts.IIRT_PhaseInBattle",
 	"canUseWhileRightClickSystemOn":true,
 	
 	"engineActivateHiddenNozzles":false,

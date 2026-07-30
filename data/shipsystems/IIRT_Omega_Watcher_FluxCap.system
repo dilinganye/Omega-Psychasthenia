@@ -3,8 +3,8 @@
 	"type":"STAT_MOD",
 	"aiType":"CUSTOM",
 
-	"aiScript":"data.scripts.shipsystems.ai.IIRT_Omega_Watcher_FluxCap_AI",
-	"statsScript":"data.scripts.shipsystems.IIRT_Omega_Watcher_FluxCap",
+	"aiScript":"data.shipsystems.scripts.ai.IIRT_Omega_Watcher_FluxCap_AI",
+	"statsScript":"data.shipsystems.scripts.IIRT_Omega_Watcher_FluxCap",
 
 	"runScriptWhileIdle":true,
 

@@ -4,7 +4,7 @@
 	"type":"DECORATIVE",
 	"size":"LARGE",
 	
-	"everyFrameEffect":"data.weapons.IIRT_RotateEveryFrameEffect",
+	"everyFrameEffect":"data.scripts.weapons.IIRT_RotateEveryFrameEffect",
 
     "turretSprite":"graphics/ships/IIRT_Omega_Cube_Wave.png",
 	"hardpointSprite":"graphics/ships/IIRT_Omega_Cube_Wave.png",

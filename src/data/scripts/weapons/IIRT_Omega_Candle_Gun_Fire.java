@@ -5,7 +5,7 @@ import com.fs.starfarer.api.combat.CombatEngineAPI;
 import com.fs.starfarer.api.combat.DamagingProjectileAPI;
 import com.fs.starfarer.api.combat.EveryFrameWeaponEffectPlugin;
 import com.fs.starfarer.api.combat.WeaponAPI;
-import static data.utils.iirt_omega.I18nUtil.easyRippleOut;
+import static data.scripts.util.I18nUtil.easyRippleOut;
 import org.lazywizard.lazylib.MathUtils;
 import org.lazywizard.lazylib.combat.CombatUtils;
 import org.lwjgl.util.vector.Vector2f;
@@ -148,7 +148,7 @@ package data.scripts.weapons;
 
         import java.awt.*;
 
-        import static data.utils.iirt_omega.I18nUtil.easyRippleOut;
+        import static data.scripts.util.I18nUtil.easyRippleOut;
 
 public class IIRT_Lab_Overflow_Gun_Fire implements EveryFrameWeaponEffectPlugin {
 

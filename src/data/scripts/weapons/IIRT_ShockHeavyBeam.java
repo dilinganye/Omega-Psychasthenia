@@ -7,7 +7,7 @@ package data.scripts.weapons;
 import com.fs.starfarer.api.combat.*;
 import com.fs.starfarer.api.combat.WeaponAPI.WeaponSize;
 import com.fs.starfarer.api.util.IntervalUtil;
-import data.utils.iirt_omega.IIRT_Omega_Color;
+import data.scripts.util.IIRT_Omega_Color;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
 

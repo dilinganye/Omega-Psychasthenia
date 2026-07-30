@@ -13,7 +13,7 @@ import com.fs.starfarer.api.impl.campaign.ids.HullMods;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
-import data.utils.iirt_omega.IIRT_Omega_Color;
+import data.scripts.util.IIRT_Omega_Color;
 import org.lazywizard.lazylib.combat.CombatUtils;
 
 import java.awt.Color;

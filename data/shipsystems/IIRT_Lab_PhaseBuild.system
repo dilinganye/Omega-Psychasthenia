@@ -3,7 +3,7 @@
 	"type":"STAT_MOD",
 	"aiType":"TEMPORAL_SHELL",
 	
-	"statsScript":"data.scripts.shipsystems.IIRT_Lab_PhaseBuild",
+	"statsScript":"data.shipsystems.scripts.IIRT_Lab_PhaseBuild",
 	"canUseWhileRightClickSystemOn":true,
 	
 	"jitterColor":[255,229,255,200],

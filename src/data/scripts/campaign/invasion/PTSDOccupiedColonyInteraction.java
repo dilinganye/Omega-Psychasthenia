@@ -31,7 +31,7 @@ public final class PTSDOccupiedColonyInteraction implements InteractionDialogPlu
     private static final String FULL_BOMBARD = "PTSD_OCC_FULL_BOMBARD";
     private static final String PROBE = "PTSD_OCC_PROBE";
     private static final String NEGOTIATE = "PTSD_OCC_NEGOTIATE";
-    private static final String NEGOTIATE_2 = "PTSD_OCC_NEGOTIATE_2";
+    private static final String NEGOTIATE_2 = "PTSD_OCC_NEGOTIATE_2", NEGOTIATE_2_2 = "PTSD_OCC_NEGOTIATE_2_2";
     private static final String NEGOTIATE_END = "PTSD_OCC_NEGOTIATE_END";
     private static final String LEAVE = "PTSD_OCC_LEAVE";
 
@@ -131,6 +131,10 @@ public final class PTSDOccupiedColonyInteraction implements InteractionDialogPlu
             return;
         }
         if (NEGOTIATE_2.equals(optionData)) {
+            showNegotiationStart_2();
+            return;
+        }
+        if (NEGOTIATE_2_2.equals(optionData)) {
             showNegotiationAttack();
             return;
         }
@@ -202,18 +206,27 @@ public final class PTSDOccupiedColonyInteraction implements InteractionDialogPlu
     private void showNegotiationStart() {
         dialog.getTextPanel().clear();
         dialog.getOptionPanel().clearOptions();
-        dialog.getTextPanel().addPara("你命令通讯组依次启用通用语、三进制握手、AI 核心维护协议和最简单的素数序列。最初只有静电噪声。随后，每一个信道都在同一瞬间返回了应答。");
-        dialog.getTextPanel().addPara("那不是语言。成千上万个伪造的舰队识别码塞满接收缓存，导航数据被替换成互相矛盾的跃迁坐标，甚至连舰内私人终端都开始播放从未录制过的求救讯息。",
+        dialog.getTextPanel().addPara("尽管你的副官并不这么建议你，你还是命令你的通讯官员尝试向对方建立连接。随后，每一个信道都在同一瞬间返回了应答。");
+        dialog.getTextPanel().addPara("起初，这一切的回应只有静电噪声和宇宙中不时传入的幽灵讯号经由播音器在舰桥回响，那不时扬起的噪波段让人感到烦躁，但所有人都在屏息以待。",
                 new Color(230, 120, 150));
-        dialog.getOptionPanel().addOption("切断外部信道，启用物理隔离", NEGOTIATE_2);
+        dialog.getOptionPanel().addOption("等待", NEGOTIATE_2);
+    }
+    private void showNegotiationStart_2() {
+        dialog.getTextPanel().clear();
+        dialog.getOptionPanel().clearOptions();
+        dialog.getTextPanel().addPara("每一个信道都在同一瞬间返回了应答。");
+        dialog.getTextPanel().addPara("那不是语言。那是成千上万个伪造的舰队识别码同时在信道中涌出的尖啸，接收缓存瞬间溢出，通讯官向你播报了大量的恶意通讯攻击讯号，导航数据被替换成互相矛盾的跃迁坐标，甚至连舰内成员的私人终端都开始播放从未录制过的求救讯息。",
+                new Color(230, 120, 150));
+        dialog.getOptionPanel().addOption("切断外部信道", NEGOTIATE_2_2);
     }
 
     private void showNegotiationAttack() {
-        dialog.getTextPanel().addPara("物理隔离生效前的最后一毫秒，一段极短的图像穿过所有过滤器：你的舰队正从某个不存在的角度被观察。图像下方没有文字，只有一串不断增加的距离读数。");
-        dialog.getTextPanel().addPara("传感器军官报告，近轨道出现新的相位回波。所谓“交涉”已经得到回复。",
+        dialog.getTextPanel().addPara("\"切断通讯信息已经不起作用了！\"，通讯官员的声音在嘈杂的舰桥中回响，\"整个舰桥系统必须重启！\"");
+        dialog.getTextPanel().addPara("随着你下达对系统的物理隔离命令生效前的最后一毫秒，一段极短的图像击穿了所有的防火墙，解析器在系统重置的报错中充满恶意的挺立：你的舰队正从某个不存在的角度被观察。图像下方没有文字，只有一串不断闪烁的距离读数。\n\n");
+        dialog.getTextPanel().addPara("\"传感器传来未知读数，他们的位置...就在我们下方，他们在星球上！距离正在急剧缩短！\"随着你的面板上也传来了新的相位回波。很清楚的是：你所谓的“交涉”已经得到了回复。",
                 Color.ORANGE);
         dialog.getOptionPanel().clearOptions();
-        dialog.getOptionPanel().addOption("返回舰桥", NEGOTIATE_END);
+        dialog.getOptionPanel().addOption("脱离轨道", NEGOTIATE_END);
     }
 
     private void recordProbe() {
@@ -235,7 +248,7 @@ public final class PTSDOccupiedColonyInteraction implements InteractionDialogPlu
         if (active instanceof CampaignFleetAPI) {
             CampaignFleetAPI fleet = (CampaignFleetAPI) active;
             fleet.clearAssignments();
-            fleet.addAssignment(FleetAssignment.ATTACK_LOCATION, player, 3f, "截断入侵信号");
+            fleet.addAssignment(FleetAssignment.ATTACK_LOCATION, player, 3f, "反定位信号源");
             dialog.dismiss();
             return;
         }
@@ -259,21 +272,21 @@ public final class PTSDOccupiedColonyInteraction implements InteractionDialogPlu
         }
         market.getContainingLocation().addEntity(fleet);
         fleet.setLocation(spawn.x, spawn.y);
-        fleet.setName(negotiationResponse ? "恶意信道响应单元" : "占领区防御单元");
+        fleet.setName(negotiationResponse ? "丢包处理" : "防火墙系统");
         fleet.setNoFactionInName(true);
         fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_MAKE_AGGRESSIVE, true);
         fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_ALLOW_LONG_PURSUIT, false);
         fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_NO_SHIP_RECOVERY, true);
         fleet.addEventListener(new PTSDOccupationDefenseListener(market.getId(), negotiationResponse));
-        fleet.addAssignment(FleetAssignment.ATTACK_LOCATION, player, 3f, "截断入侵信号");
+        fleet.addAssignment(FleetAssignment.ATTACK_LOCATION, player, 3f, "反定位信号源");
         fleet.addAssignment(FleetAssignment.GO_TO_LOCATION_AND_DESPAWN,
-                market.getPrimaryEntity(), 3f, "返回行星阴影");
+                market.getPrimaryEntity(), 3f, "请求重构");
         market.getMemoryWithoutUpdate().set(PTSDOccupationManager.ACTIVE_DEFENSE_MEMORY, fleet.getId());
         PTSDOmegaFleetScaling.record(fleet, baseStrength, strength, severity);
         PTSDOccupationAPI.addAttention(market, PTSDOccupationAPI.Action.DEFENSE_SPAWNED,
                 negotiationResponse ? 0.2f : 0.35f, 0f);
         PTSDCrisisDevIntel.report("占领区防御舰队生成",
-                negotiationResponse ? "交涉反制舰队" : "试探反制舰队",
+                negotiationResponse ? "丢包处理" : "防火墙系统",
                 market.getStarSystem() == null ? null : market.getStarSystem().getId(), fleet.getId());
         dialog.dismiss();
     }

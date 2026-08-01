@@ -388,6 +388,41 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
         return true;
     }
 
+    /** Materializes the rare 5% news-investigation observer: one very fast ship that shadows then flees. */
+    public static CampaignFleetAPI spawnNewsTracker(String systemId, SectorEntityToken target) {
+        if (Global.getSector() == null || target == null || target.getContainingLocation() == null) return null;
+        try {
+            Random seeded = new Random(Misc.genUID().hashCode());
+            Vector2f hyper = target.getLocationInHyperspace();
+            FleetParamsV3 params = new FleetParamsV3(hyper, WATCHER_FACTION, 0.15f,
+                    FleetTypes.MERC_SCOUT, 7f, 0f, 0f, 0f, 0f, 0f, 0f);
+            params.maxNumShips = 1;
+            CampaignFleetAPI scout = FleetFactoryV3.createFleet(params);
+            if (scout == null) return null;
+            target.getContainingLocation().addEntity(scout);
+            Vector2f offset = Misc.getUnitVectorAtDegreeAngle(seeded.nextFloat() * 360f);
+            offset.scale(4200f + seeded.nextFloat() * 2600f);
+            Vector2f point = Vector2f.add(target.getLocation(), offset, null);
+            scout.setLocation(point.x, point.y);
+            scout.setName("无法识别的单舰信号");
+            scout.setNoFactionInName(true); scout.setSensorProfile(70f); scout.setTransponderOn(false);
+            scout.addTag(SCOUT_TAG); scout.addTag(CRISIS_FLEET_TAG); scout.addTag(Tags.SALVAGE_ENTITY_NO_DEBRIS);
+            scout.getStats().getFleetwideMaxBurnMod().modifyFlat("PTSD_news_tracker", 6f, "异常推进特征");
+            scout.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_FORCE_TRANSPONDER_OFF, true);
+            scout.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_MAKE_NON_AGGRESSIVE, true);
+            scout.getMemoryWithoutUpdate().set(MemFlags.CAN_ONLY_BE_ENGAGED_WHEN_VISIBLE_TO_PLAYER, true);
+            scout.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_NO_SHIP_RECOVERY, true);
+            CampaignFleetAPI player = Global.getSector().getPlayerFleet();
+            SectorEntityToken follow = player == null ? target : player;
+            scout.addScript(new IIRT_Omega_ScoutAI(scout, follow,
+                    IIRT_Omega_ScoutAI.MissionType.COLONY_INFILTRATION, systemId, 10f));
+            PTSDCrisisDevIntel.report("新闻跟踪舰生成", "单舰高速观察单元", systemId, scout.getId());
+            return scout;
+        } catch (Throwable ex) {
+            Global.getLogger(IIRT_Omega_Invasion.class).warn("Failed to spawn news tracker", ex);
+            return null;
+        }
+    }
     public static void reportScoutMissionStage(String systemId, String fleetId, String missionType, String stage) {
         PTSDCrisisState state = PTSDCrisisState.get();
         if (state != null && systemId != null && "抵达任务区".equals(stage)) {
@@ -418,6 +453,7 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
         PTSDCrisisProgress.add(state, PTSDCrisisProgress.Variable.PUBLIC_PANIC, 1.2f, "SCOUT_SIGHTING", systemId);
         if (state.totalScoutSightings >= warning_encounter_threshold) showSoftWarning(state);
         else if (state.softWarningShown) PTSDCrisisIntel.ensureIntel();
+        PTSDCrisisAPI.reportFleetSighting(systemId, null, "第四窥视舰队目击");
         PTSDCrisisDevIntel.report("侦察单位被目击",
                 "累计目击 " + state.totalScoutSightings + "；累计异常接触 " + state.totalOmegaEncounters,
                 systemId, null);
@@ -439,14 +475,42 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
                 escapedPlayer ? "成功摆脱玩家追逐" : "完成常规撤离", systemId, null);
     }
 
+    /** Legacy entry point retained for external callers; current scouts submit explicit daily maxima. */
     public static void reportReconSample(String systemId, float fleetStrength) {
+        reportReconDailyMaximum(systemId, fleetStrength, null, (int) Math.floor(PTSDCrisisState.getDay()));
+    }
+
+    public static void reportReconDailyMaximum(String systemId, float fleetStrength,
+                                               String fleetId, int dayBucket) {
         PTSDCrisisState state = PTSDCrisisState.get();
         if (state == null || systemId == null) return;
         PTSDCrisisState.SystemData data = state.getSystemData(systemId);
-        data.observedFleetStrength = Math.max(data.observedFleetStrength * 0.82f, fleetStrength);
-        data.lastObservedDay = PTSDCrisisState.getDay();
-        PTSDCrisisProgress.add(state, PTSDCrisisProgress.Variable.RECON_CONFIDENCE,
-                Math.min(0.5f, 0.05f + fleetStrength / 1000f), "RECON_SAMPLE", systemId);
+        float strength = Math.max(0f, fleetStrength);
+        boolean newDay = data.reconDailyBucket != dayBucket;
+        if (newDay) {
+            data.reconDailyBucket = dayBucket;
+            data.reconDailyMax = strength;
+            data.reconDailyReports = 1;
+            data.reconStrengthHistory.add(strength);
+            while (data.reconStrengthHistory.size() > 30) data.reconStrengthHistory.remove(0);
+        } else {
+            data.reconDailyReports++;
+            if (strength <= data.reconDailyMax) return;
+            data.reconDailyMax = strength;
+            if (!data.reconStrengthHistory.isEmpty()) {
+                data.reconStrengthHistory.set(data.reconStrengthHistory.size() - 1, strength);
+            }
+        }
+        data.lastReconSampleDay = PTSDCrisisState.getDay();
+        data.observedFleetStrength = Math.max(data.observedFleetStrength * 0.92f, data.reconDailyMax);
+        data.lastObservedDay = data.lastReconSampleDay;
+        if (newDay) {
+            PTSDCrisisProgress.add(state, PTSDCrisisProgress.Variable.RECON_CONFIDENCE,
+                    Math.min(0.5f, 0.05f + strength / 1000f), "RECON_DAILY_MAX", systemId);
+            PTSDCrisisDevIntel.report("侦察日结",
+                    "当日最高舰队强度 " + Math.round(strength) +
+                            (fleetId == null ? "" : " / 提交舰队 " + fleetId), systemId, fleetId);
+        }
     }
     private static int visibleStageForPhase(PTSDCrisisState.Phase phase) {
         if (phase == PTSDCrisisState.Phase.RECON || phase == PTSDCrisisState.Phase.DORMANT) return 1;
@@ -1089,15 +1153,20 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
             float fleetDefense = 0f;
             float marketDefense = 0f;
             float value = 1f;
+            boolean hasNonCrisisFleet = false;
+            boolean hasNonCrisisColony = false;
             for (CampaignFleetAPI fleet : system.getFleets()) {
                 if (fleet.getFaction() == null) continue;
                 String factionId = fleet.getFaction().getId();
                 if (!PSYCHASTHENIA_FACTION.equals(factionId) && !WATCHER_FACTION.equals(factionId)) {
+                    hasNonCrisisFleet = true;
                     fleetDefense += Math.max(0f, fleet.getFleetPoints());
                 }
             }
             for (MarketAPI market : Global.getSector().getEconomy().getMarkets(system)) {
-                if (market.isPlanetConditionMarketOnly()) continue;
+                if (market.isPlanetConditionMarketOnly() || PSYCHASTHENIA_FACTION.equals(market.getFactionId()) ||
+                        WATCHER_FACTION.equals(market.getFactionId())) continue;
+                hasNonCrisisColony = true;
                 float size = market.getSize();
                 value += size * size * 12f;
                 if (market.isPlayerOwned()) value += 55f;
@@ -1113,11 +1182,39 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
             float trueDefense = fleetDefense + marketDefense;
             float confidence = Math.min(1f, 0.12f + data.scoutVisits * 0.16f + data.playerSightings * 0.05f + state.reconConfidence / 250f);
             float uncertainty = 0.72f + seededNoise(system.getId(), day) * 0.56f;
-            data.observedFleetStrength = Math.max(data.observedFleetStrength * 0.75f, fleetDefense * confidence * uncertainty);
-            data.observedMarketDefense = Math.max(8f, trueDefense * (0.35f + confidence * 0.65f) * uncertainty);
+            // Fleet strength now comes primarily from scout daily maxima instead of omniscient live totals.
+            data.observedFleetStrength *= 0.96f;
+            if (data.reconStrengthHistory.isEmpty()) {
+                data.observedFleetStrength = Math.max(data.observedFleetStrength,
+                        fleetDefense * confidence * uncertainty * 0.18f);
+            }
+            data.observedMarketDefense = Math.max(3f,
+                    marketDefense * (0.28f + confidence * 0.72f) * uncertainty);
             data.strategicValue = value;
-            float vulnerability = value / (35f + data.observedMarketDefense);
-            data.attackWeight = Math.max(0.05f, vulnerability * 34f * (0.2f + confidence * 0.8f) * Math.max(0.25f, data.learningMultiplier));
+            data.hasNonCrisisColony = hasNonCrisisColony;
+            data.hasNonCrisisFleet = hasNonCrisisFleet;
+            boolean omegaOccupied = data.omegaControl >= 0.5f || data.conversionLevel > 0;
+            data.occupationSuggested = !omegaOccupied && !hasNonCrisisColony && !hasNonCrisisFleet;
+            int nonStarPlanets = 0;
+            for (PlanetAPI planet : system.getPlanets()) if (planet != null && !planet.isStar()) nonStarPlanets++;
+            data.occupationWeight = data.occupationSuggested ?
+                    Math.max(1f, 3f + nonStarPlanets * 1.4f + confidence * 4f) : 0f;
+
+            float scoutedDefense = data.observedFleetStrength + data.observedMarketDefense;
+            float weakness = Math.max(0.12f, Math.min(3.5f, 90f / (25f + scoutedDefense)));
+            if (omegaOccupied) {
+                data.attackWeight = 0.05f;
+            } else if (hasNonCrisisColony) {
+                float strategicPull = 1f + (float) Math.sqrt(Math.max(1f, value)) / 8f;
+                data.attackWeight = Math.max(0.05f, strategicPull * weakness *
+                        (0.25f + confidence * 0.75f) * Math.max(0.25f, data.learningMultiplier) * 22f);
+            } else if (data.occupationSuggested) {
+                // This weight is an occupation recommendation, not a colony assault target.
+                data.attackWeight = data.occupationWeight;
+            } else {
+                // Uncolonized systems containing remnant/pirate/wild fleets retain a cleanup weight.
+                data.attackWeight = Math.max(0.1f, weakness * (0.2f + confidence * 0.8f) * 6f);
+            }
             data.humanDefenseWeight = Math.max(1f, value / 18f + trueDefense / 12f);
             float occupationAttention = 0f;
             float humanOccupationAttention = 0f;

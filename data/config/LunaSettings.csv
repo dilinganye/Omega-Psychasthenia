@@ -4,7 +4,7 @@ PTSDPublicHeader,精神创伤：未知事件,Header,危机运行参数,,,,,未�
 PTSDPublicText,设置说明,Text,"“潘多拉魔盒”控制本模组危机是否进入运行状态。普通模式下，一旦某个存档开启过魔盒，该存档便无法再通过设置关闭危机；DevMode 不受此限制。",,,,,未知事件
 PTSD_omega_invasion_enabled,潘多拉魔盒,Boolean,true,,允许精神创伤危机在存档中开始或继续。默认开启。,,,未知事件
 PTSD_unknown_event_frequency,未知事件频率,Double,1.0,,控制暗流、侦察、火力试探及后续通用事件的总体抽取频率；数值越高，事件间隔越短。,0.1,5.0,未知事件
-PTSD_unknown_event_min_interval,未知事件触发下限（天）,Int,7,,两次未知事件之间随机间隔的最短值。,1,120,未知事件
-PTSD_unknown_event_max_interval,未知事件触发上限（天）,Int,20,,两次未知事件之间随机间隔的最长值；实际间隔还会受频率修正。,1,240,未知事件
+PTSD_unknown_event_min_interval,未知事件触发下限（天）,Int,3,,两次未知事件之间随机间隔的最短值。,1,120,未知事件
+PTSD_unknown_event_max_interval,未知事件触发上限（天）,Int,7,,两次未知事件之间随机间隔的最长值；实际间隔还会受频率修正。,1,240,未知事件
 PTSD_unknown_event_strength_flat,未知事件强度增值,Double,0.0,,额外加入所有第四窥视与精神创伤实体舰队自动分的 Flat 数值；动态进度加成仍会另行计算。,0.0,200.0,未知事件
 PTSD_unknown_event_strength_multiplier,未知事件强度倍率,Double,1.0,,作用于所有第四窥视与精神创伤实体舰队基础自动分的全局倍率。,0.5,10.0,未知事件

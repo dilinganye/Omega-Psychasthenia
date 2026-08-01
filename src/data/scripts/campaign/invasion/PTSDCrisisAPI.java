@@ -143,6 +143,104 @@ public final class PTSDCrisisAPI {
         return event;
     }
 
+    public static PTSDCrisisState.CrisisIncident getIncident(String incidentId) {
+        PTSDCrisisState state = PTSDCrisisState.get();
+        if (state == null || incidentId == null) return null;
+        for (PTSDCrisisState.CrisisIncident incident : state.incidents) {
+            if (incident != null && incidentId.equals(incident.id)) return incident;
+        }
+        return null;
+    }
+
+    /** Records a news lead without revealing whether the source is true. */
+    public static boolean recordNewsIncident(String incidentId) {
+        PTSDCrisisState.CrisisIncident incident = getIncident(incidentId);
+        if (incident == null || !incident.investigable) return false;
+        if (!incident.recordedByPlayer) {
+            incident.recordedByPlayer = true;
+            incident.investigationExpiresDay = PTSDCrisisState.getDay() + 30f;
+            java.util.Random seeded = new java.util.Random(incident.id.hashCode() * 31L + 0x50545344L);
+            float roll = seeded.nextFloat();
+            incident.investigationOutcome = roll < .25f ? 1 : (roll < .95f ? 2 : 3);
+            PTSDCrisisIntel.ensureIntel();
+            PTSDCrisisDevIntel.report("新闻线索记录", "调查结果池 " + incident.investigationOutcome,
+                    incident.targetSystemId, null);
+        }
+        return true;
+    }
+
+    /** Adds or refreshes a ten-day player-known fleet sighting in the crisis Intel. */
+    public static void reportFleetSighting(String systemId, String fleetId, String label) {
+        PTSDCrisisState state = PTSDCrisisState.get();
+        if (state == null || systemId == null) return;
+        float now = PTSDCrisisState.getDay();
+        for (PTSDCrisisState.SignalTrace trace : state.signalTraces) {
+            if (trace != null && systemId.equals(trace.systemId) &&
+                    ((fleetId == null && trace.fleetId == null) || (fleetId != null && fleetId.equals(trace.fleetId)))) {
+                trace.createdDay = now; trace.expiresDay = now + 10f; trace.label = label; trace.confirmed = true;
+                PTSDCrisisIntel.ensureIntel(); return;
+            }
+        }
+        PTSDCrisisState.SignalTrace trace = new PTSDCrisisState.SignalTrace();
+        trace.id = "PTSD_trace_" + com.fs.starfarer.api.util.Misc.genUID();
+        trace.systemId = systemId; trace.fleetId = fleetId;
+        trace.label = label == null ? "\u672a\u77e5\u8230\u961f\u76ee\u51fb" : label;
+        trace.createdDay = now; trace.expiresDay = now + 10f; trace.confirmed = true;
+        state.signalTraces.add(trace);
+        PTSDCrisisIntel.ensureIntel();
+    }
+
+    public static List<PTSDCrisisState.SignalTrace> getActiveSignalTraces() {
+        List<PTSDCrisisState.SignalTrace> result = new ArrayList<PTSDCrisisState.SignalTrace>();
+        PTSDCrisisState state = PTSDCrisisState.get();
+        if (state == null) return result;
+        float now = PTSDCrisisState.getDay();
+        for (PTSDCrisisState.SignalTrace trace : state.signalTraces) {
+            if (trace != null && trace.expiresDay > now) result.add(trace);
+        }
+        return result;
+    }
+
+    public static com.fs.starfarer.api.campaign.SectorEntityToken resolveIncidentTarget(
+            PTSDCrisisState.CrisisIncident incident) {
+        if (incident == null || Global.getSector() == null) return null;
+        if (incident.targetEntityId != null) {
+            com.fs.starfarer.api.campaign.SectorEntityToken entity =
+                    Global.getSector().getEntityById(incident.targetEntityId);
+            if (entity != null) return entity;
+        }
+        PTSDCrisisState state = PTSDCrisisState.get();
+        if (state != null && incident.targetMarketId != null) {
+            com.fs.starfarer.api.campaign.econ.MarketAPI market = state.resolveMarket(incident.targetMarketId);
+            if (market != null && market.getPrimaryEntity() != null) return market.getPrimaryEntity();
+        }
+        com.fs.starfarer.api.campaign.StarSystemAPI system = state == null ? null : state.resolveSystem(incident.targetSystemId);
+        return system == null ? null : system.getHyperspaceAnchor();
+    }
+    public static String getSystemName(String systemId) {
+        PTSDCrisisState state = PTSDCrisisState.get();
+        com.fs.starfarer.api.campaign.StarSystemAPI system = state == null ? null : state.resolveSystem(systemId);
+        return system == null ? "\u672a\u77e5\u4f4d\u7f6e" : system.getName();
+    }
+    /** Returns the latest learned Omega attack weight for a system. */
+    public static float getAttackWeight(String systemId) {
+        PTSDCrisisState state = PTSDCrisisState.get();
+        if (state == null || systemId == null) return 0f;
+        return state.getSystemData(systemId).attackWeight;
+    }
+
+    /** True when current intelligence classifies an empty system as a future occupation target. */
+    public static boolean isOccupationSuggested(String systemId) {
+        PTSDCrisisState state = PTSDCrisisState.get();
+        return state != null && systemId != null && state.getSystemData(systemId).occupationSuggested;
+    }
+
+    /** Separate colonisation value retained for the future full-invasion occupation planner. */
+    public static float getOccupationWeight(String systemId) {
+        PTSDCrisisState state = PTSDCrisisState.get();
+        if (state == null || systemId == null) return 0f;
+        return state.getSystemData(systemId).occupationWeight;
+    }
     static void notifyResolved(PTSDCrisisState.StrategicEvent event) {
         PTSDCrisisDevIntel.reportEventResolved(event);
         EventResult result = new EventResult(event);

@@ -41,6 +41,9 @@ public final class IIRT_Omega_ScoutAI extends BaseAssignmentAI {
     private float stageDays;
     private float missionDays;
     private float nextRoamDay;
+    private float nextReconSampleDay; // legacy throttle field; retained for save compatibility
+    private int reconSampleDayBucket = -1;
+    private List<Float> dailyReconSamples = new ArrayList<Float>();
     private float lastPlayerDistance = Float.MAX_VALUE;
     private boolean arrived;
     private boolean escapeReported;
@@ -180,6 +183,7 @@ public final class IIRT_Omega_ScoutAI extends BaseAssignmentAI {
 
     private void ensureRuntimeFields() {
         if (checkInterval == null) checkInterval = new IntervalUtil(0.12f, 0.28f);
+        if (dailyReconSamples == null) dailyReconSamples = new ArrayList<Float>();
         if (checksHankInterval == null) checksHankInterval = new IntervalUtil(4f, 6f);
         if (observeForDays <= 0f) observeForDays = 5f;
         if (missionType == null) missionType = MissionType.RELAY;
@@ -257,17 +261,37 @@ public final class IIRT_Omega_ScoutAI extends BaseAssignmentAI {
 
     private void recordLocalStrength() {
         if (targetSystemId == null || fleet.getContainingLocation() == null) return;
+        int bucket = (int) Math.floor(PTSDCrisisState.getDay());
+        if (reconSampleDayBucket < 0) reconSampleDayBucket = bucket;
+        if (bucket != reconSampleDayBucket) {
+            submitDailyReconMaximum();
+            reconSampleDayBucket = bucket;
+        }
         float strength = 0f;
         for (CampaignFleetAPI other : fleet.getContainingLocation().getFleets()) {
             if (other == null || other == fleet || other.getFaction() == null) continue;
             String factionId = other.getFaction().getId();
             if (IIRT_Omega_Invasion.WATCHER_FACTION.equals(factionId) ||
                     IIRT_Omega_Invasion.PSYCHASTHENIA_FACTION.equals(factionId)) continue;
-            if (Misc.getDistance(fleet.getLocation(), other.getLocation()) <= 12000f) strength += Math.max(0f, other.getFleetPoints());
+            if (Misc.getDistance(fleet.getLocation(), other.getLocation()) <= 12000f) {
+                strength += Math.max(0f, other.getFleetPoints());
+            }
         }
-        IIRT_Omega_Invasion.reportReconSample(targetSystemId, strength);
+        dailyReconSamples.add(strength);
     }
 
+    private void submitDailyReconMaximum() {
+        if (dailyReconSamples == null || dailyReconSamples.isEmpty() || targetSystemId == null) return;
+        float maximum = 0f;
+        for (Float sample : dailyReconSamples) {
+            if (sample != null && !Float.isNaN(sample) && !Float.isInfinite(sample)) {
+                maximum = Math.max(maximum, Math.max(0f, sample));
+            }
+        }
+        dailyReconSamples.clear();
+        IIRT_Omega_Invasion.reportReconDailyMaximum(targetSystemId, maximum,
+                fleet == null ? null : fleet.getId(), reconSampleDayBucket);
+    }
     private SectorEntityToken pickRoamTarget() {
         StarSystemAPI system = targetSystemId == null ? null : Global.getSector().getStarSystem(targetSystemId);
         if (system == null) return target;
@@ -281,6 +305,7 @@ public final class IIRT_Omega_ScoutAI extends BaseAssignmentAI {
 
     private void beginEscape(CampaignFleetAPI threat, boolean escapedPlayer) {
         if (missionStage == MissionStage.ESCAPE || fleet.getContainingLocation() == null) return;
+        submitDailyReconMaximum();
         missionStage = MissionStage.ESCAPE;
         fleeing = true;
         fleeDays = 0f;
@@ -324,6 +349,7 @@ public final class IIRT_Omega_ScoutAI extends BaseAssignmentAI {
     }
 
     private void safeDespawn(String reason) {
+        submitDailyReconMaximum();
         if (fleet != null && fleet.getBattle() == null && fleet.isAlive()) {
             IIRT_Omega_Invasion.reportScoutMissionStage(targetSystemId, fleet.getId(),
                     missionType == null ? "LEGACY" : missionType.name(), reason);

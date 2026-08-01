@@ -77,6 +77,7 @@ public final class PTSDCrisisIncidentManager {
 
     private static final List<Card> DARK = new ArrayList<Card>();
     private static final List<Card> PROBE = new ArrayList<Card>();
+    private static final List<Card> NEWS = new ArrayList<Card>();
     private static final Color WHISPER_COLOR = new Color(182, 164, 198);
 
     static {
@@ -153,6 +154,12 @@ public final class PTSDCrisisIncidentManager {
         probe("P-12", TargetKind.RELAY, 3, 90, 1.8f, 3.5f, 2.0f, 3.2f, 1.0f, 0, 0,
                 "全频道空白", "多个边缘星系同时失联数分钟。通信恢复后，没有机构能够解释空白期间发生了什么。",
                 "第四窥视已完成本轮测量；观察单位正沿不同航线撤向同一片未公开星域。", "全星区中继汇总");
+        news("N-01", TargetKind.POPULATED, "冷藏舱标签错误", "一批民用冷冻食品被贴上了军用密封标签。港务局称这只是承包商录入失误。", "普通物流事故。", "地方商业新闻");
+        news("N-02", TargetKind.EDGE_MARKET, "两艘拖船争夺残骸", "两支打捞队为一具无价值舰壳的归属争执了整整一天，最后发现双方许可证都已过期。", "与危机无关。", "边缘娱乐版");
+        news("N-03", TargetKind.POPULATED, "轨道广告牌短暂失控", "一面轨道广告牌连续播放了旧版本饮料广告。运营方已经向当地居民致歉。", "一次普通的软件回滚。", "本地通讯社");
+        news("N-04", TargetKind.ANY, "错误的货运广播", "一艘货船向整个星系公开播报了自己的购物清单，随后匆忙切断频道。", "与第四窥视无关。", "民用频道摘录");
+        news("N-05", TargetKind.PIRATE, "海盗电台改播情歌", "一座海盗电台在凌晨连续播放战前情歌，附近帮派均拒绝承认拥有该频段。", "一次普通的海盗恶作剧。", "匿名监听员");
+        news("N-06", TargetKind.WILDERNESS, "测绘浮标重复编号", "探索者发现两枚编号相同的测绘浮标。制造商表示旧批次数据库可能存在重复记录。", "制造与登记错误。", "探索者协会");
     }
 
     private PTSDCrisisIncidentManager() { }
@@ -164,6 +171,10 @@ public final class PTSDCrisisIncidentManager {
                 distortion, physicalChance, 0f, headline, report, truth, source));
     }
 
+    private static void news(String id, TargetKind target, String headline, String report, String truth, String source) {
+        NEWS.add(card(id, "普通新闻", target, 5f, 12f, 0f, 0f, 0f, 0f, 0f,
+                0f, 0f, headline, report, truth, source));
+    }
     private static void probe(String id, TargetKind target, float weight, float cooldown,
                               float recon, float awareness, float aggression, float panic, float distortion,
                               float physicalChance, float strength, String headline, String report,
@@ -187,7 +198,11 @@ public final class PTSDCrisisIncidentManager {
     }
 
     public static void advance(PTSDCrisisState state, float day, Random random) {
-        if (state == null || random == null || day < state.nextIncidentDay) return;
+        if (state == null || random == null) return;
+        advanceInvestigations(state, day, random);
+        float configuredMax = Math.max(unknown_event_min_interval, unknown_event_max_interval) / Math.max(.1f, unknown_event_frequency);
+        if (state.nextIncidentDay > day + configuredMax) state.nextIncidentDay = day + configuredMax;
+        if (day < state.nextIncidentDay) return;
         if (state.phase != PTSDCrisisState.Phase.DORMANT && state.phase != PTSDCrisisState.Phase.RECON) return;
 
         float frequency = Math.max(.1f, unknown_event_frequency);
@@ -197,7 +212,7 @@ public final class PTSDCrisisIncidentManager {
         boolean fireProbe = state.phase == PTSDCrisisState.Phase.RECON &&
                 (state.watcherAggression >= 22f || state.reconConfidence >= 36f ||
                         day - state.phaseStartedDay >= Math.max(8f, collect_data_time * .42f));
-        List<Card> pool = fireProbe ? PROBE : (state.phase == PTSDCrisisState.Phase.DORMANT ? DARK : null);
+        List<Card> pool = random.nextFloat() < .32f ? NEWS : (fireProbe ? PROBE : DARK);
         if (pool == null) return;
 
         for (int attempt = 0; attempt < 12; attempt++) {
@@ -337,13 +352,18 @@ public final class PTSDCrisisIncidentManager {
         incident.phase = state.phase;
         incident.targetSystemId = target.system.getId();
         incident.targetMarketId = target.market == null ? null : target.market.getId();
+        SectorEntityToken investigationTarget = pickInvestigationTarget(card, target, random);
+        incident.targetEntityId = investigationTarget == null ? null : investigationTarget.getId();
         incident.createdDay = day;
         incident.expiresDay = day + card.cooldown;
+        incident.newsExpiresDay = day + 10f;
         incident.sourceLabel = sourceVariant(card.source, branch);
         incident.headline = headlineVariant(card.headlines[branch], branch);
         incident.publicText = reportVariant(card.reports[branch], branch);
         incident.trueText = truthVariant(card.truths[branch], branch);
-        incident.disclosed = forced || card.category.equals("火力侦察") || random.nextFloat() < .72f;
+        incident.disclosed = true;
+        incident.investigable = !"普通新闻".equals(card.category) &&
+                (card.physicalChance > 0f || "D-02".equals(card.id) || "D-03".equals(card.id) || "D-12".equals(card.id));
         CampaignFleetAPI player = Global.getSector().getPlayerFleet();
         incident.playerRelevant = player != null && player.getStarSystem() == target.system;
         incident.devForced = forced;
@@ -382,6 +402,64 @@ public final class PTSDCrisisIncidentManager {
         }
     }
 
+    private static SectorEntityToken pickInvestigationTarget(Card card, Target target, Random random) {
+        if (target == null || target.system == null) return null;
+        if ("P-08".equals(card.id) && !target.system.getJumpPoints().isEmpty()) {
+            return target.system.getJumpPoints().get(random.nextInt(target.system.getJumpPoints().size()));
+        }
+        if (card.target == TargetKind.RELAY) {
+            List<SectorEntityToken> relays = target.system.getEntitiesWithTag(Tags.COMM_RELAY);
+            if (!relays.isEmpty()) return relays.get(random.nextInt(relays.size()));
+        }
+        if (target.market != null && target.market.getPrimaryEntity() != null) return target.market.getPrimaryEntity();
+        List<SectorEntityToken> candidates = new ArrayList<SectorEntityToken>();
+        for (com.fs.starfarer.api.campaign.PlanetAPI planet : target.system.getPlanets()) {
+            if (planet != null && !planet.isStar()) candidates.add(planet);
+        }
+        candidates.addAll(target.system.getJumpPoints());
+        if (!candidates.isEmpty()) return candidates.get(random.nextInt(candidates.size()));
+        return target.system.getHyperspaceAnchor();
+    }
+
+    /** Recorded investigations continue independently of the ten-day news item, up to thirty days. */
+    private static void advanceInvestigations(PTSDCrisisState state, float day, Random random) {
+        CampaignFleetAPI player = Global.getSector().getPlayerFleet();
+        for (PTSDCrisisState.CrisisIncident incident : state.incidents) {
+            if (incident == null || !incident.recordedByPlayer || incident.investigationResolved) continue;
+            if (incident.investigationExpiresDay <= 0f) incident.investigationExpiresDay = incident.createdDay + 30f;
+            if (day >= incident.investigationExpiresDay) {
+                incident.investigationResolved = true;
+                incident.investigationReal = false;
+                PTSDCrisisDevIntel.report("新闻调查过期", incident.headline + " / 达到30日上限", incident.targetSystemId, incident.targetEntityId);
+                continue;
+            }
+            SectorEntityToken target = PTSDCrisisAPI.resolveIncidentTarget(incident);
+            if (player == null || target == null || player.getContainingLocation() != target.getContainingLocation()) continue;
+            float radius = Math.max(1800f, target.getRadius() + 1200f);
+            if (Misc.getDistance(player.getLocation(), target.getLocation()) > radius) continue;
+            incident.investigationResolved = true;
+            if (incident.investigationOutcome == 1) {
+                incident.investigationReal = true;
+                StarSystemAPI system = state.resolveSystem(incident.targetSystemId);
+                MarketAPI market = state.resolveMarket(incident.targetMarketId);
+                if (system != null) projectDebris(system, market, incident.cardId, random);
+                Global.getSector().getCampaignUI().addMessage("调查发现了与报道相符的异常痕迹。", WHISPER_COLOR);
+            } else if (incident.investigationOutcome == 3) {
+                incident.investigationReal = true;
+                IIRT_Omega_Invasion.spawnNewsTracker(incident.targetSystemId, target);
+                Global.getSector().getCampaignUI().addMessage("传感器边缘出现了一个正在跟踪你的微弱信号。", WHISPER_COLOR);
+            } else {
+                incident.investigationReal = false;
+                Global.getSector().getCampaignUI().addMessage("现场没有任何异常；这条报道已被证伪。", Misc.getGrayColor());
+            }
+            PTSDCrisisDevIntel.report("新闻调查结算", "结果 " + incident.investigationOutcome,
+                    incident.targetSystemId, incident.targetEntityId);
+        }
+        for (int i = state.signalTraces.size() - 1; i >= 0; i--) {
+            PTSDCrisisState.SignalTrace trace = state.signalTraces.get(i);
+            if (trace == null || trace.expiresDay <= day) state.signalTraces.remove(i);
+        }
+    }
     private static String applyEffects(PTSDCrisisState state, Card card, String systemId, float mult) {
         add(state, PTSDCrisisProgress.Variable.RECON_CONFIDENCE, card.recon * mult, card.id, systemId);
         add(state, PTSDCrisisProgress.Variable.HUMAN_AWARENESS, card.awareness * mult, card.id, systemId);

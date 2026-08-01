@@ -109,3 +109,12 @@ PTSDCrisisProgressAPI.unregisterListener("my_mod");
 ## DevMode
 
 Dev 监视器显示全部变量、当前 Era、活动势力和准备度。显式事件贡献产生“危机进度变化”记录，包含变量、实际增量、结果、来源 ID 和星系位置；自然逐日增长不会刷屏。
+
+## 新闻调查与目击接口
+
+- `PTSDCrisisAPI.recordNewsIncident(incidentId)`：将可调查新闻记录进“边缘失联信号”，并启动最长 30 日的后台调查。
+- `PTSDCrisisAPI.reportFleetSighting(systemId, fleetId, label)`：新增或刷新一个持续 10 日的异常舰队目击标签。
+- `PTSDCrisisAPI.getActiveSignalTraces()`：读取当前未过期的目击标签。
+- `PTSDCrisisAPI.getIncident(incidentId)` / `resolveIncidentTarget(incident)`：读取新闻状态并解析其具体设施、跳跃点或行星目标。
+
+这些方法优先扩展既有危机 API；独立新闻 Intel 仅负责显示和十日过期，不保存战略真相。

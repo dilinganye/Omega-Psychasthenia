@@ -38,6 +38,8 @@ public final class PTSDCrisisDevIntel extends BaseIntelPlugin {
     private static final String REFRESH = "PTSD_DEV_REFRESH";
     private static final String FORCE_DARK = "PTSD_DEV_FORCE_DARK";
     private static final String FORCE_PROBE = "PTSD_DEV_FORCE_PROBE";
+    private static final String OPEN_COLONY_WEIGHTS = "PTSD_DEV_OPEN_COLONY_WEIGHTS";
+    private static final String OPEN_ALL_WEIGHTS = "PTSD_DEV_OPEN_ALL_WEIGHTS";
 
     public static final class DevRecord implements Serializable {
         private static final long serialVersionUID = 1L;
@@ -86,6 +88,7 @@ public final class PTSDCrisisDevIntel extends BaseIntelPlugin {
         }
         PTSDCrisisIntel.removeDevPreview();
         PTSDWarIntel.removeDevPreview();
+        PTSDCrisisWeightIntel.removeWhenNotDev();
     }
 
     public static PTSDCrisisDevIntel ensureIntel() {
@@ -216,6 +219,8 @@ public final class PTSDCrisisDevIntel extends BaseIntelPlugin {
         info.addPara("以下预览只在 DevMode 中补建；若剧情已正常解锁，则会自动转为正式情报。", 5f);
         info.addButton("查看战前危机情报", OPEN_PREWAR, base, dark, width, 24f, 4f);
         info.addButton("查看战区态势情报", OPEN_WAR, base, dark, width, 24f, 2f);
+        info.addButton("查看殖民星域攻击权重", OPEN_COLONY_WEIGHTS, base, dark, width, 24f, 2f);
+        info.addButton("查看全部星系攻击权数", OPEN_ALL_WEIGHTS, base, dark, width, 24f, 2f);
         info.addButton("刷新监视器", REFRESH, base, dark, width, 24f, 2f);
         info.addButton("强制抽取：暗流事件", FORCE_DARK, base, dark, width, 24f, 2f);
         info.addButton("强制抽取：火力侦察", FORCE_PROBE, Color.ORANGE, new Color(80, 45, 20), width, 24f, 2f);
@@ -355,12 +360,17 @@ public final class PTSDCrisisDevIntel extends BaseIntelPlugin {
         if (!Global.getSettings().isDevMode()) return;
         if (OPEN_PREWAR.equals(buttonId)) {
             PTSDCrisisIntel intel = PTSDCrisisIntel.ensureDevPreview();
-            if (intel != null) ui.selectItem(intel);
+            if (intel != null) { ui.updateIntelList(true); ui.selectItem(intel); }
             return;
         }
         if (OPEN_WAR.equals(buttonId)) {
             PTSDWarIntel intel = PTSDWarIntel.ensureDevPreview();
-            if (intel != null) ui.selectItem(intel);
+            if (intel != null) { ui.updateIntelList(true); ui.selectItem(intel); }
+            return;
+        }
+        if (OPEN_COLONY_WEIGHTS.equals(buttonId) || OPEN_ALL_WEIGHTS.equals(buttonId)) {
+            PTSDCrisisWeightIntel intel = PTSDCrisisWeightIntel.ensure(OPEN_ALL_WEIGHTS.equals(buttonId));
+            if (intel != null) { ui.updateIntelList(true); ui.selectItem(intel); }
             return;
         }
         if (REFRESH.equals(buttonId)) {

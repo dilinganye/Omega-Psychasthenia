@@ -67,6 +67,15 @@ public final class PTSDCrisisState implements Serializable {
         public float omegaControl;
         public float humanControl = 1f;
         public float lastObservedDay;
+        public float lastReconSampleDay;
+        public int reconDailyBucket = -1;
+        public float reconDailyMax;
+        public int reconDailyReports;
+        public List<Float> reconStrengthHistory = new ArrayList<Float>();
+        public boolean hasNonCrisisColony;
+        public boolean hasNonCrisisFleet;
+        public boolean occupationSuggested;
+        public float occupationWeight;
         public float lastWeightUpdateDay;
         public int successfulOmegaAttacks;
         public int failedOmegaAttacks;
@@ -93,6 +102,7 @@ public final class PTSDCrisisState implements Serializable {
         public String sourceSystemId;
         public String targetSystemId;
         public String targetMarketId;
+        public String targetEntityId;
         public float strength;
         public float createdDay;
         public float resolveDay;
@@ -140,6 +150,7 @@ public final class PTSDCrisisState implements Serializable {
         public Phase phase;
         public String targetSystemId;
         public String targetMarketId;
+        public String targetEntityId;
         public String linkedEventId;
         public float createdDay;
         public float expiresDay;
@@ -151,10 +162,29 @@ public final class PTSDCrisisState implements Serializable {
         public boolean disclosed;
         public boolean playerRelevant;
         public boolean devForced;
+        public boolean investigable;
+        public boolean readByPlayer;
+        public boolean recordedByPlayer;
+        /** 0 unresolved, 1 matching evidence, 2 false report, 3 Fourth Watch tracker. */
+        public int investigationOutcome;
+        public boolean investigationResolved;
+        public boolean investigationReal;
+        public float newsExpiresDay;
+        public float investigationExpiresDay;
 
         public CrisisIncident() { }
     }
 
+    public static final class SignalTrace implements Serializable {
+        private static final long serialVersionUID = 1L;
+        public String id;
+        public String systemId;
+        public String fleetId;
+        public String label;
+        public float createdDay;
+        public float expiresDay;
+        public boolean confirmed;
+    }
     public static final class PlayerMarker implements Serializable {
         private static final long serialVersionUID = 1L;
 
@@ -271,6 +301,7 @@ public final class PTSDCrisisState implements Serializable {
     public Map<String, Float> aftermathCooldowns = new LinkedHashMap<String, Float>();
     public Map<String, Float> incidentCooldowns = new LinkedHashMap<String, Float>();
     public List<CrisisIncident> incidents = new ArrayList<CrisisIncident>();
+    public List<SignalTrace> signalTraces = new ArrayList<SignalTrace>();
 
     private PTSDCrisisState() {
         float day = getDay();
@@ -341,6 +372,7 @@ public final class PTSDCrisisState implements Serializable {
         if (aftermathCooldowns == null) aftermathCooldowns = new LinkedHashMap<String, Float>();
         if (incidentCooldowns == null) incidentCooldowns = new LinkedHashMap<String, Float>();
         if (incidents == null) incidents = new ArrayList<CrisisIncident>();
+        if (signalTraces == null) signalTraces = new ArrayList<SignalTrace>();
         if (nextIncidentDay <= 0f) nextIncidentDay = getDay() + 2f;
         if (version < 3) migrateLegacyTimeline();
         // Any pre-v5 state necessarily existed while the crisis system was already running.
@@ -448,6 +480,7 @@ public final class PTSDCrisisState implements Serializable {
             result = new SystemData(systemId);
             systems.put(systemId, result);
         }
+        if (result.reconStrengthHistory == null) result.reconStrengthHistory = new ArrayList<Float>();
         return result;
     }
 

@@ -112,7 +112,7 @@ public final class PTSDCrisisProgress {
             state.lastProgressSystemId = systemId;
             state.lastProgressChangeDay = PTSDCrisisState.getDay();
             PTSDCrisisProgressAPI.notifyProgressChanged(variable, before, after, sourceId, systemId);
-            if (Global.getSettings().isDevMode()) {
+            if (Global.getSettings().isDevMode() && !"RECON_DAILY_MAX".equals(sourceId)) {
                 PTSDCrisisDevIntel.report("危机进度变化",
                         variable.name() + " " + signed(applied) + " → " + Math.round(after) +
                                 (sourceId == null ? "" : " / " + sourceId), systemId, null);

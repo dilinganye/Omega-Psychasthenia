@@ -22,6 +22,7 @@ import com.fs.starfarer.api.impl.campaign.procgen.themes.RemnantAssignmentAI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import data.scripts.campaign.cargo.PTSDOmegaFleetSupport;
+import data.scripts.campaign.invasion.PTSDOmegaFleetScaling;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.util.Random;
@@ -133,6 +134,8 @@ public class IIRT_OmegaSeededFleetManager extends SeededFleetManager {
 		if (combatPoints > 16) type = FleetTypes.PATROL_LARGE;
 
 		combatPoints *= 8f; // 8 is fp cost of remnant frigate
+		float baseCombatPoints = combatPoints;
+		combatPoints = Math.round(PTSDOmegaFleetScaling.scale(combatPoints, 0.25f));
 
 		FleetParamsV3 params = new FleetParamsV3(system.getLocation(), "Omega_Psychasthenia", 1f, type, combatPoints, // combatPts
 				0f, // freighterPts 
@@ -147,6 +150,7 @@ public class IIRT_OmegaSeededFleetManager extends SeededFleetManager {
 
 		CampaignFleetAPI fleet = FleetFactoryV3.createFleet(params);
 		if (fleet == null) return null;
+		PTSDOmegaFleetScaling.record(fleet, baseCombatPoints, combatPoints, 0.25f);
 
 		system.addEntity(fleet);
 		fleet.setFacing(random.nextFloat() * 360f);

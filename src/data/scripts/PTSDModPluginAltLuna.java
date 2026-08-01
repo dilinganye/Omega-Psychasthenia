@@ -23,6 +23,10 @@ public class PTSDModPluginAltLuna {
         return value != null ? value : fallback;
     }
 
+    public static float getLunaFloat(String modID, String fieldId, float fallback) {
+        Float value = LunaSettings.getFloat(modID, fieldId);
+        return value != null ? value : fallback;
+    }
     public static String getLunaString(String modID, String fieldId, String fallback) {
         String value = LunaSettings.getString(modID, fieldId);
         return value != null ? value : fallback;

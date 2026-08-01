@@ -14,6 +14,7 @@ import com.fs.starfarer.api.impl.campaign.shared.SharedData;
 import data.scripts.campaign.invasion.IIRT_Omega_Invasion;
 import data.scripts.campaign.invasion.PTSDCrisisDevIntel;
 import data.scripts.campaign.invasion.PTSDCrisisDevWatcher;
+import data.scripts.campaign.invasion.PTSDCrisisState;
 import data.scripts.campaign.invasion.PTSDOccupationManager;
 import data.scripts.campaign.PTSD_CampaignPlugin;
 import data.scripts.campaign.cargo.PTSD_OmegaOfficerGeneratorPlugin;
@@ -48,6 +49,16 @@ public static float final_invasion_max_strength = 200f;
 	public static float max_black_hole_fortresses = 3f;
 	public static float front_turn_min_interval = 6f;
 	public static float front_turn_max_interval = 12f;
+	public static float omega_fleet_strength_multiplier = 1f;
+	public static float unknown_event_strength_flat = 0f;
+	public static float unknown_event_frequency = 1f;
+	public static float unknown_event_min_interval = 7f;
+	public static float unknown_event_max_interval = 20f;
+	public static boolean phase_dormant_enabled = true;
+	public static boolean phase_recon_enabled = true;
+	public static boolean phase_expansion_enabled = true;
+	public static boolean phase_fortification_enabled = true;
+	public static boolean phase_war_enabled = true;
 	public static String PTSD_DefStat_onNewGame = "Sar";
 
 	public static final boolean EXP = false;
@@ -63,6 +74,7 @@ public static float final_invasion_max_strength = 200f;
 		}
 		if (hasLunaLib) {
 			PTSDModPluginAltLuna.registerSettingsListener();
+			PTSDLunaConfigVisibility.sync();
 			updateLunaSettings();
 		}
 
@@ -78,6 +90,7 @@ public static float final_invasion_max_strength = 200f;
 	public void onNewGame() {
 		if (hasLunaLib) {
 			PTSDModPluginAltLuna.registerSettingsListener();
+			PTSDLunaConfigVisibility.sync();
 			updateLunaSettings();
 		}
 		ProcgenUsedNames.notifyUsed("Unknown Neutron");
@@ -125,6 +138,7 @@ public static float final_invasion_max_strength = 200f;
 		boolean classLoad = false;
 		if (hasLunaLib) {
 			PTSDModPluginAltLuna.registerSettingsListener();
+			PTSDLunaConfigVisibility.sync();
 			updateLunaSettings();
 		}
 		if (Global.getSector().getPersistentData().containsKey(CLASS_MARK)) {
@@ -202,24 +216,44 @@ public static float final_invasion_max_strength = 200f;
 		if (!hasLunaLib) return;
 
 		String PTSD = getModId();
-		omega_invasion_enabled = PTSDModPluginAltLuna.getLunaBoolean(PTSD, "PTSD_omega_invasion_enabled", omega_invasion_enabled);
-		start_stage_time = Math.max(1f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_start_stage_time", (int)start_stage_time));
-		collect_data_time = Math.max(1f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_collect_data_time", (int)collect_data_time));
-		invade_time = Math.max(1f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_invade_time", (int)invade_time));
-		repair_time = Math.max(1f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_repair_time", (int)repair_time));
-		scout_min_interval = Math.max(1f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_scout_min_interval", (int)scout_min_interval));
-		scout_max_interval = Math.max(scout_min_interval, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_scout_max_interval", (int)scout_max_interval));
-		scout_spawn_radius = Math.max(100f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_scout_spawn_radius", (int)scout_spawn_radius));
-		max_guard_fleets = Math.max(0f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_max_guard_fleets", (int)max_guard_fleets));
-final_invasion_max_strength = Math.max(1f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_final_invasion_max_strength", (int)final_invasion_max_strength));
-		scout_max_active = Math.max(1f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_scout_max_active", (int)scout_max_active));
+		omega_invasion_enabled = PTSDModPluginAltLuna.getLunaBoolean(PTSD,
+				"PTSD_omega_invasion_enabled", omega_invasion_enabled);
+		unknown_event_frequency = Math.max(0.1f, Math.min(5f,
+				PTSDModPluginAltLuna.getLunaFloat(PTSD, "PTSD_unknown_event_frequency", unknown_event_frequency)));
+		unknown_event_min_interval = Math.max(1f,
+				PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_unknown_event_min_interval", (int) unknown_event_min_interval));
+		unknown_event_max_interval = Math.max(unknown_event_min_interval,
+				PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_unknown_event_max_interval", (int) unknown_event_max_interval));
+		unknown_event_strength_flat = Math.max(0f, Math.min(200f,
+				PTSDModPluginAltLuna.getLunaFloat(PTSD, "PTSD_unknown_event_strength_flat", unknown_event_strength_flat)));
+		omega_fleet_strength_multiplier = Math.max(0.5f, Math.min(10f,
+				PTSDModPluginAltLuna.getLunaFloat(PTSD, "PTSD_unknown_event_strength_multiplier", omega_fleet_strength_multiplier)));
+
+		// The public event bounds also govern scout appearances so all unknown activity shares one cadence control.
+		scout_min_interval = unknown_event_min_interval;
+		scout_max_interval = unknown_event_max_interval;
+		if (Global.getSettings() == null || !Global.getSettings().isDevMode()) return;
+
+		start_stage_time = Math.max(1f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_start_stage_time", (int) start_stage_time));
+		collect_data_time = Math.max(1f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_collect_data_time", (int) collect_data_time));
+		invade_time = Math.max(1f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_invade_time", (int) invade_time));
+		repair_time = Math.max(1f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_repair_time", (int) repair_time));
+		scout_spawn_radius = Math.max(100f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_scout_spawn_radius", (int) scout_spawn_radius));
+		max_guard_fleets = Math.max(0f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_max_guard_fleets", (int) max_guard_fleets));
+		final_invasion_max_strength = Math.max(1f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_final_invasion_max_strength", (int) final_invasion_max_strength));
+		scout_max_active = Math.max(1f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_scout_max_active", (int) scout_max_active));
 		warning_encounter_threshold = Math.max(1, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_warning_encounter_threshold", warning_encounter_threshold));
-		strategic_update_interval = Math.max(1f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_strategic_update_interval", (int)strategic_update_interval));
-		hidden_materialization_range = Math.max(1000f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_hidden_materialization_range", (int)hidden_materialization_range));
-		expansion_interval = Math.max(3f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_expansion_interval", (int)expansion_interval));
-		max_black_hole_fortresses = Math.max(0f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_max_black_hole_fortresses", (int)max_black_hole_fortresses));
-		front_turn_min_interval = Math.max(2f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_front_turn_min_interval", (int)front_turn_min_interval));
-		front_turn_max_interval = Math.max(front_turn_min_interval, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_front_turn_max_interval", (int)front_turn_max_interval));
+		strategic_update_interval = Math.max(1f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_strategic_update_interval", (int) strategic_update_interval));
+		hidden_materialization_range = Math.max(1000f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_hidden_materialization_range", (int) hidden_materialization_range));
+		expansion_interval = Math.max(3f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_expansion_interval", (int) expansion_interval));
+		max_black_hole_fortresses = Math.max(0f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_max_black_hole_fortresses", (int) max_black_hole_fortresses));
+		front_turn_min_interval = Math.max(2f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_front_turn_min_interval", (int) front_turn_min_interval));
+		front_turn_max_interval = Math.max(front_turn_min_interval, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_front_turn_max_interval", (int) front_turn_max_interval));
+		phase_dormant_enabled = PTSDModPluginAltLuna.getLunaBoolean(PTSD, "PTSD_phase_dormant_enabled", phase_dormant_enabled);
+		phase_recon_enabled = PTSDModPluginAltLuna.getLunaBoolean(PTSD, "PTSD_phase_recon_enabled", phase_recon_enabled);
+		phase_expansion_enabled = PTSDModPluginAltLuna.getLunaBoolean(PTSD, "PTSD_phase_expansion_enabled", phase_expansion_enabled);
+		phase_fortification_enabled = PTSDModPluginAltLuna.getLunaBoolean(PTSD, "PTSD_phase_fortification_enabled", phase_fortification_enabled);
+		phase_war_enabled = PTSDModPluginAltLuna.getLunaBoolean(PTSD, "PTSD_phase_war_enabled", phase_war_enabled);
 
 		String defaultStage = PTSDModPluginAltLuna.getLunaString(PTSD, "PTSD_DefStat_onNewGame", PTSD_DefStat_onNewGame);
 		if ("Sar".equals(defaultStage) || "Cod".equals(defaultStage) || "Inv".equals(defaultStage)
@@ -230,14 +264,40 @@ final_invasion_max_strength = Math.max(1f, PTSDModPluginAltLuna.getLunaInt(PTSD,
 		}
 	}
 
+	public static void reloadLunaSettingsAfterVisibilityChange() {
+		updateLunaSettings();
+	}
 	public static void onLunaSettingsChanged(String changedModId) {
 		if (!getModId().equals(changedModId)) return;
+		PTSDLunaConfigVisibility.sync();
 		updateLunaSettings();
 		syncInvasionScriptWithSettings();
 	}
 
+	/** The Pandora switch becomes save-latched once opened outside DevMode. */
 	public static boolean isInvasionEnabled() {
-		return OMEGA_PTSD_PREV && omega_invasion_enabled;
+		if (!OMEGA_PTSD_PREV) return false;
+		SectorAPI sector = Global.getSector();
+		if (sector == null || Global.getSettings().isDevMode()) return omega_invasion_enabled;
+		PTSDCrisisState state = PTSDCrisisState.get();
+		if (state == null) return omega_invasion_enabled;
+		if (!state.pandoraInitialized) {
+			state.pandoraInitialized = true;
+			state.pandoraOpened = omega_invasion_enabled;
+		} else if (omega_invasion_enabled) {
+			state.pandoraOpened = true;
+		}
+		return state.pandoraOpened;
+	}
+
+	public static boolean isPhaseEnabled(PTSDCrisisState.Phase phase) {
+		if (Global.getSettings() == null || !Global.getSettings().isDevMode()) return true;
+		if (phase == PTSDCrisisState.Phase.DORMANT) return phase_dormant_enabled;
+		if (phase == PTSDCrisisState.Phase.RECON) return phase_recon_enabled;
+		if (phase == PTSDCrisisState.Phase.EXPANSION) return phase_expansion_enabled;
+		if (phase == PTSDCrisisState.Phase.FORTIFICATION) return phase_fortification_enabled;
+		if (phase == PTSDCrisisState.Phase.WAR) return phase_war_enabled;
+		return true;
 	}
 
 	private static void syncInvasionScriptWithSettings() {

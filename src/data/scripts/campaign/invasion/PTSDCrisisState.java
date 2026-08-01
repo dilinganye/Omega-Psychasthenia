@@ -19,7 +19,7 @@ public final class PTSDCrisisState implements Serializable {
     private static final long serialVersionUID = 1L;
 
     public static final String PERSISTENT_KEY = "$PTSD_crisis_state_v2";
-    public static final int CURRENT_VERSION = 3;
+    public static final int CURRENT_VERSION = 5;
     public static final float CAMPAIGN_DAY_EPOCH_OFFSET = 700000f;
 
     public enum Phase {
@@ -40,6 +40,7 @@ public final class PTSDCrisisState implements Serializable {
         GARRISON,
         FORTRESS_PATROL,
         PLAYER_TASK_FORCE,
+        FIRE_PROBE,
         EXTERNAL
     }
 
@@ -125,6 +126,35 @@ public final class PTSDCrisisState implements Serializable {
         }
     }
 
+    /**
+     * A narrative crisis card. Public reports may be wrong; the truth and exact target are
+     * retained for DevMode and later declassification without leaking them to normal Intel.
+     */
+    public static final class CrisisIncident implements Serializable {
+        private static final long serialVersionUID = 1L;
+
+        public String id;
+        public String cardId;
+        public String category;
+        public int randomBranch;
+        public Phase phase;
+        public String targetSystemId;
+        public String targetMarketId;
+        public String linkedEventId;
+        public float createdDay;
+        public float expiresDay;
+        public String sourceLabel;
+        public String headline;
+        public String publicText;
+        public String trueText;
+        public String effectSummary;
+        public boolean disclosed;
+        public boolean playerRelevant;
+        public boolean devForced;
+
+        public CrisisIncident() { }
+    }
+
     public static final class PlayerMarker implements Serializable {
         private static final long serialVersionUID = 1L;
 
@@ -196,6 +226,25 @@ public final class PTSDCrisisState implements Serializable {
     public float nextExpansionDay;
     public float nextFortressDay;
     public float lastSimulationDay;
+    public float lastProgressUpdateDay;
+
+    // Continuous crisis variables; all use a stable 0..100 scale.
+    public float reconConfidence;
+    public float humanAwareness;
+    public float watcherAggression;
+    public float nestDevelopment;
+    public float blockadeDensity;
+    public float omegaEscalation;
+    public float humanCohesion;
+    public float publicPanic;
+    public float realityDistortion;
+    public boolean progressInitialized;
+    public String lastProgressSource;
+    public String lastProgressSystemId;
+    public float lastProgressChangeDay;
+    public float nextIncidentDay;
+    public boolean pandoraInitialized;
+    public boolean pandoraOpened;
 
     public int totalScoutSightings;
     public int totalScoutEscapes;
@@ -204,6 +253,7 @@ public final class PTSDCrisisState implements Serializable {
     public boolean softWarningShown;
     public boolean hardWarningShown;
     public boolean watcherTransferred;
+    public boolean preInvasionFactionSynchronized;
     public boolean preWarIntelCreated;
     public boolean warIntelCreated;
     public boolean legacyTimelineMigrated;
@@ -219,6 +269,8 @@ public final class PTSDCrisisState implements Serializable {
     public Map<String, Integer> committedProduction = new LinkedHashMap<String, Integer>();
     public Map<String, OccupationData> occupations = new LinkedHashMap<String, OccupationData>();
     public Map<String, Float> aftermathCooldowns = new LinkedHashMap<String, Float>();
+    public Map<String, Float> incidentCooldowns = new LinkedHashMap<String, Float>();
+    public List<CrisisIncident> incidents = new ArrayList<CrisisIncident>();
 
     private PTSDCrisisState() {
         float day = getDay();
@@ -230,6 +282,8 @@ public final class PTSDCrisisState implements Serializable {
         nextExpansionDay = day + 5f;
         nextFortressDay = day + 10f;
         lastSimulationDay = day;
+        lastProgressUpdateDay = day;
+        nextIncidentDay = day + 4f;
     }
 
     public static PTSDCrisisState get() {
@@ -285,10 +339,71 @@ public final class PTSDCrisisState implements Serializable {
         if (committedProduction == null) committedProduction = new LinkedHashMap<String, Integer>();
         if (occupations == null) occupations = new LinkedHashMap<String, OccupationData>();
         if (aftermathCooldowns == null) aftermathCooldowns = new LinkedHashMap<String, Float>();
+        if (incidentCooldowns == null) incidentCooldowns = new LinkedHashMap<String, Float>();
+        if (incidents == null) incidents = new ArrayList<CrisisIncident>();
+        if (nextIncidentDay <= 0f) nextIncidentDay = getDay() + 2f;
         if (version < 3) migrateLegacyTimeline();
+        // Any pre-v5 state necessarily existed while the crisis system was already running.
+        if (version < 5) {
+            pandoraInitialized = true;
+            pandoraOpened = true;
+        }
+        ensureProgressInitialized();
         version = CURRENT_VERSION;
     }
 
+    public void ensureProgressInitialized() {
+        if (progressInitialized) return;
+        progressInitialized = true;
+        applyProgressFloors(phase);
+        lastProgressUpdateDay = getDay();
+    }
+
+    /** Migration and phase transitions only raise floors; earned progress is never reduced. */
+    public void applyProgressFloors(Phase target) {
+        if (target == null) target = Phase.DORMANT;
+        switch (target) {
+            case RECON:
+                reconConfidence = Math.max(reconConfidence, 15f);
+                humanCohesion = Math.max(humanCohesion, 10f);
+                break;
+            case EXPANSION:
+                reconConfidence = Math.max(reconConfidence, 55f);
+                humanAwareness = Math.max(humanAwareness, 15f);
+                watcherAggression = Math.max(watcherAggression, 25f);
+                nestDevelopment = Math.max(nestDevelopment, 12f);
+                humanCohesion = Math.max(humanCohesion, 15f);
+                break;
+            case FORTIFICATION:
+                reconConfidence = Math.max(reconConfidence, 70f);
+                humanAwareness = Math.max(humanAwareness, 25f);
+                watcherAggression = Math.max(watcherAggression, 35f);
+                nestDevelopment = Math.max(nestDevelopment, 45f);
+                blockadeDensity = Math.max(blockadeDensity, 10f);
+                humanCohesion = Math.max(humanCohesion, 20f);
+                realityDistortion = Math.max(realityDistortion, 15f);
+                break;
+            case WAR:
+                reconConfidence = Math.max(reconConfidence, 85f);
+                humanAwareness = Math.max(humanAwareness, 70f);
+                watcherAggression = Math.max(watcherAggression, 80f);
+                nestDevelopment = Math.max(nestDevelopment, 75f);
+                blockadeDensity = Math.max(blockadeDensity, 65f);
+                omegaEscalation = Math.max(omegaEscalation, 35f);
+                humanCohesion = Math.max(humanCohesion, 35f);
+                publicPanic = Math.max(publicPanic, 50f);
+                realityDistortion = Math.max(realityDistortion, 35f);
+                break;
+            case ENDED:
+                reconConfidence = Math.max(reconConfidence, 90f);
+                humanAwareness = Math.max(humanAwareness, 90f);
+                humanCohesion = Math.max(humanCohesion, 40f);
+                break;
+            default:
+                humanCohesion = Math.max(humanCohesion, 5f);
+                break;
+        }
+    }
     private void migrateLegacyTimeline() {
         phaseStartedDay = migrateDay(phaseStartedDay);
         nextScoutDay = migrateDay(nextScoutDay);

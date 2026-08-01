@@ -83,6 +83,24 @@ public final class PTSDOccupationAPI {
                         Math.max(0f, humanAttention) * 0.35f);
         system.knownToPlayer = true;
 
+        String systemId = market.getStarSystem().getId();
+        PTSDCrisisProgress.add(state, PTSDCrisisProgress.Variable.OMEGA_ESCALATION,
+                Math.max(0f, omegaAttention) * 1.5f, "OCCUPATION_" + action.name(), systemId);
+        PTSDCrisisProgress.add(state, PTSDCrisisProgress.Variable.HUMAN_AWARENESS,
+                Math.max(0f, humanAttention) * 5f + Math.max(0f, omegaAttention) * 0.4f,
+                "OCCUPATION_" + action.name(), systemId);
+        PTSDCrisisProgress.add(state, PTSDCrisisProgress.Variable.PUBLIC_PANIC,
+                Math.max(0f, omegaAttention) * 0.8f, "OCCUPATION_" + action.name(), systemId);
+        if (action == Action.HARASSMENT_BOMBARDMENT || action == Action.SATURATION_BOMBARDMENT ||
+                action == Action.PROBE || action == Action.DEFENSE_DEFEATED) {
+            PTSDCrisisProgress.add(state, PTSDCrisisProgress.Variable.WATCHER_AGGRESSION,
+                    Math.max(0.5f, omegaAttention), "PLAYER_HOSTILITY_" + action.name(), systemId);
+        }
+        if (action == Action.DEFENSE_DEFEATED) {
+            PTSDCrisisProgress.add(state, PTSDCrisisProgress.Variable.HUMAN_COHESION,
+                    1.5f, "DEFENSE_DEFEATED", systemId);
+        }
+
         InteractionContext context = new InteractionContext(market);
         for (InteractionExtension extension : getExtensions()) {
             try {

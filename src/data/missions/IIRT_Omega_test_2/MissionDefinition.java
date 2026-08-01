@@ -150,6 +150,10 @@ public class MissionDefinition implements MissionDefinitionPlugin {
 
 
 				api.addToFleet(DevSide, "IIRT_Omega_Inspect_Normal_4", FleetMemberType.SHIP, "侦察", true);
+				api.addToFleet(DevSide, "IIRT_Omega_Inspect_Normal_4", FleetMemberType.SHIP, "侦察", true);
+				api.addToFleet(DevSide, "PTSD_Ring_AntiShield", FleetMemberType.SHIP, "环带", true);
+				api.addToFleet(DevSide, "PTSD_Ring_AntiShield", FleetMemberType.SHIP, "环带", true);
+
 
 				api.addToFleet(DevSide, "IIRT_Omega_RedShift_Boomer", FleetMemberType.SHIP, "红移", true);
 

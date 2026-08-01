@@ -1,0 +1,29 @@
+{
+  "variantId": "PTSD_Ring_AntiShield",
+  "hullId": "PTSD_Ring",
+  "displayName": "AntiShield",
+  "goalVariant": true,
+  "fluxCapacitors": 0,
+  "fluxVents": 0,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "thermosiphonsrm"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0002": "minipulser"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

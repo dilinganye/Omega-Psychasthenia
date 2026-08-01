@@ -13,6 +13,7 @@ import com.fs.starfarer.api.impl.campaign.procgen.NebulaEditor;
 import com.fs.starfarer.api.impl.campaign.procgen.StarAge;
 import com.fs.starfarer.api.impl.campaign.terrain.HyperspaceTerrainPlugin;
 import com.fs.starfarer.api.util.Misc;
+import data.scripts.campaign.invasion.PTSDOmegaFleetScaling;
 import data.scripts.campaign.themes.IIRT_OmegaStationFleetManager;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -389,9 +390,11 @@ public class Omega_Pre_Zone_01 {
 
 	public void addFleetOmega_Psychasthenia50(SectorEntityToken rock) {
 		// 向舰队中添加成员——————————RANDOM
-		FleetParamsV3 params = new FleetParamsV3(null, "Omega_Psychasthenia", 2f, "TASK_FORCE", 60f, 0f, 0f, 0f, 0f, 0f, 0f);
+		float scaledFp = PTSDOmegaFleetScaling.scale(60f, 0.45f);
+		FleetParamsV3 params = new FleetParamsV3(null, "Omega_Psychasthenia", 2f, "TASK_FORCE", scaledFp, 0f, 0f, 0f, 0f, 0f, 0f);
 		params.ignoreMarketFleetSizeMult = true;
 		CampaignFleetAPI fleet = FleetFactoryV3.createFleet(params);
+		PTSDOmegaFleetScaling.record(fleet, 60f, scaledFp, 0.45f);
 		fleet.setName("偏执-60");
 		// 设置舰队属性，使其具有敌对性和攻击性
 		fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_MAKE_HOSTILE, true);
@@ -426,9 +429,11 @@ public class Omega_Pre_Zone_01 {
 
 	public void addFleetOmega_Psychasthenia150(SectorEntityToken planet1) {
 		// 向舰队中添加成员——————————RANDOM
-		FleetParamsV3 params = new FleetParamsV3(null, "Omega_Psychasthenia", 2f, "TASK_FORCE", 80f, 0f, 0f, 0f, 0f, 0f, 0f);
+		float scaledFp = PTSDOmegaFleetScaling.scale(80f, 0.65f);
+		FleetParamsV3 params = new FleetParamsV3(null, "Omega_Psychasthenia", 2f, "TASK_FORCE", scaledFp, 0f, 0f, 0f, 0f, 0f, 0f);
 		params.ignoreMarketFleetSizeMult = true;
 		CampaignFleetAPI fleet = FleetFactoryV3.createFleet(params);
+		PTSDOmegaFleetScaling.record(fleet, 80f, scaledFp, 0.65f);
 		fleet.setName("躁虑-80");
 		// 设置舰队属性，使其具有敌对性和攻击性
 		fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_MAKE_HOSTILE, true);
@@ -463,9 +468,11 @@ public class Omega_Pre_Zone_01 {
 
 	public void addFleetOmega_Psychasthenia240(SectorEntityToken planet2) {
 		// 向舰队中添加成员——————————RANDOM
-		FleetParamsV3 params = new FleetParamsV3(null, "Omega_Psychasthenia", 2f, "TASK_FORCE", 150f, 0f, 0f, 0f, 0f, 0f, 0f);
+		float scaledFp = PTSDOmegaFleetScaling.scale(150f, 1.0f);
+		FleetParamsV3 params = new FleetParamsV3(null, "Omega_Psychasthenia", 2f, "TASK_FORCE", scaledFp, 0f, 0f, 0f, 0f, 0f, 0f);
 		params.ignoreMarketFleetSizeMult = true;
 		CampaignFleetAPI fleet = FleetFactoryV3.createFleet(params);
+		PTSDOmegaFleetScaling.record(fleet, 150f, scaledFp, 1.0f);
 		fleet.setName("创伤-150");
 		// 设置舰队属性，使其具有敌对性和攻击性
 		fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_MAKE_HOSTILE, true);

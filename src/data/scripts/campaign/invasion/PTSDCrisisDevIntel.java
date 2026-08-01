@@ -36,6 +36,8 @@ public final class PTSDCrisisDevIntel extends BaseIntelPlugin {
     private static final String OPEN_PREWAR = "PTSD_DEV_OPEN_PREWAR";
     private static final String OPEN_WAR = "PTSD_DEV_OPEN_WAR";
     private static final String REFRESH = "PTSD_DEV_REFRESH";
+    private static final String FORCE_DARK = "PTSD_DEV_FORCE_DARK";
+    private static final String FORCE_PROBE = "PTSD_DEV_FORCE_PROBE";
 
     public static final class DevRecord implements Serializable {
         private static final long serialVersionUID = 1L;
@@ -183,8 +185,21 @@ public final class PTSDCrisisDevIntel extends BaseIntelPlugin {
                 elapsed(state.phaseStartedDay), String.valueOf(state.visibleStage),
                 String.valueOf(state.totalOmegaEncounters), String.valueOf(state.totalScoutSightings),
                 String.valueOf(state.totalScoutEscapes));
-        info.addPara("下一侦察 %s｜权重更新 %s｜扩张 %s｜要塞 %s｜Omega 回合 %s｜人类回合 %s",
-                3f, Misc.getHighlightColor(), remaining(state.nextScoutDay), remaining(state.nextWeightUpdateDay),
+        info.addPara("时代 %s｜当前危机势力 %s｜全面进攻准备度 %s/%s",
+                3f, Misc.getHighlightColor(), PTSDCrisisProgress.getEra(state).name(),
+                PTSDCrisisProgress.getActiveFactionId(state),
+                String.valueOf(Math.round(PTSDCrisisProgress.getInvasionReadiness(state))),
+                String.valueOf(Math.round(PTSDCrisisProgress.INVASION_READINESS_THRESHOLD)));
+        info.addPara("侦察置信 %s｜人类认知 %s｜第四窥视攻击性 %s｜巢穴发展 %s｜封锁密度 %s",
+                3f, Misc.getHighlightColor(), String.valueOf(Math.round(state.reconConfidence)),
+                String.valueOf(Math.round(state.humanAwareness)), String.valueOf(Math.round(state.watcherAggression)),
+                String.valueOf(Math.round(state.nestDevelopment)), String.valueOf(Math.round(state.blockadeDensity)));
+        info.addPara("精神创伤升级 %s｜人类凝聚 %s｜公众恐慌 %s｜现实扭曲 %s",
+                3f, Misc.getHighlightColor(), String.valueOf(Math.round(state.omegaEscalation)),
+                String.valueOf(Math.round(state.humanCohesion)), String.valueOf(Math.round(state.publicPanic)),
+                String.valueOf(Math.round(state.realityDistortion)));
+        info.addPara("下一未知事件 %s｜下一侦察 %s｜权重更新 %s｜扩张 %s｜要塞 %s｜Omega 回合 %s｜人类回合 %s",
+                3f, Misc.getHighlightColor(), remaining(state.nextIncidentDay), remaining(state.nextScoutDay), remaining(state.nextWeightUpdateDay),
                 remaining(state.nextExpansionDay), remaining(state.nextFortressDay),
                 remaining(state.nextOmegaTurnDay), remaining(state.nextHumanTurnDay));
         String baseName = locationName(state.baseSystemId, null);
@@ -192,15 +207,22 @@ public final class PTSDCrisisDevIntel extends BaseIntelPlugin {
                 3f, Misc.getHighlightColor(), baseName,
                 yesNo(state.softWarningShown), yesNo(state.hardWarningShown), yesNo(state.watcherTransferred));
 
+        info.addPara("舰队强度：全局倍率 %s｜动态 Flat +%s（上限 +200）",
+                3f, Misc.getHighlightColor(),
+                String.valueOf(data.scripts.IIRT_Omega_ModPlugin.omega_fleet_strength_multiplier),
+                String.valueOf(Math.round(PTSDOmegaFleetScaling.getDynamicFlat())));
         info.addSectionHeading("直接访问情报", base, dark,
                 com.fs.starfarer.api.ui.Alignment.MID, opad);
         info.addPara("以下预览只在 DevMode 中补建；若剧情已正常解锁，则会自动转为正式情报。", 5f);
         info.addButton("查看战前危机情报", OPEN_PREWAR, base, dark, width, 24f, 4f);
         info.addButton("查看战区态势情报", OPEN_WAR, base, dark, width, 24f, 2f);
         info.addButton("刷新监视器", REFRESH, base, dark, width, 24f, 2f);
+        info.addButton("强制抽取：暗流事件", FORCE_DARK, base, dark, width, 24f, 2f);
+        info.addButton("强制抽取：火力侦察", FORCE_PROBE, Color.ORANGE, new Color(80, 45, 20), width, 24f, 2f);
 
         addWeights(info, state, base, dark, opad);
         addOccupations(info, state, width, base, dark, opad);
+        addIncidents(info, state, width, base, dark, opad);
         addStrategicEvents(info, state, width, base, dark, opad);
         addRecords(info, width, base, dark, opad);
         panel.addUIElement(info).inTL(0f, 0f);
@@ -256,6 +278,28 @@ public final class PTSDCrisisDevIntel extends BaseIntelPlugin {
         if (shown == 0) info.addPara("尚无精神创伤占领区。", 5f);
     }
 
+    private void addIncidents(TooltipMakerAPI info, PTSDCrisisState state, float width,
+                              Color base, Color dark, float opad) {
+        info.addSectionHeading("随机事件卡（公开报道 / 真实记录）", base, dark,
+                com.fs.starfarer.api.ui.Alignment.MID, opad);
+        int shown = 0;
+        for (int i = state.incidents.size() - 1; i >= 0 && shown < MAX_EVENT_BUTTONS; i--) {
+            PTSDCrisisState.CrisisIncident incident = state.incidents.get(i);
+            if (incident == null) continue;
+            String where = locationName(incident.targetSystemId, null);
+            info.addPara("[%s] 分支 %s / %s / %s @ %s", shown == 0 ? 6f : 8f,
+                    Misc.getHighlightColor(), incident.cardId, String.valueOf(incident.randomBranch),
+                    incident.category, incident.headline, where);
+            info.addPara("公开：" + incident.publicText, 1f);
+            info.addPara("真实：" + incident.trueText + "｜" + incident.effectSummary, 1f,
+                    Misc.getGrayColor(), new String[0]);
+            addNavigationButtons(info, width, base, dark,
+                    new DevButton(false, incident.linkedEventId, incident.targetSystemId, null),
+                    new DevButton(true, incident.linkedEventId, incident.targetSystemId, null), where);
+            shown++;
+        }
+        if (shown == 0) info.addPara("尚无随机事件卡。", 5f);
+    }
     private void addStrategicEvents(TooltipMakerAPI info, PTSDCrisisState state, float width,
                                     Color base, Color dark, float opad) {
         info.addSectionHeading("战略事件（含远方隐藏事件）", base, dark,
@@ -266,7 +310,7 @@ public final class PTSDCrisisDevIntel extends BaseIntelPlugin {
             SectorEntityToken target = resolveDisplayTarget(event.targetSystemId, event.targetMarketId,
                     event.materializedFleetId);
             String where = target == null ? locationName(event.targetSystemId, null) : target.getFullName();
-            info.addPara("[%s] %s / %s / %s / 强度 %s / 结算日 %s @ %s",
+            info.addPara("[%s] %s / %s / 强度 %s / 结算日 %s @ %s",
                     shown == 0 ? 6f : 8f, colorForStatus(event.status),
                     event.status.name(), event.type.name(), event.side,
                     String.valueOf(Math.round(event.strength)), format(event.resolveDay), where);
@@ -320,6 +364,12 @@ public final class PTSDCrisisDevIntel extends BaseIntelPlugin {
             return;
         }
         if (REFRESH.equals(buttonId)) {
+            ui.updateUIForItem(this);
+            return;
+        }
+        if (FORCE_DARK.equals(buttonId) || FORCE_PROBE.equals(buttonId)) {
+            String category = FORCE_PROBE.equals(buttonId) ? "火力侦察" : "暗流";
+            PTSDCrisisIncidentManager.forceRandomCategory(category);
             ui.updateUIForItem(this);
             return;
         }

@@ -1,0 +1,97 @@
+{
+  "hullName": "PTSD_Ring",
+  "hullId": "PTSD_Ring",
+  "hullSize": "FRIGATE",
+  "spriteName": "graphics/ships/Omega_Ring.png",
+  "style": "OMEGA_Plus",
+  "height": 115,
+  "width": 108,
+  "center": [54, 57.5],
+  "collisionRadius": 96.5,
+  "shieldCenter": [0, 0],
+  "shieldRadius": 71.5,
+  "viewOffset": 0,
+  "builtInMods": [
+    "automated",
+    "IIRT_Omega_BugShardSpawner"
+  ],
+  "weaponSlots": [
+    {
+      "id": "WS0001",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 123,
+      "angle": 17,
+      "locations": [-13.5, 14.5],
+      "renderOrderMod": 2
+    },
+    {
+      "id": "WS0002",
+      "size": "SMALL",
+      "type": "UNIVERSAL",
+      "mount": "TURRET",
+      "arc": 276,
+      "angle": 100,
+      "locations": [-11.5, 41]
+    }
+  ],
+  "engineSlots": [
+    {
+      "location": [-40, 13.5],
+      "length": 82.221199,
+      "width": 8.408302,
+      "angle": -137,
+      "contrailSize": 8.408302,
+      "style": "OMEGA"
+    },
+    {
+      "location": [-48, 6],
+      "length": 14.849242,
+      "width": 24.04163,
+      "angle": 135,
+      "contrailSize": 24.04163,
+      "style": "OMEGA"
+    },
+    {
+      "location": [17.5, 11],
+      "length": 14.495688,
+      "width": 20.506096,
+      "angle": -45,
+      "contrailSize": 20.506096,
+      "style": "OMEGA"
+    },
+    {
+      "location": [20, 8.5],
+      "length": 14.495688,
+      "width": 20.506096,
+      "angle": 135,
+      "contrailSize": 20.506096,
+      "style": "OMEGA"
+    }
+  ],
+  "bounds": [
+    7, -50.5,
+    31.5, -42.5,
+    50.5, -16.5,
+    48, 3.5,
+    18.5, 45.5,
+    0.5, 50.5,
+    -3, 39.5,
+    19.5, 33.5,
+    45, 1.5,
+    43, -14.5,
+    31.5, -19,
+    1, -8,
+    -9, 23,
+    -0.5, 50,
+    -24, 48.5,
+    -32.5, 38,
+    -27.5, 28,
+    -55, -2.5,
+    -48.5, -7,
+    -49, -13,
+    -34, -25,
+    -25, -38.5
+  ]
+}

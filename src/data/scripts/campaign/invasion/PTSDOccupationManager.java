@@ -20,7 +20,8 @@ public final class PTSDOccupationManager {
 
     public static boolean isOccupied(MarketAPI market) {
         if (market == null) return false;
-        if (IIRT_Omega_Invasion.PSYCHASTHENIA_FACTION.equals(market.getFactionId())) return true;
+        if (IIRT_Omega_Invasion.PSYCHASTHENIA_FACTION.equals(market.getFactionId()) ||
+                IIRT_Omega_Invasion.WATCHER_FACTION.equals(market.getFactionId())) return true;
         return market.getMemoryWithoutUpdate().getBoolean(CONTROLLED_MEMORY);
     }
 

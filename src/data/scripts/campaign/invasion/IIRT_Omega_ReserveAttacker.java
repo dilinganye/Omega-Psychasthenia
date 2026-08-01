@@ -103,7 +103,8 @@ public class IIRT_Omega_ReserveAttacker implements EveryFrameScript {
 
         // Calculate attack strength based on reserve location and player threat level
         float battleSize = Global.getSettings().getBattleSize();
-        float strength = Math.min(battleSize * (1.5f + (float)Math.random() * 0.5f), final_invasion_max_strength);
+        float baseStrength = Math.min(battleSize * (1.5f + (float)Math.random() * 0.5f), final_invasion_max_strength);
+        float strength = PTSDOmegaFleetScaling.scale(baseStrength, 1.2f);
 
         FleetParamsV3 params = new FleetParamsV3(
                 spawnLoc,
@@ -117,6 +118,8 @@ public class IIRT_Omega_ReserveAttacker implements EveryFrameScript {
         params.aiCores = OfficerQuality.AI_OMEGA;
 
         CampaignFleetAPI attackFleet = FleetFactoryV3.createFleet(params);
+        if (attackFleet == null) return;
+        PTSDOmegaFleetScaling.record(attackFleet, baseStrength, strength, 1.2f);
         attackFleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_NO_SHIP_RECOVERY, true);
         attackFleet.setName("Omega Reserve Strike");
 

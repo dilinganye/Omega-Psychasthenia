@@ -2,6 +2,7 @@ package data.scripts.campaign.invasion;
 
 import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.util.IntervalUtil;
+import data.scripts.PTSDLunaConfigVisibility;
 
 /** Transient campaign watcher that adds/removes the crisis monitor when DevMode changes. */
 public final class PTSDCrisisDevWatcher implements EveryFrameScript {
@@ -21,6 +22,7 @@ public final class PTSDCrisisDevWatcher implements EveryFrameScript {
     public void advance(float amount) {
         interval.advance(amount);
         if (interval.intervalElapsed()) {
+            PTSDLunaConfigVisibility.sync();
             PTSDCrisisDevIntel.sync();
             PTSDOccupationManager.syncMapVisibility();
         }

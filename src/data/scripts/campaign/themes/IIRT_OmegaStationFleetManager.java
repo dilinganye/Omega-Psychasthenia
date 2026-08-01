@@ -14,6 +14,7 @@ import com.fs.starfarer.api.impl.campaign.fleets.FleetParamsV3;
 import com.fs.starfarer.api.impl.campaign.fleets.SourceBasedFleetManager;
 import com.fs.starfarer.api.impl.campaign.ids.FleetTypes;
 import com.fs.starfarer.api.impl.campaign.procgen.themes.RemnantAssignmentAI;
+import data.scripts.campaign.invasion.PTSDOmegaFleetScaling;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -87,6 +88,8 @@ public class IIRT_OmegaStationFleetManager extends SourceBasedFleetManager {
 		if (combatPoints > 16) type = FleetTypes.PATROL_LARGE;
 
 		combatPoints *= 8f;
+		float baseCombatPoints = combatPoints;
+		combatPoints = Math.round(PTSDOmegaFleetScaling.scale(combatPoints, 0.35f));
 
 		FleetParamsV3 params = new FleetParamsV3(source.getMarket(), source.getLocationInHyperspace(), "Omega_Psychasthenia", 1f, type, combatPoints, // combatPts
 				0f, // freighterPts 
@@ -102,6 +105,7 @@ public class IIRT_OmegaStationFleetManager extends SourceBasedFleetManager {
 
 		CampaignFleetAPI fleet = FleetFactoryV3.createFleet(params);
 		if (fleet == null) return null;
+		PTSDOmegaFleetScaling.record(fleet, baseCombatPoints, combatPoints, 0.35f);
 
 		LocationAPI location = source.getContainingLocation();
 		location.addEntity(fleet);

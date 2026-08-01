@@ -7,6 +7,7 @@ import com.fs.starfarer.api.campaign.FleetAssignment;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.InteractionDialogPlugin;
 import com.fs.starfarer.api.campaign.OptionPanelAPI;
+import com.fs.starfarer.api.campaign.PlanetAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.TextPanelAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
@@ -37,6 +38,9 @@ public final class PTSDOccupiedColonyInteraction implements InteractionDialogPlu
     private InteractionDialogAPI dialog;
     private MarketAPI market;
     private PTSDOccupationAPI.InteractionContext context;
+    private PTSDOccupationHostileVisual hostileVisual;
+    private boolean intrusionTextCleared;
+    private boolean intrusionResolved;
 
     @Override
     public void init(InteractionDialogAPI dialog) {
@@ -44,7 +48,12 @@ public final class PTSDOccupiedColonyInteraction implements InteractionDialogPlu
         SectorEntityToken target = dialog.getInteractionTarget();
         this.market = target == null ? null : target.getMarket();
         this.context = PTSDOccupationAPI.createContext(market);
-        if (target != null) dialog.getVisualPanel().showLargePlanet(target);
+        if (target instanceof PlanetAPI) {
+            hostileVisual = new PTSDOccupationHostileVisual((PlanetAPI) target);
+            dialog.getVisualPanel().showCustomPanel(810f, 540f, hostileVisual);
+        } else if (target != null) {
+            dialog.getVisualPanel().showLargePlanet(target);
+        }
         showMain();
     }
 
@@ -231,11 +240,13 @@ public final class PTSDOccupiedColonyInteraction implements InteractionDialogPlu
             return;
         }
 
-        float strength = negotiationResponse ? 140f : 450f;
+        float baseStrength = negotiationResponse ? 140f : 450f;
         PTSDCrisisState state = PTSDCrisisState.get();
         if (state != null && market.getStarSystem() != null) {
-            strength += state.getSystemData(market.getStarSystem().getId()).conversionLevel * 7f;
+            baseStrength += state.getSystemData(market.getStarSystem().getId()).conversionLevel * 7f;
         }
+        float severity = intrusionResolved ? 1.05f : (negotiationResponse ? 0.35f : 0.75f);
+        float strength = PTSDOmegaFleetScaling.scale(baseStrength, severity);
         Vector2f spawn = Misc.getPointWithinRadius(market.getPrimaryEntity().getLocation(), 900f);
         FleetParamsV3 params = new FleetParamsV3(spawn,
                 IIRT_Omega_Invasion.PSYCHASTHENIA_FACTION, 1f,
@@ -258,6 +269,7 @@ public final class PTSDOccupiedColonyInteraction implements InteractionDialogPlu
         fleet.addAssignment(FleetAssignment.GO_TO_LOCATION_AND_DESPAWN,
                 market.getPrimaryEntity(), 3f, "返回行星阴影");
         market.getMemoryWithoutUpdate().set(PTSDOccupationManager.ACTIVE_DEFENSE_MEMORY, fleet.getId());
+        PTSDOmegaFleetScaling.record(fleet, baseStrength, strength, severity);
         PTSDOccupationAPI.addAttention(market, PTSDOccupationAPI.Action.DEFENSE_SPAWNED,
                 negotiationResponse ? 0.2f : 0.35f, 0f);
         PTSDCrisisDevIntel.report("占领区防御舰队生成",
@@ -280,6 +292,29 @@ public final class PTSDOccupiedColonyInteraction implements InteractionDialogPlu
 
     @Override
     public void advance(float amount) {
+        if (hostileVisual == null || intrusionResolved) return;
+        float elapsed = hostileVisual.getElapsed();
+        if (elapsed >= 11.2f && !intrusionTextCleared) {
+            intrusionTextCleared = true;
+            dialog.getTextPanel().clear();
+            dialog.getOptionPanel().clearOptions();
+            PTSDCrisisDevIntel.report("占领区恶意界面侵蚀", "文字与选项已被抹除；白光正在扩张",
+                    market == null || market.getStarSystem() == null ? null : market.getStarSystem().getId(),
+                    market == null ? null : market.getId());
+        }
+        if (elapsed >= 13.4f) {
+            intrusionResolved = true;
+            if (market != null) {
+                PTSDCrisisState state = PTSDCrisisState.get();
+                if (state != null) state.getOccupationData(market.getId()).lastInteraction = "HOSTILE_UI_INTRUSION";
+                PTSDOccupationAPI.addAttention(market, PTSDOccupationAPI.Action.PROBE, 0.65f, 0.06f);
+                PTSDCrisisDevIntel.report("占领区恶意界面侵蚀完成", "强制断开交互并唤醒防护舰队",
+                        market.getStarSystem() == null ? null : market.getStarSystem().getId(), market.getId());
+                spawnDefense(false);
+            } else {
+                dialog.dismiss();
+            }
+        }
     }
 
     @Override

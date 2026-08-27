@@ -1,13 +1,11 @@
 package data.scripts.campaign.invasion;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.BattleAPI;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.FleetAssignment;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.InteractionDialogPlugin;
 import com.fs.starfarer.api.campaign.OptionPanelAPI;
-import com.fs.starfarer.api.campaign.PlanetAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.TextPanelAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
@@ -18,6 +16,7 @@ import com.fs.starfarer.api.impl.campaign.fleets.FleetParamsV3;
 import com.fs.starfarer.api.impl.campaign.ids.FleetTypes;
 import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
 import com.fs.starfarer.api.util.Misc;
+import data.hullmods.shard.PTSD_BaseShard_Util;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -33,12 +32,15 @@ public final class PTSDOccupiedColonyInteraction implements InteractionDialogPlu
     private static final String NEGOTIATE = "PTSD_OCC_NEGOTIATE";
     private static final String NEGOTIATE_2 = "PTSD_OCC_NEGOTIATE_2", NEGOTIATE_2_2 = "PTSD_OCC_NEGOTIATE_2_2";
     private static final String NEGOTIATE_END = "PTSD_OCC_NEGOTIATE_END";
-    private static final String LEAVE = "PTSD_OCC_LEAVE";
+    private static final String INTERCEPTOR = "PTSD_OCC_INTERCEPTOR";
+    private static final String INTERCEPTOR_2 = "PTSD_OCC_INTERCEPTOR_2";
+    private static final String INTERCEPTOR_2Late = "PTSD_OCC_INTERCEPTOR_2_LATE";
+    private static final String LEAVE = "PTSD_OCC_LEAVE", WAIT =  "PTSD_OCC_WAIT";
 
     private InteractionDialogAPI dialog;
     private MarketAPI market;
     private PTSDOccupationAPI.InteractionContext context;
-    private PTSDOccupationHostileVisual hostileVisual;
+    private float hostileElapsed;
     private boolean intrusionTextCleared;
     private boolean intrusionResolved;
 
@@ -48,33 +50,26 @@ public final class PTSDOccupiedColonyInteraction implements InteractionDialogPlu
         SectorEntityToken target = dialog.getInteractionTarget();
         this.market = target == null ? null : target.getMarket();
         this.context = PTSDOccupationAPI.createContext(market);
-        if (target instanceof PlanetAPI) {
-            hostileVisual = new PTSDOccupationHostileVisual((PlanetAPI) target);
-            dialog.getVisualPanel().showCustomPanel(810f, 540f, hostileVisual);
-        } else if (target != null) {
+        if (target != null) {
+            // Use the engine's actual spherical planet renderer; planet textures are equirectangular
+            // and become a stretched square when drawn directly as a SpriteAPI.
+            dialog.getVisualPanel().setVisualFade(0.12f, 0.35f);
             dialog.getVisualPanel().showLargePlanet(target);
         }
         showMain();
     }
-
-    private void showMain() {
-        TextPanelAPI text = dialog.getTextPanel();
-        OptionPanelAPI options = dialog.getOptionPanel();
-        text.clear();
-        options.clearOptions();
-        text.addPara("你正在接近一颗被未知造物控制的星球。在这片星域安全之前，你无法，也不可能在安全的情况下对这里进行任何操作。",
-                new Color(230, 170, 150));
-        text.addPara("被重写的轨道设施没有回应识别请求。传感器只能确认地表与近轨道之间存在持续的数据交换，以及某种正在等待你先采取行动的防御机制。");
-
+    private void baseOption(TextPanelAPI text, OptionPanelAPI options ){
+        // text.clear();
+        // options.clearOptions();
         int harassmentCost = getHarassmentCost();
         options.addOption("进行远距轰炸（消耗 " + harassmentCost + " 燃料）", BOMBARD,
-                "不进入近轨道，在防御网边缘投射高能弹药。这会造成有限破坏，并显著提高精神创伤对本星系的注意。");
+                "不进入近轨道，在防御网边缘投射高能弹药。这会造成有限破坏，并显著提高目标对本星系的注意。");
         setFuelAvailability(BOMBARD, harassmentCost);
 
         options.addOption("尝试试探", PROBE,
                 "以小规模探测与火控照射测试防御反应。预计会立即招致一支防御舰队。");
         options.addOption("尝试交涉", NEGOTIATE,
-                "向地表和轨道设施发送多频段通讯请求。没有迹象表明对方愿意交流。");
+                "向地表和轨道设施发送多频段通讯请求，但没有迹象表明对方愿意交流。");
 
         if (market != null && market.getMemoryWithoutUpdate().getBoolean(
                 PTSDOccupationManager.DEFENSE_DEFEATED_MEMORY)) {
@@ -93,6 +88,15 @@ public final class PTSDOccupiedColonyInteraction implements InteractionDialogPlu
                 }
             }
         }
+    }
+    private void showMain() {
+        TextPanelAPI text = dialog.getTextPanel();
+        OptionPanelAPI options = dialog.getOptionPanel();
+
+        dialog.getTextPanel().addPara("你正在接近一颗明显被未知造物控制的星球——星球那异样的地表就能很清楚的显示这一点。\n但在这片星域彻底安全之前，你无法，也不可能在不受威胁的情况下对这里进行任何操作。",new Color(235, 185, 130));
+        dialog.getTextPanel().addPara("轨道内完全没有任何通讯，而这很令人诧异：\n里 面 连 一 点 噪 波 都 没 有\n\n传感器对其发射的波段仿佛被吸收了一样，整个星球在探测仪上只有一个轻微的轮廓。");
+        dialog.getTextPanel().addPara("\"长官，我们的探测仪在一个极其少见的频段内，探测到了轻微的人造波，我们怀疑内部可能有某种人造的，或者非人造的设施。\"\n...也许是某种正在等待你先采取行动的防御机制。");
+        baseOption(text,options);
         options.addOption("离开", LEAVE);
         options.setShortcut(LEAVE, Keyboard.KEY_ESCAPE, false, false, false, true);
         dialog.setOptionOnEscape("离开", LEAVE);
@@ -138,9 +142,25 @@ public final class PTSDOccupiedColonyInteraction implements InteractionDialogPlu
             showNegotiationAttack();
             return;
         }
+        if (INTERCEPTOR.equals(optionData)) {
+            showIntercept();
+            return;
+        }
+        if (INTERCEPTOR_2.equals(optionData)) {
+            showIntercept_2();
+            return;
+        }
+        if (INTERCEPTOR_2Late.equals(optionData)) {
+            showIntercept_2Late();
+            return;
+        }
         if (NEGOTIATE_END.equals(optionData)) {
             recordNegotiation();
             spawnDefense(true);
+            return;
+        }
+        if (WAIT.equals(optionData)) {
+            showIntercept_2Wait();
             return;
         }
         if (context != null) {
@@ -160,6 +180,7 @@ public final class PTSDOccupiedColonyInteraction implements InteractionDialogPlu
             showMain();
             return;
         }
+        hostileElapsed = 0;
         Global.getSector().getPlayerFleet().getCargo().removeFuel(cost);
         PTSDCrisisState state = PTSDCrisisState.get();
         PTSDCrisisState.OccupationData data = state == null ? null : state.getOccupationData(market.getId());
@@ -204,6 +225,7 @@ public final class PTSDOccupiedColonyInteraction implements InteractionDialogPlu
     }
 
     private void showNegotiationStart() {
+        hostileElapsed -= 10f;
         dialog.getTextPanel().clear();
         dialog.getOptionPanel().clearOptions();
         dialog.getTextPanel().addPara("尽管你的副官并不这么建议你，你还是命令你的通讯官员尝试向对方建立连接。随后，每一个信道都在同一瞬间返回了应答。");
@@ -227,6 +249,44 @@ public final class PTSDOccupiedColonyInteraction implements InteractionDialogPlu
                 Color.ORANGE);
         dialog.getOptionPanel().clearOptions();
         dialog.getOptionPanel().addOption("脱离轨道", NEGOTIATE_END);
+    }
+
+    private void showIntercept() {
+        dialog.getTextPanel().addPara("\"长官？\"，雷达官的声音和警报一同响起，\"不论您还想干什么，最好都快点！\"");
+        dialog.getTextPanel().addPara("雷达对着星球地表狂躁的扫描着，而带来的回馈更是令人感到不可思议：在和近地轨道相重叠的空间内，有着极为危险的高能反射。\n\n没人知道那是什么东西。\n");
+
+    }
+
+    private void showIntercept_2() {
+        dialog.getTextPanel().addPara("\"传感器传来高能未知读数，来源是...对方的整个舰船！速度超过...那不重要了，它们就在我们正下方，并且距离正在急剧缩短！\"很明显，你耽搁太久了。",
+                Color.ORANGE);
+        dialog.getTextPanel().addPara("\"距离61700...52400...39020...\"",
+                Color.RED);
+        dialog.getOptionPanel().clearOptions();
+        dialog.getOptionPanel().addOption("下令舰队立刻脱离轨道", INTERCEPTOR_2Late);
+    }
+    private void showIntercept_2Late() {
+        dialog.getTextPanel().addPara("随着你的下令，舰队开始转向，并尝试逃离，但传感器上越发急促的遇敌信号，以及那发轰鸣在舰队正前方那碎裂的空间洪流。终究还是证明了这一切都是徒劳。");
+        dialog.getTextPanel().addPara("\"做不到！它们正在对我们开火！\"",
+                Color.RED);
+        dialog.getOptionPanel().clearOptions();
+        dialog.getOptionPanel().addOption("\"该死，全舰进入奥列夫零级战斗状态！\"", WAIT);
+    }
+    private void showIntercept_2Idle() {
+        dialog.getTextPanel().addPara("\"无意冒犯，"+Global.getSector().getPlayerPerson().getRank()+"，但请尽快下达命令！\"",
+                Color.RED);
+        dialog.getTextPanel().addPara("你是愣住了？还是在思考对策？你的船员们不知道，但他们在竭力保持冷静，并等待你的决定。");
+
+        dialog.getOptionPanel().clearOptions();
+        dialog.getOptionPanel().addOption("\"...\"", WAIT);
+    }
+    private void showIntercept_2Wait() {
+        dialog.getTextPanel().addPara("双方都是死一般的寂静，没人知道战斗会什么时候开始...");
+        dialog.getTextPanel().addPara("你 也 一样 \n",Color.RED);
+
+        dialog.getTextPanel().addPara("*提示：你有微弱的机会可以依靠紧急机动来规避敌人舰队，但请默认你基本不会成功",
+                Color.GRAY);
+        dialog.getOptionPanel().clearOptions();
     }
 
     private void recordProbe() {
@@ -265,7 +325,7 @@ public final class PTSDOccupiedColonyInteraction implements InteractionDialogPlu
                 IIRT_Omega_Invasion.PSYCHASTHENIA_FACTION, 1f,
                 FleetTypes.PATROL_MEDIUM, strength, 0f, 0f, 0f, 0f, 0f, 0f);
         params.maxNumShips = Math.max(5, Global.getSettings().getMaxShipsInFleet() / 2);
-        CampaignFleetAPI fleet = FleetFactoryV3.createFleet(params);
+        CampaignFleetAPI fleet = PTSD_BaseShard_Util.createFleet(params, strength, PTSD_BaseShard_Util.FleetRole.GUARD_ASSAULT);
         if (fleet == null) {
             dialog.dismiss();
             return;
@@ -286,7 +346,8 @@ public final class PTSDOccupiedColonyInteraction implements InteractionDialogPlu
         PTSDOccupationAPI.addAttention(market, PTSDOccupationAPI.Action.DEFENSE_SPAWNED,
                 negotiationResponse ? 0.2f : 0.35f, 0f);
         PTSDCrisisDevIntel.report("占领区防御舰队生成",
-                negotiationResponse ? "丢包处理" : "防火墙系统",
+                (negotiationResponse ? "丢包处理" : "防火墙系统") + "；分支 " +
+                        PTSD_BaseShard_Util.getFleetBranchName(fleet),
                 market.getStarSystem() == null ? null : market.getStarSystem().getId(), fleet.getId());
         dialog.dismiss();
     }
@@ -305,23 +366,39 @@ public final class PTSDOccupiedColonyInteraction implements InteractionDialogPlu
 
     @Override
     public void advance(float amount) {
-        if (hostileVisual == null || intrusionResolved) return;
-        float elapsed = hostileVisual.getElapsed();
-        if (elapsed >= 11.2f && !intrusionTextCleared) {
+        if (market == null || intrusionResolved) return;
+        hostileElapsed += Math.max(0f, amount);
+        float elapsed = hostileElapsed;
+        if (elapsed >= 10f && elapsed - amount < 10f) {
+            showIntercept();
+            return;
+        }
+        if (elapsed >= 14f && elapsed - amount < 14f) dialog.getVisualPanel().fadeVisualOut();
+
+        if (elapsed >= 17f && elapsed - amount < 17f) {
+            showIntercept_2();
+            return;
+        }
+        if (elapsed >= 22f && elapsed - amount < 22f) {
+            showIntercept_2Idle();
+            return;
+        }
+        if (elapsed >= 30f && !intrusionTextCleared) {
             intrusionTextCleared = true;
-            dialog.getTextPanel().clear();
+            // dialog.getTextPanel().clear();
             dialog.getOptionPanel().clearOptions();
-            PTSDCrisisDevIntel.report("占领区恶意界面侵蚀", "文字与选项已被抹除；白光正在扩张",
+            // 需要一个星球白光闪烁化，然后白光越来越近的效果
+            PTSDCrisisDevIntel.report("太晚了...", "文字与选项已被抹除；白光扩张",
                     market == null || market.getStarSystem() == null ? null : market.getStarSystem().getId(),
                     market == null ? null : market.getId());
         }
-        if (elapsed >= 13.4f) {
+        if (elapsed >= 33.4f) {
             intrusionResolved = true;
             if (market != null) {
                 PTSDCrisisState state = PTSDCrisisState.get();
                 if (state != null) state.getOccupationData(market.getId()).lastInteraction = "HOSTILE_UI_INTRUSION";
                 PTSDOccupationAPI.addAttention(market, PTSDOccupationAPI.Action.PROBE, 0.65f, 0.06f);
-                PTSDCrisisDevIntel.report("占领区恶意界面侵蚀完成", "强制断开交互并唤醒防护舰队",
+                PTSDCrisisDevIntel.report("太晚了...", "强制断开交互并唤醒防护舰队",
                         market.getStarSystem() == null ? null : market.getStarSystem().getId(), market.getId());
                 spawnDefense(false);
             } else {

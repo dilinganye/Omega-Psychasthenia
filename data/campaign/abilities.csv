@@ -1,0 +1,2 @@
+name,id,type,tags,activationDays,activationCooldown,durationDays,deactivationDays,deactivationCooldown,unlockedAtStart,defaultForAIFleet,musicSuppression,uiOn,uiOff,uiLoop,worldOn,worldOff,worldLoop,icon,plugin,ai,desc,sortOrder
+危机信号相关器,PTSD_crisis_signal_correlator,TOGGLE,"stealth-, sensors+",0.1,,,0.1,,,,,ui_neutrino_detector_on,ui_neutrino_detector_off,,,,,graphics/icons/abilities/neutrino_detector.png,data.scripts.campaign.invasion.PTSDCrisisDetectorAbility,,指示附近已经实体化的精神创伤相关信号；开启后未知活动更加频繁。,705

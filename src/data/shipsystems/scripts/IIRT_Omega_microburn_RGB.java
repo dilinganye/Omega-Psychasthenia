@@ -88,13 +88,21 @@ public class IIRT_Omega_microburn_RGB extends BaseShipSystemScript {
 			hasCrack = true;
 		}
 
+		Color W1C = new Color(77, 58, 80, 255);
+		Color W2C = new Color(77, 58, 80, 255);
+		Color W3C = new Color(77, 58, 80, 255);
+
+
 		Color testing = new Color(98, 105, 110, 255);
-		Color W1C = W01.getSprite().getAverageColor();
-		Color W2C = W02.getSprite().getAverageColor();
-		Color W3C = W03.getSprite().getAverageColor();
-		W1C = new Color(W1C.getRed(), W1C.getGreen(), W1C.getBlue(), 175);
-		W2C = new Color(W2C.getRed(), W2C.getGreen(), W2C.getBlue(), 175);
-		W3C = new Color(W3C.getRed(), W3C.getGreen(), W3C.getBlue(), 175);
+		W1C = W01.getSprite().getAverageColor();
+		W2C = W02.getSprite().getAverageColor();
+		W3C = W03.getSprite().getAverageColor();
+		try {W1C = new Color(W1C.getRed(), W1C.getGreen(), W1C.getBlue(), 175);}
+		catch (Exception ignored) {}
+        try {W2C = new Color(W2C.getRed(), W2C.getGreen(), W2C.getBlue(), 175);}
+		catch (Exception ignored) {}
+		try {W3C = new Color(W3C.getRed(), W3C.getGreen(), W3C.getBlue(), 175);}
+		catch (Exception ignored) {}
 		int T_R = W1C.getRed() + W2C.getRed() + W3C.getRed(),
 				T_G = W1C.getGreen() + W2C.getGreen() + W3C.getGreen(),
 				T_B = W1C.getBlue() + W2C.getBlue() + W3C.getBlue(),
@@ -307,7 +315,10 @@ public class IIRT_Omega_microburn_RGB extends BaseShipSystemScript {
 		mine.setFlightTime(mine.getMaxFlightTime() - liveTime);
 		mine.addDamagedAlready(source);
 		mine.setNoMineFFConcerns(true);
-		mine.getProjectileSpec().setHitGlowRadius(mine.getProjectileSpec().getHitGlowRadius()*0.75f);
+		try{
+		mine.getProjectileSpec().setHitGlowRadius(mine.getProjectileSpec().getHitGlowRadius()*0.75f);} catch (
+				Exception e) {
+		}
 		if (liveTime <= 0.016f) {
 			mine.explode();
 		}

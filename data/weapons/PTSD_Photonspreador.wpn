@@ -1,0 +1,34 @@
+{
+  "id": "PTSD_Photonspreador",
+  "specClass": "projectile",
+  "projectileSpecId": "PTSD_Photonspreador_shot",
+  "type": "ENERGY",
+  "size": "SMALL",
+  "everyFrameEffect": "data.scripts.weapons.PTSD_PhotonspreadorEffect",
+  "turretSprite": "graphics/weapons/PTSD_Photonspreador.png",
+  "turretGlowSprite": "graphics/weapons/PTSD_Photonspreador_L.png",
+  "hardpointSprite": "graphics/weapons/PTSD_Photonspreador_HD.png",
+  "hardpointGlowSprite": "graphics/weapons/PTSD_Photonspreador_HD_L.png",
+  "glowColor": [
+    255,
+    255,
+    255,
+    255
+  ],
+  "turretOffsets": [
+    -1.5,
+    0.5
+  ],
+  "turretAngleOffsets": [
+    0
+  ],
+  "hardpointOffsets": [
+    -4,
+    1
+  ],
+  "hardpointAngleOffsets": [
+    0
+  ],
+  "barrelMode": "ALTERNATING",
+  "animationType": "GLOW"
+}

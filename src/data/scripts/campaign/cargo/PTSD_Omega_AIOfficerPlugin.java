@@ -15,6 +15,7 @@ import org.lazywizard.lazylib.MathUtils;
 
 import java.util.Random;
 
+import static com.fs.starfarer.api.characters.FullName.Gender.ANY;
 import static com.fs.starfarer.api.impl.campaign.events.OfficerManagerEvent.pickPortraitPreferNonDuplicate;
 
 public class PTSD_Omega_AIOfficerPlugin extends BaseAICoreOfficerPluginImpl implements AICoreOfficerPlugin {
@@ -35,9 +36,9 @@ public class PTSD_Omega_AIOfficerPlugin extends BaseAICoreOfficerPluginImpl impl
         person.getStats().setSkipRefresh(true);
         String designation = PTSDOmegaFleetSupport.WATCHER_FACTION_ID.equals(factionId)
                 ? "Unknown target" : "P.T.S.D. Scout";
-        person.setName(new FullName(designation + "-" + (1000 + random.nextInt(9000)), "", Gender.ANY));
+        person.setName(new FullName(designation + "-" + (1000 + random.nextInt(9000)), "", ANY));
         //person.setPortraitSprite("graphics/portraits/special/portraits_GravenAI.png");
-        person.setPortraitSprite(pickPortraitPreferNonDuplicate(theFaction, person.getGender()));
+        person.setPortraitSprite(pickPortraitPreferNonDuplicate(theFaction, ANY));
         person.getStats().setLevel(PTSD_Level);
         person.getStats().setSkillLevel(Skills.HELMSMANSHIP, 2);
         person.getStats().setSkillLevel(Skills.TARGET_ANALYSIS, 2);

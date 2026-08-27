@@ -11,6 +11,7 @@ import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
 import com.fs.starfarer.api.impl.campaign.missions.hub.HubMissionWithTriggers.OfficerQuality;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import data.hullmods.shard.PTSD_BaseShard_Util;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.Color;
@@ -117,7 +118,7 @@ public class IIRT_Omega_ReserveAttacker implements EveryFrameScript {
         params.maxNumShips = (int)(Global.getSettings().getMaxShipsInFleet() * 1.5f);
         params.aiCores = OfficerQuality.AI_OMEGA;
 
-        CampaignFleetAPI attackFleet = FleetFactoryV3.createFleet(params);
+        CampaignFleetAPI attackFleet = PTSD_BaseShard_Util.createFleet(params, strength, PTSD_BaseShard_Util.FleetRole.GUARD_ASSAULT);
         if (attackFleet == null) return;
         PTSDOmegaFleetScaling.record(attackFleet, baseStrength, strength, 1.2f);
         attackFleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_NO_SHIP_RECOVERY, true);

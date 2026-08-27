@@ -1,7 +1,7 @@
 {
   "id": "PTSD_Fracture_Calculus",
   "specClass": "projectile",
-  "projectileSpecId": "PTSD_Taslo_shot",
+  "projectileSpecId": "PTSD_Fracture_Calculus_shot",
   "type": "BALLISTIC",
   "size": "MEDIUM",
   "turretSprite": "graphics/weapons/PTSD_Fracture_Calculus.png",

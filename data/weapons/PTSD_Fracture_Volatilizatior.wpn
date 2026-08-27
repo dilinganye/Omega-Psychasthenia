@@ -1,7 +1,7 @@
 {
-  "id": "PTSD_Facture_Volatilizatior",
+  "id": "PTSD_Fracture_Volatilizatior",
   "specClass": "projectile",
-  "projectileSpecId": "PTSD_Taslo_shot",
+  "projectileSpecId": "PTSD_Fracture_Volatilizatior_shot",
   "type": "HYBRID",
   "size": "MEDIUM",
   "turretSprite": "graphics/weapons/PTSD_Fracture_Volatilizatior.png",

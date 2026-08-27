@@ -1,0 +1,66 @@
+{
+  "id": "PTSD_Pluto_2",
+  "specClass": "beam",
+  "type": "ENERGY",
+  "size": "SMALL",
+  "collisionClass": "RAY_FIGHTER",
+  "collisionClassByFighter": "RAY_FIGHTER",
+  "turretSprite": "graphics/fx/empty.png",
+  "turretGlowSprite": "graphics/fx/empty.png",
+  "hardpointSprite": "graphics/fx/empty.png",
+  "hardpointGlowSprite": "graphics/fx/empty.png",
+  "glowColor": [
+    222,
+    255,
+    255,
+    75
+  ],
+  "hitGlowRadius": 1,
+  "turretOffsets": [
+    0,
+    -3,
+    0,
+    3
+  ],
+  "turretAngleOffsets": [
+    0,
+    0
+  ],
+  "hardpointOffsets": [
+    0,
+    -3,
+    0,
+    -3
+  ],
+  "hardpointAngleOffsets": [
+    0,
+    0
+  ],
+  "fringeColor": [
+    255,
+    255,
+    255,
+    0
+  ],
+  "coreColor": [
+    255,
+    255,
+    255,
+    0
+  ],
+  "width": 6,
+  "textureType": [
+    "graphics/fx/PTSD_trail_noise.png",
+    "graphics/fx/IIRT_trail_Omega_Sub.png"
+  ],
+  "textureScrollSpeed": -128,
+  "pixelsPerTexel": 5,
+  "pierceSet": [
+    PROJECTILE_FF,
+    PROJECTILE_NO_FF,
+    PROJECTILE_FIGHTER,
+    MISSILE_FF,
+    MISSILE_NO_FF
+  ],
+  "fireSoundTwo": "riftbeam_loop"
+}

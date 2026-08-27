@@ -15,7 +15,9 @@ public final class PTSDCrisisProgress {
         BLOCKADE_DENSITY,
         OMEGA_ESCALATION,
         HUMAN_COHESION,
-        PUBLIC_PANIC,
+        GLOBAL_PANIC,
+        /** @deprecated use GLOBAL_PANIC; retained for binary compatibility. */
+        @Deprecated PUBLIC_PANIC,
         REALITY_DISTORTION
     }
 
@@ -61,16 +63,11 @@ public final class PTSDCrisisProgress {
                 addRaw(state, Variable.OMEGA_ESCALATION, 0.30f * days);
                 addRaw(state, Variable.BLOCKADE_DENSITY, 0.06f * days);
                 addRaw(state, Variable.HUMAN_COHESION, 0.04f * days);
-                addRaw(state, Variable.PUBLIC_PANIC, 0.05f * days);
                 addRaw(state, Variable.REALITY_DISTORTION, 0.10f * days);
                 break;
             case ENDED:
-                addRaw(state, Variable.PUBLIC_PANIC, -0.12f * days);
                 addRaw(state, Variable.HUMAN_COHESION, -0.03f * days);
                 break;
-        }
-        if (state.phase != PTSDCrisisState.Phase.WAR) {
-            addRaw(state, Variable.PUBLIC_PANIC, -0.04f * days);
         }
     }
 
@@ -94,7 +91,8 @@ public final class PTSDCrisisProgress {
             case BLOCKADE_DENSITY: return state.blockadeDensity;
             case OMEGA_ESCALATION: return state.omegaEscalation;
             case HUMAN_COHESION: return state.humanCohesion;
-            case PUBLIC_PANIC: return state.publicPanic;
+            case GLOBAL_PANIC:
+            case PUBLIC_PANIC: return state.globalPanic;
             case REALITY_DISTORTION: return state.realityDistortion;
             default: return 0f;
         }
@@ -130,7 +128,11 @@ public final class PTSDCrisisProgress {
             case BLOCKADE_DENSITY: state.blockadeDensity = clamp(state.blockadeDensity + amount); break;
             case OMEGA_ESCALATION: state.omegaEscalation = clamp(state.omegaEscalation + amount); break;
             case HUMAN_COHESION: state.humanCohesion = clamp(state.humanCohesion + amount); break;
-            case PUBLIC_PANIC: state.publicPanic = clamp(state.publicPanic + amount); break;
+            case GLOBAL_PANIC:
+            case PUBLIC_PANIC:
+                state.globalPanic = clamp(state.globalPanic + amount);
+                state.publicPanic = state.globalPanic;
+                break;
             case REALITY_DISTORTION: state.realityDistortion = clamp(state.realityDistortion + amount); break;
         }
     }

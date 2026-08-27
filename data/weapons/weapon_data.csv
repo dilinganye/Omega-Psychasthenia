@@ -1,14 +1,25 @@
 name,id,tier,rarity,base value,range,damage/second,damage/shot,emp,impact,turn rate,OPs,ammo,ammo/sec,reload size,type,energy/shot,energy/second,chargeup,chargedown,burst size,burst delay,min spread,max spread,spread/shot,spread decay/sec,beam speed,proj speed,launch speed,flight time,proj hitpoints,hints,tags,groupTag,tech/manufacturer,for weapon tooltip>>,primaryRoleStr,speedStr,trackingStr,turnRateStr,accuracyStr,customPrimary,customPrimaryHL,customAncillary,customAncillaryHL,noDPSInTooltip,number
 #新生- 大多数OP都暂定为5，这表示还没完事
-余波震荡器,PTSD_Aftershockor,3,,150000,800,250,,,100,100,5,,,,HIGH_EXPLOSIVE,,250,2,0.75,,,,,,,,450,,,,"STRIKE","energy15, pd15, omega",,未知,,反装甲,,,,,命中非未知船体或护甲时，根据受损装甲数值进行一比一的额外装甲损伤。,,,,,
+余波震荡器,PTSD_Aftershockor,3,,150000,800,,250,500,100,100,5,,,,HIGH_EXPLOSIVE,,250,1,0.5,,,,,,,,400,,,,"STRIKE","energy15, pd15, omega",,未知,,反装甲,,,,,命中非未知船体或护甲时，根据受损装甲数值进行一比一的额外装甲损伤。,,,,,
+#稳定器代码和效果需要调整
 塔罗稳定器,PTSD_Fracture_Calculus,3,,150000,600,,10,,-50,25,5,,,,FRAGMENTATION,2,,0,0.01,,,0,12,1,10,,800,,,,,"energy15, omega",,未知,,通用,,,,,"命中非未知船体或护甲时，根据目标身上的 %s 层数产生影响：
 消耗当前的所有层数积攒，并在五秒内持续降低敌方时间流速，五秒内取当前最大消耗层数
 例：消耗 %s 层数，五秒内降低敌方时间流速 %s","塔罗影响 || 32层 || 32%",,,,
-裂隙挥发场,PTSD_Fracture_Volatilizatior,4,,500,500,,25,400,0,40,5,,,,ENERGY,30,,0.45,0,2,0.05,,,,,,1000,,,,,"energy8, omega",,未知,,通用,,,,,"此武器所在的 %s 范围内将随机产生裂隙风暴",1000,"此武器不能主动开火",,,1
-#实际上是伪随机，会在周围1000距离内索敌，(1000-敌人距离)判定，随后在其200距离内生成裂隙风暴，这个索敌包括lpc和其他任何战场物件，不限于舰船
-塔霜回旋器,PTSD_TasloSpinor,4,,100000,1500,,200,,100,10,5,10,1,1,ENERGY,300,,1,5,10,0.1,30,90,10,10,,900,50,7,500,"STRIKE","energy20, omega",,未知,,未知,,,,,"命中目标船体或护甲时，赋予其 %s 层 %s；若目标的 %s 层数高于 %s，则消耗所有层数并生成一次塔罗塌缩。","500 || 塔罗影响 || 塔罗影响 || 550",,,,
-隙质射枪,PTSD_Intertitial_Injection,4,,900,900,,35,1,,35,5,16,,,ENERGY,40,,0.1,0.3,4,0.05,0,10,0.5,15,,500,230,5.8,100,DO_NOT_AIM,"missile7, omega",,未知,,未知,,,,,"隙质徙入",
-#造成 隙质影响，影响层数大于30时消耗20层并生成一组 虹膜-级 类红雾的LPC
+塔罗中和子发生器,PTSD_TasloLauncher,3,,150000,600,,10,,-50,25,6,,,,FRAGMENTATION,2,,0,0.01,,,0,12,1,10,,800,,,,,"energy15, omega",,未知,,通用,极快,,,,"每次命中船体或装甲时，赋予目标一层 %s
+
+此影响无最大上限", "塔罗影响","塔罗影响：会受到其他塔罗粒子武器影响",,,
+#每次击中时，清空目标塔罗（最低需求为10个），并根据层数/10在对方附近600m再次随机生成一个冥星发射的弹药
+"""冥星""发射器",PTSD_Pluto,3,,150000,600,,200,,50,25,6,20,0.25,20,KINETIC,2,,0,0.5,,,0,10,2,10,,30,100,,,,"kinetic20, omega",,未知,,通用,极快,,,,,,"滞留",,,
+Targeting Laser - Pluto,PTSD_Pluto_2,0,,1,0,1,,,0,90,0,1000,1000,,ENERGY,,0,0.05,0.05,0.1,0.05,,,,,1000000,,,,,,,SYSTEM,,,,,Special,,,,,,,,,,50
+    PTSD_Pluto_payload,PTSD_Pluto_payload,1,,0,600,400,,,500,30,0,,,,KINETIC,0,,0.05,0.25,0.55,0.3,,,,,1000000,,,,,,,"SYSTEM, DANGEROUS",fires_one_burst,,,,,,,,,,,,,,11.91
+#重塔罗中和，击中对方舰体时消耗十层塔罗（不足则不触发）在对方附近产生一次裂隙爆炸
+裂隙挥发场,PTSD_Fracture_Volatilizatior,4,,500,500,,25,400,0,40,5,,,,ENERGY,30,,0.45,0,2,0.05,,,,,,1000,,,,,"energy8, omega",,未知,,通用,,,,,"命中目标船体或护甲时，赋予其 %s 层 %s；若目标的 %s 层数高于 %s，则消耗所有层数并生成一次塔罗塌缩。","500 || 塔罗影响 || 塔罗影响 || 550",,,
+#实际上是伪随机，首先在舰船的下图层渲染黑色扭动星云，同时会在周围1000距离内索敌，(1000-敌人距离)判定，随后在其200距离内生成裂隙风暴，这个索敌包括lpc和其他任何战场物件，不限于舰船
+塔霜回旋器,PTSD_TasloSpinor,4,,100000,1500,,200,,100,10,5,10,1,1,ENERGY,300,,1,5,10,0.1,30,90,10,10,,900,50,7,500,"STRIKE","energy20, omega",,未知,,未知,,,,,"此武器所在的 %s 范围内将随机对敌对目标产生裂隙风暴，会随着周围舰船数量的增加而轻微增速",1000,"此武器不能主动开火",,,
+隙质射枪,PTSD_Intertitial_Injection,4,,150000,900,,35,1,,35,5,16,2,,ENERGY,40,,0.1,0.3,4,0.05,0,10,0.5,15,,500,800,5.8,100,DO_NOT_AIM,"energy20, omega",,未知,,未知,,,,,,
+隙质弩,PTSD_Fracture_Cross,4,,150000,900,,35,1,,35,5,16,0.75,8,ENERGY,40,,0.1,0.3,4,0.05,0,10,0.5,15,,500,800,5.8,100,,"energy18, omega",,未知,,未知,,,,,"隙质徙入",
+辉光体,PTSD_Photonspreador,4,,150000,75,,25,1,,29,5,5,0.15,3,ENERGY,25,,0.75,1.25,,,,,,,,500,800,5.8,100,,"pd10, omega",,未知,,未知,,,,,"每次将对修复范围内的受损武器进行回溯，回溯只会修复武器，不会为其重装填弹药",,"此武器不能主动开火"
+#隙质中继器 能造成 隙质影响，影响层数大于30时消耗20层并生成一组 虹膜-级 类红雾的LPC
 #克劳斯姆
 比特冲程炮,IIRT_Lab_Bito_Cannon,1,,500,500,,60,,3,40,5,20,2,5,HIGH_EXPLOSIVE,60,,0,0.25,1,,0,5,1,2,,900,,,60,,"he7, KRM_bp",,克劳斯姆概念,,反装甲,非常快,,,,,,,,,
 齐射短刃,IIRT_Lab_Volley_Blade,1,,600,1000,,100,100,,30,7,12,0.33,6,KINETIC,80,,0,1,3,0.33,,10,8,5,,500,800,5,60,"CONSERVE_1, STRIKE, USE_VS_FRIGATES, MISSILE_SPREAD","missile19, strike15, KRM_bp, KRM_Com_bp",,克劳斯姆概念,,反护盾,良好,特殊,,,在最开始 %s，但如果偏失目标则会在一段距离后 %s 一次。,无制导 | 重新制导,,,TRUE,
@@ -25,9 +36,6 @@ name,id,tier,rarity,base value,range,damage/second,damage/shot,emp,impact,turn r
 当 %s 结果 < 1时，则抹除 %s x %s 对应的CR。",30% | 塌缩比 | 判定| 塌缩比 | 10% | 塌缩比 | 10% | 塌缩比,,,TRUE,
 相位粒子发生器,IIRT_Lab_PhaseParticleBeam,2,,2000,600,1000,,,-10,30,10,,,,ENERGY,,1200,0.1,0.4,1,4,,,,,3200,,,,,"GUIDED_POOR, DO_NOT_CONSERVE, SYSTEM","energy14, beam10, KRM_bp",,克劳斯姆概念,,通用,,,,,在开火时会额外减少 %s 所需时间。,相位冷却,,,,
 #欧米伽
-塔罗中和子发生器,PTSD_TasloLauncher,3,,150000,600,,10,,-50,25,6,,,,FRAGMENTATION,2,,0,0.01,,,0,12,1,10,,800,,,,,"energy15, omega",,未知,,通用,极快,,,,"每次命中船体或装甲时，赋予目标一层 %s
-
-此影响无最大上限", "塔罗影响","塔罗影响：会受到其他塔罗粒子武器影响",,,
 不稳定粒子速射器,Omega_Vpdiver_S,3,,150000,600,,70,,10,20,16,30,3,15,KINETIC,70,,0.05,0.025,1,,0,10,1,10,,1000,,,,,"kinetic20, omega, restricted",,未知,,反护盾,,,,,投射物会失去凝聚力并分散，其中 %s 弹体能达到射程的一半， %s 能达到最大射程。,100% | 50%,,,,25
 熵增发生器,Omega_Entropy,3,,150000,800,250,,,100,100,15,,,,KINETIC,,250,0.05,0.02,,,,,,,10000,,,,,"PD, ANTI_FTR, IGNORES_FLARES","beam15, pd15, omega, restricted",,未知,,点防御,,,,,命中船体或装甲时大概率产生打击武器与引擎的电弧，造成额外 EMP 与能量伤害。当命中护盾时，将根据目标硬幅能水平随机产生穿透护盾的电弧。同时产生推力。,,,,,
 热虹吸 SRM 发射器,thermosiphonsrm,3,,150000,600,,350,,-15,20,8,20,0.5,4,ENERGY,250,,0,1.25,4,0.25,5,20,5,,,800,150,9,175,DO_NOT_CONSERVE,"missile15, strike11, omega, restricted",,未知,,通用,快,较差,,,投射物击中敌方后，会将自身部分幅能强制转接到敌方舰船。此过程会根据幅能对敌方舰船造成 %s 形式的额外伤害。,能量伤害,,,TRUE,12

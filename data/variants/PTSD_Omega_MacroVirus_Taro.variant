@@ -1,0 +1,77 @@
+{
+  "variantId": "PTSD_Omega_MacroVirus_Taro",
+  "hullId": "PTSD_Omega_MacroVirus",
+  "displayName": "Taro",
+  "goalVariant": true,
+  "fluxCapacitors": 0,
+  "fluxVents": 0,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "rifttorpedo",
+        "WS0002": "riftcascade",
+        "WS0004": "PTSD_Intertitial_Injection",
+        "WS0005": "PTSD_Pluto",
+        "WS0006": "PTSD_Fracture_Calculus",
+        "WS0008": "PTSD_Pluto",
+        "WS0014": "PTSD_TasloLauncher",
+        "WS0017": "PTSD_Aftershockor",
+        "WS0019": "PTSD_TasloLauncher"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {}
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0003": "disintegrator",
+        "WS0009": "minipulser"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0018": "disintegrator"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0007": "resonatormrm",
+        "WS0020": "PTSD_TasloSpinor"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0010": "thermosiphonsrm",
+        "WS0013": "thermosiphonsrm",
+        "WS0016": "amsrm",
+        "WS0021": "thermosiphonsrm"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0011": "shockrepeater",
+        "WS0012": "shockrepeater",
+        "WS0015": "shockrepeater"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

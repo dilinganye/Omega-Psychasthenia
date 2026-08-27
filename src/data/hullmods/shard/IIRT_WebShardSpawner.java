@@ -103,13 +103,15 @@ public class IIRT_WebShardSpawner extends BaseHullMod {
 				splitWeight = 20f;
 				capitalProb = 1f;
 				capitalProbMult = 1f;
-				maxcapitals = 1f;
+				maxcapitals = 2f;
 
-				cruiserProbMult = 0.85f;
-				maxCruisers = 4f;
+				cruiserProbMult = 0.55f;
+				maxCruisers = 1f;
 
-				maxDestroyers = 2f;
-				maxFrigates = 2f;
+				maxDestroyers = 1f;
+				destroyerProbMult = 0.35f;
+				maxFrigates = 0f;
+				frigateProbMult = 0f;
 			}
 		} else if (ship.isCruiser()) {
 			//			splitWeight = 7f;

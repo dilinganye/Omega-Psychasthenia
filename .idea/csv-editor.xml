@@ -73,6 +73,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="D:\Game\Starsector_098\starsector-core\data\weapons\weapon_data.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\data\campaign\commodities.csv">
           <value>
             <Attribute>
@@ -94,6 +101,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\data\campaign\rules.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\data\campaign\special_items.csv">
           <value>
             <Attribute>
@@ -102,6 +116,13 @@
           </value>
         </entry>
         <entry key="\data\config\LunaSettings.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\config\ptsdCSV\PTSD_crisis_news.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />

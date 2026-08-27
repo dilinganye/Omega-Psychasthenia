@@ -1,0 +1,57 @@
+{
+  "id": "PTSD_Pluto",
+  "specClass": "projectile",
+  "projectileSpecId": "PTSD_Pluto_missile",
+  "type": "ENERGY",
+  "mountTypeOverride": "SYNERGY",
+  "size": "MEDIUM",
+  "turretSprite": "graphics/weapons/PTSD_Pluto.png",
+  "turretGlowSprite": "graphics/weapons/PTSD_Pluto_L.png",
+  "hardpointSprite": "graphics/weapons/PTSD_Pluto.png",
+  "hardpointGlowSprite": "graphics/weapons/PTSD_Pluto_L.png",
+  "glowColor": [
+    255,
+    255,
+    255,
+    255
+  ],
+  "renderHints": [
+    RENDER_LOADED_MISSILES
+  ],
+  "turretOffsets": [
+    -6,
+    6.5,
+    -6,
+    -6.5
+  ],
+  "turretAngleOffsets": [
+    153.5,
+    -153.5
+  ],
+  "hardpointOffsets": [
+    10,
+    6.5,
+    10,
+    -6.5
+  ],
+  "hardpointAngleOffsets": [
+    153.5,
+    -153.5
+  ],
+  "barrelMode": "ALTERNATING",
+  "animationType": "GLOW_AND_FLASH",
+  "muzzleFlashSpec": {
+    "length": 40,
+    "spread": 10,
+    "particleSizeMin": 4,
+    "particleSizeRange": 8,
+    "particleDuration": 1.5,
+    "particleCount": 7,
+    "particleColor": [
+      151,
+      122,
+      221,
+      75
+    ]
+  }
+}

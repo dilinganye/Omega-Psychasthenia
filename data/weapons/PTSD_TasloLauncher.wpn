@@ -1,7 +1,7 @@
 {
   "id": "PTSD_TasloLauncher",
   "specClass": "projectile",
-  "projectileSpecId": "PTSD_Taslo_shot",
+  "projectileSpecId": "PTSD_TasloLauncher_shot",
   "type": "BALLISTIC",
   "size": "SMALL",
   "turretSprite": "graphics/weapons/PTSD_TasloLauncher.png",
@@ -46,7 +46,7 @@
   "muzzleFlashSpec": {
     "length": 100,
     "spread": 6,
-    "particleSizeMin": 5,
+    "particleSizeMin": 8,
     "particleSizeRange": 7,
     "particleDuration": 0.5,
     "particleCount": 4,

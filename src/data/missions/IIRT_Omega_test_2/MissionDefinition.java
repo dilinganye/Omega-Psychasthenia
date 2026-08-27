@@ -76,6 +76,8 @@ public class MissionDefinition implements MissionDefinitionPlugin {
 				api.addToFleet(DevSide, "IIRT_Omega_Gateway_Only3", FleetMemberType.SHIP, "网关", true);
 				api.addToFleet(DevSide, "IIRT_Omega_Gateway_Only4", FleetMemberType.SHIP, "网关", true);
 				api.addToFleet(DevSide, "IIRT_Omega_Gateway_Only5", FleetMemberType.SHIP, "网关", true);
+				api.addToFleet(DevSide, "IIRT_Omega_Gateway_TALO", FleetMemberType.SHIP, "网关", true);
+
 
 				api.addToFleet(DevSide, "IIRT_Omega_AttackChain_Assault", FleetMemberType.SHIP, "攻击链", true);
 				api.addToFleet(DevSide, "IIRT_Omega_AttackChain_AntiShield", FleetMemberType.SHIP, "攻击链", true);
@@ -181,6 +183,8 @@ public class MissionDefinition implements MissionDefinitionPlugin {
 
 				api.addToFleet(DevSide, "Omega_EPP_Lazer", FleetMemberType.SHIP, "终端防护平台", true);
 				api.addToFleet(DevSide, "PTSD_Omega_MacroVirus_Assault", FleetMemberType.SHIP, "宏病毒", true);
+				api.addToFleet(DevSide, "PTSD_Omega_MacroVirus_Taro", FleetMemberType.SHIP, "宏病毒", true);
+
 
 				api.addToFleet(DevSide, "IIRT_Omega_Station_Small", FleetMemberType.SHIP, "? ? ?", true);
 				api.addToFleet(DevSide, "IIRT_Omega_Station_Stable", FleetMemberType.SHIP, "? ? ?", true);

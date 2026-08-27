@@ -15,6 +15,7 @@ import com.fs.starfarer.api.impl.campaign.fleets.SourceBasedFleetManager;
 import com.fs.starfarer.api.impl.campaign.ids.FleetTypes;
 import com.fs.starfarer.api.impl.campaign.procgen.themes.RemnantAssignmentAI;
 import data.scripts.campaign.invasion.PTSDOmegaFleetScaling;
+import data.hullmods.shard.PTSD_BaseShard_Util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -103,7 +104,7 @@ public class IIRT_OmegaStationFleetManager extends SourceBasedFleetManager {
 		params.random = random;
 		params.commanderLevelLimit = 0;
 
-		CampaignFleetAPI fleet = FleetFactoryV3.createFleet(params);
+		CampaignFleetAPI fleet = PTSD_BaseShard_Util.createFleet(params, combatPoints, PTSD_BaseShard_Util.FleetRole.GUARD_ASSAULT, random);
 		if (fleet == null) return null;
 		PTSDOmegaFleetScaling.record(fleet, baseCombatPoints, combatPoints, 0.35f);
 

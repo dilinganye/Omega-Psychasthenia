@@ -17,6 +17,9 @@
 	{
 	   "intel":
 	   {
+		   "Helper_Ja":"graphics/portraits/Helper/Helper_Ja.png",
+
+
 	       	"Watcher_01":"graphics/portraits/Watcher_01.png",
 	       	"Watcher_02":"graphics/portraits/Watcher_02.png",
 	       	"Watcher_03":"graphics/portraits/Watcher_03.png",
@@ -29,13 +32,14 @@
 	       	"IIRT_Lab_Yisic":"graphics/portraits/Lab/IIRT_Lab_Yisic.png",
 
 		   "IIRT_Davis_K_Ougust":"graphics/portraits/Ai_Core/Madness_Ai_Core_Y01.png",
-		   "IIRT_Silver_X":"graphics/portraits/IIRT_Ai_Webcam04.png",
+		   "IIRT_Silver_X":"graphics/portraits/old/IIRT_Ai_Webcam04.png",
 		   "IIRT_Army":"graphics/factions/IIRT_Army.png",
 
 		   "PTSD_Core_00":"graphics/portraits/Ai_Core/PTSD_Core_00.png",
 		   "PTSD_Core_01":"graphics/portraits/Ai_Core/PTSD_Core_01.png",
 		   "PTSD_Core_02":"graphics/portraits/Ai_Core/PTSD_Core_02.png",
 		   "PTSD_Core_03":"graphics/portraits/Ai_Core/PTSD_Core_03.png",
+		   "PTSD_Core_04":"graphics/portraits/Ai_Core/PTSD_Core_04.png",
 		   "PTSD_Core_05":"graphics/portraits/Ai_Core/PTSD_Core_05.png",
 
 		   "PTSD_Core_10":"graphics/portraits/Ai_Core/PTSD_Core_10.png",
@@ -43,6 +47,7 @@
 		   "PTSD_Core_12":"graphics/portraits/Ai_Core/PTSD_Core_12.png",
 		   "PTSD_Core_13":"graphics/portraits/Ai_Core/PTSD_Core_13.png",
 		   "PTSD_Core_14":"graphics/portraits/Ai_Core/PTSD_Core_14.png",
+		   "PTSD_Core_15":"graphics/portraits/Ai_Core/PTSD_Core_15.png",
 		   "PTSD_Core_20":"graphics/portraits/Ai_Core/PTSD_Core_20.png"
 	   },
 	   "campaignMissions":

@@ -15,7 +15,9 @@ import data.scripts.campaign.invasion.IIRT_Omega_Invasion;
 import data.scripts.campaign.invasion.PTSDCrisisDevIntel;
 import data.scripts.campaign.invasion.PTSDCrisisDevWatcher;
 import data.scripts.campaign.invasion.PTSDCrisisState;
+import data.scripts.campaign.invasion.PTSDJeOtloesManager;
 import data.scripts.campaign.invasion.PTSDOccupationManager;
+import data.scripts.campaign.invasion.PTSDNewsTicker;
 import data.scripts.campaign.PTSD_CampaignPlugin;
 import data.scripts.campaign.cargo.PTSD_OmegaOfficerGeneratorPlugin;
 import data.scripts.world.IIRT_NEXGenerate;
@@ -32,8 +34,8 @@ public class IIRT_Omega_ModPlugin extends BaseModPlugin {
 
 	public static boolean hasLunaLib = false;
 	public static boolean omega_invasion_enabled = true;
-	public static float start_stage_time = 65f;
-	public static float collect_data_time = 60f;
+	public static float start_stage_time = 90f;
+	public static float collect_data_time = 365f;
 	public static float invade_time = 30f;
 	public static float repair_time = 30f;
 	public static float scout_min_interval = 10f;
@@ -306,6 +308,7 @@ public static float final_invasion_max_strength = 200f;
 			installCrisisDevWatcher();
 			PTSDCrisisDevIntel.sync();
 			PTSDOccupationManager.syncMapVisibility();
+			installJeOtloesManager();
 		}
 		if (sector == null || !isInvasionEnabled() || sector.hasScript(IIRT_Omega_Invasion.class)) return;
 
@@ -315,6 +318,17 @@ public static float final_invasion_max_strength = 200f;
 		sector.addScript(new IIRT_Omega_Invasion());
 	}
 
+	private static void installJeOtloesManager() {
+		SectorAPI sector = Global.getSector();
+		if (sector == null) return;
+		if (!sector.hasScript(PTSDJeOtloesManager.class)) {
+			PTSDJeOtloesManager manager = new PTSDJeOtloesManager();
+			sector.addTransientScript(manager);
+			sector.getListenerManager().addListener(manager, true);
+		} else if (!sector.getListenerManager().hasListenerOfClass(PTSDJeOtloesManager.class)) {
+			sector.getListenerManager().addListener(new PTSDJeOtloesManager(), true);
+		}
+	}
 	private static void installCrisisDevWatcher() {
 		SectorAPI sector = Global.getSector();
 		if (sector != null && !sector.hasScript(PTSDCrisisDevWatcher.class)) {

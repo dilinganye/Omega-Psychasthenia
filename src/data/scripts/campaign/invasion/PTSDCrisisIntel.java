@@ -64,9 +64,10 @@ public final class PTSDCrisisIntel extends BaseIntelPlugin {
             if(incident==null||!incident.recordedByPlayer||(incident.investigationResolved&&!incident.investigationReal))continue;
             StarSystemAPI system=state.resolveSystem(incident.targetSystemId); if(system==null)continue;
             if(leads++==0)info.addSectionHeading("已记录的新闻调查",omega,dark,com.fs.starfarer.api.ui.Alignment.MID,12f);
-            String status=incident.investigationResolved?"已确认，位置保留":"调查中，最长30日";
+            String status=incident.investigationResolved?"已确认，位置保留":(incident.siteMaterialized?"现场已显现，等待抵近确认":"调查中，进入星系后投影现场");
             int left=Math.max(0,(int)Math.ceil(incident.investigationExpiresDay-PTSDCrisisState.getDay()));
             info.addPara("%s｜%s｜%s（剩余 %s 天）",6f,incident.investigationResolved?h:Misc.getTextColor(),incident.headline,system.getName(),status,String.valueOf(left));
+            if(incident.siteMaterialized)info.addPara("现场：%s｜%s",3f,new Color(206,142,255),String.valueOf(incident.siteTitle),String.valueOf(incident.siteConfirmationHint));
             if(!incident.investigationResolved)info.addButton("前往调查："+system.getName(),GO_INCIDENT+incident.id,omega,dark,width,23f,2f);
         }
         int traces=0;
@@ -91,7 +92,7 @@ public final class PTSDCrisisIntel extends BaseIntelPlugin {
     }
     @Override public String getIcon(){FactionAPI faction=getFactionForUIColors();return faction==null?null:faction.getCrest();}
     @Override public FactionAPI getFactionForUIColors(){FactionAPI watcher=Global.getSector()==null?null:Global.getSector().getFaction(IIRT_Omega_Invasion.WATCHER_FACTION);return watcher!=null?watcher:super.getFactionForUIColors();}
-    @Override public Set<String> getIntelTags(SectorMapAPI map){Set<String>tags=super.getIntelTags(map);tags.add(IIRT_Omega_Invasion.WATCHER_FACTION);tags.add("危机");if(devOnlyPreview)tags.add("DEV");return tags;}
+    @Override public Set<String> getIntelTags(SectorMapAPI map){Set<String>tags=super.getIntelTags(map);tags.add(IIRT_Omega_Invasion.WATCHER_FACTION);tags.add("危机");tags.add("新闻");if(devOnlyPreview)tags.add("DEV");return tags;}
     @Override public SectorEntityToken getMapLocation(SectorMapAPI map){
         PTSDCrisisState state=PTSDCrisisState.get();if(state==null)return null;
         for(PTSDCrisisState.CrisisIncident item:state.incidents)if(item!=null&&item.recordedByPlayer&&(!item.investigationResolved||item.investigationReal)){SectorEntityToken target=PTSDCrisisAPI.resolveIncidentTarget(item);if(target!=null)return target;}

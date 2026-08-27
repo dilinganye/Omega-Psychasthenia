@@ -34,40 +34,62 @@ public final class PTSDCrisisNewsIntel extends BaseIntelPlugin {
         Global.getSector().getIntelManager().addIntel(intel, true);
     }
 
+    public String getIncidentId() { return incidentId; }
+    public static PTSDCrisisNewsIntel find(String id) {
+        if (id == null || Global.getSector() == null) return null;
+        for (com.fs.starfarer.api.campaign.comm.IntelInfoPlugin plugin : Global.getSector().getIntelManager().getIntel(PTSDCrisisNewsIntel.class)) {
+            PTSDCrisisNewsIntel intel = (PTSDCrisisNewsIntel) plugin;
+            if (id.equals(intel.incidentId)) return intel;
+        }
+        return null;
+    }
     private PTSDCrisisState.CrisisIncident incident() { return PTSDCrisisAPI.getIncident(incidentId); }
     @Override protected String getName() {
         PTSDCrisisState.CrisisIncident item = incident();
-        return item == null ? "\u8fc7\u671f\u7684\u8fb9\u7f18\u65b0\u95fb" : "\u8fb9\u7f18\u65b0\u95fb\uff1a" + item.headline;
+        return item == null ? "过期的边缘新闻" : "边缘新闻：" + item.headline;
     }
     @Override public String getSmallDescriptionTitle() { return getName(); }
     @Override public void createIntelInfo(TooltipMakerAPI info, ListInfoMode mode) {
         PTSDCrisisState.CrisisIncident item = incident();
         info.addPara(getName(), getTitleColor(mode), 0f);
-        if (item != null) info.addPara(item.sourceLabel + " / " + remaining(item), 3f, Misc.getGrayColor());
+        if (item != null) info.addPara(item.sourceLabel + " / " +
+                PTSDCrisisAPI.getSystemName(item.targetSystemId) + " / " + remaining(item),
+                3f, Misc.getGrayColor());
     }
     @Override public void createSmallDescription(TooltipMakerAPI info, float width, float height) {
         PTSDCrisisState.CrisisIncident item = incident();
-        if (item == null) { info.addPara("\u8be5\u6761\u76ee\u7684\u539f\u59cb\u8bb0\u5f55\u5df2\u4e0d\u5b58\u5728\u3002", 10f); return; }
+        if (item == null) { info.addPara("该条目的原始记录已不存在。", 10f); return; }
         item.readByPlayer = true;
-        Color news = "\u706b\u529b\u4fa6\u5bdf".equals(item.category) ? new Color(238,151,105) : new Color(170,158,188);
-        info.addPara("[%s / %s]", 10f, news, item.sourceLabel, remaining(item));
+        Color news = "火力侦察".equals(item.category) ? new Color(238,151,105) : new Color(170,158,188);
+        info.addPara("[%s / %s / %s]", 10f, news, item.sourceLabel,
+                PTSDCrisisAPI.getSystemName(item.targetSystemId), remaining(item));
         info.addPara(item.publicText, 8f);
         if (item.investigable && !item.recordedByPlayer) {
-            info.addPara("\u62a5\u544a\u4e2d\u4ecd\u6709\u4e00\u7ec4\u53ef\u4ee5\u5b9a\u4f4d\u7684\u822a\u8def\u53c2\u6570\u3002\u8bb0\u5f55\u540e\uff0c\u4f4d\u7f6e\u5c06\u8f6c\u5165\u201c\u8fb9\u7f18\u5931\u8054\u4fe1\u53f7\u201d\u3002", 8f, Misc.getHighlightColor(), "\u8bb0\u5f55");
-            info.addButton("\u8bb0\u5f55\u8c03\u67e5\u7ebf\u7d22", RECORD, getFactionForUIColors().getBaseUIColor(),
+            info.addPara("报告中仍有一组可以定位的航路参数。记录后，位置将转入“边缘失联信号”。", 8f, Misc.getHighlightColor(), "记录");
+            info.addButton("记录调查线索", RECORD, getFactionForUIColors().getBaseUIColor(),
                     getFactionForUIColors().getDarkUIColor(), width, 24f, 8f);
         } else if (item.recordedByPlayer) {
-            info.addPara("\u8be5\u6761\u76ee\u5df2\u8bb0\u5165\u201c\u8fb9\u7f18\u5931\u8054\u4fe1\u53f7\u201d\u3002", 8f, Misc.getHighlightColor(), "\u5df2\u8bb0\u5165");
+            info.addPara("该条目已记入“边缘失联信号”。", 8f, Misc.getHighlightColor(), "已记入");
+            if (item.siteMaterialized) {
+                info.addPara("现场投影：%s。%s", 6f, new Color(206,142,255),
+                        item.siteTitle == null ? "未分类异常" : item.siteTitle,
+                        item.siteConfirmationHint == null ? "抵近并扫描现场。" : item.siteConfirmationHint);
+            } else if (!item.investigationResolved) {
+                info.addPara("进入目标星系后，现场证据会按新闻类型进行实体化；最长保留30日。", 6f, Misc.getGrayColor());
+            }
         } else {
-            info.addPara("\u8be5\u6761\u62a5\u9053\u6ca1\u6709\u8db3\u591f\u7684\u5b9a\u4f4d\u4fe1\u606f\uff0c\u53ea\u4f5c\u4e3a\u666e\u901a\u65b0\u95fb\u4fdd\u7559\u3002", 8f, Misc.getGrayColor());
+            info.addPara("该条报道没有足够的定位信息，只作为普通新闻保留。", 8f, Misc.getGrayColor());
         }
         if (Global.getSettings().isDevMode()) {
             info.addPara("[DEV] %s @ %s | %s | outcome=%s", 8f, Misc.getHighlightColor(), item.trueText,
                     PTSDCrisisAPI.getSystemName(item.targetSystemId), item.effectSummary, String.valueOf(item.investigationOutcome));
+            info.addPara("[DEV现场] template=%s | handler=%s | martial=%s/%s | spawned=%s", 3f,
+                    Misc.getHighlightColor(), String.valueOf(item.siteTemplate), String.valueOf(item.siteHandlerExpression),
+                    String.valueOf(item.martialSiteEligible), String.valueOf(item.martialSiteSpawned), String.valueOf(item.siteMaterialized));
         }
     }
     @Override public void buttonPressConfirmed(Object buttonId, IntelUIAPI ui) {
-        if (RECORD.equals(buttonId)) { PTSDCrisisAPI.recordNewsIncident(incidentId); ui.updateIntelList(true); ui.updateUIForItem(this); return; }
+        if (RECORD.equals(buttonId)) { PTSDCrisisAPI.recordNewsIncident(incidentId); PTSDCrisisIntel task = PTSDCrisisIntel.ensureIntel(); ui.updateIntelList(true); ui.selectItem(task); return; }
         super.buttonPressConfirmed(buttonId, ui);
     }
     @Override public boolean shouldRemoveIntel() {
@@ -86,9 +108,12 @@ public final class PTSDCrisisNewsIntel extends BaseIntelPlugin {
         FactionAPI f=Global.getSector()==null?null:Global.getSector().getFaction("independent"); return f==null?super.getFactionForUIColors():f;
     }
     @Override public Set<String> getIntelTags(SectorMapAPI map) {
-        Set<String> tags=super.getIntelTags(map); tags.add("\u65b0\u95fb"); tags.add("\u5916\u4ea4\u901a\u8baf"); return tags;
+        Set<String> tags=super.getIntelTags(map);
+        tags.add("新闻");
+        // tags.add("外交通讯");
+        return tags;
     }
     private static String remaining(PTSDCrisisState.CrisisIncident item) {
-        return "\u5269\u4f59 " + Math.max(0, (int)Math.ceil(item.newsExpiresDay-PTSDCrisisState.getDay())) + " \u5929";
+        return "剩余 " + Math.max(0, (int)Math.ceil(item.newsExpiresDay-PTSDCrisisState.getDay())) + " 天";
     }
 }

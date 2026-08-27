@@ -1,7 +1,7 @@
 {
   "id": "PTSD_TasloSpinor",
   "specClass": "projectile",
-  "projectileSpecId": "PTSD_Taslo_shot",
+  "projectileSpecId": "PTSD_TasloSpinor_shot",
   "type": "MISSILE",
   "size": "LARGE",
   "turretSprite": "graphics/weapons/PTSD_TasloSpinor.png",
@@ -41,5 +41,6 @@
     -0
   ],
   "barrelMode": "ALTERNATING",
-  "animationType": "GLOW"
+  "animationType": "GLOW",
+  "everyFrameEffect": "data.scripts.weapons.PTSD_TasloSpinorEffect"
 }

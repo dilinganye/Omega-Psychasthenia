@@ -25,7 +25,7 @@ public final class PTSDCrisisProgressAPI {
         public final String activeFactionId;
         public final String baseSystemId;
         public final float reconConfidence, humanAwareness, watcherAggression, nestDevelopment;
-        public final float blockadeDensity, omegaEscalation, humanCohesion, publicPanic, realityDistortion;
+        public final float blockadeDensity, omegaEscalation, humanCohesion, globalPanic, publicPanic, realityDistortion;
         public final float invasionReadiness;
 
         private Snapshot(PTSDCrisisState state) {
@@ -40,7 +40,8 @@ public final class PTSDCrisisProgressAPI {
             blockadeDensity = state.blockadeDensity;
             omegaEscalation = state.omegaEscalation;
             humanCohesion = state.humanCohesion;
-            publicPanic = state.publicPanic;
+            globalPanic = state.globalPanic;
+            publicPanic = globalPanic;
             realityDistortion = state.realityDistortion;
             invasionReadiness = PTSDCrisisProgress.getInvasionReadiness(state);
         }
@@ -54,7 +55,8 @@ public final class PTSDCrisisProgressAPI {
                 case BLOCKADE_DENSITY: return blockadeDensity;
                 case OMEGA_ESCALATION: return omegaEscalation;
                 case HUMAN_COHESION: return humanCohesion;
-                case PUBLIC_PANIC: return publicPanic;
+                case GLOBAL_PANIC:
+                case PUBLIC_PANIC: return globalPanic;
                 case REALITY_DISTORTION: return realityDistortion;
                 default: return 0f;
             }

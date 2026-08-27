@@ -1,0 +1,20 @@
+{
+  "id":"PTSD_Fracture_Calculus_shot",
+  "specClass":"projectile",
+  "spawnType":"BALLISTIC",
+  "collisionClass":"PROJECTILE_FF",
+  "collisionClassByFighter":"PROJECTILE_FIGHTER",
+  "width":18.0,
+  "fadeTime":0.25,
+  "hitGlowRadius":20,
+  "fringeColor":[17,255,250,193],
+  "coreColor":[150,225,250,255],
+  "passThroughMissiles":true,
+  "passThroughFighters":true,
+  "fizzleOnReachingWeaponRange":true,
+  "textureScrollSpeed":64.0,
+  "pixelsPerTexel":5.0,
+  "bulletSprite":"graphics/None.png",
+  "onHitEffect":"data.scripts.weapons.PTSD_TarotOnHitEffect",
+  "onFireEffect":"data.scripts.weapons.PTSD_TarotProjectileEffect"
+}

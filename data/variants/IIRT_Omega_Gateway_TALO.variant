@@ -1,0 +1,43 @@
+{
+  "variantId": "IIRT_Omega_Gateway_TALO",
+  "hullId": "IIRT_Omega_Gateway",
+  "displayName": "TALO",
+  "goalVariant": true,
+  "fluxCapacitors": 12,
+  "fluxVents": 7,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [
+    "magazines",
+    "hardenedshieldemitter"
+  ],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "ALTERNATING",
+      "weapons": {
+        "WS0001": "PTSD_TasloLauncher",
+        "WS0002": "PTSD_Intertitial_Injection",
+        "WS0003": "PTSD_Pluto",
+        "WS0004": "PTSD_TasloLauncher"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {}
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {}
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {}
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

@@ -13,6 +13,7 @@ import com.fs.starfarer.api.impl.campaign.procgen.NebulaEditor;
 import com.fs.starfarer.api.impl.campaign.procgen.StarAge;
 import com.fs.starfarer.api.impl.campaign.terrain.HyperspaceTerrainPlugin;
 import com.fs.starfarer.api.util.Misc;
+import data.hullmods.shard.PTSD_BaseShard_Util;
 import data.scripts.campaign.invasion.PTSDOmegaFleetScaling;
 import data.scripts.campaign.themes.IIRT_OmegaStationFleetManager;
 import org.lwjgl.util.vector.Vector2f;
@@ -245,7 +246,7 @@ public class Omega_Pre_Zone_01 {
 		FleetParamsV3 params = new FleetParamsV3(null, "Omega_Watcher", 1f, "TASK_FORCE", 45f, 0f, 0f, 0f, 0f, 0f, 0f);
 		params.ignoreMarketFleetSizeMult = true;
 
-		CampaignFleetAPI fleet = FleetFactoryV3.createFleet(params);
+		CampaignFleetAPI fleet = PTSD_BaseShard_Util.createFleet(params, params.combatPts, PTSD_BaseShard_Util.FleetRole.GUARD_ASSAULT);
 		fleet.setName("虚影-45");
 		fleet.setNoFactionInName(false);
 		// 设置舰队属性，使其具有敌对性和攻击性
@@ -281,7 +282,7 @@ public class Omega_Pre_Zone_01 {
 		FleetParamsV3 params = new FleetParamsV3(null, "Omega_Watcher", 1f, "TASK_FORCE", 60f, 0f, 0f, 0f, 0f, 0f, 0f);
 		params.ignoreMarketFleetSizeMult = true;
 
-		CampaignFleetAPI fleet = FleetFactoryV3.createFleet(params);
+		CampaignFleetAPI fleet = PTSD_BaseShard_Util.createFleet(params, params.combatPts, PTSD_BaseShard_Util.FleetRole.GUARD_ASSAULT);
 		fleet.setName("虚影-60");
 		fleet.setNoFactionInName(false);
 		// 设置舰队属性，使其具有敌对性和攻击性
@@ -317,7 +318,7 @@ public class Omega_Pre_Zone_01 {
 		FleetParamsV3 params85 = new FleetParamsV3(null, "Omega_Watcher", 1.25f, "TASK_FORCE", 80f, 0f, 0f, 0f, 0f, 0f, 0f);
 		params85.ignoreMarketFleetSizeMult = true;
 
-		CampaignFleetAPI fleet = FleetFactoryV3.createFleet(params85);
+		CampaignFleetAPI fleet = PTSD_BaseShard_Util.createFleet(params85, params85.combatPts, PTSD_BaseShard_Util.FleetRole.GUARD_ASSAULT);
 		fleet.setName("幻象-80");
 		// 设置舰队属性，使其具有敌对性和攻击性
 		fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_MAKE_HOSTILE, true);
@@ -355,7 +356,7 @@ public class Omega_Pre_Zone_01 {
 		Random random = new Random();
 		FleetParamsV3 params = new FleetParamsV3(null, "Omega_Watcher", 0.25f, "TASK_FORCE", 100f, 0f, 0f, 0f, 0f, 0f, 0f);
 		params.ignoreMarketFleetSizeMult = true;
-		CampaignFleetAPI fleet = FleetFactoryV3.createFleet(params);
+		CampaignFleetAPI fleet = PTSD_BaseShard_Util.createFleet(params, params.combatPts, PTSD_BaseShard_Util.FleetRole.GUARD_ASSAULT);
 		fleet.setName("显现-100");
 		// 设置舰队属性，使其具有敌对性和攻击性
 		fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_MAKE_HOSTILE, true);
@@ -393,7 +394,7 @@ public class Omega_Pre_Zone_01 {
 		float scaledFp = PTSDOmegaFleetScaling.scale(60f, 0.45f);
 		FleetParamsV3 params = new FleetParamsV3(null, "Omega_Psychasthenia", 2f, "TASK_FORCE", scaledFp, 0f, 0f, 0f, 0f, 0f, 0f);
 		params.ignoreMarketFleetSizeMult = true;
-		CampaignFleetAPI fleet = FleetFactoryV3.createFleet(params);
+		CampaignFleetAPI fleet = PTSD_BaseShard_Util.createFleet(params, params.combatPts, PTSD_BaseShard_Util.FleetRole.GUARD_ASSAULT);
 		PTSDOmegaFleetScaling.record(fleet, 60f, scaledFp, 0.45f);
 		fleet.setName("偏执-60");
 		// 设置舰队属性，使其具有敌对性和攻击性
@@ -432,7 +433,7 @@ public class Omega_Pre_Zone_01 {
 		float scaledFp = PTSDOmegaFleetScaling.scale(80f, 0.65f);
 		FleetParamsV3 params = new FleetParamsV3(null, "Omega_Psychasthenia", 2f, "TASK_FORCE", scaledFp, 0f, 0f, 0f, 0f, 0f, 0f);
 		params.ignoreMarketFleetSizeMult = true;
-		CampaignFleetAPI fleet = FleetFactoryV3.createFleet(params);
+		CampaignFleetAPI fleet = PTSD_BaseShard_Util.createFleet(params, params.combatPts, PTSD_BaseShard_Util.FleetRole.GUARD_ASSAULT);
 		PTSDOmegaFleetScaling.record(fleet, 80f, scaledFp, 0.65f);
 		fleet.setName("躁虑-80");
 		// 设置舰队属性，使其具有敌对性和攻击性
@@ -471,7 +472,7 @@ public class Omega_Pre_Zone_01 {
 		float scaledFp = PTSDOmegaFleetScaling.scale(150f, 1.0f);
 		FleetParamsV3 params = new FleetParamsV3(null, "Omega_Psychasthenia", 2f, "TASK_FORCE", scaledFp, 0f, 0f, 0f, 0f, 0f, 0f);
 		params.ignoreMarketFleetSizeMult = true;
-		CampaignFleetAPI fleet = FleetFactoryV3.createFleet(params);
+		CampaignFleetAPI fleet = PTSD_BaseShard_Util.createFleet(params, params.combatPts, PTSD_BaseShard_Util.FleetRole.GUARD_ASSAULT);
 		PTSDOmegaFleetScaling.record(fleet, 150f, scaledFp, 1.0f);
 		fleet.setName("创伤-150");
 		// 设置舰队属性，使其具有敌对性和攻击性
@@ -532,15 +533,13 @@ public class Omega_Pre_Zone_01 {
 	}
 
 	public void addFleetOmega_HeatDeath_boundary(SectorEntityToken planet3) {
-		// 向舰队中添加成员——————————RANDOM
-		CampaignFleetAPI fleet = FleetFactoryV3.createEmptyFleet("Omega_Psychasthenia", FleetTypes.BATTLESTATION, null);
+		// 边界守卫也是普通战斗舰队：锁定一个守卫/打击分支，禁止手写装配跨系混编。
+		FleetParamsV3 params = new FleetParamsV3(null, "Omega_Psychasthenia", 2f,
+				FleetTypes.BATTLESTATION, 240f, 0f, 0f, 0f, 0f, 0f, 0f);
+		params.ignoreMarketFleetSizeMult = true;
+		CampaignFleetAPI fleet = PTSD_BaseShard_Util.createFleet(params, 240f,
+				PTSD_BaseShard_Util.FleetRole.GUARD_ASSAULT);
 		fleet.setName("热寂死界");
-		fleet.getFleetData().addFleetMember("IIRT_Omega_Singularity_Attack");
-		fleet.getFleetData().addFleetMember("IIRT_Omega_Singularity_Attack");
-		fleet.getFleetData().addFleetMember("IIRT_Omega_Singularity_Support");
-		fleet.getFleetData().addFleetMember("IIRT_Omega_Singularity_Support");
-		fleet.getFleetData().addFleetMember("IIRT_Omega_Heatdeath_Normal");
-		fleet.getFleetData().addFleetMember("IIRT_Omega_Heatdeath_Normal");
 		// 设置舰队属性，使其具有敌对性和攻击性
 		fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_MAKE_HOSTILE, true);
 		fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_MAKE_AGGRESSIVE, true);

@@ -26,7 +26,7 @@ public final class PTSDOccupationHostileVisual extends BaseCustomUIPanelPlugin {
             FleetMemberAPI member = Global.getSector().getPlayerFleet().getFlagship();
             if (member != null) flagship = Global.getSettings().getSprite(member.getHullSpec().getSpriteName());
         } catch (Throwable ignored) { }
-        try { glow = Global.getSettings().getSprite("graphics/fx/explosion0.png"); }
+        try { glow = Global.getSettings().getSprite("graphics/fx/starburst_glow1.png"); }
         catch (Throwable ignored) { }
     }
 

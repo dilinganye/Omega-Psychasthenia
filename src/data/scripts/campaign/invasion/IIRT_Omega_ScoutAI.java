@@ -5,6 +5,7 @@ import com.fs.starfarer.api.campaign.CampaignEventListener.FleetDespawnReason;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.FleetAssignment;
 import com.fs.starfarer.api.campaign.LocationAPI;
+import com.fs.starfarer.api.campaign.PlanetAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
 import com.fs.starfarer.api.campaign.ai.FleetAssignmentDataAPI;
@@ -47,6 +48,7 @@ public final class IIRT_Omega_ScoutAI extends BaseAssignmentAI {
     private float lastPlayerDistance = Float.MAX_VALUE;
     private boolean arrived;
     private boolean escapeReported;
+    private int consecutiveEmptyReconDays;
 
     public IIRT_Omega_ScoutAI(CampaignFleetAPI fleet, SectorEntityToken target) {
         this(fleet, target, MissionType.RELAY,
@@ -264,7 +266,7 @@ public final class IIRT_Omega_ScoutAI extends BaseAssignmentAI {
         int bucket = (int) Math.floor(PTSDCrisisState.getDay());
         if (reconSampleDayBucket < 0) reconSampleDayBucket = bucket;
         if (bucket != reconSampleDayBucket) {
-            submitDailyReconMaximum();
+            if (submitDailyReconMaximum()) return;
             reconSampleDayBucket = bucket;
         }
         float strength = 0f;
@@ -280,8 +282,8 @@ public final class IIRT_Omega_ScoutAI extends BaseAssignmentAI {
         dailyReconSamples.add(strength);
     }
 
-    private void submitDailyReconMaximum() {
-        if (dailyReconSamples == null || dailyReconSamples.isEmpty() || targetSystemId == null) return;
+    private boolean submitDailyReconMaximum() {
+        if (dailyReconSamples == null || dailyReconSamples.isEmpty() || targetSystemId == null) return false;
         float maximum = 0f;
         for (Float sample : dailyReconSamples) {
             if (sample != null && !Float.isNaN(sample) && !Float.isInfinite(sample)) {
@@ -291,14 +293,51 @@ public final class IIRT_Omega_ScoutAI extends BaseAssignmentAI {
         dailyReconSamples.clear();
         IIRT_Omega_Invasion.reportReconDailyMaximum(targetSystemId, maximum,
                 fleet == null ? null : fleet.getId(), reconSampleDayBucket);
+        consecutiveEmptyReconDays = maximum <= .01f ? consecutiveEmptyReconDays + 1 : 0;
+        if (consecutiveEmptyReconDays >= 5 && missionStage != MissionStage.ESCAPE) {
+            consecutiveEmptyReconDays = 0;
+            if (Math.random() < .65f && switchToNearbySystem()) return true;
+            beginEscape(null, false);
+            return true;
+        }
+        return false;
+    }
+
+    private boolean switchToNearbySystem() {
+        StarSystemAPI current = targetSystemId == null ? null : Global.getSector().getStarSystem(targetSystemId);
+        if (current == null || fleet == null) return false;
+        StarSystemAPI next = null;
+        float best = Float.MAX_VALUE;
+        for (StarSystemAPI candidate : Global.getSector().getStarSystems()) {
+            if (candidate == null || candidate == current) continue;
+            float distance = Misc.getDistance(current.getLocation(), candidate.getLocation());
+            if (distance < best) { best = distance; next = candidate; }
+        }
+        if (next == null) return false;
+        List<SectorEntityToken> candidates = new ArrayList<SectorEntityToken>();
+        candidates.addAll(next.getJumpPoints());
+        for (PlanetAPI planet : next.getPlanets()) if (planet != null && !planet.isStar()) candidates.add(planet);
+        SectorEntityToken nextTarget = candidates.isEmpty() ? next.getHyperspaceAnchor() :
+                candidates.get((int) (Math.random() * candidates.size()));
+        if (nextTarget == null) return false;
+        targetSystemId = next.getId();
+        target = nextTarget;
+        arrived = false;
+        stageDays = 0f;
+        missionStage = MissionStage.TRAVEL;
+        reconSampleDayBucket = -1;
+        fleet.clearAssignments();
+        beginTravel();
+        IIRT_Omega_Invasion.reportScoutMissionStage(targetSystemId, fleet.getId(),
+                missionType == null ? "LEGACY" : missionType.name(), "连续五日未发现舰队，转向邻近星系");
+        return true;
     }
     private SectorEntityToken pickRoamTarget() {
         StarSystemAPI system = targetSystemId == null ? null : Global.getSector().getStarSystem(targetSystemId);
         if (system == null) return target;
         List<SectorEntityToken> candidates = new ArrayList<SectorEntityToken>();
-        candidates.addAll(system.getPlanets());
+        for (PlanetAPI planet : system.getPlanets()) if (planet != null && !planet.isStar()) candidates.add(planet);
         candidates.addAll(system.getJumpPoints());
-        if (system.getCenter() != null) candidates.add(system.getCenter());
         if (candidates.isEmpty()) return target;
         return candidates.get((int) (Math.random() * candidates.size()));
     }

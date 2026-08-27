@@ -23,6 +23,7 @@ import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import data.scripts.campaign.cargo.PTSDOmegaFleetSupport;
 import data.scripts.campaign.invasion.PTSDOmegaFleetScaling;
+import data.hullmods.shard.PTSD_BaseShard_Util;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.util.Random;
@@ -148,7 +149,7 @@ public class IIRT_OmegaSeededFleetManager extends SeededFleetManager {
 		params.withOfficers = true;
 		params.random = random;
 
-		CampaignFleetAPI fleet = FleetFactoryV3.createFleet(params);
+		CampaignFleetAPI fleet = PTSD_BaseShard_Util.createFleet(params, combatPoints, PTSD_BaseShard_Util.FleetRole.GUARD_ASSAULT, random);
 		if (fleet == null) return null;
 		PTSDOmegaFleetScaling.record(fleet, baseCombatPoints, combatPoints, 0.25f);
 

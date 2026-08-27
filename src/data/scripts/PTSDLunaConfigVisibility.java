@@ -56,8 +56,8 @@ public final class PTSDLunaConfigVisibility {
         LunaSettings.SettingsCreator.addText(modId, "PTSDDevText",
                 "这些设置仅在 DevMode 中显示。阶段开关只影响 DevMode 测试；关闭 DevMode 后所有阶段恢复启用。", "开发");
 
-        addInt(modId, "PTSD_start_stage_time", "沉寂阶段时长（天）", "暗流持续到公开侦察开始前的时间。", 65, 1, 365, "阶段");
-        addInt(modId, "PTSD_collect_data_time", "侦察阶段时长（天）", "包含常规观察与后半段火力侦察。", 60, 1, 730, "阶段");
+        addInt(modId, "PTSD_start_stage_time", "沉寂阶段时长（天）", "暗流持续到公开侦察开始前的时间。", 90, 1, 365, "阶段");
+        addInt(modId, "PTSD_collect_data_time", "侦察阶段时长（天）", "包含常规观察与后半段火力侦察。", 365, 1, 730, "阶段");
         addInt(modId, "PTSD_invade_time", "据点营建时长（天）", "前哨母星的初始建设时间。", 30, 1, 365, "阶段");
         addInt(modId, "PTSD_repair_time", "要塞建设时长（天）", "全面进攻阈值前的封锁建设时间。", 30, 1, 365, "阶段");
 

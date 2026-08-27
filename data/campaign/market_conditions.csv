@@ -1,2 +1,2 @@
 name,id,tags,planetary,decivRemove,script,desc,icon,order
-人之领Omega修理设施,IIRT_Omega_Repair_Facility,,TRUE,TRUE,data.scripts.campaign.conditions.IIRT_Omega_Repair_Facility,人之领时代遗留的自动Omega维护设施。由于英仙座在大崩塌后从未有其他Omega到访此处，在不主动激活的情况下从未被人发现，直到Omega占据了这里。,graphics/icons/markets/urbanized_polity.png,130
+精神创伤重构设施,IIRT_Omega_Repair_Facility,,TRUE,TRUE,data.scripts.campaign.conditions.IIRT_Omega_Repair_Facility,嵌入行星地层与轨道结构的自动重构网络。它不参与人类经济，只负责修复危机舰体、维持防御架构并为占领区护卫单元提供重构坐标。,graphics/icons/markets/urbanized_polity.png,130

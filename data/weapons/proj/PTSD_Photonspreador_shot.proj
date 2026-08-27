@@ -1,0 +1,15 @@
+{
+  "id":"PTSD_Photonspreador_shot",
+  "specClass":"projectile",
+  "spawnType":"BALLISTIC",
+  "collisionClass":"NONE",
+  "collisionClassByFighter":"NONE",
+  "width":1,
+  "fadeTime":0.05,
+  "hitGlowRadius":0,
+  "fringeColor":[0,0,0,0],
+  "coreColor":[0,0,0,0],
+  "fizzleOnReachingWeaponRange":true,
+  "bulletSprite":"graphics/None.png",
+  "onFireEffect":"data.scripts.weapons.PTSD_PhotonspreadorEffect"
+}

@@ -19,7 +19,7 @@ public final class PTSDCrisisState implements Serializable {
     private static final long serialVersionUID = 1L;
 
     public static final String PERSISTENT_KEY = "$PTSD_crisis_state_v2";
-    public static final int CURRENT_VERSION = 5;
+    public static final int CURRENT_VERSION = 9;
     public static final float CAMPAIGN_DAY_EPOCH_OFFSET = 700000f;
 
     public enum Phase {
@@ -40,6 +40,8 @@ public final class PTSDCrisisState implements Serializable {
         GARRISON,
         FORTRESS_PATROL,
         PLAYER_TASK_FORCE,
+        PREWAR_HUNTER,
+        GRUDGE_RAID,
         FIRE_PROBE,
         EXTERNAL
     }
@@ -51,6 +53,23 @@ public final class PTSDCrisisState implements Serializable {
         CANCELLED
     }
 
+    public static final class ColonyPanicData implements Serializable {
+        private static final long serialVersionUID = 1L;
+
+        public String marketId;
+        /** Persistent contribution from news, encounters and player-facing events. */
+        public float eventPanic;
+        /** Recomputed from distance to Psychasthenia-controlled space and the current phase. */
+        public float proximityPanic;
+        public float lastChangedDay;
+        public String lastSource;
+
+        public ColonyPanicData() { }
+
+        public ColonyPanicData(String marketId) {
+            this.marketId = marketId;
+        }
+    }
     public static final class SystemData implements Serializable {
         private static final long serialVersionUID = 1L;
 
@@ -82,6 +101,9 @@ public final class PTSDCrisisState implements Serializable {
         public int conversionLevel;
         public boolean blackHoleFortress;
         public boolean knownToPlayer;
+        /** Per-colony panic records stored alongside Omega reconnaissance data. */
+        public Map<String, ColonyPanicData> colonyPanic = new LinkedHashMap<String, ColonyPanicData>();
+        public float systemPanic;
 
         public SystemData() {
         }
@@ -107,6 +129,10 @@ public final class PTSDCrisisState implements Serializable {
         public float createdDay;
         public float resolveDay;
         public String materializedFleetId;
+        /** All temporary physical groups currently projecting this strategic event. */
+        public List<String> materializedFleetIds = new ArrayList<String>();
+        /** Last campaign day the player was inside this event's materialization range. */
+        public float lastPlayerNearDay;
         public float materializedDay;
         public float projectionExpiresDay;
         public float nextProjectionDay;
@@ -115,6 +141,12 @@ public final class PTSDCrisisState implements Serializable {
         public String referenceId;
         public boolean playerRelevant;
         public boolean successful;
+        /** Faction whose defenses this Omega action is testing or attacking. */
+        public String opponentFactionId;
+        /** Prevents physical and strategic resolution from recording the same defeat twice. */
+        public boolean defeatLearningRecorded;
+        /** PYRRHIC_HUMAN, OMEGA_DEFEAT, or HUMAN_DEFEAT. */
+        public String aftermathKind;
 
         public StrategicEvent() {
         }
@@ -171,6 +203,22 @@ public final class PTSDCrisisState implements Serializable {
         public boolean investigationReal;
         public float newsExpiresDay;
         public float investigationExpiresDay;
+        /** Exact per-market panic contribution caused by this news item. */
+        public Map<String, Float> panicByMarket = new LinkedHashMap<String, Float>();
+        public float panicMitigationRatio = 1f;
+        /** CSV-driven true-site template(s), optional custom handler, and persisted physical scene. */
+        public String siteTemplate = "";
+        public String siteHandlerExpression = "";
+        public String siteTitle = "";
+        public String siteDescription = "";
+        public String siteConfirmationHint = "";
+        public List<String> siteEntityIds = new ArrayList<String>();
+        public boolean siteMaterialized;
+        public boolean siteConfirmed;
+        public boolean martialSiteEligible;
+        public boolean martialSiteSpawned;
+        public float siteHardExpireDay;
+        public float siteCleanupDay;
 
         public CrisisIncident() { }
     }
@@ -257,6 +305,14 @@ public final class PTSDCrisisState implements Serializable {
     public float nextFortressDay;
     public float lastSimulationDay;
     public float lastProgressUpdateDay;
+    public float lastLocalPanicUpdateDay;
+    public float nextPanicPirateDay;
+
+    // Persisted player-centred RECON ambient-event scheduler and pending cross-system trap.
+    public int reconPlayerEventDayBucket = -1;
+    public String reconTrapSystemId;
+    public String reconTrapTargetEntityId;
+    public float reconTrapExpiresDay;
 
     // Continuous crisis variables; all use a stable 0..100 scale.
     public float reconConfidence;
@@ -266,19 +322,25 @@ public final class PTSDCrisisState implements Serializable {
     public float blockadeDensity;
     public float omegaEscalation;
     public float humanCohesion;
-    public float publicPanic;
+    /** Stage-wide additive panic. Defaults to zero and changes only through explicit special events. */
+    public float globalPanic;
+    /** Deprecated binary/save compatibility alias for globalPanic. */
+    @Deprecated public float publicPanic;
     public float realityDistortion;
     public boolean progressInitialized;
     public String lastProgressSource;
     public String lastProgressSystemId;
     public float lastProgressChangeDay;
     public float nextIncidentDay;
+    public float nextIsolationSyncDay;
     public boolean pandoraInitialized;
     public boolean pandoraOpened;
 
     public int totalScoutSightings;
     public int totalScoutEscapes;
     public int totalOmegaEncounters;
+    /** Player-involved battles against either crisis-era faction; sightings do not count. */
+    public int totalPlayerOmegaBattles;
     public int visibleStage;
     public boolean softWarningShown;
     public boolean hardWarningShown;
@@ -288,6 +350,45 @@ public final class PTSDCrisisState implements Serializable {
     public boolean warIntelCreated;
     public boolean legacyTimelineMigrated;
     public boolean timelineMigrationReported;
+    public boolean diplomacyLockedReported;
+
+    /** Persistent anti-faction learning accumulated from lost Omega engagements. */
+    public Map<String, Float> factionResistance = new LinkedHashMap<String, Float>();
+    /** Player-specific hostility; drives post-war attrition and pursuit actions. */
+    public float playerGrudge;
+    public float nextGrudgeRaidDay;
+    public String prewarHunterEventId;
+    public boolean prewarHunterSpawned;
+    public boolean prewarHunterResolved;
+    public boolean prewarRedAlertShown;
+    public float prewarHunterResolvedDay;
+    public float warCommitDay;
+
+    // Je Otloes independent contact/event state.
+    public boolean jeIntroCompleted;
+    public boolean jeResistedOnce;
+    public String jePendingIntroMarketId;
+    public String jePersonId;
+    public String jePlayerTaskIncidentId;
+    public String jeAgentIncidentId;
+    public float jeAgentReturnDay;
+    public String jeMeetingMarketId;
+    public boolean jeMeetingReady;
+    public boolean jePendingMeetingDialog;
+    public int jeCompletedInvestigations;
+    /** Campaign-day cooldowns and persisted contact outcomes; opening the dialog cannot reroll these. */
+    public float jeLastTaskAcceptedDay;
+    public float jePostTaskBusyUntilDay;
+    public float jeNextTaskAvailableDay;
+    public int jeContactDayBucket = -1;
+    public int jeContactAttemptsToday;
+    public float jeContactBlockedUntilDay;
+    public int jeMissedContactsSinceSuccess;
+    public boolean jeMissedContactApologyPending;
+    public boolean jeSpamComplaintPending;
+    public boolean jeDetectorGranted;
+    /** DevMode one-shot contact outcome: 0 random, 1 connected, 2 missed, 3 blocked for the day. */
+    public int jeDevNextContactOutcome;
 
     public String baseSystemId;
     public String baseMarketId;
@@ -315,6 +416,9 @@ public final class PTSDCrisisState implements Serializable {
         lastSimulationDay = day;
         lastProgressUpdateDay = day;
         nextIncidentDay = day + 4f;
+        nextIsolationSyncDay = day;
+        nextGrudgeRaidDay = day + 8f;
+        nextPanicPirateDay = day + 10f;
     }
 
     public static PTSDCrisisState get() {
@@ -373,7 +477,41 @@ public final class PTSDCrisisState implements Serializable {
         if (incidentCooldowns == null) incidentCooldowns = new LinkedHashMap<String, Float>();
         if (incidents == null) incidents = new ArrayList<CrisisIncident>();
         if (signalTraces == null) signalTraces = new ArrayList<SignalTrace>();
+        if (factionResistance == null) factionResistance = new LinkedHashMap<String, Float>();
+        for (SystemData data : systems.values()) {
+            if (data == null) continue;
+            if (data.colonyPanic == null) data.colonyPanic =
+                    new LinkedHashMap<String, ColonyPanicData>();
+        }
+        for (CrisisIncident incident : incidents) {
+            if (incident == null) continue;
+            if (incident.panicByMarket == null) incident.panicByMarket =
+                    new LinkedHashMap<String, Float>();
+            if (incident.panicMitigationRatio <= 0f) incident.panicMitigationRatio = 1f;
+        }
+        for (StrategicEvent event : events) {
+            if (event == null) continue;
+            if (event.materializedFleetIds == null) {
+                event.materializedFleetIds = new ArrayList<String>();
+            }
+            if (event.materializedFleetId != null &&
+                    !event.materializedFleetIds.contains(event.materializedFleetId)) {
+                event.materializedFleetIds.add(event.materializedFleetId);
+            }
+        }
+        if (version < 7) {
+            // The removed public panic mixed news, passive drift and phase floors; it cannot be
+            // mapped to a real colony without inventing information, so the new global modifier
+            // deliberately starts at zero.
+            globalPanic = 0f;
+            publicPanic = 0f;
+        } else {
+            publicPanic = globalPanic;
+        }
         if (nextIncidentDay <= 0f) nextIncidentDay = getDay() + 2f;
+        if (nextIsolationSyncDay <= 0f) nextIsolationSyncDay = getDay();
+        if (nextGrudgeRaidDay <= 0f) nextGrudgeRaidDay = getDay() + 4f;
+        if (nextPanicPirateDay <= 0f) nextPanicPirateDay = getDay() + 6f;
         if (version < 3) migrateLegacyTimeline();
         // Any pre-v5 state necessarily existed while the crisis system was already running.
         if (version < 5) {
@@ -423,7 +561,6 @@ public final class PTSDCrisisState implements Serializable {
                 blockadeDensity = Math.max(blockadeDensity, 65f);
                 omegaEscalation = Math.max(omegaEscalation, 35f);
                 humanCohesion = Math.max(humanCohesion, 35f);
-                publicPanic = Math.max(publicPanic, 50f);
                 realityDistortion = Math.max(realityDistortion, 35f);
                 break;
             case ENDED:
@@ -481,9 +618,20 @@ public final class PTSDCrisisState implements Serializable {
             systems.put(systemId, result);
         }
         if (result.reconStrengthHistory == null) result.reconStrengthHistory = new ArrayList<Float>();
+        if (result.colonyPanic == null) result.colonyPanic = new LinkedHashMap<String, ColonyPanicData>();
         return result;
     }
 
+    public ColonyPanicData getColonyPanic(String systemId, String marketId) {
+        if (systemId == null || marketId == null) return null;
+        SystemData system = getSystemData(systemId);
+        ColonyPanicData result = system.colonyPanic.get(marketId);
+        if (result == null) {
+            result = new ColonyPanicData(marketId);
+            system.colonyPanic.put(marketId, result);
+        }
+        return result;
+    }
     public StrategicEvent getEvent(String eventId) {
         if (eventId == null) return null;
         for (StrategicEvent event : events) {
@@ -584,8 +732,19 @@ public final class PTSDCrisisState implements Serializable {
     }
 
     public MarketAPI resolveMarket(String marketId) {
-        if (marketId == null || Global.getSector() == null || Global.getSector().getEconomy() == null) return null;
-        return Global.getSector().getEconomy().getMarket(marketId);
+        if (marketId == null || Global.getSector() == null) return null;
+        if (Global.getSector().getEconomy() != null) {
+            MarketAPI market = Global.getSector().getEconomy().getMarket(marketId);
+            if (market != null) return market;
+        }
+        // Crisis colonies deliberately live outside EconomyAPI; resolve their planet-attached shell directly.
+        for (com.fs.starfarer.api.campaign.LocationAPI location : Global.getSector().getAllLocations()) {
+            for (com.fs.starfarer.api.campaign.SectorEntityToken entity : location.getAllEntities()) {
+                MarketAPI market = entity.getMarket();
+                if (market != null && marketId.equals(market.getId())) return market;
+            }
+        }
+        return null;
     }
 
     private void trimResolvedEvents() {

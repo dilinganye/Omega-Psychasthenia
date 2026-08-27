@@ -13,7 +13,8 @@
 | `BLOCKADE_DENSITY` | 母星周边、跳跃点和超空间封锁密度 |
 | `OMEGA_ESCALATION` | 全面战争后精神创伤升级程度 |
 | `HUMAN_COHESION` | 人类方面共享情报和协同防御的能力 |
-| `PUBLIC_PANIC` | 社会恐慌、谣言与错误信息密度 |
+| `GLOBAL_PANIC` | 全局恐慌加成；默认 0，仅供特殊剧情事件修改 |
+| `PUBLIC_PANIC` | 已弃用兼容别名，读写同一个 `GLOBAL_PANIC` |
 | `REALITY_DISTORTION` | 行星改造、黑洞要塞与异常空间影响程度 |
 
 全面进攻准备度是派生值：
@@ -42,8 +43,9 @@ float recon = snapshot.reconConfidence;
 float readiness = snapshot.invasionReadiness;
 String factionId = snapshot.activeFactionId;
 
-float panic = PTSDCrisisProgressAPI.get(
-        PTSDCrisisProgress.Variable.PUBLIC_PANIC);
+float globalPanic = PTSDCrisisProgressAPI.get(
+        PTSDCrisisProgress.Variable.GLOBAL_PANIC);
+float localPanic = PTSDLocalPanicAPI.getMarketPanic(market);
 ```
 
 ## 添加事件贡献
@@ -62,8 +64,8 @@ PTSDCrisisProgressAPI.add(
 
 ```java
 PTSDCrisisProgressAPI.set(
-        PTSDCrisisProgress.Variable.PUBLIC_PANIC,
-        70f,
+        PTSDCrisisProgress.Variable.GLOBAL_PANIC,
+        20f,
         "my_mod_major_broadcast",
         null);
 ```
@@ -102,7 +104,7 @@ PTSDCrisisProgressAPI.unregisterListener("my_mod");
 - 核心前哨建立、行星扩张改造和黑洞要塞完成。
 - 占领区轰炸、试探、交涉、防御舰队生成与击败。
 - 精神创伤进攻成功、失败学习以及人类防御成功。
-- 各阶段随时间发生的自然增长与恐慌衰减。
+- 各阶段随时间发生的自然战略变量增长；全局恐慌不会自然增长，局部事件恐慌在长期无新刺激时缓慢衰减。
 
 进度已经参与侦察精度、Omega 攻击权重、人类防御权重、舰队动态 Flat 和全面进攻阈值，而不是仅用于 UI 显示。
 
@@ -118,3 +120,30 @@ Dev 监视器显示全部变量、当前 Era、活动势力和准备度。显式
 - `PTSDCrisisAPI.getIncident(incidentId)` / `resolveIncidentTarget(incident)`：读取新闻状态并解析其具体设施、跳跃点或行星目标。
 
 这些方法优先扩展既有危机 API；独立新闻 Intel 仅负责显示和十日过期，不保存战略真相。
+
+## 对抗学习与新闻数据接口
+
+- `PTSDCrisisAPI.recordOmegaDefeat(factionId, playerInvolved, systemId, defeatedStrength)`：供外部危机舰队或剧情战役提交一次精神创伤战败。内部会按损失规模增加目标势力对抗值，并在玩家参与时增加记恨值；同一战略事件应自行防止重复提交。
+- `PTSDCrisisAPI.getFactionResistance(factionId)`：读取该势力当前 `0–100` 对抗值。危机标准进攻会把它换算为额外基础 FP。
+- `PTSDCrisisAPI.getPlayerGrudge()`：读取玩家 `0–100` 记恨值。正式战争后的消耗袭扰和低补给处决舰队使用此值。
+- 新闻定义统一位于 `data/config/PTSD_crisis_news.csv`。其 `id` 为合并键，`phases` 使用 `DORMANT|RECON` 形式声明适用阶段，`investigable` 控制调查入口，`filler` 控制是否进入随阶段递减的普通新闻池。
+
+外部模组可通过合并同路径 CSV 扩展内容；新闻的战略变量经 `PTSDCrisisProgress`，新闻恐慌则经 `PTSDLocalPanicAPI` 写入目标附近殖民地，不再修改全局恐慌。
+
+## 全局恐慌与殖民地局部恐慌
+
+- `GLOBAL_PANIC` 是叠加到所有殖民地实际恐慌上的特殊剧情值，默认及当前正常流程均为 `0`。普通新闻、侦察目击、占领区活动和战斗不会修改它。
+- 实际恐慌记录位于 `PTSDCrisisState.SystemData.colonyPanic`，与 Omega 的星系侦察、舰队强度采样和攻击权重处于同一份星系战略信息表。
+- `ColonyPanicData.eventPanic` 保存新闻与局部事件贡献；`proximityPanic` 由殖民地至母星/精神创伤控制区的距离和危机阶段定期计算；实际值为二者加全局加成并限制到 `0–100`。
+- 新闻以自己的 `targetSystemId` 为中心，在 `PTSDLocalPanicAPI.NEWS_RADIUS` 内按距离衰减传播，并把每个市场的实际贡献保存在 `CrisisIncident.panicByMarket`，从而允许 Je Otloes 只削减某一事件造成的影响。
+
+```java
+float marketPanic = PTSDLocalPanicAPI.getMarketPanic(market);
+float systemPanic = PTSDLocalPanicAPI.getSystemPanic(system.getId());
+float applied = PTSDLocalPanicAPI.addAtMarket(
+        market.getId(), 8f, "my_mod_special_incident");
+Map<String, Float> spread = PTSDLocalPanicAPI.spreadFromSystem(
+        system.getId(), 12f, 18000f, "my_mod_local_news");
+```
+
+当前标准影响：本地恐慌每点降低约 `0.65%` 市场流通度，上限 `-65%`；星系最高恐慌会压低该星系所有殖民地的战斗舰队规模倍率，最低至 `25%`；星系恐慌达到约 `30` 后有低频、全局数量上限为 4 的趁乱海盗活动。

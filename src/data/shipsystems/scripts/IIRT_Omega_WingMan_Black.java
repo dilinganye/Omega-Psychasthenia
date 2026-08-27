@@ -9,6 +9,8 @@ import com.fs.starfarer.api.impl.combat.RiftCascadeMineExplosion;
 import com.fs.starfarer.api.impl.combat.RiftLanceEffect;
 import com.fs.starfarer.api.impl.combat.dweller.DwellerShroud;
 import com.fs.starfarer.api.impl.combat.threat.RoilingSwarmEffect;
+import com.fs.starfarer.api.fleet.FleetMemberAPI;
+import com.fs.starfarer.api.fleet.FleetMemberType;
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
@@ -53,6 +55,7 @@ public class IIRT_Omega_WingMan_Black extends BaseShipSystemScript {
 		CloneState cloneState = getCloneState(engine, ship);
 		cloneState.cloneTimer -= Global.getCombatEngine().getElapsedInLastFrame();
 
+		String id2 = ship.getId()+"wingman_half";
 		if (state == State.IN) {
 			handleInPhase(ship, cloneState, engine, effectLevel);
 		} else if (state == State.ACTIVE) {
@@ -74,6 +77,25 @@ public class IIRT_Omega_WingMan_Black extends BaseShipSystemScript {
 			}
 			ship.fadeToColor(JITTER_KEY, new Color(0, 0, 0, 120), 0.05f, 0.05f, 1f);
 			ship.setJitterUnder(JITTER_KEY, new Color(120, 80, 200, 180), 0.8f, 12, 0f, 18f);
+		} else if (ship.getHitpoints()<=200f) {
+			ship.setHoldFire(false);
+			cleanupDeadClones(cloneState, engine);
+
+			stats.getMaxSpeed().unmodifyMult(id);
+			stats.getTurnAcceleration().unmodifyMult(id);
+			stats.getTimeMult().unmodifyMult(id);
+			stats.getMaxSpeed().unmodifyMult(id2);
+			stats.getTurnAcceleration().unmodifyMult(id2);
+			stats.getTimeMult().unmodifyMult(id2);
+			if (player) {
+				Global.getCombatEngine().getTimeMult().unmodify(id);
+			}
+			stats.getMaxTurnRate().unmodifyMult(id);
+			ship.fadeToColor(JITTER_KEY, new Color(0, 0, 0, 0), 0.05f, 0.05f, 1f);
+			ship.setJitterUnder(JITTER_KEY, new Color(120, 80, 200, 0), 0.8f, 12, 0f, 18f);
+
+			handleOutPhase(ship,cloneState, engine, effectLevel); //因为某些原因中止系统
+			ship.setHoldFire(false);
 		} else { //state == State.COOLDOWN
 			ship.setHoldFire(false);
 			cleanupDeadClones(cloneState, engine);
@@ -81,6 +103,9 @@ public class IIRT_Omega_WingMan_Black extends BaseShipSystemScript {
 			stats.getMaxSpeed().unmodifyMult(id);
 			stats.getTurnAcceleration().unmodifyMult(id);
 			stats.getTimeMult().unmodifyMult(id);
+			stats.getMaxSpeed().unmodifyMult(id2);
+			stats.getTurnAcceleration().unmodifyMult(id2);
+			stats.getTimeMult().unmodifyMult(id2);
 			if (player) {
 				Global.getCombatEngine().getTimeMult().unmodify(id);
 			}
@@ -208,9 +233,10 @@ public class IIRT_Omega_WingMan_Black extends BaseShipSystemScript {
 			CombatFleetManagerAPI fleetManager = engine.getFleetManager(ship.getOriginalOwner());
 			boolean wasSuppressed = fleetManager.isSuppressDeploymentMessages();
 			fleetManager.setSuppressDeploymentMessages(true);
-			// 使用fleetManager的spawnShipOrWing方法生成clone
-			ShipAPI clone = engine.getFleetManager(ship.getOriginalOwner()).spawnShipOrWing(
-					ship.getVariant().getHullVariantId(), offset, ship.getFacing(), 1);
+			// 生涯装配经常使用只存在于运行时的临时 variant id；复制当前实际装配，
+			// 避免再次按 getSpecId() 查询全局 variant 表。该路径也适用于共用此系统的其他舰船。
+			ShipAPI clone = spawnCloneWithCurrentVariant(ship, fleetManager, offset);
+			if (clone == null) throw new IllegalStateException("Unable to create macro-virus clone");
 				// 为clone设置属性
 			//com.fs.starfarer.api.impl.combat.dweller.HumanShipShroudCreator
 				clone.getSystem().deactivate();
@@ -269,6 +295,28 @@ public class IIRT_Omega_WingMan_Black extends BaseShipSystemScript {
 			// 失败时创建视觉分身
 			cloneState.activeClones.add(ship.getId() + "_clone_visual");
 		}
+	}
+	private ShipAPI spawnCloneWithCurrentVariant(ShipAPI source, CombatFleetManagerAPI fleetManager,
+											Vector2f location) {
+		if (source == null || fleetManager == null) return null;
+		try {
+			ShipVariantAPI current = source.getVariant();
+			if (current != null) {
+				FleetMemberAPI member = Global.getFactory().createFleetMember(
+						FleetMemberType.SHIP, current.clone());
+				member.setOwner(source.getOriginalOwner());
+				return fleetManager.spawnFleetMember(member, location, source.getFacing(), 1f);
+			}
+		} catch (Throwable ex) {
+			Global.getLogger(getClass()).warn("Unable to clone runtime ship variant; using registered fallback", ex);
+		}
+		ShipVariantAPI current = source.getVariant();
+		String fallbackVariant = current == null ? null : current.getOriginalVariant();
+		if (fallbackVariant == null || fallbackVariant.trim().isEmpty()) {
+			fallbackVariant = current == null ? null : current.getHullVariantId();
+		}
+		return fallbackVariant == null ? null : fleetManager.spawnShipOrWing(
+				fallbackVariant, location, source.getFacing(), 1f);
 	}
 	//ONDOONDOONDOONDOONDOONDOONDO
 	/*

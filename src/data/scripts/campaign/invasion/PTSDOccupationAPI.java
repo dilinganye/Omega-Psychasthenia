@@ -89,8 +89,9 @@ public final class PTSDOccupationAPI {
         PTSDCrisisProgress.add(state, PTSDCrisisProgress.Variable.HUMAN_AWARENESS,
                 Math.max(0f, humanAttention) * 5f + Math.max(0f, omegaAttention) * 0.4f,
                 "OCCUPATION_" + action.name(), systemId);
-        PTSDCrisisProgress.add(state, PTSDCrisisProgress.Variable.PUBLIC_PANIC,
-                Math.max(0f, omegaAttention) * 0.8f, "OCCUPATION_" + action.name(), systemId);
+        PTSDLocalPanicAPI.spreadFromSystem(systemId,
+                Math.max(0f, omegaAttention) * .8f, 18000f,
+                "OCCUPATION_" + action.name());
         if (action == Action.HARASSMENT_BOMBARDMENT || action == Action.SATURATION_BOMBARDMENT ||
                 action == Action.PROBE || action == Action.DEFENSE_DEFEATED) {
             PTSDCrisisProgress.add(state, PTSDCrisisProgress.Variable.WATCHER_AGGRESSION,

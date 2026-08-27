@@ -241,6 +241,40 @@ public final class PTSDCrisisAPI {
         if (state == null || systemId == null) return 0f;
         return state.getSystemData(systemId).occupationWeight;
     }
+    /** Records a lost Omega engagement as persistent strategic learning. */
+    public static void recordOmegaDefeat(String opponentFactionId, boolean playerInvolved,
+                                         String systemId, float defeatedStrength) {
+        PTSDCrisisState state = PTSDCrisisState.get();
+        if (state == null) return;
+        String factionId = opponentFactionId;
+        if (playerInvolved && Global.getSector().getPlayerFaction() != null) {
+            factionId = Global.getSector().getPlayerFaction().getId();
+        }
+        if (factionId == null) factionId = "unknown";
+        float lesson = Math.max(1f, Math.min(15f, 2f + Math.max(0f, defeatedStrength) / 35f));
+        Float old = state.factionResistance.get(factionId);
+        state.factionResistance.put(factionId, Math.min(100f, (old == null ? 0f : old) + lesson));
+        if (playerInvolved || (Global.getSector().getPlayerFaction() != null &&
+                factionId.equals(Global.getSector().getPlayerFaction().getId()))) {
+            state.playerGrudge = Math.min(100f, state.playerGrudge + lesson * 1.35f);
+        }
+        PTSDCrisisDevIntel.report("对抗模型更新",
+                factionId + " +" + Math.round(lesson * 10f) / 10f +
+                        "，记恨值 " + Math.round(state.playerGrudge * 10f) / 10f,
+                systemId, null);
+    }
+
+    public static float getFactionResistance(String factionId) {
+        PTSDCrisisState state = PTSDCrisisState.get();
+        if (state == null || factionId == null) return 0f;
+        Float value = state.factionResistance.get(factionId);
+        return value == null ? 0f : value;
+    }
+
+    public static float getPlayerGrudge() {
+        PTSDCrisisState state = PTSDCrisisState.get();
+        return state == null ? 0f : state.playerGrudge;
+    }
     static void notifyResolved(PTSDCrisisState.StrategicEvent event) {
         PTSDCrisisDevIntel.reportEventResolved(event);
         EventResult result = new EventResult(event);

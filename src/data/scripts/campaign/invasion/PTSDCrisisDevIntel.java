@@ -40,6 +40,7 @@ public final class PTSDCrisisDevIntel extends BaseIntelPlugin {
     private static final String FORCE_PROBE = "PTSD_DEV_FORCE_PROBE";
     private static final String OPEN_COLONY_WEIGHTS = "PTSD_DEV_OPEN_COLONY_WEIGHTS";
     private static final String OPEN_ALL_WEIGHTS = "PTSD_DEV_OPEN_ALL_WEIGHTS";
+    private static final String OPEN_CONTROL = "PTSD_DEV_OPEN_CONTROL";
 
     public static final class DevRecord implements Serializable {
         private static final long serialVersionUID = 1L;
@@ -75,6 +76,7 @@ public final class PTSDCrisisDevIntel extends BaseIntelPlugin {
         if (Global.getSector() == null || Global.getSettings() == null) return;
         if (Global.getSettings().isDevMode()) {
             ensureIntel();
+            PTSDCrisisDevControlIntel.ensureIntel();
             PTSDCrisisState state = PTSDCrisisState.get();
             if (state != null && state.legacyTimelineMigrated && !state.timelineMigrationReported) {
                 state.timelineMigrationReported = true;
@@ -89,6 +91,7 @@ public final class PTSDCrisisDevIntel extends BaseIntelPlugin {
         PTSDCrisisIntel.removeDevPreview();
         PTSDWarIntel.removeDevPreview();
         PTSDCrisisWeightIntel.removeWhenNotDev();
+        PTSDCrisisDevControlIntel.removeWhenNotDev();
     }
 
     public static PTSDCrisisDevIntel ensureIntel() {
@@ -197,10 +200,16 @@ public final class PTSDCrisisDevIntel extends BaseIntelPlugin {
                 3f, Misc.getHighlightColor(), String.valueOf(Math.round(state.reconConfidence)),
                 String.valueOf(Math.round(state.humanAwareness)), String.valueOf(Math.round(state.watcherAggression)),
                 String.valueOf(Math.round(state.nestDevelopment)), String.valueOf(Math.round(state.blockadeDensity)));
-        info.addPara("精神创伤升级 %s｜人类凝聚 %s｜公众恐慌 %s｜现实扭曲 %s",
+        info.addPara("精神创伤升级 %s｜人类凝聚 %s｜全局恐慌加成 %s｜现实扭曲 %s",
                 3f, Misc.getHighlightColor(), String.valueOf(Math.round(state.omegaEscalation)),
-                String.valueOf(Math.round(state.humanCohesion)), String.valueOf(Math.round(state.publicPanic)),
+                String.valueOf(Math.round(state.humanCohesion)), String.valueOf(Math.round(state.globalPanic)),
                 String.valueOf(Math.round(state.realityDistortion)));
+        info.addPara("Je Otloes：侦察目击 %s/4｜真实交战 %s/1｜接触 %s｜实地委托 %s｜代查 %s｜待会面 %s",
+                3f, Misc.getHighlightColor(), String.valueOf(state.totalScoutSightings),
+                String.valueOf(state.totalPlayerOmegaBattles), yesNo(state.jeIntroCompleted),
+                state.jePlayerTaskIncidentId == null ? "无" : state.jePlayerTaskIncidentId,
+                state.jeAgentIncidentId == null ? "无" : state.jeAgentIncidentId,
+                yesNo(state.jeMeetingReady));
         info.addPara("下一未知事件 %s｜下一侦察 %s｜权重更新 %s｜扩张 %s｜要塞 %s｜Omega 回合 %s｜人类回合 %s",
                 3f, Misc.getHighlightColor(), remaining(state.nextIncidentDay), remaining(state.nextScoutDay), remaining(state.nextWeightUpdateDay),
                 remaining(state.nextExpansionDay), remaining(state.nextFortressDay),
@@ -214,10 +223,24 @@ public final class PTSDCrisisDevIntel extends BaseIntelPlugin {
                 3f, Misc.getHighlightColor(),
                 String.valueOf(data.scripts.IIRT_Omega_ModPlugin.omega_fleet_strength_multiplier),
                 String.valueOf(Math.round(PTSDOmegaFleetScaling.getDynamicFlat())));
+        info.addPara("玩家记恨 " + format(state.playerGrudge) + "｜下次记恨袭扰 " + remaining(state.nextGrudgeRaidDay) +
+                "｜战前截获 " + (state.prewarHunterSpawned ? (state.prewarHunterResolved ? "已结束" : "进行中/锁定入侵") : "未触发") +
+                "｜全面战争承诺 " + (state.warCommitDay > 0f ? remaining(state.warCommitDay) : "未建立"), 3f);
+        if (!state.factionResistance.isEmpty()) {
+            StringBuilder resistance = new StringBuilder("对抗值：");
+            int resistanceShown = 0;
+            for (java.util.Map.Entry<String, Float> entry : state.factionResistance.entrySet()) {
+                if (resistanceShown++ > 0) resistance.append("｜");
+                resistance.append(entry.getKey()).append(" ").append(format(entry.getValue()));
+                if (resistanceShown >= 6) break;
+            }
+            info.addPara(resistance.toString(), 3f, Misc.getGrayColor(), new String[0]);
+        }
         info.addSectionHeading("直接访问情报", base, dark,
                 com.fs.starfarer.api.ui.Alignment.MID, opad);
         info.addPara("以下预览只在 DevMode 中补建；若剧情已正常解锁，则会自动转为正式情报。", 5f);
-        info.addButton("查看战前危机情报", OPEN_PREWAR, base, dark, width, 24f, 4f);
+        info.addButton("打开变量与事件控制台", OPEN_CONTROL, Color.ORANGE, new Color(80, 45, 20), width, 24f, 4f);
+        info.addButton("查看战前危机情报", OPEN_PREWAR, base, dark, width, 24f, 2f);
         info.addButton("查看战区态势情报", OPEN_WAR, base, dark, width, 24f, 2f);
         info.addButton("查看殖民星域攻击权重", OPEN_COLONY_WEIGHTS, base, dark, width, 24f, 2f);
         info.addButton("查看全部星系攻击权数", OPEN_ALL_WEIGHTS, base, dark, width, 24f, 2f);
@@ -226,6 +249,7 @@ public final class PTSDCrisisDevIntel extends BaseIntelPlugin {
         info.addButton("强制抽取：火力侦察", FORCE_PROBE, Color.ORANGE, new Color(80, 45, 20), width, 24f, 2f);
 
         addWeights(info, state, base, dark, opad);
+        addLocalPanic(info, state, base, dark, opad);
         addOccupations(info, state, width, base, dark, opad);
         addIncidents(info, state, width, base, dark, opad);
         addStrategicEvents(info, state, width, base, dark, opad);
@@ -255,13 +279,49 @@ public final class PTSDCrisisDevIntel extends BaseIntelPlugin {
         }
     }
 
+    private void addLocalPanic(TooltipMakerAPI info, PTSDCrisisState state,
+                               Color base, Color dark, float opad) {
+        info.addSectionHeading("殖民地局部恐慌（侦察信息表）", base, dark,
+                com.fs.starfarer.api.ui.Alignment.MID, opad);
+        List<com.fs.starfarer.api.campaign.econ.MarketAPI> markets =
+                new ArrayList<com.fs.starfarer.api.campaign.econ.MarketAPI>();
+        for (com.fs.starfarer.api.campaign.econ.MarketAPI market :
+                Global.getSector().getEconomy().getMarketsCopy()) {
+            if (market == null || market.isPlanetConditionMarketOnly() || market.getStarSystem() == null) continue;
+            if (IIRT_Omega_Invasion.WATCHER_FACTION.equals(market.getFactionId()) ||
+                    IIRT_Omega_Invasion.PSYCHASTHENIA_FACTION.equals(market.getFactionId())) continue;
+            markets.add(market);
+        }
+        Collections.sort(markets, new Comparator<com.fs.starfarer.api.campaign.econ.MarketAPI>() {
+            @Override
+            public int compare(com.fs.starfarer.api.campaign.econ.MarketAPI a,
+                               com.fs.starfarer.api.campaign.econ.MarketAPI b) {
+                return Float.compare(PTSDLocalPanicAPI.getMarketPanic(b),
+                        PTSDLocalPanicAPI.getMarketPanic(a));
+            }
+        });
+        int shown = 0;
+        for (com.fs.starfarer.api.campaign.econ.MarketAPI market : markets) {
+            PTSDCrisisState.SystemData system = state.getSystemData(market.getStarSystem().getId());
+            PTSDCrisisState.ColonyPanicData local = system.colonyPanic.get(market.getId());
+            float eventPanic = local == null ? 0f : local.eventPanic;
+            float proximityPanic = local == null ? 0f : local.proximityPanic;
+            info.addPara("%s @ %s：实际 %s｜新闻/事件 %s｜邻近压迫 %s｜全局 +%s｜来源 %s",
+                    shown == 0 ? 5f : 3f, Misc.getHighlightColor(), market.getName(),
+                    market.getStarSystem().getName(), format(PTSDLocalPanicAPI.getMarketPanic(market)),
+                    format(eventPanic), format(proximityPanic), format(state.globalPanic),
+                    local == null || local.lastSource == null ? "无" : local.lastSource);
+            if (++shown >= 12) break;
+        }
+        if (shown == 0) info.addPara("当前没有可记录恐慌的殖民地。", 5f);
+    }
     private void addOccupations(TooltipMakerAPI info, PTSDCrisisState state, float width,
                                 Color base, Color dark, float opad) {
         info.addSectionHeading("精神创伤占领区", base, dark,
                 com.fs.starfarer.api.ui.Alignment.MID, opad);
         int shown = 0;
         for (com.fs.starfarer.api.campaign.econ.MarketAPI market :
-                Global.getSector().getEconomy().getMarketsCopy()) {
+                PTSDOccupationManager.getAllMarkets()) {
             if (!PTSDOccupationManager.isOccupied(market)) continue;
             PTSDCrisisState.OccupationData data = state.getOccupationData(market.getId());
             info.addPara("%s @ %s｜原版地图隐藏 %s｜Omega注意 %s｜人类关注 %s｜损伤 %s｜防御胜利 %s",
@@ -358,6 +418,11 @@ public final class PTSDCrisisDevIntel extends BaseIntelPlugin {
     @Override
     public void buttonPressConfirmed(Object buttonId, IntelUIAPI ui) {
         if (!Global.getSettings().isDevMode()) return;
+        if (OPEN_CONTROL.equals(buttonId)) {
+            PTSDCrisisDevControlIntel intel = PTSDCrisisDevControlIntel.ensureIntel();
+            if (intel != null) { ui.updateIntelList(true); ui.selectItem(intel); }
+            return;
+        }
         if (OPEN_PREWAR.equals(buttonId)) {
             PTSDCrisisIntel intel = PTSDCrisisIntel.ensureDevPreview();
             if (intel != null) { ui.updateIntelList(true); ui.selectItem(intel); }

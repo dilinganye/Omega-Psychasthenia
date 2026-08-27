@@ -114,7 +114,7 @@ public class IIRT_SD_OfficerData {
 		return person;
 	}
 
-	//Davis_K_Ougust：超级星际骗子，还是跟小军阀，神偷一个，打算在任务中出场。
+	//Davis_K_Ougust：星际骗子，打算在任务中出场。
 	public static PersonAPI createDavis_K_Ougust() {
 		PersonAPI person = Global.getFactory().createPerson();
 		person.setName(new FullName("Davis K", "Ougust", FullName.Gender.MALE));
@@ -140,42 +140,6 @@ public class IIRT_SD_OfficerData {
 		person.getStats().setSkillLevel(Skills.COORDINATED_MANEUVERS, 1);
 		person.getStats().setSkillLevel(Skills.WOLFPACK_TACTICS, 1);
 		person.getStats().setSkillLevel(Skills.SUPPORT_DOCTRINE, 1);
-
-		person.getStats().setSkipRefresh(false);
-
-		Global.getSector().getImportantPeople().addPerson(person);
-
-		return person;
-	}
-
-	//Ai_Core_P0A：特殊AI系列，作为卫队的特殊AI部队。
-	public static PersonAPI createEscort_Ai_Core_P01() {
-		PersonAPI person = Global.getFactory().createPerson();
-		person.setName(new FullName("断箭", "01", FullName.Gender.MALE));
-		person.isAICore();
-		person.setFaction("Escort");
-		person.setPortraitSprite(Global.getSettings().getSpriteName("intel", "Ai_Core_P01"));
-		person.setPersonality(Personalities.AGGRESSIVE);
-		person.setRankId(Ranks.SPECIAL_AGENT);
-		person.setPostId(null);
-		person.setId("Escort_Ai_Core_P01");
-
-		person.getStats().setSkipRefresh(true);
-
-		person.getStats().setLevel(10);
-		person.getStats().setSkillLevel(Skills.HELMSMANSHIP, 2);
-		person.getStats().setSkillLevel(Skills.COMBAT_ENDURANCE, 2);
-		person.getStats().setSkillLevel(Skills.FIELD_MODULATION, 2);
-		person.getStats().setSkillLevel(Skills.SYSTEMS_EXPERTISE, 2);
-
-		person.getStats().setSkillLevel(Skills.ENERGY_WEAPON_MASTERY, 2);
-		person.getStats().setSkillLevel(Skills.ELECTRONIC_WARFARE, 2);
-
-		person.getStats().setSkillLevel(Skills.COORDINATED_MANEUVERS, 1);
-		person.getStats().setSkillLevel(Skills.WOLFPACK_TACTICS, 1);
-		person.getStats().setSkillLevel(Skills.SUPPORT_DOCTRINE, 1);
-
-		person.getStats().setSkillLevel(Skills.POLARIZED_ARMOR, 2);
 
 		person.getStats().setSkipRefresh(false);
 

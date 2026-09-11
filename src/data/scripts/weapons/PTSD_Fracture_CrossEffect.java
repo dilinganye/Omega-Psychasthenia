@@ -67,6 +67,8 @@ public class PTSD_Fracture_CrossEffect implements OnFireEffectPlugin, OnHitEffec
         final PTSDPolarRiftRenderer.Shape indentedShape;
         CombatEntityAPI target;
         float stretch;
+        float pullFacing;
+        boolean pullFacingInitialized;
         boolean dissipated;
 
         CrossState(MissileAPI missile) {
@@ -106,6 +108,14 @@ public class PTSD_Fracture_CrossEffect implements OnFireEffectPlugin, OnHitEffec
             }
 
             float desired = Misc.getAngleInDegrees(missile.getLocation(), state.target.getLocation());
+            if (!state.pullFacingInitialized) {
+                state.pullFacing = desired;
+                state.pullFacingInitialized = true;
+            } else {
+                float delta = ((desired - state.pullFacing + 540f) % 360f) - 180f;
+                float maxStep = amount * (155f + state.stretch * 95f);
+                state.pullFacing += Math.max(-maxStep, Math.min(maxStep, delta));
+            }
             float turn = Misc.getClosestTurnDirection(missile.getFacing(), desired);
             if (turn > 0f) missile.giveCommand(ShipCommand.TURN_LEFT);
             else if (turn < 0f) missile.giveCommand(ShipCommand.TURN_RIGHT);
@@ -150,9 +160,14 @@ public class PTSD_Fracture_CrossEffect implements OnFireEffectPlugin, OnHitEffec
             CombatEngineAPI engine = Global.getCombatEngine();
             if (engine == null || engine.isPaused()) return;
             elapsed += amount;
+            // isFading() may be true during the projectile's initial hidden-sprite setup,
+            // so it is not a reliable flameout signal here. The projectile spec already
+            // uses fizzleOnReachingWeaponRange; requiring an established flight plus the
+            // actual missile fizzle preserves the original in-flight rift.
+            boolean naturalRangeFlameout = state.missile.isFizzling()
+                    && state.missile.getFlightTime() > 0.5f;
             if (!state.dissipated && !state.missile.didDamage()
-                    && state.missile.getHitpoints() > 0f
-                    && (state.missile.isFizzling() || state.missile.isFading())) {
+                    && state.missile.getHitpoints() > 0f && naturalRangeFlameout) {
                 spawnDissipation(engine);
                 state.dissipated = true;
                 return;
@@ -181,14 +196,13 @@ public class PTSD_Fracture_CrossEffect implements OnFireEffectPlugin, OnHitEffec
             // Match the burst to the current, stretched outer silhouette instead of using
             // an unrelated fixed radius. This keeps the disappearance burst just large
             // enough to swallow the hidden missile's rendered polar rift.
-            float speedStretch = Math.min(1f, missile.getVelocity().length() / 1150f);
             float rawMorph = Math.min(1f, elapsed / 0.42f);
             float morph = rawMorph * rawMorph * (3f - 2f * rawMorph);
-            float stretch = Math.max(state.stretch, speedStretch * 0.48f) * morph;
+            float pull = state.stretch * morph;
             float pulse = 1f + 0.08f * (float)Math.sin(elapsed * 8.5f + state.shape.phase);
             float radius = 2.5f + (20f * pulse - 2.5f) * morph;
             float envelopeRadius = Math.max(8f,
-                    Math.min(70f, radius * (1f + stretch * 2.15f) + 2f));
+                    Math.min(70f, radius * (1f + pull * 2.65f) + 2f));
 
             Vector2f point = new Vector2f(missile.getLocation());
             Vector2f drift = new Vector2f(missile.getVelocity());
@@ -206,21 +220,22 @@ public class PTSD_Fracture_CrossEffect implements OnFireEffectPlugin, OnHitEffec
         @Override public float getRenderRadius() { return 155f; }
         @Override public void render(CombatEngineLayers layer, ViewportAPI viewport) {
             if (isExpired()) return;
-            float speedStretch = Math.min(1f, state.missile.getVelocity().length() / 1150f);
             float rawMorph = Math.min(1f, elapsed / 0.42f);
             float morph = rawMorph * rawMorph * (3f - 2f * rawMorph);
-            float stretch = Math.max(state.stretch, speedStretch * 0.48f) * morph;
+            float pull = state.stretch * morph;
             float pulse = 1f + 0.08f * (float)Math.sin(elapsed * 8.5f + state.shape.phase);
             float radius = 2.5f + (20f * pulse - 2.5f) * morph;
-            float facing = state.missile.getVelocity().lengthSquared() > 25f
+            float facing = state.pullFacingInitialized && state.target != null
+                    ? state.pullFacing
+                    : state.missile.getVelocity().lengthSquared() > 25f
                     ? Misc.getAngleInDegrees(new Vector2f(), state.missile.getVelocity())
                     : state.missile.getFacing();
-            PTSDPolarRiftRenderer.render(state.shape, state.missile.getLocation(), facing,
-                    radius, stretch, elapsed, viewport.getAlphaMult(), RIFT_FILL, RIFT_EDGE, morph);
-            PTSDPolarRiftRenderer.render(state.indentedShape, state.missile.getLocation(), facing + 8f,
-                    radius * 0.86f, stretch * 0.88f, elapsed * 1.23f,
+            PTSDPolarRiftRenderer.renderPulled(state.shape, state.missile.getLocation(), facing,
+                    radius, elapsed, viewport.getAlphaMult(), RIFT_FILL, RIFT_EDGE, morph, pull);
+            PTSDPolarRiftRenderer.renderPulled(state.indentedShape, state.missile.getLocation(), facing + 8f,
+                    radius * 0.86f, elapsed * 1.23f,
                     viewport.getAlphaMult() * 0.72f * morph, new Color(1, 0, 5, 205),
-                    new Color(228, 115, 255, 190), morph);
+                    new Color(228, 115, 255, 190), morph, pull * 0.82f);
         }
     }
 

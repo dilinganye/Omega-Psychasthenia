@@ -51,6 +51,34 @@ public final class PTSDPolarRiftRenderer {
     public static void render(Shape shape, Vector2f location, float facing, float baseRadius,
                               float stretch, float elapsed, float alpha, Color fill, Color edge,
                               float shapeAmount) {
+        renderInternal(shape, location, facing, baseRadius, stretch, elapsed, alpha,
+                fill, edge, shapeAmount, 0f, 0f);
+    }
+
+    /**
+     * Rhythmic organic variant used by Aftershockor. The fixed seeded dents remain coherent,
+     * while several phase-locked angular harmonics crawl around and periodically contract it.
+     */
+    public static void renderWriggling(Shape shape, Vector2f location, float facing, float baseRadius,
+                                       float stretch, float elapsed, float alpha, Color fill,
+                                       Color edge, float wriggleAmount) {
+        renderInternal(shape, location, facing, baseRadius, stretch, elapsed, alpha,
+                fill, edge, 1f, clamp(wriggleAmount, 0f, 1f), 0f);
+    }
+
+    /** One-sided target pull: preserves the rift body while tearing only its target-facing edge. */
+    public static void renderPulled(Shape shape, Vector2f location, float pullFacing,
+                                    float baseRadius, float elapsed, float alpha, Color fill,
+                                    Color edge, float shapeAmount, float pullAmount) {
+        renderInternal(shape, location, pullFacing, baseRadius, 0f, elapsed, alpha,
+                fill, edge, shapeAmount, 0.22f * clamp(pullAmount, 0f, 1f),
+                clamp(pullAmount, 0f, 1f));
+    }
+
+    private static void renderInternal(Shape shape, Vector2f location, float facing, float baseRadius,
+                                       float stretch, float elapsed, float alpha, Color fill,
+                                       Color edge, float shapeAmount, float wriggleAmount,
+                                       float pullAmount) {
         if (shape == null || location == null || alpha <= 0f || baseRadius <= 0f) return;
         stretch = clamp(stretch, 0f, 1f);
         shapeAmount = clamp(shapeAmount, 0f, 1f);
@@ -69,7 +97,7 @@ public final class PTSDPolarRiftRenderer {
         GL11.glVertex2f(0f, 0f);
         for (int i = 0; i <= shape.segments; i++) {
             vertex(shape, i % shape.segments, baseRadius, lengthScale, widthScale,
-                    elapsed, 1f, shapeAmount);
+                    elapsed, 1f, shapeAmount, wriggleAmount, pullAmount);
         }
         GL11.glEnd();
 
@@ -78,7 +106,8 @@ public final class PTSDPolarRiftRenderer {
         color(edge, alpha * 0.9f);
         GL11.glBegin(GL11.GL_LINE_LOOP);
         for (int i = 0; i < shape.segments; i++) {
-            vertex(shape, i, baseRadius, lengthScale, widthScale, elapsed, 1.035f, shapeAmount);
+            vertex(shape, i, baseRadius, lengthScale, widthScale, elapsed, 1.035f,
+                    shapeAmount, wriggleAmount, pullAmount);
         }
         GL11.glEnd();
 
@@ -91,8 +120,24 @@ public final class PTSDPolarRiftRenderer {
 
     private static void vertex(Shape shape, int i, float baseRadius, float lengthScale,
                                float widthScale, float elapsed, float outerMult, float shapeAmount) {
+        vertex(shape, i, baseRadius, lengthScale, widthScale, elapsed, outerMult, shapeAmount, 0f);
+    }
+
+    private static void vertex(Shape shape, int i, float baseRadius, float lengthScale,
+                               float widthScale, float elapsed, float outerMult, float shapeAmount,
+                               float wriggleAmount) {
+        vertex(shape, i, baseRadius, lengthScale, widthScale, elapsed, outerMult,
+                shapeAmount, wriggleAmount, 0f);
+    }
+
+    private static void vertex(Shape shape, int i, float baseRadius, float lengthScale,
+                               float widthScale, float elapsed, float outerMult, float shapeAmount,
+                               float wriggleAmount, float pullAmount) {
         float theta = 6.2831855f * i / shape.segments;
-        float starWave = Math.abs((float)Math.cos(theta * shape.spikeCount * 0.5f));
+        float thetaWarp = theta + wriggleAmount * (
+                0.055f * (float)Math.sin(theta * 3f - elapsed * 5.2f + shape.phase)
+                + 0.028f * (float)Math.sin(theta * 7f + elapsed * 2.7f - shape.phase * 0.6f));
+        float starWave = Math.abs((float)Math.cos(thetaWarp * shape.spikeCount * 0.5f));
         float star = 1f - shape.spikeStrength
                 + shape.spikeStrength * (float)Math.pow(starWave, 5.5);
         float harmonics = 1f
@@ -101,9 +146,33 @@ public final class PTSDPolarRiftRenderer {
         float temporalNoise = 1f + shape.noise[i]
                 * (shape.noiseStrength + 0.025f * (float)Math.sin(elapsed * 3f + i));
         float complete = star * harmonics * temporalNoise;
+        if (wriggleAmount > 0f) {
+            float crawlingFold = 0.105f * (float)Math.sin(thetaWarp * 3f - elapsed * 7.4f + shape.phase)
+                    + 0.052f * (float)Math.sin(thetaWarp * 9f + elapsed * 3.1f)
+                    * (float)Math.sin(elapsed * 2.35f + shape.phase);
+            float twitchGate = (float)Math.pow(Math.max(0f,
+                    Math.sin(elapsed * 5.6f + shape.phase)), 8f);
+            float rhythmicTwitch = twitchGate * (0.12f * (float)Math.cos(thetaWarp * 5f - elapsed * 10.5f)
+                    - 0.045f);
+            float breathing = 0.035f * (float)Math.sin(elapsed * 3.4f + shape.phase)
+                    * (0.45f + 0.55f * (float)Math.cos(thetaWarp * 2f));
+            complete *= 1f + wriggleAmount * (crawlingFold + rhythmicTwitch + breathing);
+        }
         float radius = baseRadius * (1f + (complete - 1f) * shapeAmount) * outerMult;
-        GL11.glVertex2f((float)Math.cos(theta) * radius * lengthScale,
-                (float)Math.sin(theta) * radius * widthScale);
+        float cos = (float)Math.cos(thetaWarp);
+        float sin = (float)Math.sin(thetaWarp);
+        float x = cos * radius * lengthScale;
+        float y = sin * radius * widthScale;
+        if (pullAmount > 0f) {
+            float front = Math.max(0f, cos);
+            float shoulder = (float)Math.pow(front, 2.4f);
+            float tearing = 0.76f + 0.24f * (float)Math.sin(thetaWarp * 9f
+                    - elapsed * 8.2f + shape.phase);
+            x += baseRadius * pullAmount * shoulder * (1.05f + 1.55f * shoulder) * tearing;
+            y += baseRadius * pullAmount * shoulder * 0.24f
+                    * (float)Math.sin(thetaWarp * 6f + elapsed * 5.1f + shape.phase);
+        }
+        GL11.glVertex2f(x, y);
     }
 
     private static void color(Color color, float alpha) {

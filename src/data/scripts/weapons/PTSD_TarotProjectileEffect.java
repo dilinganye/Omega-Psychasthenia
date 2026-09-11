@@ -33,13 +33,69 @@ public class PTSD_TarotProjectileEffect implements OnFireEffectPlugin {
         }
         if ("PTSD_Aftershockor_shot".equals(projectileId)) {
             engine.addPlugin(new AftershockSpaceDistortion(projectile));
-            return; // the physical projectile is intentionally invisible; only space distortion is shown
+            engine.addLayeredRenderingPlugin(new AftershockWrigglingRift(projectile));
+            return; // physical sprite stays invisible; distortion and the procedural rift replace it
         }
         boolean limbSwarm = Math.random() < getLimbChance(weapon, style);
         if (limbSwarm) {
             createShroudedLimbGroup(projectile, style);
         } else {
             engine.addLayeredRenderingPlugin(new TarotProjectileVisual(projectile, style));
+        }
+    }
+
+    /** Stable polar scars overlaid with phase-locked crawling folds and contraction twitches. */
+    private static final class AftershockWrigglingRift extends BaseCombatLayeredRenderingPlugin {
+        private final DamagingProjectileAPI projectile;
+        private final PTSDPolarRiftRenderer.Shape outer;
+        private final PTSDPolarRiftRenderer.Shape inner;
+        private float elapsed;
+
+        AftershockWrigglingRift(DamagingProjectileAPI projectile) {
+            this.projectile = projectile;
+            long seed = Double.doubleToLongBits(Math.random()) ^ projectile.hashCode();
+            outer = new PTSDPolarRiftRenderer.Shape(seed, 36, 5, 0.24f, 0.29f);
+            inner = new PTSDPolarRiftRenderer.Shape(seed ^ 0x6A09E667F3BCC909L,
+                    30, 7, 0.17f, 0.38f);
+        }
+
+        @Override public EnumSet<CombatEngineLayers> getActiveLayers() {
+            // NegativeExplosionVisual (the moving inversion/noise sphere) renders on
+            // ABOVE_PARTICLES. Keep the procedural rift on the final world-effect layer
+            // so its edge and crawling silhouette can never be buried by that sphere.
+            return EnumSet.of(CombatEngineLayers.JUST_BELOW_WIDGETS);
+        }
+
+        @Override public void advance(float amount) {
+            CombatEngineAPI engine = Global.getCombatEngine();
+            if (engine == null || engine.isPaused() || isExpired()) return;
+            elapsed += amount;
+        }
+
+        @Override public boolean isExpired() {
+            CombatEngineAPI engine = Global.getCombatEngine();
+            return projectile == null || projectile.isExpired() || projectile.didDamage()
+                    || engine == null || !engine.isEntityInPlay(projectile);
+        }
+
+        @Override public float getRenderRadius() { return 105f; }
+
+        @Override public void render(CombatEngineLayers layer, ViewportAPI viewport) {
+            if (isExpired()) return;
+            float speed = projectile.getVelocity().length();
+            float stretch = Math.min(0.32f, speed / 2400f);
+            float facing = speed > 5f
+                    ? (float)Math.toDegrees(Math.atan2(projectile.getVelocity().y, projectile.getVelocity().x))
+                    : projectile.getFacing();
+            float alpha = 0.88f * viewport.getAlphaMult();
+            float beat = 1f + 0.055f * (float)Math.sin(elapsed * 4.1f + outer.phase);
+
+            PTSDPolarRiftRenderer.renderWriggling(outer, projectile.getLocation(), facing,
+                    24f * beat, stretch, elapsed, alpha,
+                    new Color(5, 0, 14, 218), new Color(194, 57, 255, 238), 1f);
+            PTSDPolarRiftRenderer.renderWriggling(inner, projectile.getLocation(), facing - 7f,
+                    16f / beat, stretch * 0.72f, elapsed * 1.17f, alpha * 0.68f,
+                    new Color(20, 0, 35, 155), new Color(235, 102, 255, 190), 0.78f);
         }
     }
 

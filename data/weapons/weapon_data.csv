@@ -1,8 +1,8 @@
 name,id,tier,rarity,base value,range,damage/second,damage/shot,emp,impact,turn rate,OPs,ammo,ammo/sec,reload size,type,energy/shot,energy/second,chargeup,chargedown,burst size,burst delay,min spread,max spread,spread/shot,spread decay/sec,beam speed,proj speed,launch speed,flight time,proj hitpoints,hints,tags,groupTag,tech/manufacturer,for weapon tooltip>>,primaryRoleStr,speedStr,trackingStr,turnRateStr,accuracyStr,customPrimary,customPrimaryHL,customAncillary,customAncillaryHL,noDPSInTooltip,number
 #新生- 大多数OP都暂定为5，这表示还没完事
-余波震荡器,PTSD_Aftershockor,3,,150000,800,,250,500,100,100,5,,,,HIGH_EXPLOSIVE,,250,1,0.5,,,,,,,,400,,,,"STRIKE","energy15, pd15, omega",,未知,,反装甲,,,,,命中非未知船体或护甲时，根据受损装甲数值进行一比一的额外装甲损伤。,,,,,
+余波震荡器,PTSD_Aftershockor,3,,150000,800,,500,500,100,100,5,,,,HIGH_EXPLOSIVE,,500,1,18,2,0.05,,,,,,400,,,,"STRIKE","energy15, pd15, omega",,未知,,反装甲,,,,,命中非未知船体或护甲时，根据受损装甲数值进行一比一的额外装甲损伤。,,,,,
 #稳定器代码和效果需要调整
-塔罗稳定器,PTSD_Fracture_Calculus,3,,150000,600,,500,,-50,25,5,,,,FRAGMENTATION,100,,0,0.01,,,0,12,1,10,,800,,,,,"energy15, omega",,未知,,通用,,,,,"命中非未知船体或护甲时，根据目标身上的 %s 层数产生影响：
+塔罗稳定器,PTSD_Fracture_Calculus,3,,150000,600,,150,,-50,25,5,,,,FRAGMENTATION,35,,0,0.01,,,0,12,1,10,,800,,,,,"energy15, omega",,未知,,通用,,,,,"命中非未知船体或护甲时，根据目标身上的 %s 层数产生影响：
 消耗当前的所有层数积攒，并在五秒内持续降低敌方时间流速，五秒内取当前最大消耗层数
 例：消耗 %s 层数，五秒内降低敌方时间流速 %s","塔罗影响 || 32层 || 32%",,,,
 塔罗中和子发生器,PTSD_TasloLauncher,3,,150000,600,,75,,-50,25,6,,,,FRAGMENTATION,15,,0,0.01,,,0,12,1,10,,800,,,,,"energy15, omega",,未知,,通用,极快,,,,"每次命中船体或装甲时，赋予目标一层 %s
@@ -16,7 +16,7 @@ Targeting Laser - Pluto,PTSD_Pluto_2,0,,1,0,1,,,0,90,0,1000,1000,,ENERGY,,0,0.05
 裂隙挥发场,PTSD_Fracture_Volatilizatior,4,,500,500,,350,400,0,40,5,,,,ENERGY,150,,0.45,0,2,0.05,,,,,,1000,,,,,"energy8, omega",,未知,,通用,,,,,"命中目标船体或护甲时，赋予其 %s 层 %s；若目标的 %s 层数高于 %s，则消耗所有层数并生成一次塔罗塌缩。","500 || 塔罗影响 || 塔罗影响 || 550",,,
 #实际上是伪随机，首先在舰船的下图层渲染黑色扭动星云，同时会在周围1000距离内索敌，(1000-敌人距离)判定，随后在其200距离内生成裂隙风暴，这个索敌包括lpc和其他任何战场物件，不限于舰船
 塔霜回旋器,PTSD_TasloSpinor,4,,100000,1500,,750,,100,10,5,10,1,1,ENERGY,300,,1,5,10,0.1,30,90,10,10,,900,50,7,500,"STRIKE","energy20, omega",,未知,,未知,,,,,"此武器所在的 %s 范围内将随机对敌对目标产生裂隙风暴，会随着周围舰船数量的增加而轻微增速",1000,"此武器不能主动开火",,,
-隙质射枪,PTSD_Intertitial_Injection,4,,150000,900,,200,100,-450,35,5,16,2,,ENERGY,40,,0.1,0.3,4,0.3945,0,10,0.5,15,,500,800,5.8,100,DO_NOT_AIM,"energy20, omega",,未知,,未知,,,,,,
+隙质射枪,PTSD_Intertitial_Injection,4,,150000,900,,200,100,-450,35,5,16,2,,ENERGY,40,,0,1.95,4,0.0125,0,10,0.5,15,,500,800,5.8,100,DO_NOT_AIM,"energy20, omega",,未知,,未知,,,,,,
 隙质弩,PTSD_Fracture_Cross,4,,150000,900,,500,,750,35,5,16,0.75,8,ENERGY,500,,0.5,1.35,3,0.55,0,10,0.5,15,,500,800,5.8,100,,"energy18, omega",,未知,,未知,,,,,"隙质徙入",
 辉光体,PTSD_Photonspreador,4,,150000,75,,0,500,500,29,5,5,0.15,3,ENERGY,-200,,0.75,1.25,,,,,,,,500,800,5.8,100,,"pd10, omega",,未知,,未知,,,,,"每次将对修复范围内的受损武器进行回溯，回溯只会修复武器，不会为其重装填弹药",,"此武器不能主动开火"
 #隙质中继器 能造成 隙质影响，影响层数大于30时消耗20层并生成一组 虹膜-级 类红雾的LPC

@@ -44,6 +44,7 @@ public final class PTSDTarotEffects {
     private static final Color FRACTURE = new Color(150, 75, 255, 230);
     private static final Color COLLAPSE = new Color(255, 55, 185, 235);
 
+
     private PTSDTarotEffects() { }
 
     /** Shields, non-ships and Shrouded/Dweller unknown hulls do not accept Tarot hull/armor effects. */

@@ -393,24 +393,27 @@ public class MissionDefinition implements MissionDefinitionPlugin {
 
 			case 3:
 
-				api.addToFleet(FleetSide.PLAYER, "PTSD_Threat_Tiny_variant", FleetMemberType.SHIP, false);
-				api.addToFleet(FleetSide.PLAYER, "PTSD_Threat_Tiny_variant", FleetMemberType.SHIP, false);
-				api.addToFleet(FleetSide.PLAYER, "PTSD_Threat_Tiny_variant", FleetMemberType.SHIP, false);
-				api.addToFleet(FleetSide.PLAYER, "PTSD_Threat_Tiny_variant", FleetMemberType.SHIP, false);
-				api.addToFleet(FleetSide.PLAYER, "PTSD_Threat_Reconnaissance_Assault", FleetMemberType.SHIP, false); //Type270
-				api.addToFleet(FleetSide.PLAYER, "PTSD_Threat_Reconnaissance_Assault", FleetMemberType.SHIP, false); //Type270
-				api.addToFleet(FleetSide.PLAYER, "PTSD_Threat_Reverse_Assault", FleetMemberType.SHIP, true);
+				if(isDevmode) {
+					api.addToFleet(FleetSide.PLAYER, "PTSD_Threat_Tiny_variant", FleetMemberType.SHIP, false);
+					api.addToFleet(FleetSide.PLAYER, "PTSD_Threat_Tiny_variant", FleetMemberType.SHIP, false);
+					api.addToFleet(FleetSide.PLAYER, "PTSD_Threat_Tiny_variant", FleetMemberType.SHIP, false);
+					api.addToFleet(FleetSide.PLAYER, "PTSD_Threat_Tiny_variant", FleetMemberType.SHIP, false);
+					api.addToFleet(FleetSide.PLAYER, "PTSD_Threat_Reconnaissance_Assault", FleetMemberType.SHIP, false); //Type270
+					api.addToFleet(FleetSide.PLAYER, "PTSD_Threat_Reconnaissance_Assault", FleetMemberType.SHIP, false); //Type270
+					api.addToFleet(FleetSide.PLAYER, "PTSD_Threat_Reverse_Assault", FleetMemberType.SHIP, true);
 
-				api.addToFleet(FleetSide.PLAYER, "skirmish_unit_Type100", FleetMemberType.SHIP, false);
-				api.addToFleet(FleetSide.PLAYER, "skirmish_unit_Type101", FleetMemberType.SHIP, false);
-				api.addToFleet(FleetSide.PLAYER, "assault_unit_Type200", FleetMemberType.SHIP, false);
-				api.addToFleet(FleetSide.PLAYER, "assault_unit_Type201", FleetMemberType.SHIP, false);
-				api.addToFleet(FleetSide.PLAYER, "overseer_unit_Type250", FleetMemberType.SHIP, false);
-				api.addToFleet(FleetSide.PLAYER, "standoff_unit_Type300", FleetMemberType.SHIP, false);
-				api.addToFleet(FleetSide.PLAYER, "standoff_unit_Type301", FleetMemberType.SHIP, false);
-				api.addToFleet(FleetSide.PLAYER, "standoff_unit_Type302", FleetMemberType.SHIP, false);
-				api.addToFleet(FleetSide.PLAYER, "hive_unit_Type350", FleetMemberType.SHIP, false);
-				api.addToFleet(FleetSide.PLAYER, "fabricator_unit_Type450", FleetMemberType.SHIP, false);
+					api.addToFleet(FleetSide.PLAYER, "skirmish_unit_Type100", FleetMemberType.SHIP, false);
+					api.addToFleet(FleetSide.PLAYER, "skirmish_unit_Type101", FleetMemberType.SHIP, false);
+					api.addToFleet(FleetSide.PLAYER, "assault_unit_Type200", FleetMemberType.SHIP, false);
+					api.addToFleet(FleetSide.PLAYER, "assault_unit_Type201", FleetMemberType.SHIP, false);
+					api.addToFleet(FleetSide.PLAYER, "overseer_unit_Type250", FleetMemberType.SHIP, false);
+					api.addToFleet(FleetSide.PLAYER, "standoff_unit_Type300", FleetMemberType.SHIP, false);
+					api.addToFleet(FleetSide.PLAYER, "standoff_unit_Type301", FleetMemberType.SHIP, false);
+					api.addToFleet(FleetSide.PLAYER, "standoff_unit_Type302", FleetMemberType.SHIP, false);
+					api.addToFleet(FleetSide.PLAYER, "hive_unit_Type350", FleetMemberType.SHIP, false);
+					api.addToFleet(FleetSide.PLAYER, "fabricator_unit_Type450", FleetMemberType.SHIP, false);
+					break;
+				}
 			default:
 				break;
 		}

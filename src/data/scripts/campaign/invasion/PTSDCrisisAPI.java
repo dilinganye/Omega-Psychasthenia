@@ -1,11 +1,18 @@
 package data.scripts.campaign.invasion;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.campaign.LocationAPI;
+import com.fs.starfarer.api.campaign.PlanetAPI;
+import com.fs.starfarer.api.campaign.SectorEntityToken;
+import com.fs.starfarer.api.campaign.StarSystemAPI;
+import com.fs.starfarer.api.util.Misc;
+import org.lwjgl.util.vector.Vector2f;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 /**
  * Optional interoperability surface for other mods. Providers are runtime objects and should
@@ -161,7 +168,11 @@ public final class PTSDCrisisAPI {
             incident.investigationExpiresDay = PTSDCrisisState.getDay() + 30f;
             java.util.Random seeded = new java.util.Random(incident.id.hashCode() * 31L + 0x50545344L);
             float roll = seeded.nextFloat();
-            incident.investigationOutcome = roll < .25f ? 1 : (roll < .95f ? 2 : 3);
+            PTSDCrisisState state = PTSDCrisisState.get();
+            // The 5% Fourth Watch tracker branch does not exist before reconnaissance begins.
+            incident.investigationOutcome = state != null && state.phase == PTSDCrisisState.Phase.DORMANT
+                    ? (roll < .25f ? 1 : 2)
+                    : (roll < .25f ? 1 : (roll < .95f ? 2 : 3));
             PTSDCrisisIntel.ensureIntel();
             PTSDCrisisDevIntel.report("新闻线索记录", "调查结果池 " + incident.investigationOutcome,
                     incident.targetSystemId, null);
@@ -275,6 +286,152 @@ public final class PTSDCrisisAPI {
         PTSDCrisisState state = PTSDCrisisState.get();
         return state == null ? 0f : state.playerGrudge;
     }
+
+    /**
+     * Adds an expiring observation to Omega's belief model. Negative numeric values and -1
+     * presence signals mean "not observed". This is the only supported route for teaching a
+     * system assessment; callers must not copy ground-truth fields into the belief directly.
+     */
+    public static PTSDCrisisState.EvidenceRecord recordEvidence(
+            String systemId, String sourceType, String sourceId,
+            float fleetStrength, float marketDefense, float strategicValue,
+            int colonySignal, int fleetSignal, float confidence,
+            float lifetimeDays, boolean playerContaminated, float weightBias) {
+        PTSDCrisisState state = PTSDCrisisState.get();
+        if (state == null || systemId == null) return null;
+        PTSDCrisisState.SystemData data = state.getSystemData(systemId);
+        PTSDCrisisState.EvidenceRecord evidence = new PTSDCrisisState.EvidenceRecord();
+        evidence.id = "PTSD_evidence_" + Misc.genUID();
+        evidence.sourceType = sourceType == null ? "UNKNOWN" : sourceType;
+        evidence.sourceId = sourceId;
+        evidence.fleetStrength = finiteOrUnknown(fleetStrength);
+        evidence.marketDefense = finiteOrUnknown(marketDefense);
+        evidence.strategicValue = finiteOrUnknown(strategicValue);
+        evidence.colonySignal = clampSignal(colonySignal);
+        evidence.fleetSignal = clampSignal(fleetSignal);
+        evidence.confidence = clamp01(confidence);
+        evidence.weightBias = Math.max(-.75f, Math.min(2f, weightBias));
+        evidence.createdDay = PTSDCrisisState.getDay();
+        evidence.expiresDay = evidence.createdDay + Math.max(1f, lifetimeDays);
+        evidence.playerContaminated = playerContaminated;
+        data.evidence.add(evidence);
+        while (data.evidence.size() > 64) data.evidence.remove(0);
+        refreshBelief(data, evidence.createdDay);
+        return evidence;
+    }
+
+    /** Adds a durable incident bias which remains an input after attack weights are recomputed. */
+    public static void addIncidentWeightBias(String systemId, float additiveMultiplier) {
+        PTSDCrisisState state = PTSDCrisisState.get();
+        if (state == null || systemId == null || Float.isNaN(additiveMultiplier) ||
+                Float.isInfinite(additiveMultiplier)) return;
+        PTSDCrisisState.SystemData data = state.getSystemData(systemId);
+        data.incidentWeightBias = Math.max(-.75f,
+                Math.min(2f, data.incidentWeightBias + additiveMultiplier));
+    }
+
+    /** Rebuilds the current belief exclusively from unexpired evidence. */
+    public static void refreshBelief(PTSDCrisisState.SystemData data, float day) {
+        if (data == null) return;
+        if (data.evidence == null) data.evidence = new ArrayList<PTSDCrisisState.EvidenceRecord>();
+        float fleet = 0f, marketTotal = 0f, marketWeight = 0f, valueTotal = 0f, valueWeight = 0f;
+        float combinedUncertainty = 1f;
+        float colonyScore = 0f, colonyWeight = 0f, fleetScore = 0f, fleetWeight = 0f;
+        for (int i = data.evidence.size() - 1; i >= 0; i--) {
+            PTSDCrisisState.EvidenceRecord item = data.evidence.get(i);
+            if (item == null || item.expiresDay <= day) { data.evidence.remove(i); continue; }
+            float life = Math.max(1f, item.expiresDay - item.createdDay);
+            float freshness = Math.max(.08f, Math.min(1f, (item.expiresDay - day) / life));
+            float trust = clamp01(item.confidence) * freshness * (item.playerContaminated ? .72f : 1f);
+            combinedUncertainty *= 1f - Math.min(.95f, trust);
+            if (item.fleetStrength >= 0f) fleet = Math.max(fleet, item.fleetStrength * (.55f + .45f * trust));
+            if (item.marketDefense >= 0f) { marketTotal += item.marketDefense * trust; marketWeight += trust; }
+            if (item.strategicValue >= 0f) { valueTotal += item.strategicValue * trust; valueWeight += trust; }
+            if (item.colonySignal >= 0) { colonyScore += item.colonySignal * trust; colonyWeight += trust; }
+            if (item.fleetSignal >= 0) { fleetScore += item.fleetSignal * trust; fleetWeight += trust; }
+        }
+        data.beliefConfidence = clamp01(1f - combinedUncertainty);
+        data.observedFleetStrength = fleet;
+        data.observedMarketDefense = marketWeight <= .001f ? 0f : marketTotal / marketWeight;
+        data.strategicValue = valueWeight <= .001f ? 1f : Math.max(1f, valueTotal / valueWeight);
+        data.hasNonCrisisColony = colonyWeight > .08f && colonyScore / colonyWeight >= .5f;
+        data.hasNonCrisisFleet = fleetWeight > .08f && fleetScore / fleetWeight >= .5f;
+    }
+
+    /**
+     * Finds a collision-safe campaign point. It never returns an unchecked fallback: null means
+     * the caller should skip or retry spawning the entity.
+     */
+    public static Vector2f findSafePoint(LocationAPI location, SectorEntityToken focus,
+                                         float minRadius, float maxRadius, Random random) {
+        if (location == null || focus == null) return null;
+        return findSafePoint(location, focus.getLocation(), minRadius, maxRadius, random);
+    }
+
+    public static Vector2f findSafePoint(LocationAPI location, Vector2f center,
+                                         float minRadius, float maxRadius, Random random) {
+        if (location == null || center == null) return null;
+        Random rng = random == null ? new Random() : random;
+        float min = Math.max(200f, minRadius);
+        float max = Math.max(min + 1f, maxRadius);
+        for (int attempt = 0; attempt < 64; attempt++) {
+            Vector2f point = Misc.getPointAtRadius(center, min + rng.nextFloat() * (max - min));
+            if (isSafePoint(location, point)) return point;
+        }
+        // Deterministic expanding rings make dense systems reliable without accepting an unsafe point.
+        for (int ring = 0; ring < 5; ring++) {
+            float radius = max + ring * Math.max(1200f, (max - min) * .5f);
+            for (int step = 0; step < 24; step++) {
+                Vector2f direction = Misc.getUnitVectorAtDegreeAngle(step * 15f + ring * 7.5f);
+                direction.scale(radius);
+                Vector2f point = Vector2f.add(center, direction, null);
+                if (isSafePoint(location, point)) return point;
+            }
+        }
+        return null;
+    }
+
+    /** Whether newly disclosed news should create a lower-left Intel notification. */
+    public static boolean isNewsIntelSubscribed() {
+        PTSDCrisisState state = PTSDCrisisState.get();
+        return state == null || state.newsIntelSubscribed;
+    }
+
+    /**
+     * Changes the per-save news subscription. Articles and their effects continue to exist when
+     * unsubscribed; only the lower-left Intel push is suppressed.
+     */
+    public static void setNewsIntelSubscribed(boolean subscribed) {
+        PTSDCrisisState state = PTSDCrisisState.get();
+        if (state != null) state.newsIntelSubscribed = subscribed;
+    }
+
+    public static boolean isSafePoint(LocationAPI location, Vector2f point) {
+        if (location == null || point == null) return false;
+        if (!(location instanceof StarSystemAPI)) return true;
+        StarSystemAPI system = (StarSystemAPI) location;
+        for (PlanetAPI planet : system.getPlanets()) {
+            if (planet == null) continue;
+            float clearance = Math.max(1600f, planet.getRadius() + 1200f);
+            if (Misc.getDistance(point, planet.getLocation()) < clearance) return false;
+        }
+        for (SectorEntityToken jump : system.getJumpPoints()) {
+            if (jump == null) continue;
+            float clearance = Math.max(1300f, jump.getRadius() + 900f);
+            if (Misc.getDistance(point, jump.getLocation()) < clearance) return false;
+        }
+        return true;
+    }
+
+    private static int clampSignal(int value) { return value < 0 ? -1 : (value > 0 ? 1 : 0); }
+    private static float clamp01(float value) {
+        if (Float.isNaN(value) || Float.isInfinite(value)) return 0f;
+        return Math.max(0f, Math.min(1f, value));
+    }
+    private static float finiteOrUnknown(float value) {
+        return Float.isNaN(value) || Float.isInfinite(value) ? -1f : value;
+    }
+
     static void notifyResolved(PTSDCrisisState.StrategicEvent event) {
         PTSDCrisisDevIntel.reportEventResolved(event);
         EventResult result = new EventResult(event);

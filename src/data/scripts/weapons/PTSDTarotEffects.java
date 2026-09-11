@@ -304,12 +304,19 @@ public final class PTSDTarotEffects {
 
     public static void spawnRiftVisual(CombatEngineAPI engine, Vector2f point, Vector2f velocity,
                                        float radius, Color color, final boolean belowShips) {
+        spawnRiftVisual(engine, point, velocity, radius, color, belowShips,
+                belowShips ? 0.65f : 0.55f);
+    }
+
+    public static void spawnRiftVisual(CombatEngineAPI engine, Vector2f point, Vector2f velocity,
+                                       float radius, Color color, final boolean belowShips,
+                                       float fadeOut) {
         if (engine == null || point == null) return;
         NEParams params = new NEParams();
         params.radius = Math.max(8f, radius);
         params.thickness = Math.max(10f, radius * 0.72f);
         params.fadeIn = belowShips ? 0.35f : 0.08f;
-        params.fadeOut = belowShips ? 0.65f : 0.55f;
+        params.fadeOut = Math.max(0.05f, fadeOut);
         params.noiseMag = belowShips ? 1.8f : 1.2f;
         params.noisePeriod = 0.08f;
         params.hitGlowSizeMult = belowShips ? 0f : 0.7f;

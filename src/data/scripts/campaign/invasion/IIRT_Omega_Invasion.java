@@ -467,6 +467,7 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
             PTSDCrisisState.SystemData data = state.getSystemData(systemId);
             data.scoutVisits++;
             data.lastObservedDay = PTSDCrisisState.getDay();
+            recordScoutSurvey(systemId, fleetId, missionType);
             PTSDCrisisProgress.add(state, PTSDCrisisProgress.Variable.RECON_CONFIDENCE,
                     0.6f, "SCOUT_ARRIVAL", systemId);
         }
@@ -540,8 +541,10 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
             }
         }
         data.lastReconSampleDay = PTSDCrisisState.getDay();
-        data.observedFleetStrength = Math.max(data.observedFleetStrength * 0.92f, data.reconDailyMax);
         data.lastObservedDay = data.lastReconSampleDay;
+        PTSDCrisisAPI.recordEvidence(systemId, "SCOUT_DAILY_MAX", fleetId,
+                data.reconDailyMax, -1f, -1f, -1, data.reconDailyMax > 0f ? 1 : 0,
+                .72f, 45f, false, 0f);
         if (newDay) {
             PTSDCrisisProgress.add(state, PTSDCrisisProgress.Variable.RECON_CONFIDENCE,
                     Math.min(0.5f, 0.05f + strength / 1000f), "RECON_DAILY_MAX", systemId);
@@ -549,6 +552,52 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
                     "当日最高舰队强度 " + Math.round(strength) +
                             (fleetId == null ? "" : " / 提交舰队 " + fleetId), systemId, fleetId);
         }
+    }
+
+    /** Records only what a scout can observe after physically reaching its task system. */
+    private static void recordScoutSurvey(String systemId, String fleetId, String missionType) {
+        PTSDCrisisState state = PTSDCrisisState.get();
+        StarSystemAPI system = state == null ? null : state.resolveSystem(systemId);
+        if (system == null) return;
+        float fleetStrength = 0f;
+        boolean hasFleet = false;
+        for (CampaignFleetAPI other : system.getFleets()) {
+            if (other == null || other.getFaction() == null) continue;
+            String factionId = other.getFaction().getId();
+            if (PSYCHASTHENIA_FACTION.equals(factionId) || WATCHER_FACTION.equals(factionId)) continue;
+            hasFleet = true;
+            fleetStrength += Math.max(0f, other.getFleetPoints());
+        }
+        float marketDefense = 0f;
+        float value = 1f;
+        boolean hasColony = false;
+        for (MarketAPI market : Global.getSector().getEconomy().getMarkets(system)) {
+            if (market == null || market.isPlanetConditionMarketOnly() ||
+                    PSYCHASTHENIA_FACTION.equals(market.getFactionId()) ||
+                    WATCHER_FACTION.equals(market.getFactionId())) continue;
+            hasColony = true;
+            float size = market.getSize();
+            value += size * size * 12f;
+            if (market.isPlayerOwned()) value += 55f;
+            marketDefense += size * size * 9f + market.getStabilityValue() * 3f;
+            if (market.hasIndustry(Industries.PATROLHQ)) marketDefense += 18f;
+            if (market.hasIndustry(Industries.MILITARYBASE)) marketDefense += 45f;
+            if (market.hasIndustry(Industries.HIGHCOMMAND)) marketDefense += 80f;
+            if (market.hasIndustry(Industries.ORBITALSTATION)) marketDefense += 28f;
+            if (market.hasIndustry(Industries.BATTLESTATION)) marketDefense += 60f;
+            if (market.hasIndustry(Industries.STARFORTRESS)) marketDefense += 105f;
+            if (market.hasIndustry(Industries.HEAVYINDUSTRY) || market.hasIndustry(Industries.ORBITALWORKS)) value += 45f;
+        }
+        float confidence = "COLONY_INFILTRATION".equals(missionType) ? .88f :
+                ("RELAY".equals(missionType) ? .76f :
+                        ("HYPERSPACE_WATCH".equals(missionType) ? .52f : .62f));
+        float noise = .84f + new Random(31L * systemId.hashCode() +
+                (long) Math.floor(PTSDCrisisState.getDay())).nextFloat() * .32f;
+        boolean observesMarkets = !"HYPERSPACE_WATCH".equals(missionType);
+        PTSDCrisisAPI.recordEvidence(systemId, "SCOUT_SURVEY", missionType + ":" + fleetId,
+                fleetStrength * noise, observesMarkets ? marketDefense * noise : -1f,
+                observesMarkets ? value * noise : -1f, observesMarkets ? (hasColony ? 1 : 0) : -1,
+                hasFleet ? 1 : 0, confidence, 120f, false, 0f);
     }
     private static int visibleStageForPhase(PTSDCrisisState.Phase phase) {
         if (phase == PTSDCrisisState.Phase.RECON || phase == PTSDCrisisState.Phase.DORMANT) return 1;
@@ -1017,6 +1066,9 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
             String factionId = market.getFactionId();
             if (PSYCHASTHENIA_FACTION.equals(factionId) || WATCHER_FACTION.equals(factionId) || Factions.OMEGA.equals(factionId)) continue;
             PTSDCrisisState.SystemData data = state.getSystemData(market.getStarSystem().getId());
+            // The market is an implementation candidate, but Omega may only select it after its
+            // own evidence has established that a colony exists in this system.
+            if (!data.hasNonCrisisColony || data.beliefConfidence < .08f) continue;
             float weight = Math.max(0.05f, data.attackWeight);
             if (market.isPlayerOwned()) weight *= 1.25f;
             PTSDCrisisState.PlayerMarker marker = state.playerMarkers.get(data.systemId);
@@ -1175,6 +1227,7 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
     }
     private void resolveDueEvents(PTSDCrisisState state, float day) {
         resolveSpecialPursuits(state, day);
+        resolveFireProbes(state, day);
         for (PTSDCrisisState.StrategicEvent event : state.events) {
             if (event.status != PTSDCrisisState.EventStatus.MATERIALIZED ||
                     day >= event.resolveDay || PTSDCrisisAPI.SIDE_OMEGA.equals(event.side)) continue;
@@ -1208,13 +1261,79 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
                     event.type == PTSDCrisisState.EventType.FORTRESS_PATROL || event.type == PTSDCrisisState.EventType.PLAYER_TASK_FORCE ||
                     event.type == PTSDCrisisState.EventType.EXTERNAL || event.type == PTSDCrisisState.EventType.DEFENSE ||
                     event.type == PTSDCrisisState.EventType.MERCENARY_DEFENSE ||
-                    event.type == PTSDCrisisState.EventType.FIRE_PROBE || event.type == PTSDCrisisState.EventType.GRUDGE_RAID) {
+                    event.type == PTSDCrisisState.EventType.GRUDGE_RAID) {
                 event.successful = true;
                 event.status = PTSDCrisisState.EventStatus.RESOLVED;
                 despawnEventFleets(event);
                 PTSDCrisisAPI.notifyResolved(event);
             }
         }
+    }
+
+    private void resolveFireProbes(PTSDCrisisState state, float day) {
+        for (PTSDCrisisState.StrategicEvent event : state.events) {
+            if (event == null || event.type != PTSDCrisisState.EventType.FIRE_PROBE ||
+                    (event.status != PTSDCrisisState.EventStatus.PLANNED &&
+                            event.status != PTSDCrisisState.EventStatus.MATERIALIZED)) continue;
+            boolean hasFleet = event.status == PTSDCrisisState.EventStatus.MATERIALIZED && hasEventFleet(event);
+            boolean vanishedEarly = event.status == PTSDCrisisState.EventStatus.MATERIALIZED &&
+                    !hasFleet && day < event.resolveDay;
+            if (!vanishedEarly && day < event.resolveDay) continue;
+
+            String outcome;
+            if (event.probeDefeatedGroups > 0 && !hasFleet) outcome = "DESTROYED";
+            else if (vanishedEarly) outcome = "FORCED_ABORT";
+            else if (event.probeEngaged) outcome = "ESCAPED_AFTER_CONTACT";
+            else outcome = "COMPLETED_SAMPLE";
+            finishFireProbe(state, event, outcome, hasFleet);
+        }
+    }
+
+    private void finishFireProbe(PTSDCrisisState state, PTSDCrisisState.StrategicEvent event,
+                                 String outcome, boolean hasFleet) {
+        event.probeOutcome = outcome;
+        event.successful = "COMPLETED_SAMPLE".equals(outcome) || "ESCAPED_AFTER_CONTACT".equals(outcome);
+        event.status = PTSDCrisisState.EventStatus.RESOLVED;
+        PTSDCrisisState.SystemData data = state.getSystemData(event.targetSystemId);
+        float confidence;
+        boolean contaminated = event.probePlayerIntervention;
+        if ("COMPLETED_SAMPLE".equals(outcome)) {
+            confidence = .82f;
+            PTSDCrisisProgress.add(state, PTSDCrisisProgress.Variable.RECON_CONFIDENCE,
+                    1.2f, "FIRE_PROBE_COMPLETE", event.targetSystemId);
+        } else if ("ESCAPED_AFTER_CONTACT".equals(outcome)) {
+            confidence = .68f;
+            PTSDCrisisProgress.add(state, PTSDCrisisProgress.Variable.RECON_CONFIDENCE,
+                    .8f, "FIRE_PROBE_ESCAPE", event.targetSystemId);
+            PTSDCrisisProgress.add(state, PTSDCrisisProgress.Variable.WATCHER_AGGRESSION,
+                    .7f, "FIRE_PROBE_ESCAPE", event.targetSystemId);
+        } else if ("DESTROYED".equals(outcome)) {
+            confidence = .18f;
+            event.aftermathKind = "OMEGA_DEFEAT";
+            PTSDCrisisProgress.add(state, PTSDCrisisProgress.Variable.HUMAN_AWARENESS,
+                    1.5f, "FIRE_PROBE_DESTROYED", event.targetSystemId);
+            PTSDCrisisProgress.add(state, PTSDCrisisProgress.Variable.WATCHER_AGGRESSION,
+                    1.8f, "FIRE_PROBE_DESTROYED", event.targetSystemId);
+        } else {
+            confidence = .28f;
+            PTSDCrisisProgress.add(state, PTSDCrisisProgress.Variable.WATCHER_AGGRESSION,
+                    1.1f, "FIRE_PROBE_ABORT", event.targetSystemId);
+        }
+        float noise = .88f + random.nextFloat() * .24f;
+        boolean truthReady = data.lastWeightUpdateDay > 0f;
+        PTSDCrisisAPI.recordEvidence(event.targetSystemId, "FIRE_PROBE", event.id,
+                truthReady ? data.groundTruthFleetStrength * noise : -1f,
+                truthReady ? data.groundTruthMarketDefense * noise : -1f,
+                truthReady ? data.groundTruthStrategicValue * noise : -1f,
+                truthReady ? (data.groundTruthHasNonCrisisColony ? 1 : 0) : -1,
+                truthReady ? (data.groundTruthHasNonCrisisFleet ? 1 : 0) : -1,
+                confidence, event.successful ? 180f : 60f, contaminated, 0f);
+        if (hasFleet) despawnEventFleets(event);
+        PTSDCrisisDevIntel.report("火力侦察结算",
+                outcome + " / 接触 " + event.probeEngaged + " / 玩家介入 " +
+                        event.probePlayerIntervention + " / 损失分队 " + event.probeDefeatedGroups,
+                event.targetSystemId, null);
+        PTSDCrisisAPI.notifyResolved(event);
     }
 
     private void resolveAttack(PTSDCrisisState state, PTSDCrisisState.StrategicEvent attack) {
@@ -1356,21 +1475,18 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
                 if (market.hasIndustry(Industries.HEAVYINDUSTRY) || market.hasIndustry(Industries.ORBITALWORKS)) value += 45f;
             }
             float trueDefense = fleetDefense + marketDefense;
-            float confidence = Math.min(1f, 0.12f + data.scoutVisits * 0.16f + data.playerSightings * 0.05f + state.reconConfidence / 250f);
-            float uncertainty = 0.72f + seededNoise(system.getId(), day) * 0.56f;
-            // Fleet strength now comes primarily from scout daily maxima instead of omniscient live totals.
-            data.observedFleetStrength *= 0.96f;
-            if (data.reconStrengthHistory.isEmpty()) {
-                data.observedFleetStrength = Math.max(data.observedFleetStrength,
-                        fleetDefense * confidence * uncertainty * 0.18f);
-            }
-            data.observedMarketDefense = Math.max(3f,
-                    marketDefense * (0.28f + confidence * 0.72f) * uncertainty);
-            data.strategicValue = value;
-            data.hasNonCrisisColony = hasNonCrisisColony;
-            data.hasNonCrisisFleet = hasNonCrisisFleet;
+            // Ground truth exists for human-side simulation and Dev diagnostics only. Omega's
+            // attack planner below reads the evidence-derived observed fields exclusively.
+            data.groundTruthFleetStrength = fleetDefense;
+            data.groundTruthMarketDefense = marketDefense;
+            data.groundTruthStrategicValue = value;
+            data.groundTruthHasNonCrisisColony = hasNonCrisisColony;
+            data.groundTruthHasNonCrisisFleet = hasNonCrisisFleet;
+            PTSDCrisisAPI.refreshBelief(data, day);
+            float confidence = data.beliefConfidence;
             boolean omegaOccupied = data.omegaControl >= 0.5f || data.conversionLevel > 0;
-            data.occupationSuggested = !omegaOccupied && !hasNonCrisisColony && !hasNonCrisisFleet;
+            data.occupationSuggested = !omegaOccupied && confidence >= .55f &&
+                    !data.hasNonCrisisColony && !data.hasNonCrisisFleet;
             int nonStarPlanets = 0;
             for (PlanetAPI planet : system.getPlanets()) if (planet != null && !planet.isStar()) nonStarPlanets++;
             data.occupationWeight = data.occupationSuggested ?
@@ -1380,15 +1496,19 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
             float weakness = Math.max(0.12f, Math.min(3.5f, 90f / (25f + scoutedDefense)));
             if (omegaOccupied) {
                 data.attackWeight = 0.05f;
-            } else if (hasNonCrisisColony) {
-                float strategicPull = 1f + (float) Math.sqrt(Math.max(1f, value)) / 8f;
+            } else if (data.hasNonCrisisColony) {
+                float strategicPull = 1f + (float) Math.sqrt(Math.max(1f, data.strategicValue)) / 8f;
                 data.attackWeight = Math.max(0.05f, strategicPull * weakness *
                         (0.25f + confidence * 0.75f) * Math.max(0.25f, data.learningMultiplier) * 22f);
             } else if (data.occupationSuggested) {
                 // This weight is an occupation recommendation, not a colony assault target.
                 data.attackWeight = data.occupationWeight;
+            } else if (confidence < .08f) {
+                // Unobserved systems retain only a low exploration prior; they are not silently
+                // classified from live markets or fleets.
+                data.attackWeight = .2f;
             } else {
-                // Uncolonized systems containing remnant/pirate/wild fleets retain a cleanup weight.
+                // Evidence reports mobile opposition but no confirmed colony: cleanup/recon weight.
                 data.attackWeight = Math.max(0.1f, weakness * (0.2f + confidence * 0.8f) * 6f);
             }
             data.humanDefenseWeight = Math.max(1f, value / 18f + trueDefense / 12f);
@@ -1400,6 +1520,7 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
                 occupationAttention += occupation.omegaAttention;
                 humanOccupationAttention += occupation.humanAttention;
             }
+            data.attackWeight *= Math.max(.25f, 1f + data.incidentWeightBias);
             data.attackWeight *= 1f + Math.min(0.8f, occupationAttention * 0.08f);
             data.attackWeight *= 1f + state.omegaEscalation / 250f;
             data.humanDefenseWeight *= 1f + Math.min(0.4f, humanOccupationAttention * 0.05f);
@@ -1496,6 +1617,7 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
                 params.baseSalvageXP = Math.max(0, Math.round(event.strength * 1.5f));
                 SectorEntityToken debris = Misc.addDebrisField(current, params, random);
                 Vector2f location = findSafePoint(current, focus, 1800f + n * 350f, 5200f + n * 500f);
+                if (location == null) { current.removeEntity(debris); continue; }
                 debris.setLocation(location.x, location.y);
                 debris.setDiscoverable(null);
                 debris.setDiscoveryXP(null);
@@ -1520,6 +1642,8 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
 
     private void spawnOmegaWreck(StarSystemAPI system, SectorEntityToken focus, String variantId) {
         try {
+            Vector2f point = findSafePoint(system, focus, 2200f, 5200f);
+            if (point == null) return;
             PerShipData ship = new PerShipData(variantId, ShipCondition.WRECKED, PSYCHASTHENIA_FACTION, 0f);
             ship.addDmods = true;
             ship.pruneWeapons = true;
@@ -1528,7 +1652,6 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
             data.durationDays = 60f;
             SectorEntityToken wreck = BaseThemeGenerator.addSalvageEntity(random, system, Entities.WRECK,
                     PSYCHASTHENIA_FACTION, data);
-            Vector2f point = findSafePoint(system, focus, 2200f, 5200f);
             wreck.setLocation(point.x, point.y);
             wreck.setName("无法修复的精神创伤残舰");
             wreck.addTag(Tags.UNRECOVERABLE);
@@ -1542,12 +1665,13 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
 
     private void spawnHumanWreck(StarSystemAPI system, SectorEntityToken focus, String factionId) {
         try {
+            Vector2f point = findSafePoint(system, focus, 1800f, 6000f);
+            if (point == null) return;
             if (factionId == null || Global.getSector().getFaction(factionId) == null) factionId = Factions.INDEPENDENT;
             DerelictShipEntityPlugin.DerelictShipData data =
                     DerelictShipEntityPlugin.createRandom(factionId, null, random, 0f);
             data.durationDays = 60f;
             SectorEntityToken wreck = BaseThemeGenerator.addSalvageEntity(random, system, Entities.WRECK, factionId, data);
-            Vector2f point = findSafePoint(system, focus, 1800f, 6000f);
             wreck.setLocation(point.x, point.y);
             wreck.setName(Global.getSector().getFaction(factionId).getDisplayName() + "战损舰体");
         } catch (Throwable ex) {
@@ -1576,22 +1700,8 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
     }
 
     private Vector2f findSafePoint(StarSystemAPI system, SectorEntityToken focus, float minRadius, float maxRadius) {
-        Vector2f center = focus == null ? system.getCenter().getLocation() : focus.getLocation();
-        for (int attempt = 0; attempt < 30; attempt++) {
-            float radius = minRadius + random.nextFloat() * Math.max(1f, maxRadius - minRadius);
-            Vector2f point = Misc.getPointAtRadius(center, radius);
-            boolean safe = true;
-            for (PlanetAPI planet : system.getPlanets()) {
-                float clearance = Math.max(1400f, planet.getRadius() + 1100f);
-                if (Misc.getDistance(point, planet.getLocation()) < clearance) { safe = false; break; }
-            }
-            if (safe) return point;
-        }
-        if (!system.getJumpPoints().isEmpty()) {
-            SectorEntityToken jump = system.getJumpPoints().get(0);
-            return Misc.getPointAtRadius(jump.getLocation(), Math.max(1000f, jump.getRadius() + 700f));
-        }
-        return Misc.getPointAtRadius(center, Math.max(8000f, maxRadius));
+        SectorEntityToken anchor = focus == null ? system.getCenter() : focus;
+        return PTSDCrisisAPI.findSafePoint(system, anchor, minRadius, maxRadius, random);
     }
     private List<CampaignFleetAPI> findEventFleets(PTSDCrisisState.StrategicEvent event) {
         List<CampaignFleetAPI> result = new ArrayList<CampaignFleetAPI>();
@@ -1682,6 +1792,12 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
                     4200f + random.nextFloat() * 1800f) :
                     findSafePoint(system, spawnFocus, playerInsideTarget ? 2200f : 5500f,
                             playerInsideTarget ? 3800f : 8000f);
+            if (!PTSDCrisisAPI.isSafePoint(spawnLocation, spawn)) {
+                spawn = PTSDCrisisAPI.findSafePoint(spawnLocation, spawnFocus,
+                        playerInsideTarget ? 2200f : 5500f,
+                        playerInsideTarget ? 4200f : 9000f, random);
+            }
+            if (spawn == null) continue;
             float combat = Math.max(10f, totalCombat * shares[index] / shareTotal);
             float baseShare = Math.max(10f, baseCombat * shares[index] / shareTotal);
             String fleetType = event.type == PTSDCrisisState.EventType.MERCENARY_DEFENSE ?

@@ -18,6 +18,8 @@ import com.fs.starfarer.api.util.Misc;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /** A persistent recon mission: travel, observe/roam, react to discovery, then withdraw. */
@@ -306,31 +308,53 @@ public final class IIRT_Omega_ScoutAI extends BaseAssignmentAI {
     private boolean switchToNearbySystem() {
         StarSystemAPI current = targetSystemId == null ? null : Global.getSector().getStarSystem(targetSystemId);
         if (current == null || fleet == null) return false;
-        StarSystemAPI next = null;
-        float best = Float.MAX_VALUE;
+        final StarSystemAPI origin = current;
+        List<StarSystemAPI> systems = new ArrayList<StarSystemAPI>();
         for (StarSystemAPI candidate : Global.getSector().getStarSystems()) {
             if (candidate == null || candidate == current) continue;
-            float distance = Misc.getDistance(current.getLocation(), candidate.getLocation());
-            if (distance < best) { best = distance; next = candidate; }
+            if (candidate.hasTag(Tags.THEME_HIDDEN) || candidate.hasTag(Tags.SYSTEM_CUT_OFF_FROM_HYPER)) continue;
+            PTSDCrisisState state = PTSDCrisisState.get();
+            PTSDCrisisState.SystemData data = state == null ? null : state.getSystemData(candidate.getId());
+            if (data != null && (data.omegaControl >= .5f || data.conversionLevel > 0)) continue;
+            boolean hasTarget = !candidate.getJumpPoints().isEmpty();
+            if (!hasTarget) for (PlanetAPI planet : candidate.getPlanets()) {
+                if (planet != null && !planet.isStar()) { hasTarget = true; break; }
+            }
+            if (hasTarget) systems.add(candidate);
         }
-        if (next == null) return false;
-        List<SectorEntityToken> candidates = new ArrayList<SectorEntityToken>();
-        candidates.addAll(next.getJumpPoints());
-        for (PlanetAPI planet : next.getPlanets()) if (planet != null && !planet.isStar()) candidates.add(planet);
-        SectorEntityToken nextTarget = candidates.isEmpty() ? next.getHyperspaceAnchor() :
-                candidates.get((int) (Math.random() * candidates.size()));
-        if (nextTarget == null) return false;
-        targetSystemId = next.getId();
-        target = nextTarget;
-        arrived = false;
-        stageDays = 0f;
-        missionStage = MissionStage.TRAVEL;
-        reconSampleDayBucket = -1;
-        fleet.clearAssignments();
-        beginTravel();
-        IIRT_Omega_Invasion.reportScoutMissionStage(targetSystemId, fleet.getId(),
-                missionType == null ? "LEGACY" : missionType.name(), "连续五日未发现舰队，转向邻近星系");
-        return true;
+        Collections.sort(systems, new Comparator<StarSystemAPI>() {
+            @Override public int compare(StarSystemAPI a, StarSystemAPI b) {
+                return Float.compare(Misc.getDistance(origin.getLocation(), a.getLocation()),
+                        Misc.getDistance(origin.getLocation(), b.getLocation()));
+            }
+        });
+        // Reuse the initial target restrictions and retry up to eight valid neighbouring systems.
+        int attempts = Math.min(8, systems.size());
+        for (int i = 0; i < attempts; i++) {
+            int pick = i + (int) (Math.random() * (systems.size() - i));
+            StarSystemAPI swap = systems.get(i);
+            systems.set(i, systems.get(pick));
+            systems.set(pick, swap);
+            StarSystemAPI next = systems.get(i);
+            List<SectorEntityToken> candidates = new ArrayList<SectorEntityToken>();
+            candidates.addAll(next.getJumpPoints());
+            for (PlanetAPI planet : next.getPlanets()) if (planet != null && !planet.isStar()) candidates.add(planet);
+            if (candidates.isEmpty()) continue;
+            SectorEntityToken nextTarget = candidates.get((int) (Math.random() * candidates.size()));
+            if (nextTarget == null || nextTarget.getContainingLocation() != next) continue;
+            targetSystemId = next.getId();
+            target = nextTarget;
+            arrived = false;
+            stageDays = 0f;
+            missionStage = MissionStage.TRAVEL;
+            reconSampleDayBucket = -1;
+            fleet.clearAssignments();
+            beginTravel();
+            IIRT_Omega_Invasion.reportScoutMissionStage(targetSystemId, fleet.getId(),
+                    missionType == null ? "LEGACY" : missionType.name(), "连续五日未发现舰队，转向有效邻近星系");
+            return true;
+        }
+        return false;
     }
     private SectorEntityToken pickRoamTarget() {
         StarSystemAPI system = targetSystemId == null ? null : Global.getSector().getStarSystem(targetSystemId);

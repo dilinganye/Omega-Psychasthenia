@@ -16,6 +16,7 @@ import java.util.Set;
 public final class PTSDCrisisNewsIntel extends BaseIntelPlugin {
     private static final long serialVersionUID = 2L;
     private static final String RECORD = "PTSD_NEWS_RECORD";
+    private static final String TOGGLE_SUBSCRIPTION = "PTSD_NEWS_TOGGLE_SUBSCRIPTION";
     private String incidentId;
 
     public PTSDCrisisNewsIntel() { }
@@ -31,7 +32,10 @@ public final class PTSDCrisisNewsIntel extends BaseIntelPlugin {
             else if (incident.id.equals(old.incidentId)) return;
         }
         PTSDCrisisNewsIntel intel = new PTSDCrisisNewsIntel(incident.id);
-        Global.getSector().getIntelManager().addIntel(intel, true);
+        // The boolean is forceNoMessage. Unsubscribed articles remain available in the News
+        // category and keep all simulation effects, but do not generate the lower-left push.
+        Global.getSector().getIntelManager().addIntel(intel,
+                !PTSDCrisisAPI.isNewsIntelSubscribed());
     }
 
     public String getIncidentId() { return incidentId; }
@@ -46,21 +50,26 @@ public final class PTSDCrisisNewsIntel extends BaseIntelPlugin {
     private PTSDCrisisState.CrisisIncident incident() { return PTSDCrisisAPI.getIncident(incidentId); }
     @Override protected String getName() {
         PTSDCrisisState.CrisisIncident item = incident();
-        return item == null ? "过期的边缘新闻" : "边缘新闻：" + item.headline;
+        return item == null ? "过期的边缘新闻" : item.headline;
     }
     @Override public String getSmallDescriptionTitle() { return getName(); }
     @Override public void createIntelInfo(TooltipMakerAPI info, ListInfoMode mode) {
         PTSDCrisisState.CrisisIncident item = incident();
         info.addPara(getName(), getTitleColor(mode), 0f);
-        if (item != null) info.addPara(item.sourceLabel + " / " +
-                PTSDCrisisAPI.getSystemName(item.targetSystemId) + " / " + remaining(item),
-                3f, Misc.getGrayColor());
+        if (item != null) info.addPara("内容来源：" + item.sourceLabel, 3f, Misc.getGrayColor());
     }
     @Override public void createSmallDescription(TooltipMakerAPI info, float width, float height) {
         PTSDCrisisState.CrisisIncident item = incident();
         if (item == null) { info.addPara("该条目的原始记录已不存在。", 10f); return; }
         item.readByPlayer = true;
         Color news = "火力侦察".equals(item.category) ? new Color(238,151,105) : new Color(170,158,188);
+        boolean subscribed = PTSDCrisisAPI.isNewsIntelSubscribed();
+        info.addPara("新闻推送：%s。关闭后新闻仍会发生并进入新闻分类，但不会再弹出左下角 Intel 提示。",
+                8f, subscribed ? Misc.getPositiveHighlightColor() : Misc.getGrayColor(),
+                subscribed ? "已订阅" : "未订阅");
+        info.addButton(subscribed ? "停止订阅新闻推送" : "订阅新闻推送",
+                TOGGLE_SUBSCRIPTION, getFactionForUIColors().getBaseUIColor(),
+                getFactionForUIColors().getDarkUIColor(), width, 24f, 3f);
         info.addPara("[%s / %s / %s]", 10f, news, item.sourceLabel,
                 PTSDCrisisAPI.getSystemName(item.targetSystemId), remaining(item));
         info.addPara(item.publicText, 8f);
@@ -89,6 +98,11 @@ public final class PTSDCrisisNewsIntel extends BaseIntelPlugin {
         }
     }
     @Override public void buttonPressConfirmed(Object buttonId, IntelUIAPI ui) {
+        if (TOGGLE_SUBSCRIPTION.equals(buttonId)) {
+            PTSDCrisisAPI.setNewsIntelSubscribed(!PTSDCrisisAPI.isNewsIntelSubscribed());
+            ui.updateUIForItem(this);
+            return;
+        }
         if (RECORD.equals(buttonId)) { PTSDCrisisAPI.recordNewsIncident(incidentId); PTSDCrisisIntel task = PTSDCrisisIntel.ensureIntel(); ui.updateIntelList(true); ui.selectItem(task); return; }
         super.buttonPressConfirmed(buttonId, ui);
     }
@@ -103,7 +117,22 @@ public final class PTSDCrisisNewsIntel extends BaseIntelPlugin {
         StarSystemAPI system = state == null ? null : state.resolveSystem(item.targetSystemId);
         return system == null ? null : system.getHyperspaceAnchor();
     }
-    @Override public String getIcon() { FactionAPI f=getFactionForUIColors(); return f==null?null:f.getCrest(); }
+    @Override public String getIcon() {
+        PTSDCrisisState.CrisisIncident item = incident();
+        if (item != null && item.iconPath != null && item.iconPath.trim().length() > 0) {
+            String path = item.iconPath.trim();
+            try {
+                Global.getSettings().getSprite(path);
+                return path;
+            } catch (Throwable invalidCustomIcon) {
+                Global.getLogger(PTSDCrisisNewsIntel.class).warn(
+                        "Invalid crisis news icon for " + item.cardId + ": " + path,
+                        invalidCustomIcon);
+                item.iconPath = "";
+            }
+        }
+        FactionAPI f=getFactionForUIColors(); return f==null?null:f.getCrest();
+    }
     @Override public FactionAPI getFactionForUIColors() {
         FactionAPI f=Global.getSector()==null?null:Global.getSector().getFaction("independent"); return f==null?super.getFactionForUIColors():f;
     }

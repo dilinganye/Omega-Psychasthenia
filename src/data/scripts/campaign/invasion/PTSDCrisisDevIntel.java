@@ -271,10 +271,13 @@ public final class PTSDCrisisDevIntel extends BaseIntelPlugin {
         for (PTSDCrisisState.SystemData item : data) {
             StarSystemAPI system = state.resolveSystem(item.systemId);
             if (system == null) continue;
-            info.addPara("%s：攻击 %s｜人类防御 %s｜控制 Ω %s / H %s｜侦察 %s",
+            float beliefDefense = item.observedFleetStrength + item.observedMarketDefense;
+            float truthDefense = item.groundTruthFleetStrength + item.groundTruthMarketDefense;
+            info.addPara("%s：攻击 %s｜偏置 %s｜认知/真实防御 %s/%s｜误差 %s｜置信 %s%%｜证据 %s",
                     3f, Misc.getHighlightColor(), system.getName(), format(item.attackWeight),
-                    format(item.humanDefenseWeight), format(item.omegaControl), format(item.humanControl),
-                    String.valueOf(item.scoutVisits));
+                    signed(item.incidentWeightBias), format(beliefDefense), format(truthDefense),
+                    signed(beliefDefense - truthDefense), String.valueOf(Math.round(item.beliefConfidence * 100f)),
+                    String.valueOf(item.evidence == null ? 0 : item.evidence.size()));
             if (++shown >= 10) break;
         }
     }
@@ -542,6 +545,10 @@ public final class PTSDCrisisDevIntel extends BaseIntelPlugin {
     }
     private static String format(float value) {
         return String.valueOf(Math.round(value * 10f) / 10f);
+    }
+
+    private static String signed(float value) {
+        return (value >= 0f ? "+" : "") + format(value);
     }
 
     private static String yesNo(boolean value) {

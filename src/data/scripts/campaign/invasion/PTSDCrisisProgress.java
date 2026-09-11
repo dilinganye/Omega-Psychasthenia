@@ -41,7 +41,8 @@ public final class PTSDCrisisProgress {
 
         switch (state.phase) {
             case DORMANT:
-                addRaw(state, Variable.RECON_CONFIDENCE, 0.02f * days);
+                // Unaffected-world baseline: Omega reconnaissance begins with RECON, whose
+                // transition floor initializes the first real confidence value.
                 break;
             case RECON:
                 addRaw(state, Variable.RECON_CONFIDENCE, 0.35f * days);

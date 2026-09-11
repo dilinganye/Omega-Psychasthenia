@@ -108,6 +108,19 @@ PTSDCrisisProgressAPI.unregisterListener("my_mod");
 
 进度已经参与侦察精度、Omega 攻击权重、人类防御权重、舰队动态 Flat 和全面进攻阈值，而不是仅用于 UI 显示。
 
+## 星系侦察认知（版本 10）
+
+`PTSDCrisisState.SystemData` 将星系信息拆成三层：
+
+- `groundTruth*`：仅供后台结算与 Dev 对照，Omega 目标选择不得读取。
+- `observedFleetStrength / observedMarketDefense / strategicValue / hasNonCrisis*`：由当前未过期证据汇总出的 Omega 认知。
+- `evidence`：最多 64 条 `EvidenceRecord`，保存来源、观测值、可信度、过期日、玩家污染标记和事件偏置。
+
+新增观测应调用 `PTSDCrisisAPI.recordEvidence(...)`。新闻造成的长期目标倾向使用
+`PTSDCrisisAPI.addIncidentWeightBias(...)`；偏置保存在 `incidentWeightBias` 中，因此不会被定期权重重算覆盖。
+
+实体生成位置统一使用 `PTSDCrisisAPI.findSafePoint(...)`。返回 `null` 表示没有通过恒星、黑洞、行星和跳跃点复检的坐标，调用方应取消本次物化。
+
 ## DevMode
 
 Dev 监视器显示全部变量、当前 Era、活动势力和准备度。显式事件贡献产生“危机进度变化”记录，包含变量、实际增量、结果、来源 ID 和星系位置；自然逐日增长不会刷屏。
@@ -120,6 +133,12 @@ Dev 监视器显示全部变量、当前 Era、活动势力和准备度。显式
 - `PTSDCrisisAPI.getIncident(incidentId)` / `resolveIncidentTarget(incident)`：读取新闻状态并解析其具体设施、跳跃点或行星目标。
 
 这些方法优先扩展既有危机 API；独立新闻 Intel 仅负责显示和十日过期，不保存战略真相。
+
+每条 `disclosed` 新闻由 `PTSDCrisisNewsIntel.report(...)` 作为独立 Intel 加入。同一
+`incident.id` 会先行去重，不会因重复报告而连续弹窗。存档默认订阅新闻；订阅时使用
+`forceNoMessage=false` 触发一次原版左下角新 Intel 通知，未订阅时则静默加入新闻分类。
+标题直接取 CSV `headline`，通知摘要为“内容来源：`source`”，可选 `icon` 路径控制贴图。
+订阅与否不参与新闻效果结算，也不改变十日新闻过期和最长三十日调查期限。
 
 ## 对抗学习与新闻数据接口
 

@@ -17,6 +17,7 @@ public final class PTSDCrisisIntel extends BaseIntelPlugin {
     private static final long serialVersionUID = 2L;
     private static final String GO_INCIDENT = "PTSD_CRISIS_GO_INCIDENT:";
     private static final String GO_TRACE = "PTSD_CRISIS_GO_TRACE:";
+    private static final String TOGGLE_NEWS = "PTSD_CRISIS_TOGGLE_NEWS";
     private boolean devOnlyPreview;
 
     public PTSDCrisisIntel() { setImportant(true); }
@@ -53,6 +54,9 @@ public final class PTSDCrisisIntel extends BaseIntelPlugin {
         Color omega=getFactionForUIColors().getBaseUIColor(); Color dark=getFactionForUIColors().getDarkUIColor();
         info.addPara("一些来源不明的失联记录正从边缘星系累积。新闻线索只有在主动记录后才会进入此处。",opad);
         if(state==null)return;
+        boolean subscribed=PTSDCrisisAPI.isNewsIntelSubscribed();
+        info.addPara("新闻推送：%s。",opad,subscribed?Misc.getPositiveHighlightColor():Misc.getGrayColor(),subscribed?"已订阅":"未订阅");
+        info.addButton(subscribed?"停止订阅新闻推送":"订阅新闻推送",TOGGLE_NEWS,omega,dark,width,23f,2f);
         if(state.visibleStage<=0)info.addPara("当前没有可靠的阶段判断。",opad,Misc.getGrayColor());
         else if(state.visibleStage==1)info.addPara("推测阶段：%s。少量无法识别的舰队正在执行远距侦察。",opad,h,"远距侦察");
         else if(state.visibleStage==2)info.addPara("推测阶段：%s。若干星体参数开始偏离历史记录。",opad,h,"据点营建");
@@ -83,7 +87,8 @@ public final class PTSDCrisisIntel extends BaseIntelPlugin {
     @Override public void buttonPressConfirmed(Object buttonId,IntelUIAPI ui){
         String systemId=null; SectorEntityToken target=null; PTSDCrisisState state=PTSDCrisisState.get();
         if(buttonId instanceof String&&state!=null){String id=(String)buttonId;
-            if(id.startsWith(GO_INCIDENT)){PTSDCrisisState.CrisisIncident item=PTSDCrisisAPI.getIncident(id.substring(GO_INCIDENT.length()));if(item!=null){systemId=item.targetSystemId;target=PTSDCrisisAPI.resolveIncidentTarget(item);}}
+            if(TOGGLE_NEWS.equals(id)){PTSDCrisisAPI.setNewsIntelSubscribed(!PTSDCrisisAPI.isNewsIntelSubscribed());ui.updateUIForItem(this);return;}
+            else if(id.startsWith(GO_INCIDENT)){PTSDCrisisState.CrisisIncident item=PTSDCrisisAPI.getIncident(id.substring(GO_INCIDENT.length()));if(item!=null){systemId=item.targetSystemId;target=PTSDCrisisAPI.resolveIncidentTarget(item);}}
             else if(id.startsWith(GO_TRACE)){String traceId=id.substring(GO_TRACE.length());for(PTSDCrisisState.SignalTrace trace:state.signalTraces)if(trace!=null&&traceId.equals(trace.id)){systemId=trace.systemId;break;}}
         }
         if(target==null&&systemId!=null){StarSystemAPI system=state.resolveSystem(systemId);if(system!=null)target=system.getHyperspaceAnchor();}

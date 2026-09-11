@@ -159,7 +159,9 @@
     "IIRT_Lab_Mourning_Assault": 5,
 	"Omega_EPP_Lazer":3,
 	"Omega_Scrap_Heap_Garbage":0.01,
-	"PTSD_Omega_MacroVirus_Assault":2,
+	"PTSD_Omega_MacroVirus_Assault":1,
+    "PTSD_Omega_MacroVirus_Taro":1,
+
 	
   "fallback":{"combatLarge":1}
   },

@@ -19,7 +19,7 @@ public final class PTSDCrisisState implements Serializable {
     private static final long serialVersionUID = 1L;
 
     public static final String PERSISTENT_KEY = "$PTSD_crisis_state_v2";
-    public static final int CURRENT_VERSION = 9;
+    public static final int CURRENT_VERSION = 11;
     public static final float CAMPAIGN_DAY_EPOCH_OFFSET = 700000f;
 
     public enum Phase {
@@ -70,6 +70,32 @@ public final class PTSDCrisisState implements Serializable {
             this.marketId = marketId;
         }
     }
+
+    /**
+     * One expiring item in Omega's belief model. Ground truth is deliberately not stored here:
+     * an EvidenceRecord only contains what a scout, incident or battle could reasonably reveal.
+     */
+    public static final class EvidenceRecord implements Serializable {
+        private static final long serialVersionUID = 1L;
+
+        public String id;
+        public String sourceType;
+        public String sourceId;
+        /** -1 means this evidence did not observe the corresponding value. */
+        public float fleetStrength = -1f;
+        public float marketDefense = -1f;
+        public float strategicValue = -1f;
+        /** -1 unknown, 0 absent, 1 present. */
+        public int colonySignal = -1;
+        /** -1 unknown, 0 absent, 1 present. */
+        public int fleetSignal = -1;
+        public float confidence;
+        public float weightBias;
+        public float createdDay;
+        public float expiresDay;
+        public boolean playerContaminated;
+    }
+
     public static final class SystemData implements Serializable {
         private static final long serialVersionUID = 1L;
 
@@ -80,6 +106,16 @@ public final class PTSDCrisisState implements Serializable {
         public float observedFleetStrength;
         public float observedMarketDefense;
         public float strategicValue;
+        /** Confidence of Omega's current per-system belief, not global reconnaissance progress. */
+        public float beliefConfidence;
+        /** Persistent additive multiplier input from incidents; applied after every recomputation. */
+        public float incidentWeightBias;
+        /** Dev/strategic-resolution-only snapshot. Never use these fields for Omega target choice. */
+        public float groundTruthFleetStrength;
+        public float groundTruthMarketDefense;
+        public float groundTruthStrategicValue;
+        public boolean groundTruthHasNonCrisisColony;
+        public boolean groundTruthHasNonCrisisFleet;
         public float attackWeight = 1f;
         public float humanDefenseWeight = 1f;
         public float learningMultiplier = 1f;
@@ -91,6 +127,8 @@ public final class PTSDCrisisState implements Serializable {
         public float reconDailyMax;
         public int reconDailyReports;
         public List<Float> reconStrengthHistory = new ArrayList<Float>();
+        public List<EvidenceRecord> evidence = new ArrayList<EvidenceRecord>();
+        /** These legacy-named flags now represent Omega's belief, not omniscient ground truth. */
         public boolean hasNonCrisisColony;
         public boolean hasNonCrisisFleet;
         public boolean occupationSuggested;
@@ -145,6 +183,11 @@ public final class PTSDCrisisState implements Serializable {
         public String opponentFactionId;
         /** Prevents physical and strategic resolution from recording the same defeat twice. */
         public boolean defeatLearningRecorded;
+        /** FIRE_PROBE lifecycle; kept on the event so materialized and hidden outcomes converge. */
+        public boolean probeEngaged;
+        public boolean probePlayerIntervention;
+        public int probeDefeatedGroups;
+        public String probeOutcome;
         /** PYRRHIC_HUMAN, OMEGA_DEFEAT, or HUMAN_DEFEAT. */
         public String aftermathKind;
 
@@ -187,6 +230,8 @@ public final class PTSDCrisisState implements Serializable {
         public float createdDay;
         public float expiresDay;
         public String sourceLabel;
+        /** Optional CSV-provided sprite path used by the Intel notification and article. */
+        public String iconPath;
         public String headline;
         public String publicText;
         public String trueText;
@@ -335,6 +380,8 @@ public final class PTSDCrisisState implements Serializable {
     public float nextIsolationSyncDay;
     public boolean pandoraInitialized;
     public boolean pandoraOpened;
+    /** Player preference: articles always exist, but only subscribed saves receive popup Intel messages. */
+    public boolean newsIntelSubscribed = true;
 
     public int totalScoutSightings;
     public int totalScoutEscapes;
@@ -416,6 +463,7 @@ public final class PTSDCrisisState implements Serializable {
         lastSimulationDay = day;
         lastProgressUpdateDay = day;
         nextIncidentDay = day + 4f;
+        newsIntelSubscribed = true;
         nextIsolationSyncDay = day;
         nextGrudgeRaidDay = day + 8f;
         nextPanicPirateDay = day + 10f;
@@ -467,6 +515,7 @@ public final class PTSDCrisisState implements Serializable {
     }
 
     public void repairCollections() {
+        if (version < 11) newsIntelSubscribed = true;
         if (systems == null) systems = new LinkedHashMap<String, SystemData>();
         if (events == null) events = new ArrayList<StrategicEvent>();
         if (playerMarkers == null) playerMarkers = new LinkedHashMap<String, PlayerMarker>();
@@ -482,6 +531,24 @@ public final class PTSDCrisisState implements Serializable {
             if (data == null) continue;
             if (data.colonyPanic == null) data.colonyPanic =
                     new LinkedHashMap<String, ColonyPanicData>();
+            if (data.evidence == null) data.evidence = new ArrayList<EvidenceRecord>();
+            if (version < 10 && data.evidence.isEmpty() &&
+                    (data.scoutVisits > 0 || data.lastObservedDay > 0f || data.observedFleetStrength > 0f)) {
+                EvidenceRecord legacy = new EvidenceRecord();
+                legacy.id = "legacy_" + data.systemId;
+                legacy.sourceType = "LEGACY_RECON";
+                legacy.sourceId = "SAVE_MIGRATION";
+                legacy.fleetStrength = Math.max(0f, data.observedFleetStrength);
+                legacy.marketDefense = data.observedMarketDefense > 0f ? data.observedMarketDefense : -1f;
+                legacy.strategicValue = data.strategicValue > 0f ? data.strategicValue : -1f;
+                legacy.colonySignal = data.hasNonCrisisColony ? 1 : -1;
+                legacy.fleetSignal = data.hasNonCrisisFleet ? 1 : -1;
+                legacy.confidence = Math.min(.75f, .2f + data.scoutVisits * .08f);
+                legacy.createdDay = getDay();
+                legacy.expiresDay = getDay() + 90f;
+                data.evidence.add(legacy);
+                data.beliefConfidence = Math.max(data.beliefConfidence, legacy.confidence);
+            }
         }
         for (CrisisIncident incident : incidents) {
             if (incident == null) continue;
@@ -619,6 +686,7 @@ public final class PTSDCrisisState implements Serializable {
         }
         if (result.reconStrengthHistory == null) result.reconStrengthHistory = new ArrayList<Float>();
         if (result.colonyPanic == null) result.colonyPanic = new LinkedHashMap<String, ColonyPanicData>();
+        if (result.evidence == null) result.evidence = new ArrayList<EvidenceRecord>();
         return result;
     }
 

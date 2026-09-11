@@ -7,6 +7,8 @@ import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
+import org.dark.shaders.distortion.DistortionShader;
+import org.dark.shaders.distortion.RippleDistortion;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.Color;
@@ -65,6 +67,7 @@ public class PTSD_Fracture_CrossEffect implements OnFireEffectPlugin, OnHitEffec
         final PTSDPolarRiftRenderer.Shape indentedShape;
         CombatEntityAPI target;
         float stretch;
+        boolean dissipated;
 
         CrossState(MissileAPI missile) {
             this.missile = missile;
@@ -147,6 +150,13 @@ public class PTSD_Fracture_CrossEffect implements OnFireEffectPlugin, OnHitEffec
             CombatEngineAPI engine = Global.getCombatEngine();
             if (engine == null || engine.isPaused()) return;
             elapsed += amount;
+            if (!state.dissipated && !state.missile.didDamage()
+                    && state.missile.getHitpoints() > 0f
+                    && (state.missile.isFizzling() || state.missile.isFading())) {
+                spawnDissipation(engine);
+                state.dissipated = true;
+                return;
+            }
             cloudTimer -= amount;
             if (cloudTimer <= 0f) {
                 cloudTimer = 0.2f + (float)Math.random() * 0.8f;
@@ -160,8 +170,38 @@ public class PTSD_Fracture_CrossEffect implements OnFireEffectPlugin, OnHitEffec
         }
         @Override public boolean isExpired() {
             CombatEngineAPI engine = Global.getCombatEngine();
-            return state.missile == null || state.missile.isExpired() || state.missile.didDamage()
+            return state.dissipated || state.missile == null || state.missile.isExpired() || state.missile.didDamage()
                     || engine == null || !engine.isEntityInPlay(state.missile);
+        }
+
+        private void spawnDissipation(CombatEngineAPI engine) {
+            final float duration = 0.18f;
+            MissileAPI missile = state.missile;
+
+            // Match the burst to the current, stretched outer silhouette instead of using
+            // an unrelated fixed radius. This keeps the disappearance burst just large
+            // enough to swallow the hidden missile's rendered polar rift.
+            float speedStretch = Math.min(1f, missile.getVelocity().length() / 1150f);
+            float rawMorph = Math.min(1f, elapsed / 0.42f);
+            float morph = rawMorph * rawMorph * (3f - 2f * rawMorph);
+            float stretch = Math.max(state.stretch, speedStretch * 0.48f) * morph;
+            float pulse = 1f + 0.08f * (float)Math.sin(elapsed * 8.5f + state.shape.phase);
+            float radius = 2.5f + (20f * pulse - 2.5f) * morph;
+            float envelopeRadius = Math.max(8f,
+                    Math.min(70f, radius * (1f + stretch * 2.15f) + 2f));
+
+            Vector2f point = new Vector2f(missile.getLocation());
+            Vector2f drift = new Vector2f(missile.getVelocity());
+            drift.scale(0.08f);
+            PTSDTarotEffects.spawnRiftVisual(engine, point, drift, envelopeRadius,
+                    new Color(188, 75, 255, 225), false, duration);
+
+            RippleDistortion ripple = new RippleDistortion(point, drift);
+            ripple.setSize(envelopeRadius);
+            ripple.setIntensity(Math.max(7f, envelopeRadius * 0.28f));
+            ripple.setFrameRate(60f / duration);
+            ripple.fadeOutIntensity(duration);
+            DistortionShader.addDistortion(ripple);
         }
         @Override public float getRenderRadius() { return 155f; }
         @Override public void render(CombatEngineLayers layer, ViewportAPI viewport) {

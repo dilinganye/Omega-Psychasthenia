@@ -94,6 +94,7 @@ public final class PTSDCrisisDetectorAbility extends BaseToggleAbility {
         PTSDCrisisState state = PTSDCrisisState.get();
         if (state != null) {
             for (PTSDCrisisState.StrategicEvent event : state.getActiveEvents()) {
+                if (event.status != PTSDCrisisState.EventStatus.MATERIALIZED) continue;
                 if (event.materializedFleetIds != null) for (String id : event.materializedFleetIds) {
                     SectorEntityToken entity = Global.getSector().getEntityById(id);
                     if (entity != null && entity.getContainingLocation() == location) unique.add(entity);
@@ -106,7 +107,10 @@ public final class PTSDCrisisDetectorAbility extends BaseToggleAbility {
                 }
             }
             for (PTSDCrisisState.CrisisIncident incident : state.incidents) {
-                if (incident == null || incident.investigationResolved) continue;
+                // A report alone is not a detectable signal. Only a player-recorded lead whose
+                // physical site has actually materialized may contribute a precise direction.
+                if (incident == null || incident.investigationResolved || !incident.recordedByPlayer ||
+                        !incident.siteMaterialized) continue;
                 SectorEntityToken target = incident.targetEntityId == null ? null : Global.getSector().getEntityById(incident.targetEntityId);
                 if (target != null && target.getContainingLocation() == location) unique.add(target);
                 if (player.isInHyperspace() && target != null) {

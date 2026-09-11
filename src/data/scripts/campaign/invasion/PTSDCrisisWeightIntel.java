@@ -67,7 +67,7 @@ public final class PTSDCrisisWeightIntel extends BaseIntelPlugin {
         Color dark = faction == null ? Misc.getDarkPlayerColor() : faction.getDarkUIColor();
         PTSDCrisisState state = PTSDCrisisState.get();
         info.addSectionHeading(getName(), base, dark, com.fs.starfarer.api.ui.Alignment.MID, 0f);
-        info.addPara("权重越高，全面战争中越可能成为部署方向。侦察强度是侦察舰每日样本的最高值；估计防御越低，攻击权重越高。", 8f);
+        info.addPara("权重越高，全面战争中越可能成为部署方向。正式选点只读取欧米伽认知；真实值仅在 Dev 中用于核对误差。", 8f);
         info.addPara("“建议占领”表示该星系无非危机殖民地、无其他势力舰队，且尚未被精神创伤控制。", 5f);
         info.addButton("仅显示有殖民地的星域", SHOW_COLONIZED, base, dark, width, 24f, 8f);
         info.addButton("显示所有星系攻击权数", SHOW_ALL, base, dark, width, 24f, 2f);
@@ -88,16 +88,37 @@ public final class PTSDCrisisWeightIntel extends BaseIntelPlugin {
             StarSystemAPI system = state.resolveSystem(data.systemId);
             if (system == null) continue;
             rank++;
-            float confidence = Math.min(1f, 0.12f + data.scoutVisits * 0.16f + data.playerSightings * 0.05f + state.reconConfidence / 250f);
+            float confidence = data.beliefConfidence;
             Color color = data.occupationSuggested ? Color.ORANGE : (data.attackWeight >= 25f ? Misc.getNegativeHighlightColor() : Misc.getHighlightColor());
-            info.addPara("#%s %s | 攻击权重 %s | 侦察舰队强度 %s | 市场防御 %s | 置信 %s%%",
+            info.addPara("#%s %s | 攻击权重 %s | 事件偏置 %s | 认知置信 %s%%",
                     rank == 1 ? 9f : 6f, color, String.valueOf(rank), system.getName(), f(data.attackWeight),
-                    f(data.observedFleetStrength), f(data.observedMarketDefense), String.valueOf(Math.round(confidence * 100f)));
+                    signed(data.incidentWeightBias), String.valueOf(Math.round(confidence * 100f)));
+            float beliefDefense = data.observedFleetStrength + data.observedMarketDefense;
+            float truthDefense = data.groundTruthFleetStrength + data.groundTruthMarketDefense;
+            info.addPara("认知：舰队 %s｜市场 %s｜价值 %s｜殖民地 %s｜其他舰队 %s",
+                    1f, Misc.getHighlightColor(), f(data.observedFleetStrength), f(data.observedMarketDefense),
+                    f(data.strategicValue), yn(data.hasNonCrisisColony), yn(data.hasNonCrisisFleet));
+            info.addPara("真实：舰队 %s｜市场 %s｜价值 %s｜殖民地 %s｜其他舰队 %s｜总防御误差 %s",
+                    1f, Misc.getGrayColor(), f(data.groundTruthFleetStrength), f(data.groundTruthMarketDefense),
+                    f(data.groundTruthStrategicValue), yn(data.groundTruthHasNonCrisisColony),
+                    yn(data.groundTruthHasNonCrisisFleet), signed(beliefDefense - truthDefense));
             String role = data.occupationSuggested ? "建议占领 / 占领权重 " + f(data.occupationWeight) : "常规进攻评分";
             info.addPara("当日最高 %s (报告 %s) | 历史日样本 %s | 殖民地 %s | 非危机舰队 %s | Omega控制 %s | %s",
                     1f, Misc.getGrayColor(), f(data.reconDailyMax), String.valueOf(data.reconDailyReports),
                     String.valueOf(data.reconStrengthHistory == null ? 0 : data.reconStrengthHistory.size()),
                     yn(data.hasNonCrisisColony), yn(data.hasNonCrisisFleet), f(data.omegaControl), role);
+            int evidenceShown = 0;
+            if (data.evidence != null) for (int i = data.evidence.size() - 1; i >= 0 && evidenceShown < 4; i--) {
+                PTSDCrisisState.EvidenceRecord evidence = data.evidence.get(i);
+                if (evidence == null || evidence.expiresDay <= PTSDCrisisState.getDay()) continue;
+                info.addPara("证据 %s/%s：可信 %s%%｜舰队 %s｜市场 %s｜价值 %s｜剩余 %s 日%s",
+                        1f, Misc.getGrayColor(), safe(evidence.sourceType), safe(evidence.sourceId),
+                        String.valueOf(Math.round(evidence.confidence * 100f)), observed(evidence.fleetStrength),
+                        observed(evidence.marketDefense), observed(evidence.strategicValue),
+                        String.valueOf(Math.max(0, Math.round(evidence.expiresDay - PTSDCrisisState.getDay()))),
+                        evidence.playerContaminated ? "｜受玩家干扰" : "");
+                evidenceShown++;
+            }
         }
         if (rank == 0) info.addPara("当前视图没有可显示的星系，请等待下一次权重更新。", 10f);
         panel.addUIElement(info).inTL(0f, 0f);
@@ -126,5 +147,8 @@ public final class PTSDCrisisWeightIntel extends BaseIntelPlugin {
         Set<String> tags = super.getIntelTags(map); tags.add("DEV"); tags.add("危机"); return tags;
     }
     private static String f(float value) { return String.valueOf(Math.round(value * 10f) / 10f); }
+    private static String signed(float value) { return (value >= 0f ? "+" : "") + f(value); }
+    private static String observed(float value) { return value < 0f ? "未观测" : f(value); }
+    private static String safe(String value) { return value == null || value.isEmpty() ? "无" : value; }
     private static String yn(boolean value) { return value ? "是" : "否"; }
 }

@@ -17,6 +17,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import data.scripts.campaign.invasion.PTSDCrisisNewsAPI;
+import data.scripts.campaign.invasion.PTSDCrisisAPI;
 import data.scripts.campaign.invasion.PTSDCrisisState;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -78,6 +79,11 @@ public class FugitiveShuttleNewsHandler implements PTSDCrisisNewsAPI.CustomNewsH
                 MemFlags.CAN_ONLY_BE_ENGAGED_WHEN_VISIBLE_TO_PLAYER, true);
 
         Vector2f point = findSafePoint(context);
+        if (point == null) {
+            Global.getLogger(FugitiveShuttleNewsHandler.class).warn(
+                    "Skipping fugitive shuttle: no collision-safe target location");
+            return null;
+        }
         context.system.addEntity(fleet);
         fleet.setLocation(point.x, point.y);
         fleet.clearAssignments();
@@ -89,23 +95,10 @@ public class FugitiveShuttleNewsHandler implements PTSDCrisisNewsAPI.CustomNewsH
 
     private Vector2f findSafePoint(PTSDCrisisNewsAPI.IncidentContext context) {
         SectorEntityToken anchor = context.targetLocation;
-        for (int attempt = 0; attempt < 30; attempt++) {
-            float radius = Math.max(1600f, anchor.getRadius() + 1100f) +
-                    context.random.nextFloat() * 1800f;
-            Vector2f candidate = Misc.getPointAtRadius(anchor.getLocation(), radius);
-            boolean safe = true;
-            for (PlanetAPI planet : context.system.getPlanets()) {
-                if (planet == null) continue;
-                float clearance = Math.max(1400f, planet.getRadius() + 1000f);
-                if (Misc.getDistance(candidate, planet.getLocation()) < clearance) {
-                    safe = false;
-                    break;
-                }
-            }
-            if (safe) return candidate;
-        }
-        return Misc.getPointAtRadius(anchor.getLocation(),
-                Math.max(5000f, anchor.getRadius() + 3500f));
+        if (anchor == null) anchor = context.system.getCenter();
+        return PTSDCrisisAPI.findSafePoint(context.system, anchor,
+                Math.max(1600f, anchor.getRadius() + 1100f),
+                Math.max(5200f, anchor.getRadius() + 4200f), context.random);
     }
 
     private static final class FugitiveLifecycleScript implements EveryFrameScript {

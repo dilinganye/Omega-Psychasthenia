@@ -35,8 +35,14 @@ public final class PTSDStrategicFleetListener extends BaseFleetEventListener {
                     fleet.getStarSystem() == null ? null : fleet.getStarSystem().getId(),
                     fleet.getId());
         }
-        if (!battle.wasFleetDefeated(fleet, primaryWinner)) return;
         PTSDCrisisState.StrategicEvent event = eventId == null ? null : state.getEvent(eventId);
+        boolean defeated = battle.wasFleetDefeated(fleet, primaryWinner);
+        if (event != null && event.type == PTSDCrisisState.EventType.FIRE_PROBE) {
+            event.probeEngaged = true;
+            event.probePlayerIntervention |= battle.isPlayerInvolved();
+            if (defeated) event.probeDefeatedGroups++;
+        }
+        if (!defeated) return;
         if (event != null) {
             if (!PTSDCrisisAPI.SIDE_OMEGA.equals(event.side) || event.defeatLearningRecorded) return;
             event.defeatLearningRecorded = true;

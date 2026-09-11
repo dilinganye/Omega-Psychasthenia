@@ -57,31 +57,33 @@ public final class PTSDLunaConfigVisibility {
                 "这些设置仅在 DevMode 中显示。阶段开关只影响 DevMode 测试；关闭 DevMode 后所有阶段恢复启用。", "开发");
 
         addInt(modId, "PTSD_start_stage_time", "沉寂阶段时长（天）", "暗流持续到公开侦察开始前的时间。", 90, 1, 365, "阶段");
-        addInt(modId, "PTSD_collect_data_time", "侦察阶段时长（天）", "包含常规观察与后半段火力侦察。", 365, 1, 730, "阶段");
-        addInt(modId, "PTSD_invade_time", "据点营建时长（天）", "前哨母星的初始建设时间。", 30, 1, 365, "阶段");
-        addInt(modId, "PTSD_repair_time", "要塞建设时长（天）", "全面进攻阈值前的封锁建设时间。", 30, 1, 365, "阶段");
+        //addInt(modId, "PTSD_collect_data_time", "侦察阶段时长（天）", "包含常规观察与后半段火力侦察。", 730, 1, 1000, "阶段");
+        addInt(modId, "PTSD_collect_data_time", "侦察阶段时长（天）[Demo到此结束]", "包含常规观察与后半段火力侦察。[Demo到此结束]", 10000, 1000, 100000, "阶段");
+        addInt(modId, "PTSD_invade_time", "营建时长（天）[未开启]", "未知仍在扩张。", 365, 10, 10000, "阶段");
+        addInt(modId, "PTSD_repair_time", "要塞时长（天）[未开启]", "毁灭前的无尽扩张。", 30, 1, 365, "阶段");
 
-        addInt(modId, "PTSD_scout_spawn_radius", "侦察目标附近半径", "侦察任务在目标附近的基础活动尺度。", 300, 100, 3000, "侦察");
-        addInt(modId, "PTSD_scout_max_active", "同时存在侦察队上限", "仅限制实体舰队，不限制远程事件记录。", 3, 1, 12, "侦察");
+        addInt(modId, "PTSD_scout_spawn_radius", "侦察目标附近半径", "窥视的尺度。", 300, 100, 3000, "侦察");
+        addInt(modId, "PTSD_scout_max_active", "同时存在侦察队上限", "仅限制实体舰队，不限制远程事件记录。", 12, 3, 24, "侦察");
         addInt(modId, "PTSD_warning_encounter_threshold", "提前预警接触次数", "玩家接触达到该次数后显示危机预警。", 4, 1, 20, "侦察");
 
         addInt(modId, "PTSD_strategic_update_interval", "权重更新间隔（天）", "重新估算各星系权重的周期。", 7, 1, 60, "战略");
-        addInt(modId, "PTSD_hidden_materialization_range", "事件实体化距离", "玩家接近后才投影舰队和战场。", 5000, 1000, 20000, "战略");
-        addInt(modId, "PTSD_expansion_interval", "行星异化间隔（天）", "向同星系其他行星扩张的平均周期。", 14, 3, 90, "战略");
+        addInt(modId, "PTSD_hidden_materialization_range", "事件实体化距离", "玩家接近后才投影舰队和战场。", 8000, 1000, 20000, "战略");
+        addInt(modId, "PTSD_expansion_interval", "行星异化间隔（天）", "向同星系其他行星扩张的平均周期。", 30, 10, 90, "战略");
         addInt(modId, "PTSD_max_black_hole_fortresses", "黑洞要塞上限", "允许同时存在的黑洞要塞数量。", 3, 0, 10, "战略");
         addInt(modId, "PTSD_front_turn_min_interval", "战线回合最短间隔", "双方战略部署的最短间隔。", 6, 2, 60, "战争");
         addInt(modId, "PTSD_front_turn_max_interval", "战线回合最长间隔", "双方战略部署的最长间隔。", 12, 2, 90, "战争");
-        addInt(modId, "PTSD_max_guard_fleets", "最大卫戍事件数", "实控区可并行维护的卫戍部署。", 10, 0, 30, "战争");
+        addInt(modId, "PTSD_max_guard_fleets", "最大卫戍事件数", "实控区可并行维护的卫戍部署。", 16, 0, 30, "战争");
         addInt(modId, "PTSD_final_invasion_max_strength", "单次入侵基础强度上限", "倍率、Flat 与事件严重度应用前的上限。", 200, 50, 5000, "战争");
-
-        LunaSettings.SettingsCreator.addRadio(modId, "PTSD_DefStat_onNewGame", "新开局初始阶段",
-                "Sar=暗流；Cod=侦察；Inv=营建；Rep=要塞；FuA=战争；End=结束。",
-                "Sar", "Sar,Cod,Inv,Rep,FuA,End", "阶段开关");
-        addBool(modId, "PTSD_phase_dormant_enabled", "启用：暗流阶段", "关闭后测试存档会跳过暗流。", true);
-        addBool(modId, "PTSD_phase_recon_enabled", "启用：侦察/火力侦察阶段", "关闭后测试存档会跳过侦察。", true);
-        addBool(modId, "PTSD_phase_expansion_enabled", "启用：沉寂营建阶段", "关闭后测试存档会跳过前哨营建。", true);
-        addBool(modId, "PTSD_phase_fortification_enabled", "启用：封锁与要塞阶段", "关闭后测试存档会跳过封锁建设。", true);
-        addBool(modId, "PTSD_phase_war_enabled", "启用：全面战争阶段", "关闭后测试存档会在战争前结束。", true);
+        if(1==2) {
+            LunaSettings.SettingsCreator.addRadio(modId, "PTSD_DefStat_onNewGame", "新开局初始阶段",
+                    "Sar=暗流；Cod=侦察；Inv=营建；Rep=要塞；FuA=战争；End=结束。",
+                    "Sar", "Sar,Cod,Inv,Rep,FuA,End", "阶段开关");
+            addBool(modId, "PTSD_phase_dormant_enabled", "启用：暗流阶段", "关闭后测试存档会跳过暗流。", true);
+            addBool(modId, "PTSD_phase_recon_enabled", "启用：侦察/火力侦察阶段", "关闭后测试存档会跳过侦察。", true);
+            addBool(modId, "PTSD_phase_expansion_enabled", "启用：沉寂营建阶段", "关闭后测试存档会跳过前哨营建。", false);
+            addBool(modId, "PTSD_phase_fortification_enabled", "启用：封锁与要塞阶段", "关闭后测试存档会跳过封锁建设。", false);
+            addBool(modId, "PTSD_phase_war_enabled", "启用：全面战争阶段", "关闭后测试存档会在战争前结束。", false);
+        }
     }
 
     private static void addInt(String modId, String id, String name, String text,

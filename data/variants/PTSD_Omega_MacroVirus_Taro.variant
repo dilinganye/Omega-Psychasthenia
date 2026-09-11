@@ -3,21 +3,20 @@
   "hullId": "PTSD_Omega_MacroVirus",
   "displayName": "Taro",
   "goalVariant": true,
-  "fluxCapacitors": 0,
-  "fluxVents": 0,
+  "fluxCapacitors": 19,
+  "fluxVents": 11,
   "quality": 1,
   "permaMods": [],
-  "hullMods": [],
+  "hullMods": [
+    "magazines"
+  ],
   "weaponGroups": [
     {
       "autofire": false,
-      "mode": "LINKED",
+      "mode": "ALTERNATING",
       "weapons": {
         "WS0001": "rifttorpedo",
         "WS0002": "riftcascade",
-        "WS0004": "PTSD_Intertitial_Injection",
-        "WS0005": "PTSD_Pluto",
-        "WS0006": "PTSD_Fracture_Calculus",
         "WS0008": "PTSD_Pluto",
         "WS0014": "PTSD_TasloLauncher",
         "WS0017": "PTSD_Aftershockor",
@@ -27,11 +26,14 @@
     {
       "autofire": false,
       "mode": "LINKED",
-      "weapons": {}
+      "weapons": {
+        "WS0004": "PTSD_Intertitial_Injection",
+        "WS0005": "PTSD_Pluto"
+      }
     },
     {
       "autofire": true,
-      "mode": "LINKED",
+      "mode": "ALTERNATING",
       "weapons": {
         "WS0003": "disintegrator",
         "WS0009": "minipulser"
@@ -39,14 +41,15 @@
     },
     {
       "autofire": false,
-      "mode": "LINKED",
+      "mode": "ALTERNATING",
       "weapons": {
+        "WS0006": "PTSD_Fracture_Calculus",
         "WS0018": "disintegrator"
       }
     },
     {
       "autofire": true,
-      "mode": "LINKED",
+      "mode": "ALTERNATING",
       "weapons": {
         "WS0007": "resonatormrm",
         "WS0020": "PTSD_TasloSpinor"
@@ -64,7 +67,7 @@
     },
     {
       "autofire": true,
-      "mode": "LINKED",
+      "mode": "ALTERNATING",
       "weapons": {
         "WS0011": "shockrepeater",
         "WS0012": "shockrepeater",

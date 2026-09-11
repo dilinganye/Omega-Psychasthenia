@@ -45,6 +45,7 @@ public final class PTSDCrisisIncidentManager {
         final float physicalChance;
         final float strength;
         final String source;
+        final String icon;
         final String[] headlines;
         final String[] reports;
         final String[] truths;
@@ -55,7 +56,7 @@ public final class PTSDCrisisIncidentManager {
         Card(String id, String category, String phases, boolean investigable, boolean filler,
              TargetKind target, String targetExpression, String targetArgument, float weight, float cooldown,
              float recon, float awareness, float aggression, float panic, float distortion,
-             float physicalChance, float strength, String source,
+             float physicalChance, float strength, String source, String icon,
              String[] headlines, String[] reports, String[] truths,
              String siteTemplates, String siteHandler, String martialSite) {
             this.id = id;
@@ -76,6 +77,7 @@ public final class PTSDCrisisIncidentManager {
             this.physicalChance = physicalChance;
             this.strength = strength;
             this.source = source;
+            this.icon = icon;
             this.headlines = headlines;
             this.reports = reports;
             this.truths = truths;
@@ -150,6 +152,7 @@ public final class PTSDCrisisIncidentManager {
                             (float) row.optDouble("physicalChance", 0d),
                             (float) row.optDouble("strength", 0d),
                             row.optString("source", "匿名航路简报"),
+                            row.optString("icon", "").trim(),
                             variants(row.optString("headline", id)),
                             variants(row.optString("report", "")),
                             variants(row.optString("truth", "")),
@@ -211,8 +214,11 @@ public final class PTSDCrisisIncidentManager {
         }
         float fillerChance;
         switch (state.phase) {
-            case DORMANT: fillerChance = .32f; break;
-            case RECON: fillerChance = .25f; break;
+            // Before the invasion, society still experiences these reports as an ordinary news
+            // feed. Omega evidence is intentionally buried among mundane, often entertaining
+            // stories instead of becoming a dedicated public crisis narrative.
+            case DORMANT: fillerChance = .74f; break;
+            case RECON: fillerChance = .52f; break;
             case EXPANSION: fillerChance = .15f; break;
             case FORTIFICATION: fillerChance = .07f; break;
             case WAR: fillerChance = .02f; break;
@@ -230,6 +236,7 @@ public final class PTSDCrisisIncidentManager {
         ensureLoaded();
         PTSDNewsSiteManager.advance(state, day, random);
         advanceInvestigations(state, day, random);
+        PTSDCrisisNewsAPI.advanceLoadedHandlers(state, day, random);
         float detectorFrequency = PTSDCrisisDetectorAbility.getEventFrequencyMultiplier();
         float configuredMax = Math.max(unknown_event_min_interval, unknown_event_max_interval) /
                 Math.max(.1f, unknown_event_frequency * detectorFrequency);
@@ -495,15 +502,16 @@ public final class PTSDCrisisIncidentManager {
         incident.createdDay = day;
         incident.expiresDay = day + card.cooldown;
         incident.newsExpiresDay = day + 10f;
-        incident.sourceLabel = sourceVariant(card.source, branch);
-        incident.headline = headlineVariant(card.headlines[branch], branch);
+        incident.sourceLabel = card.source;
+        incident.iconPath = card.icon;
+        incident.headline = card.headlines[branch];
         incident.publicText = reportVariant(card.reports[branch], branch);
         incident.trueText = truthVariant(card.truths[branch], branch);
         incident.disclosed = true;
         incident.investigable = card.investigable;
         incident.siteTemplate = inferSiteTemplates(card);
         incident.siteHandlerExpression = card.siteHandler == null ? "" : card.siteHandler;
-        incident.martialSiteEligible = martialSiteEnabled(card);
+        incident.martialSiteEligible = state.phase != PTSDCrisisState.Phase.DORMANT && martialSiteEnabled(card);
         CampaignFleetAPI player = Global.getSector().getPlayerFleet();
         incident.playerRelevant = player != null && player.getStarSystem() == target.system;
         incident.devForced = forced;
@@ -543,7 +551,7 @@ public final class PTSDCrisisIncidentManager {
                 incident.linkedEventId = event.id;
             } else if (incident.playerRelevant && ("D-01".equals(card.id) || "D-07".equals(card.id))) {
                 projectDebris(target.system, target.market, card.id, random);
-            } else if ("D-12".equals(card.id)) {
+            } else if (state.phase == PTSDCrisisState.Phase.RECON && "D-12".equals(card.id)) {
                 state.nextScoutDay = Math.min(state.nextScoutDay, day + .25f);
             }
         }
@@ -640,13 +648,23 @@ public final class PTSDCrisisIncidentManager {
         return "火力侦察".equals(card.category) || card.strength >= 20f && card.aggression >= 1f;
     }
     private static String applyEffects(PTSDCrisisState state, Card card, String systemId, float mult) {
+        if (state.phase == PTSDCrisisState.Phase.DORMANT) {
+            // DORMANT is the unaffected social baseline. Ambiguous D cards are ordinary reports
+            // here: they may have local news/panic consequences, but teach Omega nothing.
+            return "普通报道：未写入欧米伽认知或攻击权重";
+        }
         add(state, PTSDCrisisProgress.Variable.RECON_CONFIDENCE, card.recon * mult, card.id, systemId);
         add(state, PTSDCrisisProgress.Variable.HUMAN_AWARENESS, card.awareness * mult, card.id, systemId);
         add(state, PTSDCrisisProgress.Variable.WATCHER_AGGRESSION, card.aggression * mult, card.id, systemId);
         add(state, PTSDCrisisProgress.Variable.REALITY_DISTORTION, card.distortion * mult, card.id, systemId);
         PTSDCrisisState.SystemData data = state.getSystemData(systemId);
         data.lastObservedDay = PTSDCrisisState.getDay();
-        data.attackWeight *= 1f + Math.min(.22f, (card.recon + card.aggression) * .018f * mult);
+        float bias = Math.min(.22f, (card.recon + card.aggression) * .018f * mult);
+        PTSDCrisisAPI.addIncidentWeightBias(systemId, bias);
+        PTSDCrisisAPI.recordEvidence(systemId, "NEWS_INCIDENT", card.id,
+                -1f, -1f, -1f, -1, -1,
+                Math.min(.55f, .12f + (card.recon + card.aggression) * .04f),
+                120f, false, bias);
         if (card.category.equals("火力侦察")) data.hostileContacts++;
         return "侦察+" + round(card.recon * mult) + "，认知+" + round(card.awareness * mult) +
                 "，攻击性+" + round(card.aggression * mult);
@@ -661,42 +679,19 @@ public final class PTSDCrisisIncidentManager {
         SectorEntityToken focus = market != null && market.getPrimaryEntity() != null ?
                 market.getPrimaryEntity() : system.getCenter();
         if (focus == null) return;
+        Vector2f point = PTSDCrisisAPI.findSafePoint(system, focus, 1800f, 5200f, random);
+        if (point == null) {
+            PTSDCrisisDevIntel.report("未知实体投影跳过 " + cardId,
+                    "目标附近不存在经过复检的安全落点", system.getId(), null);
+            return;
+        }
         DebrisFieldParams params = new DebrisFieldParams(180f, -1f, 5f, .25f);
         params.source = DebrisFieldSource.BATTLE;
         params.baseSalvageXP = 20;
         SectorEntityToken debris = Misc.addDebrisField(system, params, random);
-        Vector2f point = null;
-        for (int attempt = 0; attempt < 24; attempt++) {
-            Vector2f candidate = Misc.getPointAtRadius(focus.getLocation(),
-                    Math.max(1600f, focus.getRadius() + 900f) + random.nextFloat() * 1800f);
-            boolean safe = true;
-            for (com.fs.starfarer.api.campaign.PlanetAPI planet : system.getPlanets()) {
-                if (Misc.getDistance(candidate, planet.getLocation()) < Math.max(1300f, planet.getRadius() + 900f)) {
-                    safe = false; break;
-                }
-            }
-            if (safe) { point = candidate; break; }
-        }
-        if (point == null && !system.getJumpPoints().isEmpty()) {
-            SectorEntityToken jump = system.getJumpPoints().get(0);
-            point = Misc.getPointAtRadius(jump.getLocation(), Math.max(900f, jump.getRadius() + 600f));
-        }
-        if (point == null) point = Misc.getPointAtRadius(focus.getLocation(), 7000f);
         debris.setLocation(point.x, point.y);
         debris.setName("无法归类的微小碎片");
         PTSDCrisisDevIntel.report("未知实体投影 " + cardId, "仅在玩家已位于目标星系时生成", system.getId(), debris.getId());
-    }
-
-    private static String sourceVariant(String source, int branch) {
-        if (branch == 0) return source;
-        if (branch == 1) return source + "（转述）";
-        return "未经核实 / " + source;
-    }
-
-    private static String headlineVariant(String text, int branch) {
-        if (branch == 0) return text;
-        if (branch == 1) return text + "：后续记录";
-        return "未证实：" + text;
     }
 
     private static String reportVariant(String text, int branch) {

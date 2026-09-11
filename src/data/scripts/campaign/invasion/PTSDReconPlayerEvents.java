@@ -83,10 +83,8 @@ public final class PTSDReconPlayerEvents {
     }
 
     private static Vector2f around(SectorEntityToken target, float min, float max) {
-        Vector2f result = new Vector2f(target.getLocation());
-        Vector2f offset = Misc.getUnitVectorAtDegreeAngle(RANDOM.nextFloat() * 360f);
-        offset.scale(min + RANDOM.nextFloat() * Math.max(1f, max - min));
-        return Vector2f.add(result, offset, result);
+        if (target == null || target.getContainingLocation() == null) return null;
+        return PTSDCrisisAPI.findSafePoint(target.getContainingLocation(), target, min, max, RANDOM);
     }
 
     private static void spawnMatchedManeuver(CampaignFleetAPI player) {
@@ -199,12 +197,14 @@ public final class PTSDReconPlayerEvents {
         int made = 0;
         for (int i = 0; i < count; i++) {
             try {
-                DerelictShipEntityPlugin.DerelictShipData data = DerelictShipEntityPlugin.createRandom(faction, null, RANDOM, 0f);
-                data.durationDays = 30f;
-                SectorEntityToken wreck = BaseThemeGenerator.addSalvageEntity(RANDOM, location, Entities.WRECK, faction, data);
                 Vector2f off = Misc.getUnitVectorAtDegreeAngle(RANDOM.nextFloat() * 360f);
                 off.scale(250f + RANDOM.nextFloat() * 1400f);
                 Vector2f p = Vector2f.add(center, off, null);
+                p = PTSDCrisisAPI.findSafePoint(location, p, 200f, 1800f, RANDOM);
+                if (p == null) continue;
+                DerelictShipEntityPlugin.DerelictShipData data = DerelictShipEntityPlugin.createRandom(faction, null, RANDOM, 0f);
+                data.durationDays = 30f;
+                SectorEntityToken wreck = BaseThemeGenerator.addSalvageEntity(RANDOM, location, Entities.WRECK, faction, data);
                 wreck.setLocation(p.x, p.y);
                 wreck.setName("近期战损舰体");
                 made++;

@@ -122,6 +122,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\data\config\exerelinFactionConfig\mod_factions.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\data\config\ptsdCSV\PTSD_crisis_news.csv">
           <value>
             <Attribute>
@@ -193,6 +200,13 @@
           </value>
         </entry>
         <entry key="\data\weapons\weapon_data.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\docs\NEWS_EXTENSION_API.md">
           <value>
             <Attribute>
               <option name="separator" value="," />

@@ -6,6 +6,7 @@ import com.fs.starfarer.api.campaign.StarSystemAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 
 import java.util.LinkedHashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Random;
 
@@ -131,8 +132,12 @@ public final class PTSDCrisisNewsAPI {
 
     static void advanceLoadedHandlers(PTSDCrisisState state, float day, Random random) {
         AdvanceContext context = new AdvanceContext(state, day, random);
+        Map<CustomNewsHandler, Boolean> advanced = new IdentityHashMap<CustomNewsHandler, Boolean>();
         for (Map.Entry<String, CustomNewsHandler> entry :
                 new LinkedHashMap<String, CustomNewsHandler>(HANDLERS).entrySet()) {
+            // Several aliases may intentionally point at one runtime handler. Advance the object,
+            // not each alias, exactly once per crisis heartbeat.
+            if (advanced.put(entry.getValue(), Boolean.TRUE) != null) continue;
             try {
                 entry.getValue().advance(context);
             } catch (Throwable ex) {

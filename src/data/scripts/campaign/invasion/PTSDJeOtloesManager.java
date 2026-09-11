@@ -221,9 +221,11 @@ public final class PTSDJeOtloesManager implements EveryFrameScript, ColonyIntera
             if (incident == null) {
                 state.jePlayerTaskIncidentId = null;
             } else if (incident.investigationResolved) {
-                float mitigation = Math.min(.9f, .5f * getEarlyPanicMitigationBonus(state));
+                // mitigateIncident() accepts the fraction left behind. A stronger early-game
+                // bonus must therefore divide that fraction instead of multiplying it.
+                float remaining = Math.max(.05f, .5f / getEarlyPanicMitigationBonus(state));
                 float removed = PTSDLocalPanicAPI.mitigateIncident(
-                        incident, mitigation, "JE_PLAYER_CONFIRMED");
+                        incident, remaining, "JE_PLAYER_CONFIRMED");
                 state.jeCompletedInvestigations++;
                 state.jePlayerTaskIncidentId = null;
                 Global.getSector().getCampaignUI().addMessage(
@@ -258,7 +260,7 @@ public final class PTSDJeOtloesManager implements EveryFrameScript, ColonyIntera
         if (state == null || incident == null) return 100;
         int percent = 5 + new Random((long) incident.id.hashCode() * 31L +
                 (long) PTSDCrisisState.getDay()).nextInt(71);
-        percent = Math.min(95, Math.round(percent * getEarlyPanicMitigationBonus(state)));
+        percent = Math.max(5, Math.round(percent / getEarlyPanicMitigationBonus(state)));
         PTSDLocalPanicAPI.mitigateIncident(incident, percent / 100f, "JE_AGENT_CONTROL");
         PTSDNewsSiteManager.resolveRemotely(state, incident);
         incident.investigationResolved = true;

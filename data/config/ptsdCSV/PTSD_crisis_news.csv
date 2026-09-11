@@ -1,4 +1,4 @@
-id,phases,category,target,weight,cooldown,recon,awareness,aggression,panic,distortion,physicalChance,strength,investigable,filler,source,headline,report,truth,siteTemplates,siteHandler,martialSite
+id,phases,category,target,weight,cooldown,recon,awareness,aggression,panic,distortion,physicalChance,strength,investigable,filler,source,headline,report,truth,siteTemplates,siteHandler,martialSite,icon
 N-01,ALL,普通新闻,POPULATED,5,12,0,0,0,0,0,0,0,false,true,地方商业新闻,冷藏舱标签错误,一批民用冷冻食品被贴上军用密封标签。港务局称这只是承包商录入失误。,那只是一次的普通物流事故。
 N-02,ALL,普通新闻,EDGE_MARKET,5,12,0,0,0,0,0,0,0,false,true,边缘娱乐版,两艘拖船争夺残骸,两支打捞队为一具无价值舰壳的归属争执了整整一天，最后发现双方许可证都已过期。,我觉得我们没必要在这上面浪费时间。
 N-03,ALL,普通新闻,POPULATED,5,12,0,0,0,0,0,0,0,false,true,本地通讯社,轨道广告牌短暂失控,一面轨道广告牌连续播放了旧版本饮料广告。运营方已经向当地居民致歉。,就是一次普通的软件回滚。

@@ -17,13 +17,12 @@ import data.scripts.campaign.invasion.PTSDCrisisDevWatcher;
 import data.scripts.campaign.invasion.PTSDCrisisState;
 import data.scripts.campaign.invasion.PTSDJeOtloesManager;
 import data.scripts.campaign.invasion.PTSDOccupationManager;
-import data.scripts.campaign.invasion.PTSDNewsTicker;
 import data.scripts.campaign.PTSD_CampaignPlugin;
 import data.scripts.campaign.cargo.PTSD_OmegaOfficerGeneratorPlugin;
+import data.scripts.util.PTSD_I18nUtil;
 import data.scripts.world.IIRT_NEXGenerate;
 import data.scripts.world.IIRT_NormalGenerate;
 import data.scripts.world.IIRT_Omega_Person;
-import data.scripts.util.I18nUtil;
 import org.dark.shaders.light.LightData;
 import org.dark.shaders.util.ShaderLib;
 import org.dark.shaders.util.TextureData;
@@ -33,6 +32,15 @@ public class IIRT_Omega_ModPlugin extends BaseModPlugin {
 	public static final boolean OMEGA_PTSD_PREV = true; //决定是否开放实际内容！
 
 	public static boolean hasLunaLib = false;
+	/**
+	 * Release gate; set this directly for published builds. It is deliberately not a LunaLib
+	 * setting, so player configuration can never unlock unfinished phases or developer panels.
+	 */
+	public static boolean OMEGA_PTSD_is_Alpha = false; // if it's true, then it will close those DEV UI.
+	/** Last phase shipped by the current Alpha. Raise this as later content becomes releasable. */
+	public static PTSDCrisisState.Phase OMEGA_PTSD_ALPHA_LAST_PHASE = PTSDCrisisState.Phase.RECON;
+	/** Increment when an Alpha ceiling needs a new one-time old-save migration. */
+	public static final int OMEGA_PTSD_ALPHA_GATE_REVISION = 1;
 	public static boolean omega_invasion_enabled = true;
 	public static float start_stage_time = 90f;
 	public static float collect_data_time = 365f;
@@ -42,7 +50,7 @@ public class IIRT_Omega_ModPlugin extends BaseModPlugin {
 	public static float scout_max_interval = 25f;
 	public static float scout_spawn_radius = 300f;
 	public static float max_guard_fleets = 10f;
-public static float final_invasion_max_strength = 200f;
+	public static float final_invasion_max_strength = 200f;
 	public static float scout_max_active = 3f;
 	public static int warning_encounter_threshold = 4;
 	public static float strategic_update_interval = 7f;
@@ -97,20 +105,20 @@ public static float final_invasion_max_strength = 200f;
 		}
 		ProcgenUsedNames.notifyUsed("Unknown Neutron");
 		ProcgenUsedNames.notifyUsed("Aleph Core");
-		ProcgenUsedNames.notifyUsed(I18nUtil.getStarSystemsString("KRM_planet1_name"));
-		ProcgenUsedNames.notifyUsed(I18nUtil.getStarSystemsString("KRM_planet2_name"));
-		ProcgenUsedNames.notifyUsed(I18nUtil.getStarSystemsString("KRM_planet4_name"));
-		ProcgenUsedNames.notifyUsed(I18nUtil.getStarSystemsString("KRM_planet3_name"));
-		ProcgenUsedNames.notifyUsed(I18nUtil.getStarSystemsString("KRM_planet5_name"));
+		ProcgenUsedNames.notifyUsed(PTSD_I18nUtil.getStarSystemsString("KRM_planet1_name"));
+		ProcgenUsedNames.notifyUsed(PTSD_I18nUtil.getStarSystemsString("KRM_planet2_name"));
+		ProcgenUsedNames.notifyUsed(PTSD_I18nUtil.getStarSystemsString("KRM_planet4_name"));
+		ProcgenUsedNames.notifyUsed(PTSD_I18nUtil.getStarSystemsString("KRM_planet3_name"));
+		ProcgenUsedNames.notifyUsed(PTSD_I18nUtil.getStarSystemsString("KRM_planet5_name"));
 
 		ProcgenUsedNames.notifyUsed("Depravity Nodes");
 		ProcgenUsedNames.notifyUsed("MandoLas");
-		ProcgenUsedNames.notifyUsed(I18nUtil.getStarSystemsString("IIRT_planet1_name"));
-		ProcgenUsedNames.notifyUsed(I18nUtil.getStarSystemsString("IIRT_planet2_name"));
-		ProcgenUsedNames.notifyUsed(I18nUtil.getStarSystemsString("IIRT_planet3_name"));
-		ProcgenUsedNames.notifyUsed(I18nUtil.getStarSystemsString("IIRT_planet5_name"));
-		ProcgenUsedNames.notifyUsed(I18nUtil.getStarSystemsString("IIRT_planet6_name"));
-		ProcgenUsedNames.notifyUsed(I18nUtil.getStarSystemsString("IIRT_planet7_name"));
+		ProcgenUsedNames.notifyUsed(PTSD_I18nUtil.getStarSystemsString("IIRT_planet1_name"));
+		ProcgenUsedNames.notifyUsed(PTSD_I18nUtil.getStarSystemsString("IIRT_planet2_name"));
+		ProcgenUsedNames.notifyUsed(PTSD_I18nUtil.getStarSystemsString("IIRT_planet3_name"));
+		ProcgenUsedNames.notifyUsed(PTSD_I18nUtil.getStarSystemsString("IIRT_planet5_name"));
+		ProcgenUsedNames.notifyUsed(PTSD_I18nUtil.getStarSystemsString("IIRT_planet6_name"));
+		ProcgenUsedNames.notifyUsed(PTSD_I18nUtil.getStarSystemsString("IIRT_planet7_name"));
 
 		ProcgenUsedNames.notifyUsed("The Prevote Zone");
 		ProcgenUsedNames.notifyUsed("Beaylon");
@@ -293,6 +301,7 @@ public static float final_invasion_max_strength = 200f;
 	}
 
 	public static boolean isPhaseEnabled(PTSDCrisisState.Phase phase) {
+		if (!isPhaseAvailableInBuild(phase)) return false;
 		if (Global.getSettings() == null || !Global.getSettings().isDevMode()) return true;
 		if (phase == PTSDCrisisState.Phase.DORMANT) return phase_dormant_enabled;
 		if (phase == PTSDCrisisState.Phase.RECON) return phase_recon_enabled;
@@ -300,6 +309,23 @@ public static float final_invasion_max_strength = 200f;
 		if (phase == PTSDCrisisState.Phase.FORTIFICATION) return phase_fortification_enabled;
 		if (phase == PTSDCrisisState.Phase.WAR) return phase_war_enabled;
 		return true;
+	}
+
+	/** Build-level content gate. Unlike Dev phase toggles, this also applies in normal play. */
+	public static boolean isPhaseAvailableInBuild(PTSDCrisisState.Phase phase) {
+		if (phase == null) return false;
+		if (!OMEGA_PTSD_is_Alpha || phase == PTSDCrisisState.Phase.ENDED) return true;
+		PTSDCrisisState.Phase last = OMEGA_PTSD_ALPHA_LAST_PHASE;
+		if (last == null || last == PTSDCrisisState.Phase.ENDED) return true;
+		return phase.ordinal() <= last.ordinal();
+	}
+
+	public static PTSDCrisisState.Phase getLatestReleasedPhase() {
+		if (!OMEGA_PTSD_is_Alpha || OMEGA_PTSD_ALPHA_LAST_PHASE == null ||
+				OMEGA_PTSD_ALPHA_LAST_PHASE == PTSDCrisisState.Phase.ENDED) {
+			return PTSDCrisisState.Phase.WAR;
+		}
+		return OMEGA_PTSD_ALPHA_LAST_PHASE;
 	}
 
 	private static void syncInvasionScriptWithSettings() {

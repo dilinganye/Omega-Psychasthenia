@@ -24,6 +24,7 @@ import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import data.hullmods.shard.PTSD_BaseShard_Util;
+import data.scripts.IIRT_Omega_ModPlugin;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.Color;
@@ -250,6 +251,10 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
         if (Global.getSettings().isDevMode()) showHardWarning(PTSDCrisisState.get());
     }
     private static void transitionToEnabled(PTSDCrisisState state, PTSDCrisisState.Phase requested) {
+        // A release cutoff is a hard ceiling, not a disabled test phase to skip over. Keep the
+        // campaign at the latest implemented phase instead of jumping through unfinished phases
+        // to ENDED. This also makes a mature RECON sandbox stable for Alpha releases.
+        if (!IIRT_Omega_ModPlugin.isPhaseAvailableInBuild(requested)) return;
         PTSDCrisisState.Phase target = requested;
         while (target != PTSDCrisisState.Phase.ENDED && !isPhaseEnabled(target)) {
             target = nextPhase(target);
@@ -257,14 +262,83 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
         transition(state, target);
     }
 
-    private static void normalizeDisabledPhase(PTSDCrisisState state) {
-        if (state == null || state.phase == PTSDCrisisState.Phase.ENDED || isPhaseEnabled(state.phase)) return;
+    private void normalizeDisabledPhase(PTSDCrisisState state) {
+        if (state == null || state.phase == PTSDCrisisState.Phase.ENDED) return;
+        boolean migrationPending = OMEGA_PTSD_is_Alpha &&
+                state.alphaContentGateRevision < OMEGA_PTSD_ALPHA_GATE_REVISION;
+        boolean clamped = !IIRT_Omega_ModPlugin.isPhaseAvailableInBuild(state.phase);
+        if (clamped) {
+            PTSDCrisisState.Phase previous = state.phase;
+            PTSDCrisisState.Phase released = IIRT_Omega_ModPlugin.getLatestReleasedPhase();
+            transition(state, released);
+            PTSDCrisisDevIntel.report("Alpha阶段钳制", previous.name() + " → " + released.name(),
+                    state.baseSystemId, null);
+        }
+
+        // Hot-updated saves may already contain projections from unpublished phases. Cancel the
+        // pending/materialized projections, but never destructively roll back persistent worlds.
+        if (OMEGA_PTSD_is_Alpha) {
+            cancelEventsAboveReleaseCeiling(state, IIRT_Omega_ModPlugin.getLatestReleasedPhase());
+            if (migrationPending || clamped) removeUnreleasedWarIntel(state);
+            state.alphaContentGateRevision = OMEGA_PTSD_ALPHA_GATE_REVISION;
+        }
+
+        if (clamped) return;
+        if (isPhaseEnabled(state.phase)) return;
         PTSDCrisisState.Phase disabled = state.phase;
         PTSDCrisisState.Phase target = nextPhase(disabled);
         while (target != PTSDCrisisState.Phase.ENDED && !isPhaseEnabled(target)) target = nextPhase(target);
         transition(state, target);
         PTSDCrisisDevIntel.report("阶段已由Dev开关跳过", disabled.name() + " → " + target.name(),
                 state.baseSystemId, null);
+    }
+
+    private void cancelEventsAboveReleaseCeiling(PTSDCrisisState state, PTSDCrisisState.Phase ceiling) {
+        if (state == null || ceiling == null || state.events == null) return;
+        for (PTSDCrisisState.StrategicEvent event : state.events) {
+            if (event == null || (event.status != PTSDCrisisState.EventStatus.PLANNED &&
+                    event.status != PTSDCrisisState.EventStatus.MATERIALIZED)) continue;
+            PTSDCrisisState.Phase minimum = minimumPhaseForEvent(event.type);
+            if (minimum == null || minimum.ordinal() <= ceiling.ordinal()) continue;
+
+            if (event.type == PTSDCrisisState.EventType.PLAYER_TASK_FORCE && event.referenceId != null) {
+                PTSDCrisisState.PlayerTaskForce force = state.getTaskForce(event.referenceId);
+                if (force != null && !force.destroyed) {
+                    state.releaseCommittedProduction(force.sourceMarketId, force.productionCost);
+                    force.destroyed = true;
+                }
+            }
+            despawnEventFleets(event);
+            event.status = PTSDCrisisState.EventStatus.CANCELLED;
+        }
+    }
+
+    /** Null means the event is owned by the public extension API and must survive migration. */
+    private static PTSDCrisisState.Phase minimumPhaseForEvent(PTSDCrisisState.EventType type) {
+        if (type == null || type == PTSDCrisisState.EventType.EXTERNAL) return null;
+        if (type == PTSDCrisisState.EventType.SCOUT || type == PTSDCrisisState.EventType.FIRE_PROBE) {
+            return PTSDCrisisState.Phase.RECON;
+        }
+        if (type == PTSDCrisisState.EventType.CONSTRUCTION ||
+                type == PTSDCrisisState.EventType.GARRISON) {
+            return PTSDCrisisState.Phase.EXPANSION;
+        }
+        if (type == PTSDCrisisState.EventType.FORTRESS_PATROL ||
+                type == PTSDCrisisState.EventType.PREWAR_HUNTER) {
+            return PTSDCrisisState.Phase.FORTIFICATION;
+        }
+        return PTSDCrisisState.Phase.WAR;
+    }
+
+    private static void removeUnreleasedWarIntel(PTSDCrisisState state) {
+        if (Global.getSector() == null || Global.getSector().getIntelManager() == null) return;
+        List<com.fs.starfarer.api.campaign.comm.IntelInfoPlugin> entries =
+                new ArrayList<com.fs.starfarer.api.campaign.comm.IntelInfoPlugin>(
+                        Global.getSector().getIntelManager().getIntel(PTSDWarIntel.class));
+        for (com.fs.starfarer.api.campaign.comm.IntelInfoPlugin intel : entries) {
+            Global.getSector().getIntelManager().removeIntel(intel);
+        }
+        state.warIntelCreated = false;
     }
 
     private static PTSDCrisisState.Phase nextPhase(PTSDCrisisState.Phase phase) {
@@ -1608,7 +1682,7 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
             if (focus == null) return;
 
             boolean omegaDefeat = "OMEGA_DEFEAT".equals(event.aftermathKind);
-            int debrisCount = omegaDefeat ? 5 : 3;
+            int debrisCount = omegaDefeat ? 8 : 6;
             for (int n = 0; n < debrisCount; n++) {
                 DebrisFieldParams params = new DebrisFieldParams(
                         Math.max(180f, Math.min(520f, 170f + event.strength * (0.8f + n * .08f))),
@@ -1624,12 +1698,11 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
             }
             if (omegaDefeat) {
                 spawnOmegaWreck(current, focus, "IIRT_Omega_Arrow_Only");
-                if (event.strength >= 80f) spawnOmegaWreck(current, focus, "IIRT_Omega_Antitrack_Only");
-                spawnHumanWreck(current, focus, event.opponentFactionId);
-                if (event.strength >= 100f) spawnHumanWreck(current, focus, event.opponentFactionId);
+                if (event.strength >= 140f && random.nextFloat() < .35f) {
+                    spawnHumanWreck(current, focus, event.opponentFactionId);
+                }
             } else {
                 spawnHumanWreck(current, focus, event.opponentFactionId);
-                if (event.strength >= 90f) spawnHumanWreck(current, focus, event.opponentFactionId);
             }
             event.aftermathProjected = true;
             state.aftermathCooldowns.put(current.getId(), day + 4f);
@@ -1673,7 +1746,12 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
             data.durationDays = 60f;
             SectorEntityToken wreck = BaseThemeGenerator.addSalvageEntity(random, system, Entities.WRECK, factionId, data);
             wreck.setLocation(point.x, point.y);
-            wreck.setName(Global.getSector().getFaction(factionId).getDisplayName() + "战损舰体");
+            if (random.nextFloat() < .85f) {
+                wreck.addTag(Tags.UNRECOVERABLE);
+                wreck.setName(Global.getSector().getFaction(factionId).getDisplayName() + "严重损毁舰体");
+            } else {
+                wreck.setName(Global.getSector().getFaction(factionId).getDisplayName() + "战损舰体");
+            }
         } catch (Throwable ex) {
             Global.getLogger(getClass()).warn("Unable to project human wreck", ex);
         }

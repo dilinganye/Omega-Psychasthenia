@@ -5,7 +5,7 @@ import com.fs.starfarer.api.combat.*;
 import com.fs.starfarer.api.impl.combat.BaseShipSystemScript;
 import com.fs.starfarer.api.plugins.ShipSystemStatsScript;
 import com.fs.starfarer.api.util.FaderUtil;
-import static data.scripts.util.I18nUtil.easyRippleOut;
+import static data.scripts.util.PTSD_I18nUtil.easyRippleOut;
 import data.scripts.util.IIRT_Omega_Color;
 import org.lwjgl.util.vector.Vector2f;
 import org.magiclib.util.MagicLensFlare;
@@ -101,7 +101,7 @@ public class IIRT_PhaseInBattle extends BaseShipSystemScript {
 		//    float sizeFactor = MathUtils.getRandomNumberInRange(0.2f, 0.4f) * effectLevel;
 		//    float opacity = MathUtils.getRandomNumberInRange(0.6f, 1f) * effectLevel;
 		//    float duration = MathUtils.getRandomNumberInRange(0.4f, 0.8f);
-		//    engine.addNebulaParticle(loc, I18nUtil.nv, sizeFactor * ship.getCollisionRadius(), 1.2f, 0.25f, opacity, duration, IIRT_Omega_Color.IIRT_Omega_Lab);
+		//    engine.addNebulaParticle(loc, PTSD_I18nUtil.nv, sizeFactor * ship.getCollisionRadius(), 1.2f, 0.25f, opacity, duration, IIRT_Omega_Color.IIRT_Omega_Lab);
 		//}
 
 	}

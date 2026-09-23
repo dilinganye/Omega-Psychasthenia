@@ -15,6 +15,8 @@ import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.procgen.themes.BaseThemeGenerator;
+import com.fs.starfarer.api.impl.campaign.terrain.DebrisFieldTerrainPlugin.DebrisFieldParams;
+import com.fs.starfarer.api.impl.campaign.terrain.DebrisFieldTerrainPlugin.DebrisFieldSource;
 import com.fs.starfarer.api.util.Misc;
 import data.hullmods.shard.PTSD_BaseShard_Util;
 import org.lwjgl.util.vector.Vector2f;
@@ -51,7 +53,7 @@ public final class PTSDReconPlayerEvents {
         if (RANDOM.nextFloat() < .01f) spawnMatchedManeuver(player);
         if (RANDOM.nextFloat() < .02f) armTrapFromNavigation(state, player, day);
         if (RANDOM.nextFloat() < .03f) spawnUnreachableObserver(player);
-        if (RANDOM.nextFloat() < .05f) spawnRouteWrecks(player);
+        if (RANDOM.nextFloat() < .025f) spawnRouteWrecks(player);
         if (player.isInHyperspace() && RANDOM.nextFloat() < .02f) spawnReactivePursuer(player);
     }
 
@@ -92,9 +94,9 @@ public final class PTSDReconPlayerEvents {
         CampaignFleetAPI fleet = createFleet(player.getContainingLocation(), around(player, 7000f, 11000f), fp,
                 PTSD_BaseShard_Util.FleetRole.RECON, null);
         if (fleet == null) return;
-        fleet.setName("正在修正航向的未知舰队");
+        fleet.setName("未知舰队");
         fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_MAKE_AGGRESSIVE, true);
-        fleet.addAssignment(FleetAssignment.INTERCEPT, player, 20f, "以未知参数逼近目标");
+        fleet.addAssignment(FleetAssignment.INTERCEPT, player, 20f, "逼近目标");
         fleet.addAssignment(FleetAssignment.GO_TO_LOCATION_AND_DESPAWN, escapeToken(player), 30f, "脱离观测区");
         PTSDCrisisDevIntel.report("每日事件：等强机动舰队", "目标玩家；基准自动分 " + Math.round(fp) + "；分支 " + PTSD_BaseShard_Util.getFleetBranchName(fleet),
                 player.getStarSystem() == null ? null : player.getStarSystem().getId(), fleet.getId());
@@ -142,22 +144,22 @@ public final class PTSDReconPlayerEvents {
         CampaignFleetAPI leader = createFleet(system, safeAround(focus, 5000f, 8500f), 500f,
                 PTSD_BaseShard_Util.FleetRole.GUARD_ASSAULT, PTSD_BaseShard_Util.BRANCH_WEB);
         if (leader == null) return;
-        leader.setName("静默的网络冥魂领队");
+        leader.setName("网络冥魂");
         makeTrapNeutral(leader);
         leader.addAssignment(FleetAssignment.PATROL_SYSTEM, system.getCenter(), 30f, "在星系内保持静默机动");
         CampaignFleetAPI transport = createFleet(system, safeAround(leader, 600f, 1200f), 300f,
                 PTSD_BaseShard_Util.FleetRole.LOGISTICS_ENGINEERING, PTSD_BaseShard_Util.BRANCH_CUBE);
         if (transport != null) {
-            transport.setName("静默的熵级运载编队"); makeTrapNeutral(transport);
-            transport.addAssignment(FleetAssignment.FOLLOW, leader, 30f, "跟随领队舰");
+            transport.setName("熵级运载"); makeTrapNeutral(transport);
+            transport.addAssignment(FleetAssignment.FOLLOW, leader, 30f, "跟随领队");
         }
         for (int i = 0; i < 3; i++) {
             CampaignFleetAPI escort = createFleet(system, safeAround(leader, 1300f, 4200f), 110f + RANDOM.nextFloat() * 150f,
                     PTSD_BaseShard_Util.FleetRole.GUARD_ASSAULT, null);
             if (escort == null) continue;
-            escort.setName("静默的漫游编队"); makeTrapNeutral(escort);
+            escort.setName("漫游静默"); makeTrapNeutral(escort);
             escort.addAssignment(i == 0 ? FleetAssignment.FOLLOW : FleetAssignment.PATROL_SYSTEM,
-                    i == 0 ? leader : system.getCenter(), 30f, "在异常信号间漫游");
+                    i == 0 ? leader : system.getCenter(), 30f, "漫游");
         }
         Global.getSector().getCampaignUI().addMessage("传感器上出现了极端的能量反应", new Color(255, 105, 125));
         try { Global.getSector().addPing(leader, "sensor_burst", new Color(220, 90, 255)); } catch (Throwable ignored) { }
@@ -181,7 +183,7 @@ public final class PTSDReconPlayerEvents {
         fleet.setSensorProfile(45f);
         fleet.getStats().getFleetwideMaxBurnMod().modifyFlat("PTSD_unreachable_observer", 8f, "异常距离控制");
         fleet.addScript(new DistanceControlScript(fleet, player, 12f));
-        PTSDCrisisDevIntel.report("每日事件：近距不可接触侦察", "介入灵质观察单元；主动维持接触距离", player.getStarSystem() == null ? null : player.getStarSystem().getId(), fleet.getId());
+        PTSDCrisisDevIntel.report("每日事件：近距不可接触侦察", "介入灵质；主动维持接触距离", player.getStarSystem() == null ? null : player.getStarSystem().getId(), fleet.getId());
     }
 
     private static void spawnRouteWrecks(CampaignFleetAPI player) {
@@ -193,8 +195,9 @@ public final class PTSDReconPlayerEvents {
         direction.scale(3200f + RANDOM.nextFloat() * 3200f);
         Vector2f center = Vector2f.add(player.getLocation(), direction, null);
         String faction = pickNearbyFaction(player);
-        int count = 6 + RANDOM.nextInt(7);
+        int count = 1 + RANDOM.nextInt(2);
         int made = 0;
+        SectorEntityToken investigationAnchor = null;
         for (int i = 0; i < count; i++) {
             try {
                 Vector2f off = Misc.getUnitVectorAtDegreeAngle(RANDOM.nextFloat() * 360f);
@@ -206,12 +209,56 @@ public final class PTSDReconPlayerEvents {
                 data.durationDays = 30f;
                 SectorEntityToken wreck = BaseThemeGenerator.addSalvageEntity(RANDOM, location, Entities.WRECK, faction, data);
                 wreck.setLocation(p.x, p.y);
-                wreck.setName("近期战损舰体");
+                wreck.setName("? ? ?");
+                // These are scenery from a violent interception, not a reliable source of free
+                // recoverable hulls. A small minority remains repairable for exploration value.
+                if (RANDOM.nextFloat() < .85f) wreck.addTag(Tags.UNRECOVERABLE);
+                if (investigationAnchor == null) investigationAnchor = wreck;
                 made++;
             } catch (Throwable ex) { Global.getLogger(PTSDReconPlayerEvents.class).warn("Unable to create route wreck", ex); }
         }
-        PTSDCrisisDevIntel.report("每日事件：航路残骸群", made + " 艘；势力 " + faction + "；持续30日",
+        int debrisMade = 0;
+        int debrisCount = 2 + RANDOM.nextInt(3);
+        for (int i = 0; i < debrisCount; i++) {
+            try {
+                Vector2f off = Misc.getUnitVectorAtDegreeAngle(RANDOM.nextFloat() * 360f);
+                off.scale(180f + RANDOM.nextFloat() * 1900f);
+                Vector2f p = PTSDCrisisAPI.findSafePoint(location,
+                        Vector2f.add(center, off, null), 180f, 1600f, RANDOM);
+                if (p == null) continue;
+                DebrisFieldParams params = new DebrisFieldParams(
+                        90f + RANDOM.nextFloat() * 100f, -1f, 30f, .12f + RANDOM.nextFloat() * .23f);
+                params.source = DebrisFieldSource.BATTLE;
+                params.baseSalvageXP = 5 + RANDOM.nextInt(16);
+                SectorEntityToken debris = Misc.addDebrisField(location, params, RANDOM);
+                debris.setLocation(p.x, p.y);
+                debris.setName("正在散逸的航路残骸区");
+                if (investigationAnchor == null) investigationAnchor = debris;
+                debrisMade++;
+            } catch (Throwable ex) { Global.getLogger(PTSDReconPlayerEvents.class).warn("Unable to create route debris", ex); }
+        }
+        boolean scoutSpawned = investigationAnchor != null && RANDOM.nextFloat() < .7f &&
+                spawnRouteWreckScout(location, investigationAnchor, player);
+        PTSDCrisisDevIntel.report("每日事件：航路残骸群", made + " 艘残舰 / " + debrisMade +
+                        " 片小型临时残骸区；势力 " + faction + "；调查侦察队 " +
+                        (scoutSpawned ? "已出现" : "未出现") + "；持续30日",
                 player.getStarSystem() == null ? null : player.getStarSystem().getId(), null);
+    }
+
+    private static boolean spawnRouteWreckScout(LocationAPI location, SectorEntityToken anchor,
+                                                CampaignFleetAPI player) {
+        Vector2f spawn = PTSDCrisisAPI.findSafePoint(location, anchor, 900f, 1900f, RANDOM);
+        CampaignFleetAPI scout = createFleet(location, spawn, 7f + RANDOM.nextFloat() * 11f,
+                PTSD_BaseShard_Util.FleetRole.RECON, PTSD_BaseShard_Util.BRANCH_TRAN);
+        if (scout == null) return false;
+        scout.setName("未知舰队");
+        makeTrapNeutral(scout);
+        scout.setSensorProfile(35f);
+        scout.addAssignment(FleetAssignment.ORBIT_PASSIVE, anchor, 7f + RANDOM.nextFloat() * 8f,
+                "逐段扫描散逸残骸");
+        scout.addAssignment(FleetAssignment.GO_TO_LOCATION_AND_DESPAWN, escapeToken(player), 20f,
+                "结束取样并远离航路");
+        return true;
     }
 
     private static String pickNearbyFaction(CampaignFleetAPI player) {
@@ -231,7 +278,7 @@ public final class PTSDReconPlayerEvents {
         fleet.setName("正在截获航迹的未知舰队");
         fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_MAKE_AGGRESSIVE, true);
         fleet.getMemoryWithoutUpdate().set(REACTIVE_RETREAT, true);
-        fleet.addAssignment(FleetAssignment.INTERCEPT, player, 20f, "立即追击异常航迹");
+        fleet.addAssignment(FleetAssignment.INTERCEPT, player, 20f, "追击异常航迹");
         fleet.addScript(new PostBattleEscapeScript(fleet, player));
         PTSDCrisisDevIntel.report("每日事件：超空间试触追击", "受击后全舰撤退；返回生涯后高速脱离；FP " + Math.round(fp), null, fleet.getId());
     }
@@ -241,7 +288,7 @@ public final class PTSDReconPlayerEvents {
         for (CampaignFleetAPI fleet : location.getFleets()) {
             if (fleet != null && fleet.getMemoryWithoutUpdate().getBoolean(RETREAT_TRIGGERED) && !fleet.isDespawning()) {
                 fleet.clearAssignments();
-                fleet.getStats().getFleetwideMaxBurnMod().modifyFlat("PTSD_reactive_escape", 8f, "受击后紧急撤离");
+                fleet.getStats().getFleetwideMaxBurnMod().modifyFlat("PTSD_reactive_escape", 8f, "紧急撤离");
                 fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_MAKE_NON_AGGRESSIVE, true);
                 fleet.addAssignment(FleetAssignment.GO_TO_LOCATION_AND_DESPAWN, escapeToken(player), 20f, "紧急脱离接触");
             }
@@ -286,7 +333,7 @@ public final class PTSDReconPlayerEvents {
             fleet.clearAssignments();
             if (range < 2600f) fleet.addAssignment(FleetAssignment.GO_TO_LOCATION, escapeToken(player), .4f, "回避接触");
             else if (range > 5200f) fleet.addAssignment(FleetAssignment.FOLLOW, player, .4f, "维持遥测距离");
-            else fleet.addAssignment(FleetAssignment.HOLD, fleet, .4f, "保持不可接触距离");
+            else fleet.addAssignment(FleetAssignment.HOLD, fleet, .4f, "保持距离");
             if (days <= 0f) { fleet.clearAssignments(); fleet.addAssignment(FleetAssignment.GO_TO_LOCATION_AND_DESPAWN, escapeToken(player), 10f, "信号消失"); }
         }
     }
@@ -298,7 +345,7 @@ public final class PTSDReconPlayerEvents {
         public boolean runWhilePaused() { return false; }
         public void advance(float amount) {
             if (isDone() || fleet.getBattle() != null || !fleet.getMemoryWithoutUpdate().getBoolean(RETREAT_TRIGGERED)) return;
-            fleet.clearAssignments(); fleet.getStats().getFleetwideMaxBurnMod().modifyFlat("PTSD_reactive_escape", 8f, "受击后紧急撤离");
+            fleet.clearAssignments(); fleet.getStats().getFleetwideMaxBurnMod().modifyFlat("PTSD_reactive_escape", 8f, "紧急撤离");
             fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_MAKE_NON_AGGRESSIVE, true);
             fleet.addAssignment(FleetAssignment.GO_TO_LOCATION_AND_DESPAWN, escapeToken(player), 20f, "紧急脱离接触");
         }

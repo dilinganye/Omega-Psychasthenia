@@ -511,11 +511,21 @@ public final class PTSDCrisisIncidentManager {
         incident.investigable = card.investigable;
         incident.siteTemplate = inferSiteTemplates(card);
         incident.siteHandlerExpression = card.siteHandler == null ? "" : card.siteHandler;
+        incident.customTargetHandlerExpression = card.target == TargetKind.CUSTOM && card.targetArgument != null
+                ? card.targetArgument : "";
         incident.martialSiteEligible = state.phase != PTSDCrisisState.Phase.DORMANT && martialSiteEnabled(card);
         CampaignFleetAPI player = Global.getSector().getPlayerFleet();
         incident.playerRelevant = player != null && player.getStarSystem() == target.system;
         incident.devForced = forced;
-        incident.effectSummary = applyEffects(state, card, target.system.getId(), branchMult);
+        incident.newsEffectLifecycleVersion = 1;
+        boolean deferUntilVerified = card.investigable;
+        if (deferUntilVerified) {
+            storeDeferredEffects(incident, state, card, branchMult);
+            incident.effectSummary = "待核实：当前仅产生局部恐慌；属实后其余影响按50%结算";
+        } else {
+            incident.effectSummary = applyEffects(state, card, target.system.getId(), branchMult);
+            incident.deferredEffectsSettled = true;
+        }
         incident.panicByMarket.putAll(PTSDLocalPanicAPI.spreadFromSystem(
                 target.system.getId(), card.panic * branchMult,
                 PTSDLocalPanicAPI.NEWS_RADIUS, card.id));
@@ -524,7 +534,7 @@ public final class PTSDCrisisIncidentManager {
                     "（影响 " + incident.panicByMarket.size() + " 个殖民地）";
         }
 
-        if (target.handler != null) {
+        if (target.handler != null && !deferUntilVerified) {
             try {
                 SectorEntityToken created = target.handler.onIncidentCreated(
                         new PTSDCrisisNewsAPI.IncidentContext(state, incident, target.system,
@@ -536,9 +546,20 @@ public final class PTSDCrisisIncidentManager {
                 PTSDCrisisDevIntel.report("CUSTOM 新闻创建失败", card.targetExpression,
                         incident.targetSystemId, incident.targetEntityId);
             }
+            incident.customTargetCreationInvoked = true;
         }
 
-        if (card.physicalChance > 0f && (forced || random.nextFloat() < card.physicalChance)) {
+        boolean physicalRolled = card.physicalChance > 0f &&
+                (forced || random.nextFloat() < card.physicalChance);
+        if (deferUntilVerified) {
+            incident.deferredPhysicalEffect = physicalRolled;
+            incident.deferredFireProbe = physicalRolled && card.category.equals("火力侦察") && card.strength > 0f;
+            incident.deferredDebrisProjection = physicalRolled && incident.playerRelevant &&
+                    ("D-01".equals(card.id) || "D-07".equals(card.id));
+            incident.deferredScoutAcceleration = physicalRolled && state.phase == PTSDCrisisState.Phase.RECON &&
+                    "D-12".equals(card.id);
+            incident.deferredStrength = card.strength * branchMult;
+        } else if (physicalRolled) {
             if (card.category.equals("火力侦察") && card.strength > 0f) {
                 PTSDCrisisState.StrategicEvent event = state.addEvent(
                         PTSDCrisisState.EventType.FIRE_PROBE, PTSDCrisisAPI.SIDE_OMEGA,
@@ -620,6 +641,7 @@ public final class PTSDCrisisIncidentManager {
                 Global.getSector().getCampaignUI().addMessage("传感器边缘出现了一个正在跟踪你的微弱信号。", WHISPER_COLOR);
             } else {
                 incident.investigationReal = false;
+                disproveIncident(incident);
                 Global.getSector().getCampaignUI().addMessage("现场没有任何异常；这条报道已被证伪。", Misc.getGrayColor());
             }
             PTSDCrisisDevIntel.report("新闻调查结算", "结果 " + incident.investigationOutcome,
@@ -646,6 +668,110 @@ public final class PTSDCrisisIncidentManager {
         if ("TRUE".equalsIgnoreCase(card.martialSite)) return true;
         if ("FALSE".equalsIgnoreCase(card.martialSite)) return false;
         return "火力侦察".equals(card.category) || card.strength >= 20f && card.aggression >= 1f;
+    }
+
+    private static void storeDeferredEffects(PTSDCrisisState.CrisisIncident incident,
+                                             PTSDCrisisState state, Card card, float mult) {
+        if (incident == null || card == null || state == null || state.phase == PTSDCrisisState.Phase.DORMANT) return;
+        incident.deferredRecon = card.recon * mult;
+        incident.deferredAwareness = card.awareness * mult;
+        incident.deferredAggression = card.aggression * mult;
+        incident.deferredDistortion = card.distortion * mult;
+        incident.deferredWeightBias = Math.min(.22f, (card.recon + card.aggression) * .018f * mult);
+        incident.deferredHostileContact = card.category.equals("火力侦察");
+    }
+
+    /** Called only after matching evidence has been confirmed, locally or by Je. */
+    static void confirmTrueEffects(PTSDCrisisState state, PTSDCrisisState.CrisisIncident incident) {
+        if (state == null || incident == null || incident.deferredEffectsSettled) return;
+        // Incidents created by pre-fix builds already applied their full effects at creation. The
+        // missing version field deserializes as zero, so never double-apply them after hot update.
+        if (incident.newsEffectLifecycleVersion < 1) {
+            incident.deferredEffectsSettled = true;
+            return;
+        }
+        final float verifiedMult = .5f;
+        add(state, PTSDCrisisProgress.Variable.RECON_CONFIDENCE,
+                incident.deferredRecon * verifiedMult, incident.cardId, incident.targetSystemId);
+        add(state, PTSDCrisisProgress.Variable.HUMAN_AWARENESS,
+                incident.deferredAwareness * verifiedMult, incident.cardId, incident.targetSystemId);
+        add(state, PTSDCrisisProgress.Variable.WATCHER_AGGRESSION,
+                incident.deferredAggression * verifiedMult, incident.cardId, incident.targetSystemId);
+        add(state, PTSDCrisisProgress.Variable.REALITY_DISTORTION,
+                incident.deferredDistortion * verifiedMult, incident.cardId, incident.targetSystemId);
+        if (incident.targetSystemId != null) {
+            PTSDCrisisState.SystemData data = state.getSystemData(incident.targetSystemId);
+            data.lastObservedDay = PTSDCrisisState.getDay();
+            PTSDCrisisAPI.addIncidentWeightBias(incident.targetSystemId,
+                    incident.deferredWeightBias * verifiedMult);
+            PTSDCrisisAPI.recordEvidence(incident.targetSystemId, "NEWS_VERIFIED", incident.cardId,
+                    -1f, -1f, -1f, -1, -1,
+                    Math.min(.55f, .12f + (incident.deferredRecon + incident.deferredAggression) * .02f),
+                    120f, false, incident.deferredWeightBias * verifiedMult);
+            if (incident.deferredHostileContact) data.hostileContacts++;
+        }
+        materializeDeferredPhysicalEffect(state, incident, verifiedMult);
+        incident.deferredEffectsSettled = true;
+        incident.effectSummary = "已证实：保留局部恐慌；其余影响按50%结算（侦察+" +
+                round(incident.deferredRecon * verifiedMult) + "，认知+" +
+                round(incident.deferredAwareness * verifiedMult) + "，攻击性+" +
+                round(incident.deferredAggression * verifiedMult) + "）";
+    }
+
+    static void activateVerifiedCustomTarget(PTSDCrisisState state,
+                                             PTSDCrisisState.CrisisIncident incident) {
+        if (state == null || incident == null || incident.investigationOutcome != 1 ||
+                incident.customTargetCreationInvoked || incident.customTargetHandlerExpression == null ||
+                incident.customTargetHandlerExpression.trim().isEmpty()) return;
+        incident.customTargetCreationInvoked = true;
+        PTSDCrisisNewsAPI.CustomNewsHandler handler =
+                PTSDCrisisNewsAPI.resolveHandler(incident.customTargetHandlerExpression);
+        if (handler == null) return;
+        StarSystemAPI system = state.resolveSystem(incident.targetSystemId);
+        MarketAPI market = state.resolveMarket(incident.targetMarketId);
+        if (system == null) return;
+        SectorEntityToken target = PTSDCrisisAPI.resolveIncidentTarget(incident);
+        try {
+            SectorEntityToken created = handler.onIncidentCreated(
+                    new PTSDCrisisNewsAPI.IncidentContext(state, incident, system, market, target,
+                            new Random(incident.id == null ? 1L : incident.id.hashCode())));
+            if (created != null) incident.targetEntityId = created.getId();
+        } catch (Throwable ex) {
+            Global.getLogger(PTSDCrisisIncidentManager.class).warn(
+                    "Verified CUSTOM news creation failed: " + incident.customTargetHandlerExpression, ex);
+        }
+    }
+
+    private static void materializeDeferredPhysicalEffect(PTSDCrisisState state,
+                                                            PTSDCrisisState.CrisisIncident incident,
+                                                            float mult) {
+        if (!incident.deferredPhysicalEffect || incident.targetSystemId == null) return;
+        if (incident.deferredFireProbe) {
+            PTSDCrisisState.StrategicEvent event = state.addEvent(
+                    PTSDCrisisState.EventType.FIRE_PROBE, PTSDCrisisAPI.SIDE_OMEGA,
+                    IIRT_Omega_Invasion.WATCHER_FACTION, null, incident.targetSystemId,
+                    incident.targetMarketId, Math.max(9f, incident.deferredStrength * mult),
+                    4f + new Random(incident.id.hashCode()).nextFloat() * 5f);
+            event.description = incident.cardId + "：" + incident.trueText;
+            event.playerRelevant = incident.playerRelevant;
+            event.referenceId = incident.id;
+            incident.linkedEventId = event.id;
+        } else if (incident.deferredDebrisProjection) {
+            StarSystemAPI system = state.resolveSystem(incident.targetSystemId);
+            if (system != null) projectDebris(system, state.resolveMarket(incident.targetMarketId),
+                    incident.cardId, new Random(incident.id.hashCode()));
+        } else if (incident.deferredScoutAcceleration) {
+            state.nextScoutDay = Math.min(state.nextScoutDay, PTSDCrisisState.getDay() + .5f);
+        }
+    }
+
+    static void disproveIncident(PTSDCrisisState.CrisisIncident incident) {
+        if (incident == null) return;
+        if (incident.newsEffectLifecycleVersion >= 1) {
+            PTSDLocalPanicAPI.removeIncidentPanic(incident, "NEWS_DISPROVED");
+            incident.effectSummary = "已证伪：新闻造成的局部恐慌已撤销；未产生其他战略影响";
+        }
+        incident.deferredEffectsSettled = true;
     }
     private static String applyEffects(PTSDCrisisState state, Card card, String systemId, float mult) {
         if (state.phase == PTSDCrisisState.Phase.DORMANT) {

@@ -85,6 +85,23 @@ public final class PTSDLocalPanicAPI {
         return removed;
     }
 
+    /** Fully reverses this incident's still-recorded panic contribution after it is disproved. */
+    public static float removeIncidentPanic(PTSDCrisisState.CrisisIncident incident, String sourceId) {
+        PTSDCrisisState state = PTSDCrisisState.get();
+        if (state == null || incident == null || incident.panicByMarket == null) return 0f;
+        float removed = 0f;
+        for (Map.Entry<String, Float> entry : incident.panicByMarket.entrySet()) {
+            if (entry.getValue() == null || entry.getValue() <= 0f) continue;
+            MarketAPI market = state.resolveMarket(entry.getKey());
+            if (!isEligible(market)) continue;
+            float applied = addRaw(state, market, -entry.getValue(), sourceId);
+            removed += Math.max(0f, -applied);
+            entry.setValue(0f);
+        }
+        incident.panicMitigationRatio = 0f;
+        return removed;
+    }
+
     static void updateProximityAndDecay(PTSDCrisisState state, float day) {
         if (state == null) return;
         float days = state.lastLocalPanicUpdateDay <= 0f ? 0f :

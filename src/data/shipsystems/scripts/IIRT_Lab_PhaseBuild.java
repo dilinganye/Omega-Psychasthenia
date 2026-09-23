@@ -8,7 +8,7 @@ import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Stats;
 import com.fs.starfarer.api.impl.combat.BaseShipSystemScript;
 import com.fs.starfarer.api.util.IntervalUtil;
-import data.scripts.util.I18nUtil;
+import data.scripts.util.PTSD_I18nUtil;
 import data.scripts.util.IIRT_Omega_Color;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
@@ -53,7 +53,7 @@ public class IIRT_Lab_PhaseBuild extends BaseShipSystemScript {
 			if (inte.intervalElapsed()) {
 				SpriteAPI sp2 = Global.getSettings().getSprite("fx", "IIRT_Lab_Wave");
 				float dynamicSize = MathUtils.getRandomNumberInRange(30f, 90f);
-				MagicRender.battlespace(sp2, ship.getLocation(), I18nUtil.nv, new Vector2f(dynamicSize, dynamicSize), new Vector2f(1000f, 1000f), 360f, MathUtils.getRandomNumberInRange(-60f, 60f), IIRT_Omega_Color.IIRT_Omega_Lab, true, 0.25f, 0.01f, 2f);
+				MagicRender.battlespace(sp2, ship.getLocation(), PTSD_I18nUtil.nv, new Vector2f(dynamicSize, dynamicSize), new Vector2f(1000f, 1000f), 360f, MathUtils.getRandomNumberInRange(-60f, 60f), IIRT_Omega_Color.IIRT_Omega_Lab, true, 0.25f, 0.01f, 2f);
 				Global.getSoundPlayer().playSound("IIRT_Lab_Scan", 1f, 1f, ship.getLocation(), ship.getVelocity());
 			}
 		}

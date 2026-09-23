@@ -7,7 +7,7 @@ import com.fs.starfarer.api.combat.ShipwideAIFlags.AIFlags;
 import com.fs.starfarer.api.impl.combat.BaseShipSystemScript;
 import com.fs.starfarer.api.impl.combat.MineStrikeStatsAIInfoProvider;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
-import data.scripts.util.I18nUtil;
+import data.scripts.util.PTSD_I18nUtil;
 import org.lazywizard.lazylib.MathUtils;
 import org.lazywizard.lazylib.VectorUtils;
 import org.lwjgl.util.vector.Vector2f;
@@ -82,7 +82,7 @@ public class IIRT_ShipDeployStats_Hector extends BaseShipSystemScript implements
 		for (float angle = start; angle < start + 390; angle += 30f) {
 			if (angle != start) {
 				Vector2f loc = MathUtils.getPointOnCircumference(null, 50f + (float)Math.random() * 30f, angle);
-				currLoc = Vector2f.add(mineLoc, loc, I18nUtil.nv);
+				currLoc = Vector2f.add(mineLoc, loc, PTSD_I18nUtil.nv);
 			}
 
 			for (MissileAPI other : engine.getMissiles()) {
@@ -123,7 +123,7 @@ public class IIRT_ShipDeployStats_Hector extends BaseShipSystemScript implements
 				newShip2.setAlly(ally);
 				Global.getSoundPlayer().playSound("mine_teleport", 1f, 1f, newShip.getLocation(), newShip.getVelocity());
 				//生成扭曲
-				I18nUtil.easyRippleOut(newShip.getLocation(), newShip.getVelocity(), newShip.getCollisionRadius() * 4f, 100f, 1f, 20f);
+				PTSD_I18nUtil.easyRippleOut(newShip.getLocation(), newShip.getVelocity(), newShip.getCollisionRadius() * 4f, 100f, 1f, 20f);
 			} else {
 				ShipAPI newShip = manager.spawnShipOrWing("IIRT_Hector_Fighter_Ship", currLoc, (float)Math.random() * 360f, 1);
 				manager.setSuppressDeploymentMessages(orig);
@@ -136,7 +136,7 @@ public class IIRT_ShipDeployStats_Hector extends BaseShipSystemScript implements
 				newShip3.setAlly(ally);
 				Global.getSoundPlayer().playSound("mine_teleport", 1f, 1f, newShip.getLocation(), newShip.getVelocity());
 				//生成扭曲
-				I18nUtil.easyRippleOut(newShip.getLocation(), newShip.getVelocity(), newShip.getCollisionRadius() * 4f, 100f, 1f, 20f);
+				PTSD_I18nUtil.easyRippleOut(newShip.getLocation(), newShip.getVelocity(), newShip.getCollisionRadius() * 4f, 100f, 1f, 20f);
 			}
 			IsHector = false;
 
@@ -146,7 +146,7 @@ public class IIRT_ShipDeployStats_Hector extends BaseShipSystemScript implements
 			newShip.setAlly(ally);
 			Global.getSoundPlayer().playSound("mine_teleport", 1f, 1f, newShip.getLocation(), newShip.getVelocity());
 			//生成扭曲
-			I18nUtil.easyRippleOut(newShip.getLocation(), newShip.getVelocity(), newShip.getCollisionRadius() * 4f, 100f, 1f, 20f);
+			PTSD_I18nUtil.easyRippleOut(newShip.getLocation(), newShip.getVelocity(), newShip.getCollisionRadius() * 4f, 100f, 1f, 20f);
 		}
 	}
 

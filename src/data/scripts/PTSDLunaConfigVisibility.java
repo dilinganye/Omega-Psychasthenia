@@ -34,15 +34,16 @@ public final class PTSDLunaConfigVisibility {
     public static void sync() {
         if (!IIRT_Omega_ModPlugin.hasLunaLib || Global.getSettings() == null || syncing) return;
         boolean dev = Global.getSettings().isDevMode();
-        if (lastDevMode != null && lastDevMode.booleanValue() == dev) return;
         String modId = IIRT_Omega_ModPlugin.getModId();
         syncing = true;
         try {
-            if (dev) addDevSettings(modId);
-            else removeDevSettings(modId);
-            LunaSettings.SettingsCreator.refresh(modId);
-            IIRT_Omega_ModPlugin.reloadLunaSettingsAfterVisibilityChange();
-            lastDevMode = dev;
+            if (lastDevMode == null || lastDevMode.booleanValue() != dev) {
+                if (dev) addDevSettings(modId);
+                else removeSettings(modId, DEV_IDS);
+                LunaSettings.SettingsCreator.refresh(modId);
+                IIRT_Omega_ModPlugin.reloadLunaSettingsAfterVisibilityChange();
+                lastDevMode = dev;
+            }
         } catch (Throwable ex) {
             Global.getLogger(PTSDLunaConfigVisibility.class).warn(
                     "Unable to synchronize Psychasthenia DevMode Luna settings visibility", ex);
@@ -74,7 +75,7 @@ public final class PTSDLunaConfigVisibility {
         addInt(modId, "PTSD_front_turn_max_interval", "战线回合最长间隔", "双方战略部署的最长间隔。", 12, 2, 90, "战争");
         addInt(modId, "PTSD_max_guard_fleets", "最大卫戍事件数", "实控区可并行维护的卫戍部署。", 16, 0, 30, "战争");
         addInt(modId, "PTSD_final_invasion_max_strength", "单次入侵基础强度上限", "倍率、Flat 与事件严重度应用前的上限。", 200, 50, 5000, "战争");
-        if(1==2) {
+        if (false) {
             LunaSettings.SettingsCreator.addRadio(modId, "PTSD_DefStat_onNewGame", "新开局初始阶段",
                     "Sar=暗流；Cod=侦察；Inv=营建；Rep=要塞；FuA=战争；End=结束。",
                     "Sar", "Sar,Cod,Inv,Rep,FuA,End", "阶段开关");
@@ -96,7 +97,7 @@ public final class PTSDLunaConfigVisibility {
     }
 
     @SuppressWarnings("unchecked")
-    private static void removeDevSettings(String modId) throws Exception {
+    private static void removeSettings(String modId, Set<String> ids) throws Exception {
         Class<?> loader = Class.forName("lunalib.backend.ui.settings.LunaSettingsLoader");
         Method getter = loader.getMethod("getSettingsData");
         Object raw = getter.invoke(null);
@@ -108,7 +109,7 @@ public final class PTSDLunaConfigVisibility {
             Method getFieldId = data.getClass().getMethod("getFieldID");
             Object dataMod = getModId.invoke(data);
             Object field = getFieldId.invoke(data);
-            if (modId.equals(dataMod) && field instanceof String && DEV_IDS.contains(field)) iterator.remove();
+            if (modId.equals(dataMod) && field instanceof String && ids.contains(field)) iterator.remove();
         }
     }
 }

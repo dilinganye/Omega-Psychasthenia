@@ -199,14 +199,14 @@
             </Attribute>
           </value>
         </entry>
-        <entry key="\data\weapons\weapon_data.csv">
+        <entry key="\data\trails\trail_data.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
             </Attribute>
           </value>
         </entry>
-        <entry key="\docs\NEWS_EXTENSION_API.md">
+        <entry key="\data\weapons\weapon_data.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />

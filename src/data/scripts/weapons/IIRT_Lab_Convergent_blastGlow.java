@@ -3,8 +3,8 @@ package data.scripts.weapons;
 import com.fs.starfarer.api.combat.*;
 import com.fs.starfarer.api.combat.listeners.ApplyDamageResultAPI;
 import static com.fs.starfarer.api.util.Misc.ZERO;
-import data.scripts.util.I18nUtil;
-import static data.scripts.util.I18nUtil.nv;
+import data.scripts.util.PTSD_I18nUtil;
+import static data.scripts.util.PTSD_I18nUtil.nv;
 import data.scripts.util.IIRT_Omega_Color;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
@@ -38,14 +38,14 @@ public class IIRT_Lab_Convergent_blastGlow implements OnHitEffectPlugin {
 				float NewCR = Math.max(CR - 0.1f, 0f);
 				((ShipAPI)target).setCurrentCR(NewCR);
 				engine.spawnExplosion(point, nv, new Color(186, 202, 255, 200), 240f, 1.5f);
-				I18nUtil.easyRippleOut(point, I18nUtil.nv, 200f, 500f, 0.4f, 60);
+				PTSD_I18nUtil.easyRippleOut(point, PTSD_I18nUtil.nv, 200f, 500f, 0.4f, 60);
 				engine.addHitParticle(point, ZERO, 500f, 0.75f, 0.25f, IIRT_Omega_Color.IIRT_Omega_Partic_perple);
 				engine.addHitParticle(point, ZERO, 300f, 0.5f, 0.25f, IIRT_Omega_Color.IIRT_Omega_Lab_Weapon);
 			} else {
 				float NewCR = Math.max(CR - (0.1f) * Loss, 0f);
 				((ShipAPI)target).setCurrentCR(NewCR);
 				engine.spawnExplosion(point, nv, new Color(186, 202, 255, 200), 120f, 1.5f);
-				I18nUtil.easyRippleOut(point, I18nUtil.nv, 100f, 200f, 0.2f, 60);
+				PTSD_I18nUtil.easyRippleOut(point, PTSD_I18nUtil.nv, 100f, 200f, 0.2f, 60);
 				engine.addHitParticle(point, ZERO, 400f, 0.5f, 0.25f, IIRT_Omega_Color.IIRT_Omega_Lab_Weapon);
 			}
 		}

@@ -2,23 +2,14 @@ package data.shipsystems.scripts;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.*;
-import com.fs.starfarer.api.graphics.SpriteAPI;
-import com.fs.starfarer.api.impl.campaign.ids.Stats;
 import com.fs.starfarer.api.impl.combat.BaseShipSystemScript;
-import com.fs.starfarer.api.loading.DamagingExplosionSpec;
-import com.fs.starfarer.api.loading.FighterWingSpecAPI;
 import com.fs.starfarer.api.loading.WeaponSlotAPI;
-import com.fs.starfarer.api.plugins.ShipSystemStatsScript;
 import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
-import com.fs.starfarer.ui.W;
-import data.scripts.util.I18nUtil;
-import data.scripts.util.IIRT_Omega_Color;
+import data.scripts.util.PTSD_I18nUtil;
 import org.lazywizard.lazylib.MathUtils;
 import org.lazywizard.lazylib.VectorUtils;
-import org.lazywizard.lazylib.combat.AIUtils;
 import org.lwjgl.util.vector.Vector2f;
-import org.magiclib.util.MagicRender;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -176,7 +167,7 @@ public class IIRT_Omega_Watcher_FluxCap extends BaseShipSystemScript {
 				fluxState.disperseMode = true;
 			}
 
-			I18nUtil.easyRippleOut(ship.getLocation(), ship.getVelocity(),
+			PTSD_I18nUtil.easyRippleOut(ship.getLocation(), ship.getVelocity(),
 						ship.getCollisionRadius(),
 						90f,
 						ship.getCollisionRadius(),

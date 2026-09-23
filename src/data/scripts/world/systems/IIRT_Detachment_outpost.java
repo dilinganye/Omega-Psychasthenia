@@ -17,7 +17,7 @@ import com.fs.starfarer.api.impl.campaign.terrain.HyperspaceTerrainPlugin;
 import com.fs.starfarer.api.impl.campaign.world.TTBlackSite;
 import com.fs.starfarer.api.util.Misc;
 import static data.scripts.world.IIRT_Omega_ModGen.addMarketplace;
-import data.scripts.util.I18nUtil;
+import data.scripts.util.PTSD_I18nUtil;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -57,7 +57,7 @@ public class IIRT_Detachment_outpost {
 		//行星（势力、圆心、引用、类型；设置星球简介以及归属
 		PlanetAPI planet1 = system.addPlanet("IIRT_planet1", //行星ID
 				star, //恒星ID
-				I18nUtil.getStarSystemsString("IIRT_planet1_name"), //星球名字
+				PTSD_I18nUtil.getStarSystemsString("IIRT_planet1_name"), //星球名字
 				"frozen2", //类型
 				215, 180f, 4000f, 365f);
 		//行星环
@@ -112,7 +112,7 @@ public class IIRT_Detachment_outpost {
 		//行星（势力、圆心、引用、类型；设置星球简介以及归属
 		PlanetAPI planet2 = system.addPlanet("IIRT_planet2", //行星ID
 				star, //恒星ID
-				I18nUtil.getStarSystemsString("IIRT_planet2_name"), //星球名字
+				PTSD_I18nUtil.getStarSystemsString("IIRT_planet2_name"), //星球名字
 				"cryovolcanic", //类型
 				35, 190f, 4800f, 365f);
 		//行星环
@@ -160,7 +160,7 @@ public class IIRT_Detachment_outpost {
 		//行星（势力、圆心、引用、类型；设置星球简介以及归属
 		PlanetAPI planet3 = system.addPlanet("IIRT_planet3", //行星ID
 				star, //恒星ID
-				I18nUtil.getStarSystemsString("IIRT_planet3_name"), //星球名字
+				PTSD_I18nUtil.getStarSystemsString("IIRT_planet3_name"), //星球名字
 				"barren-bombarded", //类型
 				70, 120f, 2400f, 370f);
 		//行星环
@@ -209,7 +209,7 @@ public class IIRT_Detachment_outpost {
 		//行星（势力、圆心、引用、类型；设置星球简介以及归属
 		PlanetAPI planet5 = system.addPlanet("IIRT_planet5", //行星ID
 				planet3, //恒星ID
-				I18nUtil.getStarSystemsString("IIRT_planet5_name"), //星球名字
+				PTSD_I18nUtil.getStarSystemsString("IIRT_planet5_name"), //星球名字
 				"rocky_ice", 40, 85f, 800f, 320f);
 		//行星环
 		system.addAsteroidBelt(planet3, 150, 800f, 85f, 180, 360, Terrain.RING, "");
@@ -227,7 +227,7 @@ public class IIRT_Detachment_outpost {
          */
 		PlanetAPI planet6 = system.addPlanet("IIRT_planet6", //行星ID
 				planet3, //恒星ID
-				I18nUtil.getStarSystemsString("IIRT_planet6_name"), //星球名字
+				PTSD_I18nUtil.getStarSystemsString("IIRT_planet6_name"), //星球名字
 				"cryovolcanic", 120, 90f, 1100f, 320f);
 		//行星环
 		system.addAsteroidBelt(planet3, 150, 1100f, 90f, 180, 360, Terrain.RING, "");
@@ -240,7 +240,7 @@ public class IIRT_Detachment_outpost {
           七号行星————————————————————————————————————————————————————————————————————————
           @return Description Post
          */
-		PlanetAPI planet7 = system.addPlanet("planet7", star, I18nUtil.getStarSystemsString("IIRT_planet7_name"), "ice_giant", 230, 320, 7000, 300);
+		PlanetAPI planet7 = system.addPlanet("planet7", star, PTSD_I18nUtil.getStarSystemsString("IIRT_planet7_name"), "ice_giant", 230, 320, 7000, 300);
 		//行星环
 		system.addAsteroidBelt(star, 150, 7000f, 320f, 180, 360, Terrain.RING, "");
 		system.addAsteroidBelt(planet7, 150, 800f, 100f, 180, 360, Terrain.RING, "");

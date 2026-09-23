@@ -6,7 +6,7 @@ import com.fs.starfarer.api.impl.combat.BaseShipSystemScript;
 import com.fs.starfarer.api.impl.combat.RiftCascadeMineExplosion;
 import com.fs.starfarer.api.loading.WeaponSlotAPI;
 import com.fs.starfarer.api.util.IntervalUtil;
-import data.scripts.util.I18nUtil;
+import data.scripts.util.PTSD_I18nUtil;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -128,7 +128,7 @@ public class IIRT_Omega_PupalSwarm extends BaseShipSystemScript {
 						ship.fadeToColor(KEY_SHIP, new Color(238, 18, 18, 255), 0.1f, 0.1f, 0.5f);
 						ship.setJitterUnder(KEY_SHIP, new Color(99, 18, 238, 255), 0.5f, 15, 0f, 15f);
 
-						I18nUtil.easyRippleOut(ploc, new Vector2f(0, 0),
+						PTSD_I18nUtil.easyRippleOut(ploc, new Vector2f(0, 0),
 								80f,
 								90f,
 								90f,
@@ -161,7 +161,7 @@ public class IIRT_Omega_PupalSwarm extends BaseShipSystemScript {
 						Vector2f ploc = points.get(i);
 						int Choose = MathUtils.getRandomNumberInRange(1, 4);
 
-						I18nUtil.easyRippleOut(ploc, new Vector2f(0, 0),
+						PTSD_I18nUtil.easyRippleOut(ploc, new Vector2f(0, 0),
 								80f,
 								90f,
 								90f,

@@ -7,7 +7,7 @@ import com.fs.starfarer.api.combat.ShipwideAIFlags.AIFlags;
 import com.fs.starfarer.api.impl.combat.BaseShipSystemScript;
 import com.fs.starfarer.api.impl.combat.MineStrikeStatsAIInfoProvider;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
-import data.scripts.util.I18nUtil;
+import data.scripts.util.PTSD_I18nUtil;
 import org.lazywizard.lazylib.MathUtils;
 import org.lazywizard.lazylib.VectorUtils;
 import org.lwjgl.util.vector.Vector2f;
@@ -137,7 +137,7 @@ public class IIRT_ShipDeployStats extends BaseShipSystemScript implements MineSt
 		for (float angle = start; angle < start + 390; angle += 30f) {
 			if (angle != start) {
 				Vector2f loc = MathUtils.getPointOnCircumference(null, 50f + (float)Math.random() * 30f, angle);
-				currLoc = Vector2f.add(mineLoc, loc, I18nUtil.nv);
+				currLoc = Vector2f.add(mineLoc, loc, PTSD_I18nUtil.nv);
 			}
 
 			for (MissileAPI other : engine.getMissiles()) {
@@ -179,7 +179,7 @@ public class IIRT_ShipDeployStats extends BaseShipSystemScript implements MineSt
 			newShip.setAlly(ally);
 			Global.getSoundPlayer().playSound("mine_teleport", 1f, 1f, newShip.getLocation(), newShip.getVelocity());
 			//生成扭曲
-			I18nUtil.easyRippleOut(newShip.getLocation(), newShip.getVelocity(), newShip.getCollisionRadius() * 4f, 100f, 1f, 20f);
+			PTSD_I18nUtil.easyRippleOut(newShip.getLocation(), newShip.getVelocity(), newShip.getCollisionRadius() * 4f, 100f, 1f, 20f);
 			IsWanderer = false;
 
 		}
@@ -189,7 +189,7 @@ public class IIRT_ShipDeployStats extends BaseShipSystemScript implements MineSt
 			newShip.setAlly(ally);
 			Global.getSoundPlayer().playSound("mine_teleport", 1f, 1f, newShip.getLocation(), newShip.getVelocity());
 			//生成扭曲
-			I18nUtil.easyRippleOut(newShip.getLocation(), newShip.getVelocity(), newShip.getCollisionRadius() * 4f, 100f, 1f, 20f);
+			PTSD_I18nUtil.easyRippleOut(newShip.getLocation(), newShip.getVelocity(), newShip.getCollisionRadius() * 4f, 100f, 1f, 20f);
 			IsFokusi = false;
 
 		}
@@ -207,7 +207,7 @@ public class IIRT_ShipDeployStats extends BaseShipSystemScript implements MineSt
 					newShip6.setAlly(ally);
 					Global.getSoundPlayer().playSound("mine_teleport", 1f, 1f, newShip.getLocation(), newShip.getVelocity());
 					//生成扭曲
-					I18nUtil.easyRippleOut(newShip.getLocation(), newShip.getVelocity(), newShip.getCollisionRadius() * 4f, 100f, 1f, 20f);
+					PTSD_I18nUtil.easyRippleOut(newShip.getLocation(), newShip.getVelocity(), newShip.getCollisionRadius() * 4f, 100f, 1f, 20f);
 					IsNum2 = false;
 					IsGazeElse = false;
 				} else {
@@ -237,7 +237,7 @@ public class IIRT_ShipDeployStats extends BaseShipSystemScript implements MineSt
 				//newShip6.setAlly(ally);
 				Global.getSoundPlayer().playSound("mine_teleport", 1f, 1f, newShip.getLocation(), newShip.getVelocity());
 				//生成扭曲
-				I18nUtil.easyRippleOut(newShip.getLocation(), newShip.getVelocity(), newShip.getCollisionRadius() * 4f, 100f, 1f, 20f);
+				PTSD_I18nUtil.easyRippleOut(newShip.getLocation(), newShip.getVelocity(), newShip.getCollisionRadius() * 4f, 100f, 1f, 20f);
 				IsNum2 = false;
 				IsGazeElse = false;
 			} else {
@@ -255,7 +255,7 @@ public class IIRT_ShipDeployStats extends BaseShipSystemScript implements MineSt
 				//newShip6.setAlly(ally);
 				Global.getSoundPlayer().playSound("mine_teleport", 1f, 1f, newShip4.getLocation(), newShip4.getVelocity());
 				//生成扭曲
-				I18nUtil.easyRippleOut(newShip4.getLocation(), newShip4.getVelocity(), newShip4.getCollisionRadius() * 4f, 100f, 1f, 20f);
+				PTSD_I18nUtil.easyRippleOut(newShip4.getLocation(), newShip4.getVelocity(), newShip4.getCollisionRadius() * 4f, 100f, 1f, 20f);
 			}
 			//ShipAPI newShip10 = manager.spawnShipOrWing("IIRT_Wanderer_variant", currLoc, (float) Math.random() * 360f,1);
 			//manager.setSuppressDeploymentMessages(orig);
@@ -277,7 +277,7 @@ public class IIRT_ShipDeployStats extends BaseShipSystemScript implements MineSt
 				newShip6.setAlly(ally);
 				Global.getSoundPlayer().playSound("mine_teleport", 1f, 1f, newShip.getLocation(), newShip.getVelocity());
 				//生成扭曲
-				I18nUtil.easyRippleOut(newShip.getLocation(), newShip.getVelocity(), newShip.getCollisionRadius() * 4f, 100f, 1f, 20f);
+				PTSD_I18nUtil.easyRippleOut(newShip.getLocation(), newShip.getVelocity(), newShip.getCollisionRadius() * 4f, 100f, 1f, 20f);
 				IsNum2 = false;
 			}
 			if (IsDownLightElse) {
@@ -299,7 +299,7 @@ public class IIRT_ShipDeployStats extends BaseShipSystemScript implements MineSt
 				//newShip3.setAlly(ally);
 				Global.getSoundPlayer().playSound("mine_teleport", 1f, 1f, newShip4.getLocation(), newShip4.getVelocity());
 				//生成扭曲
-				I18nUtil.easyRippleOut(newShip4.getLocation(), newShip4.getVelocity(), newShip4.getCollisionRadius() * 4f, 100f, 1f, 20f);
+				PTSD_I18nUtil.easyRippleOut(newShip4.getLocation(), newShip4.getVelocity(), newShip4.getCollisionRadius() * 4f, 100f, 1f, 20f);
 			}
 			IsDownLight = false;
 
@@ -310,7 +310,7 @@ public class IIRT_ShipDeployStats extends BaseShipSystemScript implements MineSt
 			newShip.setAlly(ally);
 			Global.getSoundPlayer().playSound("mine_teleport", 1f, 1f, newShip.getLocation(), newShip.getVelocity());
 			//生成扭曲
-			I18nUtil.easyRippleOut(newShip.getLocation(), newShip.getVelocity(), newShip.getCollisionRadius() * 4f, 100f, 1f, 20f);
+			PTSD_I18nUtil.easyRippleOut(newShip.getLocation(), newShip.getVelocity(), newShip.getCollisionRadius() * 4f, 100f, 1f, 20f);
 			IsExhort = false;
 
 		}
@@ -320,7 +320,7 @@ public class IIRT_ShipDeployStats extends BaseShipSystemScript implements MineSt
 			newShip.setAlly(ally);
 			Global.getSoundPlayer().playSound("mine_teleport", 1f, 1f, newShip.getLocation(), newShip.getVelocity());
 			//生成扭曲
-			I18nUtil.easyRippleOut(newShip.getLocation(), newShip.getVelocity(), newShip.getCollisionRadius() * 4f, 100f, 1f, 20f);
+			PTSD_I18nUtil.easyRippleOut(newShip.getLocation(), newShip.getVelocity(), newShip.getCollisionRadius() * 4f, 100f, 1f, 20f);
 			IsSkewly = false;
 
 		}
@@ -331,7 +331,7 @@ public class IIRT_ShipDeployStats extends BaseShipSystemScript implements MineSt
 				newShip.setAlly(ally);
 				Global.getSoundPlayer().playSound("mine_teleport", 1f, 1f, newShip.getLocation(), newShip.getVelocity());
 				//生成扭曲
-				I18nUtil.easyRippleOut(newShip.getLocation(), newShip.getVelocity(), newShip.getCollisionRadius() * 4f, 100f, 1f, 20f);
+				PTSD_I18nUtil.easyRippleOut(newShip.getLocation(), newShip.getVelocity(), newShip.getCollisionRadius() * 4f, 100f, 1f, 20f);
 				IsNum2 = false;
 			} else {
 				ShipAPI newShip = manager.spawnShipOrWing("IIRT_Hector_Fighter_Ship", currLoc, (float)Math.random() * 360f);
@@ -339,7 +339,7 @@ public class IIRT_ShipDeployStats extends BaseShipSystemScript implements MineSt
 				newShip.setAlly(ally);
 				Global.getSoundPlayer().playSound("mine_teleport", 1f, 1f, newShip.getLocation(), newShip.getVelocity());
 				//生成扭曲
-				I18nUtil.easyRippleOut(newShip.getLocation(), newShip.getVelocity(), newShip.getCollisionRadius() * 4f, 100f, 1f, 20f);
+				PTSD_I18nUtil.easyRippleOut(newShip.getLocation(), newShip.getVelocity(), newShip.getCollisionRadius() * 4f, 100f, 1f, 20f);
 			}
 			ShipAPI newShip6 = manager.spawnShipOrWing("IIRT_Hector_Fighter_Ship", currLoc, (float)Math.random() * 360f);
 			manager.setSuppressDeploymentMessages(orig);
@@ -354,7 +354,7 @@ public class IIRT_ShipDeployStats extends BaseShipSystemScript implements MineSt
 			newShip.setAlly(ally);
 			Global.getSoundPlayer().playSound("mine_teleport", 1f, 1f, newShip.getLocation(), newShip.getVelocity());
 			//生成扭曲
-			I18nUtil.easyRippleOut(newShip.getLocation(), newShip.getVelocity(), newShip.getCollisionRadius() * 4f, 100f, 1f, 20f);
+			PTSD_I18nUtil.easyRippleOut(newShip.getLocation(), newShip.getVelocity(), newShip.getCollisionRadius() * 4f, 100f, 1f, 20f);
 			IsWanderer_Follow = false;
 		}
 		if (IsBudge) {   //BD攻击大队
@@ -363,7 +363,7 @@ public class IIRT_ShipDeployStats extends BaseShipSystemScript implements MineSt
 			newShip.setAlly(ally);
 			Global.getSoundPlayer().playSound("mine_teleport", 1f, 1f, newShip.getLocation(), newShip.getVelocity());
 			//生成扭曲
-			I18nUtil.easyRippleOut(newShip.getLocation(), newShip.getVelocity(), newShip.getCollisionRadius() * 4f, 100f, 1f, 20f);
+			PTSD_I18nUtil.easyRippleOut(newShip.getLocation(), newShip.getVelocity(), newShip.getCollisionRadius() * 4f, 100f, 1f, 20f);
 			IsBudge = false;
 		} else {   //风筝,你看到这个被扔出去那就绝对是出了很严重的bug
 			/**ShipAPI newShip = manager.spawnShipOrWing("IIRT_Aeroshuttle_Only", currLoc, (float) Math.random() * 120f);
@@ -371,7 +371,7 @@ public class IIRT_ShipDeployStats extends BaseShipSystemScript implements MineSt
 			 manager.setSuppressDeploymentMessages(orig);
 			 Global.getSoundPlayer().playSound("mine_teleport", 1f, 1f, newShip.getLocation(), newShip.getVelocity());
 			 //生成扭曲
-			 I18nUtil.easyRippleOut(newShip.getLocation(), newShip.getVelocity(), newShip.getCollisionRadius() * 4f, 120f, 1.3f, 20f);**/
+			 PTSD_I18nUtil.easyRippleOut(newShip.getLocation(), newShip.getVelocity(), newShip.getCollisionRadius() * 4f, 120f, 1.3f, 20f);**/
 			IsBudge = false;
 		}
 	}

@@ -52,6 +52,7 @@ public final class PTSDNewsSiteManager {
         CampaignFleetAPI player = Global.getSector().getPlayerFleet();
         for (PTSDCrisisState.CrisisIncident incident : state.incidents) {
             if (incident == null || !incident.recordedByPlayer || incident.investigationOutcome != 1) continue;
+            PTSDCrisisIncidentManager.activateVerifiedCustomTarget(state, incident);
             if (!incident.siteMaterialized && !incident.investigationResolved && player != null &&
                     player.getStarSystem() != null && incident.targetSystemId != null &&
                     incident.targetSystemId.equals(player.getStarSystem().getId())) {
@@ -70,6 +71,7 @@ public final class PTSDNewsSiteManager {
     public static boolean materialize(PTSDCrisisState state, PTSDCrisisState.CrisisIncident incident,
                                       Random random, boolean forceMartial, boolean devForced) {
         if (state == null || incident == null || incident.siteMaterialized) return false;
+        if (!devForced && incident.investigationOutcome != 1) return false;
         StarSystemAPI system = state.resolveSystem(incident.targetSystemId);
         if (system == null) return false;
         SectorEntityToken oldTarget = PTSDCrisisAPI.resolveIncidentTarget(incident);
@@ -119,7 +121,9 @@ public final class PTSDNewsSiteManager {
             for (int i=0;i<count;i++) addEntity(system, choice==4?"空救生舱":"航迹记录节点", Entities.GENERIC_PROBE, nearby(point,rng,320f,1500f),ids);
         } else if (BATTLE.equals(family)) {
             anchor = addDebris(system, title, point, rng, ids, 30f);
-            for (int i=0;i<3+rng.nextInt(4);i++) addWreck(system, nearby(point,rng,350f,1800f), Factions.INDEPENDENT, rng, ids, 45f);
+            for (int i=0;i<1+rng.nextInt(2);i++) addWreck(system, nearby(point,rng,350f,1800f), Factions.INDEPENDENT, rng, ids, 45f);
+            for (int i=0;i<3+rng.nextInt(3);i++) addDebris(system,"正在散逸的交战残骸区",
+                    nearby(point,rng,280f,2100f),rng,ids,30f+rng.nextFloat()*20f);
         } else if (CREW.equals(family)) {
             anchor = addWreck(system, point, Factions.INDEPENDENT, rng, ids, 30f);
             if (anchor != null) anchor.setName(title);
@@ -146,6 +150,7 @@ public final class PTSDNewsSiteManager {
 
     public static void confirm(PTSDCrisisState state, PTSDCrisisState.CrisisIncident incident) {
         if (state == null || incident == null) return;
+        PTSDCrisisIncidentManager.confirmTrueEffects(state, incident);
         incident.investigationResolved = true; incident.investigationReal = true; incident.siteConfirmed = true;
         incident.siteCleanupDay = PTSDCrisisState.getDay() + 1f + new Random(incident.id.hashCode()).nextFloat() * 4f;
         if (incident.siteHandlerExpression != null && !incident.siteHandlerExpression.isEmpty()) {
@@ -157,6 +162,7 @@ public final class PTSDNewsSiteManager {
 
     public static void resolveRemotely(PTSDCrisisState state, PTSDCrisisState.CrisisIncident incident) {
         if (state == null || incident == null) return;
+        PTSDCrisisIncidentManager.confirmTrueEffects(state, incident);
         if (incident.siteTemplate == null || incident.siteTemplate.isEmpty()) incident.siteTemplate = DISTORTION;
         String family=pickFamily(incident.siteTemplate, incident.id); String[] choices=SCENES[familyIndex(family)];
         incident.siteTitle=choices[(incident.id.hashCode()&0x7fffffff)%choices.length];
@@ -185,8 +191,10 @@ public final class PTSDNewsSiteManager {
     }
 
     private static void spawnMartialScene(PTSDCrisisState.CrisisIncident incident, StarSystemAPI system, SectorEntityToken anchor, Random rng){
-        int wrecks=2+rng.nextInt(5);String faction=nearbyFaction(system);
+        int wrecks=1+rng.nextInt(2);String faction=nearbyFaction(system);
         for(int i=0;i<wrecks;i++)addWreck(system,nearby(anchor.getLocation(),rng,450f,2200f),faction,rng,incident.siteEntityIds,45f+rng.nextFloat()*20f);
+        for(int i=0;i<3+rng.nextInt(4);i++)addDebris(system,"被反复扫描的临时残骸区",
+                nearby(anchor.getLocation(),rng,380f,2600f),rng,incident.siteEntityIds,45f+rng.nextFloat()*20f);
         float fp=12f+rng.nextFloat()*28f;
         FleetParamsV3 params=new FleetParamsV3(anchor.getLocation(),IIRT_Omega_Invasion.WATCHER_FACTION,.25f,FleetTypes.MERC_SCOUT,fp,0f,0f,0f,0f,0f,0f);
         params.maxNumShips=2+rng.nextInt(4);

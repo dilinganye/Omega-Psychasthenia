@@ -22,7 +22,7 @@ import com.fs.starfarer.api.impl.campaign.terrain.MagneticFieldTerrainPlugin;
 import com.fs.starfarer.api.impl.campaign.world.TTBlackSite;
 import com.fs.starfarer.api.util.Misc;
 import static data.scripts.world.IIRT_Omega_ModGen.addMarketplace;
-import data.scripts.util.I18nUtil;
+import data.scripts.util.PTSD_I18nUtil;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -89,7 +89,7 @@ public class KRM_Aleph_Post {
 		//行星（势力、圆心、引用、类型；设置星球简介以及归属
 		PlanetAPI planet1 = system.addPlanet("KRM_planet1", //行星ID
 				star, //恒星ID
-				I18nUtil.getStarSystemsString("KRM_planet1_name"), //星球名字
+				PTSD_I18nUtil.getStarSystemsString("KRM_planet1_name"), //星球名字
 				"cryovolcanic", //类型
 				215, 680f, 3200f, 365f);
 		//行星环
@@ -119,7 +119,7 @@ public class KRM_Aleph_Post {
 		//行星（势力、圆心、引用、类型；设置星球简介以及归属
 		PlanetAPI planet2 = system.addPlanet("KRM_planet2", //行星ID
 				star, //恒星ID
-				I18nUtil.getStarSystemsString("KRM_planet2_name"), //星球名字
+				PTSD_I18nUtil.getStarSystemsString("KRM_planet2_name"), //星球名字
 				"rocky_ice", //类型
 				35, 250f, 4800f, 365f);
 		//行星环
@@ -163,7 +163,7 @@ public class KRM_Aleph_Post {
 		//行星（势力、圆心、引用、类型；设置星球简介以及归属
 		PlanetAPI planet4 = system.addPlanet("KRM_planet4", //行星ID
 				star, //恒星ID
-				I18nUtil.getStarSystemsString("KRM_planet4_name"), //星球名字
+				PTSD_I18nUtil.getStarSystemsString("KRM_planet4_name"), //星球名字
 				"toxic_cold", 5, 140f, 2730f, 370f);
 		//行星环
 		system.addAsteroidBelt(star, 150, 2730f, 140f, 180, 360, Terrain.RING, "");
@@ -192,7 +192,7 @@ public class KRM_Aleph_Post {
 		//行星（势力、圆心、引用、类型；设置星球简介以及归属
 		PlanetAPI planet3 = system.addPlanet("KRM_planet3", //行星ID
 				planet4, //恒星ID
-				I18nUtil.getStarSystemsString("KRM_planet3_name"), //星球名字
+				PTSD_I18nUtil.getStarSystemsString("KRM_planet3_name"), //星球名字
 				"frozen2", //类型
 				70, 70f, 800f, 370f);
 		//行星环
@@ -238,7 +238,7 @@ public class KRM_Aleph_Post {
 		//行星（势力、圆心、引用、类型；设置星球简介以及归属
 		PlanetAPI planet5 = system.addPlanet("KRM_planet5", //行星ID
 				planet4, //恒星ID
-				I18nUtil.getStarSystemsString("KRM_planet5_name"), //星球名字
+				PTSD_I18nUtil.getStarSystemsString("KRM_planet5_name"), //星球名字
 				"ice_giant", 40, 1250f, 5000f, 320f);
 		//行星环
 		system.addAsteroidBelt(planet4, 150, 5000f, 8600f, 180, 360, Terrain.RING, "");

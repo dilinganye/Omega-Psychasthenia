@@ -3,7 +3,7 @@ package data.scripts.weapons;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.*;
 import com.fs.starfarer.api.combat.listeners.ApplyDamageResultAPI;
-import data.scripts.util.I18nUtil;
+import data.scripts.util.PTSD_I18nUtil;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
 import org.magiclib.util.MagicLensFlare;
@@ -35,7 +35,7 @@ public class IIRT_Omega_ThermosiphonOnHitEffect implements OnHitEffectPlugin {
 			engine.spawnEmpArcVisual(projectile.getWeapon().getLocation(), source, point, target, decrease / 8f, new Color(195, 229, 253, 175), Color.WHITE);
 		}
 
-		I18nUtil.easyRippleOut(point, I18nUtil.nv, 80f, 100f, 0.1f, 60);
+		PTSD_I18nUtil.easyRippleOut(point, PTSD_I18nUtil.nv, 80f, 100f, 0.1f, 60);
 		MagicLensFlare.createSharpFlare(engine, projectile.getSource(), projectile.getLocation(), 10, 700, 0, new Color(195, 229, 253), new Color(186, 192, 255));
 
 		float size = MathUtils.getRandomNumberInRange(8, 16);

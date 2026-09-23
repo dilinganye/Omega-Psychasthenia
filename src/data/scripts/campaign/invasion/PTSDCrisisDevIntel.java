@@ -15,6 +15,7 @@ import com.fs.starfarer.api.ui.IntelUIAPI;
 import com.fs.starfarer.api.ui.SectorMapAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import data.scripts.IIRT_Omega_ModPlugin;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.Color;
@@ -74,7 +75,9 @@ public final class PTSDCrisisDevIntel extends BaseIntelPlugin {
 
     public static void sync() {
         if (Global.getSector() == null || Global.getSettings() == null) return;
-        if (Global.getSettings().isDevMode()) {
+        boolean devMode = Global.getSettings().isDevMode();
+        boolean panelsEnabled = devMode && !IIRT_Omega_ModPlugin.OMEGA_PTSD_is_Alpha;
+        if (panelsEnabled) {
             ensureIntel();
             PTSDCrisisDevControlIntel.ensureIntel();
             PTSDCrisisState state = PTSDCrisisState.get();
@@ -88,14 +91,17 @@ public final class PTSDCrisisDevIntel extends BaseIntelPlugin {
                 Global.getSector().getIntelManager().getIntel(PTSDCrisisDevIntel.class))) {
             Global.getSector().getIntelManager().removeIntel(intel);
         }
-        PTSDCrisisIntel.removeDevPreview();
-        PTSDWarIntel.removeDevPreview();
-        PTSDCrisisWeightIntel.removeWhenNotDev();
-        PTSDCrisisDevControlIntel.removeWhenNotDev();
+        PTSDCrisisDevControlIntel.removeWhenUnavailable();
+        if (!devMode) {
+            PTSDCrisisIntel.removeDevPreview();
+            PTSDWarIntel.removeDevPreview();
+            PTSDCrisisWeightIntel.removeWhenNotDev();
+        }
     }
 
     public static PTSDCrisisDevIntel ensureIntel() {
-        if (Global.getSector() == null || !Global.getSettings().isDevMode()) return null;
+        if (Global.getSector() == null || !Global.getSettings().isDevMode() ||
+                IIRT_Omega_ModPlugin.OMEGA_PTSD_is_Alpha) return null;
         Object existing = Global.getSector().getIntelManager().getFirstIntel(PTSDCrisisDevIntel.class);
         if (existing instanceof PTSDCrisisDevIntel) return (PTSDCrisisDevIntel) existing;
         PTSDCrisisDevIntel intel = new PTSDCrisisDevIntel();
@@ -104,7 +110,8 @@ public final class PTSDCrisisDevIntel extends BaseIntelPlugin {
     }
 
     public static void report(String kind, String description, String systemId, String entityId) {
-        if (Global.getSector() == null || !Global.getSettings().isDevMode()) return;
+        if (Global.getSector() == null || !Global.getSettings().isDevMode() ||
+                IIRT_Omega_ModPlugin.OMEGA_PTSD_is_Alpha) return;
         PTSDCrisisDevIntel intel = ensureIntel();
         if (intel == null) return;
         DevRecord record = new DevRecord();

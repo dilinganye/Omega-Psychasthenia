@@ -14,6 +14,7 @@ import com.fs.starfarer.api.ui.IntelUIAPI;
 import com.fs.starfarer.api.ui.SectorMapAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import data.scripts.IIRT_Omega_ModPlugin;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -52,7 +53,8 @@ public final class PTSDCrisisDevControlIntel extends BaseIntelPlugin {
     public static void unregisterAction(String id) { REGISTERED.remove(id); }
 
     public static PTSDCrisisDevControlIntel ensureIntel() {
-        if (Global.getSector()==null || !Global.getSettings().isDevMode()) return null;
+        if (Global.getSector()==null || !Global.getSettings().isDevMode() ||
+                IIRT_Omega_ModPlugin.OMEGA_PTSD_is_Alpha) return null;
         Object existing=Global.getSector().getIntelManager().getFirstIntel(PTSDCrisisDevControlIntel.class);
         if (existing instanceof PTSDCrisisDevControlIntel) return (PTSDCrisisDevControlIntel)existing;
         PTSDCrisisDevControlIntel intel=new PTSDCrisisDevControlIntel();
@@ -60,8 +62,9 @@ public final class PTSDCrisisDevControlIntel extends BaseIntelPlugin {
         Global.getSector().getIntelManager().addIntel(intel,true);
         return intel;
     }
-    public static void removeWhenNotDev() {
-        if (Global.getSector()==null || Global.getSettings().isDevMode()) return;
+    public static void removeWhenUnavailable() {
+        if (Global.getSector()==null) return;
+        if (Global.getSettings().isDevMode() && !IIRT_Omega_ModPlugin.OMEGA_PTSD_is_Alpha) return;
         for (IntelInfoPlugin item:new ArrayList<IntelInfoPlugin>(Global.getSector().getIntelManager().getIntel(PTSDCrisisDevControlIntel.class)))
             Global.getSector().getIntelManager().removeIntel(item);
     }
@@ -135,7 +138,7 @@ public final class PTSDCrisisDevControlIntel extends BaseIntelPlugin {
             sectionButton(i,w,b,d,"侦察每日事件：跨星系陷阱判定","按玩家当前自动导航目标埋设陷阱；目标必须是另一无人非隐藏星系。","EVENT:RECON_TRAP_ARM");
             sectionButton(i,w,b,d,"侦察每日事件：立即显现陷阱舰群","在玩家当前星系直接生成五支中立陷阱编队。","EVENT:RECON_TRAP_NOW");
             sectionButton(i,w,b,d,"侦察每日事件：不可接触观察单元","在玩家附近生成主动控制距离的介入灵质侦察舰。","EVENT:RECON_OBSERVER");
-            sectionButton(i,w,b,d,"侦察每日事件：航路残骸群","在当前行进方向生成6至12艘持续30日的非危机势力残骸。","EVENT:RECON_WRECKS");
+            sectionButton(i,w,b,d,"侦察每日事件：航路残骸群","生成1至2艘残舰与2至4片小型残骸区；70%概率附带介入灵质调查小队。","EVENT:RECON_WRECKS");
             sectionButton(i,w,b,d,"侦察每日事件：受击即撤追击舰队","生成特殊追击舰队；战斗受击后立即全体撤离。","EVENT:RECON_PURSUER");
             sectionButton(i,w,b,d,"新闻现场：通讯与传感器","将最新可调查新闻设为属实并投影通讯类现场。","EVENT:SITE_COMMUNICATION");
             sectionButton(i,w,b,d,"新闻现场：航路与导航","将最新可调查新闻设为属实并投影航路类现场。","EVENT:SITE_ROUTE");

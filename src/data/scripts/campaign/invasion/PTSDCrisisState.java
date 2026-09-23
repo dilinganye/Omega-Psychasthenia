@@ -251,6 +251,26 @@ public final class PTSDCrisisState implements Serializable {
         /** Exact per-market panic contribution caused by this news item. */
         public Map<String, Float> panicByMarket = new LinkedHashMap<String, Float>();
         public float panicMitigationRatio = 1f;
+        /**
+         * News-effect lifecycle v1: investigable reports apply only panic until verified. These
+         * persisted values make delayed resolution deterministic and hot-update safe.
+         */
+        public int newsEffectLifecycleVersion;
+        public boolean deferredEffectsSettled;
+        public float deferredRecon;
+        public float deferredAwareness;
+        public float deferredAggression;
+        public float deferredDistortion;
+        public float deferredWeightBias;
+        public float deferredStrength;
+        public boolean deferredHostileContact;
+        public boolean deferredPhysicalEffect;
+        public boolean deferredFireProbe;
+        public boolean deferredDebrisProjection;
+        public boolean deferredScoutAcceleration;
+        /** CUSTOM(target handler) creation is delayed until a falsifiable report rolls true. */
+        public String customTargetHandlerExpression = "";
+        public boolean customTargetCreationInvoked;
         /** CSV-driven true-site template(s), optional custom handler, and persisted physical scene. */
         public String siteTemplate = "";
         public String siteHandlerExpression = "";
@@ -398,6 +418,8 @@ public final class PTSDCrisisState implements Serializable {
     public boolean legacyTimelineMigrated;
     public boolean timelineMigrationReported;
     public boolean diplomacyLockedReported;
+    /** Last Alpha content-ceiling migration applied; absent old-save fields deserialize as 0. */
+    public int alphaContentGateRevision;
 
     /** Persistent anti-faction learning accumulated from lost Omega engagements. */
     public Map<String, Float> factionResistance = new LinkedHashMap<String, Float>();

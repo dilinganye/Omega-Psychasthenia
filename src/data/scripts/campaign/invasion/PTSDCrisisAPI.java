@@ -173,6 +173,9 @@ public final class PTSDCrisisAPI {
             incident.investigationOutcome = state != null && state.phase == PTSDCrisisState.Phase.DORMANT
                     ? (roll < .25f ? 1 : 2)
                     : (roll < .25f ? 1 : (roll < .95f ? 2 : 3));
+            if (incident.investigationOutcome == 1) {
+                PTSDCrisisIncidentManager.activateVerifiedCustomTarget(state, incident);
+            }
             PTSDCrisisIntel.ensureIntel();
             PTSDCrisisDevIntel.report("新闻线索记录", "调查结果池 " + incident.investigationOutcome,
                     incident.targetSystemId, null);

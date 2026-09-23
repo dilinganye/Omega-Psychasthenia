@@ -10,13 +10,13 @@ import org.dark.shaders.distortion.DistortionShader;
 import org.dark.shaders.distortion.RippleDistortion;
 import org.lwjgl.util.vector.Vector2f;
 
-public class I18nUtil {
+public class PTSD_I18nUtil {
 
 	private static final String CATE_SHIP_SYSTEM = "shipSystem";
 	private static final String CATE_STAR_SYSTEMS = "starSystems";
 	private static final String CATE_HULL_MOD = "hullMod";
 
-	public I18nUtil() {
+	public PTSD_I18nUtil() {
 	}
 
 	public static String getString(String category, String id) {

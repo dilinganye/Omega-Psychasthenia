@@ -25,8 +25,8 @@ public class MissionDefinition implements MissionDefinitionPlugin {
 		api.setFleetTagline(FleetSide.PLAYER, "Clotilde Volf 的相位走私队");
 		api.setFleetTagline(FleetSide.ENEMY, "未知舰体群");
 
-		api.addBriefingItem("提示：敌人为=热寂死界=系列，其非常善于近身搏斗");
-		api.addBriefingItem("速战速决或是引走敌人，至少需要 25% 的走私舰船撤离战场");
+		api.addBriefingItem("提前提示：敌人为=热寂死界=，使用厄运速战速决，或是引走敌人");
+		api.addBriefingItem("你至少需要保证至少 25% 的走私舰船撤离战场");
 
 		// Set up the player's fleet.
 		api.addToFleet(FleetSide.PLAYER, "doom_Strike", FleetMemberType.SHIP, "Edward", true);

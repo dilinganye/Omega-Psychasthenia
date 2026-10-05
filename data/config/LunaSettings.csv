@@ -6,5 +6,12 @@ PTSD_omega_invasion_enabled,潘多拉魔盒,Boolean,true,,允许精神创伤危�
 PTSD_unknown_event_frequency,未知事件频率,Double,1.0,,控制暗流、侦察、火力试探及后续通用事件的总体抽取频率；数值越高，事件间隔越短。,0.1,5.0,未知事件
 PTSD_unknown_event_min_interval,未知事件触发下限（天）,Int,3,,两次未知事件之间随机间隔的最短值。,1,120,未知事件
 PTSD_unknown_event_max_interval,未知事件触发上限（天）,Int,7,,两次未知事件之间随机间隔的最长值；实际间隔还会受频率修正。,1,240,未知事件
-PTSD_unknown_event_strength_flat,未知事件强度增值,Double,0.0,,额外加入所有第四窥视与精神创伤实体舰队自动分的 Flat 数值；动态进度加成仍会另行计算。,0.0,200.0,未知事件
-PTSD_unknown_event_strength_multiplier,未知事件强度倍率,Double,1.0,,作用于所有第四窥视与精神创伤实体舰队基础自动分的全局倍率。,0.5,10.0,未知事件
+PTSD_unknown_event_strength_flat,未知事件强度增值,Double,0.0,,加入实体舰队自动分；提高此项也会按提高幅度放宽战略事件的阶段自动分上限。侦察每日埋伏仍至多三艘驱逐级舰船。,0.0,200.0,未知事件
+PTSD_unknown_event_strength_multiplier,未知事件强度倍率,Double,1.0,,作用于实体舰队基础自动分；高于1时也会放宽战略事件阶段上限。默认RECON为合计150／单队65；WAR由325／120在240日升至600／400。,0.5,10.0,未知事件
+PTSD_omega_officer_level_bonus,欧米伽军官等级加成,Int,6,,欧米伽军官基础2级加此值；侦察阶段默认8级且上下浮动2级。营建起每进入下一阶段再加1级；只影响此后生成的军官。,0,12,未知事件
+PTSDLatePublicHeader,后期危机节奏,Header,危机战略设置,,,,,后期危机
+PTSD_late_construction_speed,要塞建设速度,Double,1.0,,影响之后每艘运输舰到站带来的工程进度；已有进度不追溯。,0.5,2.0,后期危机
+PTSD_late_production_multiplier,战争准备点产出倍率,Double,1.0,,下一次生产结算生效；不重算既有储备。,0.5,2.0,后期危机
+PTSD_late_offensive_tempo,战区攻势频率,Double,1.0,,影响随后安排的进攻与轨道打击间隔；每次部署仍需实际预算。,0.5,2.0,后期危机
+PTSD_late_player_response,针对玩家的应对频率,Double,1.0,,改变后续伏击冷却；敌方仍需取得玩家行动证据并支付兵力。,0.5,2.0,后期危机
+PTSD_late_alert_density,首波告警显示密度,Double,1.0,,只改变告警显示的批量和速度；全部记录仍可在战区情报回看。,0.5,2.0,后期危机

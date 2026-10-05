@@ -234,6 +234,8 @@ public class MissionDefinition implements MissionDefinitionPlugin {
 				if (isDevmode) {
 					api.addToFleet(DevSide, "IIRT_Omega_Shrike_Assault", FleetMemberType.SHIP, true);
 					api.addToFleet(DevSide, "IIRT_Omega_Spectrum_Assault", FleetMemberType.SHIP, "光谱蝶", true);
+					api.addToFleet(DevSide, "PTSD_Omega_EDEN_ZONE", FleetMemberType.SHIP, "???", true);
+
 					break;
 				}
 				if (!isDevmode){

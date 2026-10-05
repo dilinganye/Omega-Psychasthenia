@@ -7,6 +7,10 @@ import com.fs.starfarer.api.campaign.StarSystemAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.ui.LabelAPI;
+import com.fs.starfarer.api.ui.CustomPanelAPI;
+import com.fs.starfarer.api.ui.TooltipMakerAPI;
+import com.fs.starfarer.api.ui.UIPanelAPI;
+import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.ui.PositionAPI;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector2f;
@@ -25,14 +29,16 @@ public final class PTSDFrontMapPanel extends BaseCustomUIPanelPlugin {
         Color color;
         float width;
         boolean arrow;
+        boolean omega;
         String description;
     }
 
     private PositionAPI position;
     private LabelAPI hoverLabel;
+    private LabelAPI selectionLabel;
+    private CustomPanelAPI parent;
+    private UIPanelAPI contextMenu;
     private final List<Edge> edges = new ArrayList<Edge>();
-    private final List<PTSDCrisisAPI.ForceContribution> contributions =
-            new ArrayList<PTSDCrisisAPI.ForceContribution>();
     private float minX;
     private float maxX;
     private float minY;
@@ -46,8 +52,10 @@ public final class PTSDFrontMapPanel extends BaseCustomUIPanelPlugin {
         computeBounds();
         PTSDCrisisState state = PTSDCrisisState.get();
         if (state != null) edges.addAll(getEdges(state));
-        contributions.addAll(PTSDCrisisAPI.getForceContributions());
+        // Enemy truth and unreported NPC forces are deliberately excluded.
     }
+
+    public void setParent(CustomPanelAPI panel, LabelAPI selection) { parent = panel; selectionLabel = selection; }
 
     public void setHoverLabel(LabelAPI hoverLabel) {
         this.hoverLabel = hoverLabel;
@@ -63,20 +71,21 @@ public final class PTSDFrontMapPanel extends BaseCustomUIPanelPlugin {
         if (position == null) return;
         for (InputEventAPI event : events) {
             if (event.isConsumed()) continue;
+            if (contextMenu != null && contextMenu.getPosition().containsEvent(event)) continue;
             boolean inside = position.containsEvent(event);
             if (event.isLMBUpEvent()) dragging = false;
             if (!inside) {
                 if (event.isMouseMoveEvent()) setDefaultHover();
                 continue;
             }
-            if (event.isRMBDownEvent()) { resetView(); event.consume(); continue; }
+            if (event.isRMBDownEvent()) { openContext(event.getX(), event.getY()); event.consume(); continue; }
             if (event.isRMBEvent()) { event.consume(); continue; }
             if (event.isMouseScrollEvent()) {
                 zoomAt(event.getX(), event.getY(), event.getEventValue() > 0 ? 1.22f : 1f / 1.22f);
                 event.consume();
                 continue;
             }
-            if (event.isLMBDownEvent()) { dragging = true; event.consume(); continue; }
+            if (event.isLMBDownEvent()) { closeContext(); selectAt(event.getX(), event.getY()); dragging = true; event.consume(); continue; }
             if (event.isMouseMoveEvent()) {
                 int mouseX = event.getX();
                 int mouseY = event.getY();
@@ -99,17 +108,22 @@ public final class PTSDFrontMapPanel extends BaseCustomUIPanelPlugin {
         PTSDCrisisState state = PTSDCrisisState.get();
         if (state == null) return;
 
+        GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_COLOR_BUFFER_BIT | GL11.GL_LINE_BIT | GL11.GL_SCISSOR_BIT | GL11.GL_CURRENT_BIT);
         GL11.glDisable(GL11.GL_TEXTURE_2D);
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
         drawBackground(alphaMult);
         drawGrid(alphaMult);
 
+        float scale = Global.getSettings().getScreenScaleMult();
+        GL11.glEnable(GL11.GL_SCISSOR_TEST);
+        GL11.glScissor(Math.round(mapLeft() * scale), Math.round(mapBottom() * scale),
+                Math.round((mapRight()-mapLeft()) * scale), Math.round((mapTop()-mapBottom()) * scale));
         for (Edge edge : edges) drawEdge(edge, alphaMult);
         drawSystemNodes(state, alphaMult);
 
         GL11.glLineWidth(1f);
-        GL11.glEnable(GL11.GL_TEXTURE_2D);
+        GL11.glPopAttrib();
     }
 
     private void drawBackground(float alphaMult) {
@@ -124,7 +138,7 @@ public final class PTSDFrontMapPanel extends BaseCustomUIPanelPlugin {
         GL11.glVertex2f(x + w, y + h);
         GL11.glVertex2f(x, y + h);
         GL11.glEnd();
-        setColor(new Color(105, 45, 140, 180), alphaMult);
+        setColor(new Color(105, 125, 145, 165), alphaMult);
         GL11.glLineWidth(1.5f);
         GL11.glBegin(GL11.GL_LINE_LOOP);
         GL11.glVertex2f(x + 1f, y + 1f);
@@ -159,12 +173,18 @@ public final class PTSDFrontMapPanel extends BaseCustomUIPanelPlugin {
         Vector2f from = getScreenPoint(edge.fromId);
         Vector2f to = getScreenPoint(edge.toId);
         if (from == null || to == null) return;
-        setColor(edge.color, alphaMult * (edge.arrow ? 0.82f : 0.34f));
+        GL11.glEnable(GL11.GL_LINE_STIPPLE);
+        GL11.glLineStipple(2, (short) 0x0F0F);
+        // Broad side affiliation underlay, finer individual-faction route on top.
+        setColor(edge.omega ? new Color(165, 120, 149, 95) : new Color(113, 153, 170, 95), alphaMult);
+        GL11.glLineWidth(edge.width + 3f);
+        GL11.glBegin(GL11.GL_LINES);
+        GL11.glVertex2f(from.x, from.y); GL11.glVertex2f(to.x, to.y); GL11.glEnd();
+        setColor(edge.color, alphaMult * .65f);
         GL11.glLineWidth(edge.width);
         GL11.glBegin(GL11.GL_LINES);
-        GL11.glVertex2f(from.x, from.y);
-        GL11.glVertex2f(to.x, to.y);
-        GL11.glEnd();
+        GL11.glVertex2f(from.x, from.y); GL11.glVertex2f(to.x, to.y); GL11.glEnd();
+        GL11.glDisable(GL11.GL_LINE_STIPPLE);
         if (!edge.arrow) return;
 
         Vector2f direction = Vector2f.sub(to, from, new Vector2f());
@@ -182,30 +202,17 @@ public final class PTSDFrontMapPanel extends BaseCustomUIPanelPlugin {
     }
 
     private void drawSystemNodes(PTSDCrisisState state, float alphaMult) {
-        Set<String> active = new HashSet<String>();
-        for (PTSDCrisisState.StrategicEvent event : state.getActiveEvents()) {
-            if (event.sourceSystemId != null) active.add(event.sourceSystemId);
-            if (event.targetSystemId != null) active.add(event.targetSystemId);
-        }
-        for (PTSDCrisisState.SystemData data : state.systems.values()) {
-            Vector2f point = getScreenPoint(data.systemId);
+        for (StarSystemAPI system : Global.getSector().getStarSystems()) {
+            if (!PTSDHumanWarReports.known(state, system)) continue;
+            Vector2f point = getScreenPoint(system.getId());
             if (point == null) continue;
-            Color color = data.omegaControl >= 0.5f
-                    ? getFactionColor(IIRT_Omega_Invasion.PSYCHASTHENIA_FACTION, new Color(210, 45, 230))
-                    : Global.getSector().getPlayerFaction().getBaseUIColor();
-            if (state.playerMarkers.containsKey(data.systemId)) color = Color.CYAN;
-            float relevance = Math.max(data.omegaControl, 1f - data.humanControl);
-            if (relevance > 0.01f) drawControlZone(point.x, point.y, 12f + relevance * 18f, color, alphaMult);
-            boolean relevant = relevance > 0f || data.knownToPlayer || active.contains(data.systemId) ||
-                    state.playerMarkers.containsKey(data.systemId);
-            float radius = relevant ? (data.blackHoleFortress ? 6f : 3.5f + Math.min(2.5f, data.strategicValue / 180f)) : 1.4f;
-            drawNode(point.x, point.y, radius, relevant ? color : new Color(110, 125, 150, 150), alphaMult);
-        }
-        for (PTSDCrisisAPI.ForceContribution force : contributions) {
-            Vector2f point = getScreenPoint(force.systemId);
-            if (point == null) continue;
-            drawNode(point.x, point.y, 3f + Math.min(4f, force.strength / 80f),
-                    getFactionColor(force.factionId, Color.LIGHT_GRAY), alphaMult);
+            PTSDCrisisState.HumanReport report = PTSDHumanWarReports.latest(state, system.getId());
+            Color color = report == null ? new Color(132, 146, 162, 170) :
+                    getFactionColor(report.factionId, report.omega ? new Color(165, 120, 149) : new Color(113, 153, 170));
+            if (state.playerMarkers.containsKey(system.getId())) color = new Color(145, 195, 194);
+            float age = report == null ? 0f : PTSDCrisisState.getDay() - report.day;
+            if (report != null && report.battle) drawControlZone(point.x, point.y, 14f, color, alphaMult * (age > 10f ? .4f : .8f));
+            drawNode(point.x, point.y, report == null ? 2.5f : 4f, color, alphaMult * (age > 10f ? .4f : 1f));
         }
     }
 
@@ -232,65 +239,86 @@ public final class PTSDFrontMapPanel extends BaseCustomUIPanelPlugin {
 
     private List<Edge> getEdges(PTSDCrisisState state) {
         List<Edge> result = new ArrayList<Edge>();
-        for (PTSDCrisisState.StrategicEvent event : state.getActiveEvents()) {
-            if (event.targetSystemId == null) continue;
-            String from = event.sourceSystemId == null ? state.baseSystemId : event.sourceSystemId;
-            if (from == null || from.equals(event.targetSystemId)) continue;
-            Edge edge = new Edge();
-            edge.fromId = from;
-            edge.toId = event.targetSystemId;
-            edge.arrow = true;
-            edge.width = Math.max(2f, Math.min(8f, 1.5f + event.strength / 45f));
-            edge.color = getFactionColor(event.factionId,
-                    PTSDCrisisAPI.SIDE_OMEGA.equals(event.side) ? new Color(210, 45, 230) : Color.CYAN);
-            StarSystemAPI target = state.resolveSystem(event.targetSystemId);
-            String targetName = target == null ? event.targetSystemId : target.getName();
-            edge.description = (PTSDCrisisAPI.SIDE_OMEGA.equals(event.side) ? "精神创伤推进" : "人类侧阻滞") +
-                    " → " + targetName + "；强度 " + Math.round(event.strength) + "；" +
-                    (event.status == PTSDCrisisState.EventStatus.MATERIALIZED ? "已实体化" : "远程推演") +
-                    (event.description == null ? "" : "；" + event.description);
-            result.add(edge);
-        }
-
-        Set<String> pairs = new HashSet<String>();
-        for (PTSDCrisisState.SystemData omega : state.systems.values()) {
-            if (omega.omegaControl < 0.5f) continue;
-            StarSystemAPI omegaSystem = state.resolveSystem(omega.systemId);
-            if (omegaSystem == null) continue;
-            PTSDCrisisState.SystemData nearest = null;
-            float nearestDistance = Float.MAX_VALUE;
-            for (PTSDCrisisState.SystemData human : state.systems.values()) {
-                if (human.omegaControl >= 0.5f || !hasHumanMarket(human.systemId)) continue;
-                StarSystemAPI humanSystem = state.resolveSystem(human.systemId);
-                if (humanSystem == null) continue;
-                float distance = Vector2f.sub(omegaSystem.getLocation(), humanSystem.getLocation(), new Vector2f()).lengthSquared();
-                if (distance < nearestDistance) { nearestDistance = distance; nearest = human; }
-            }
-            if (nearest == null) continue;
-            String key = omega.systemId + ":" + nearest.systemId;
-            if (!pairs.add(key)) continue;
-            Edge edge = new Edge();
-            edge.fromId = omega.systemId;
-            edge.toId = nearest.systemId;
-            edge.arrow = false;
-            edge.width = 7f;
-            edge.color = new Color(185, 55, 205);
-            StarSystemAPI humanSystem = state.resolveSystem(nearest.systemId);
-            edge.description = "战线边缘：" + omegaSystem.getName() + " 实控区 / " +
-                    (humanSystem == null ? nearest.systemId : humanSystem.getName()) + " 防区；精神创伤控制 " +
-                    Math.round(omega.omegaControl * 100f) + "%";
+        for (PTSDCrisisState.HumanReport report : state.humanWarReports.values()) {
+            if (report == null || !report.movement || report.sourceSystemId == null ||
+                    report.sourceSystemId.equals(report.systemId)) continue;
+            Edge edge = new Edge(); edge.fromId = report.sourceSystemId; edge.toId = report.systemId;
+            edge.arrow = true; edge.omega = report.omega; edge.width = 2.5f;
+            Color factionColor = getFactionColor(report.factionId, new Color(140, 163, 175));
+            float[] routeHSV = Color.RGBtoHSB(factionColor.getRed(), factionColor.getGreen(), factionColor.getBlue(), null);
+            float variation = ((report.sourceSystemId + ":" + report.systemId).hashCode() & 255) / 255f * .08f - .04f;
+            Color routeColor = Color.getHSBColor((routeHSV[0] + variation + 1f) % 1f, routeHSV[1], routeHSV[2]);
+            edge.color = new Color(routeColor.getRed(), routeColor.getGreen(), routeColor.getBlue(), 180);
+            edge.description = report.source + "｜记录日期 " + Math.round(report.day) + "｜" + report.text;
             result.add(edge);
         }
         return result;
     }
 
-    private boolean hasHumanMarket(String systemId) {
-        StarSystemAPI system = Global.getSector().getStarSystem(systemId);
-        if (system == null) return false;
-        for (MarketAPI market : Global.getSector().getEconomy().getMarkets(system)) {
-            if (!market.isPlanetConditionMarketOnly() && !IIRT_Omega_Invasion.PSYCHASTHENIA_FACTION.equals(market.getFactionId())) return true;
+    private StarSystemAPI nearestSystem(float x, float y) {
+        PTSDCrisisState state = PTSDCrisisState.get(); StarSystemAPI best = null; float distance = 12f;
+        for (StarSystemAPI system : Global.getSector().getStarSystems()) {
+            if (!PTSDHumanWarReports.known(state, system)) continue;
+            Vector2f point = getScreenPoint(system.getId()); if (point == null) continue;
+            float next = Vector2f.sub(point, new Vector2f(x, y), new Vector2f()).length();
+            if (next < distance) { distance = next; best = system; }
         }
-        return false;
+        return best;
+    }
+
+    private String systemDescription(StarSystemAPI system) {
+        PTSDCrisisState state = PTSDCrisisState.get();
+        PTSDCrisisState.HumanReport report = PTSDHumanWarReports.latest(state, system.getId());
+        boolean inhabited = false, memberRegion = false;
+        for (MarketAPI market : Global.getSector().getEconomy().getMarkets(system)) {
+            if (market.isPlanetConditionMarketOnly()) continue;
+            inhabited = true;
+            if (market.isPlayerOwned() || PTSDHumanWarReports.member(state, market.getFactionId())) memberRegion = true;
+        }
+        if (inhabited && !memberRegion) return system.getName() + "｜非成员区域；无联合军报权限。";
+        if (report == null) return system.getName() + "｜尚无成员军报；无人区域不显示兵力数值。";
+        int age = Math.max(0, Math.round(PTSDCrisisState.getDay() - report.day));
+        return system.getName() + "｜" + report.source + "｜" + age + "日前" + (age > 10 ? "（过期）" : "") +
+                (!inhabited ? "" : report.strength < 0f ? "｜兵力未知" : "｜报告规模约 " + Math.round(report.strength)) + "｜" + report.text;
+    }
+
+    private void selectAt(float x, float y) {
+        StarSystemAPI system = nearestSystem(x, y);
+        if (system != null && selectionLabel != null) selectionLabel.setText(systemDescription(system));
+    }
+
+    private void closeContext() {
+        if (parent != null && contextMenu != null) parent.removeComponent(contextMenu);
+        contextMenu = null;
+    }
+
+    private void openContext(float x, float y) {
+        closeContext();
+        if (x < mapLeft() || x > mapRight() || y < mapBottom() || y > mapTop()) return;
+        StarSystemAPI system = nearestSystem(x, y);
+        if (parent == null || system == null) return;
+        selectAt(x, y);
+        TooltipMakerAPI menu = parent.createUIElement(225f, 160f, false);
+        Color color = Misc.getBasePlayerColor(), dark = new Color(16, 23, 31);
+        menu.addPara("%s", 3f, color, system.getName());
+        menu.addButton("设置防御信标", "PTSD_MARK_DEFEND:" + system.getId(), color, dark, 225f, 23f, 5f);
+        menu.addButton("撤销此处信标", "PTSD_CLEAR_MARKER:" + system.getId(), color, dark, 225f, 23f, 2f);
+        menu.addButton("规划航线", "PTSD_MAP_COURSE:" + system.getId(), color, dark, 225f, 23f, 2f);
+        PTSDCrisisState state = PTSDCrisisState.get();
+        for (PTSDLateState.Front front : state.late.fronts.values()) {
+            if (front != null && !front.resolved && system.getId().equals(front.systemId)) {
+                menu.addButton("申请盟军增援", "PTSD_MAP_REINFORCE:" + front.id, color, dark, 225f, 23f, 2f); break;
+            }
+        }
+        for (PTSDLateState.Reserve reserve : state.late.reserves) {
+            if (reserve == null || reserve.destroyed || !reserve.authorized) continue;
+            menu.addButton("调动授权后备队：" + reserve.id, "PTSD_MAP_RESERVE:" + reserve.id + ":" + system.getId(),
+                    color, dark, 225f, 23f, 2f);
+        }
+        contextMenu = parent.wrapTooltipWithBox(menu, color);
+        parent.addComponent(contextMenu).inTL(Math.max(4f, Math.min(position.getWidth()-245f, x-position.getX())),
+                Math.max(82f, Math.min(position.getHeight()-210f, position.getY()+position.getHeight()-y)));
+        parent.bringComponentToTop(contextMenu);
     }
 
     private void updateHover(float mouseX, float mouseY) {
@@ -310,31 +338,16 @@ public final class PTSDFrontMapPanel extends BaseCustomUIPanelPlugin {
             hoverLabel.setColor(best.color.brighter());
             return;
         }
-        PTSDCrisisState.SystemData nearest = null;
-        float nearestDistance = 10f;
-        for (PTSDCrisisState.SystemData data : state.systems.values()) {
-            Vector2f point = getScreenPoint(data.systemId);
-            if (point == null) continue;
-            float dx = mouseX - point.x;
-            float dy = mouseY - point.y;
-            float distance = (float) Math.sqrt(dx * dx + dy * dy);
-            if (distance < nearestDistance) { nearestDistance = distance; nearest = data; }
-        }
-        if (nearest != null) {
-            StarSystemAPI system = state.resolveSystem(nearest.systemId);
-            hoverLabel.setText((system == null ? nearest.systemId : system.getName()) + "：攻击权重 " +
-                    roundOne(nearest.attackWeight) + "；人类防卫权重 " + roundOne(nearest.humanDefenseWeight) +
-                    "；精神创伤控制 " + Math.round(nearest.omegaControl * 100f) + "%" +
-                    (nearest.blackHoleFortress ? "；黑洞要塞活动" : ""));
-            hoverLabel.setColor(nearest.omegaControl >= 0.5f ? new Color(235, 105, 255) : Color.CYAN);
-            return;
+        StarSystemAPI nearest = nearestSystem(mouseX, mouseY);
+        if (nearest != null && hoverLabel != null) {
+            hoverLabel.setText(systemDescription(nearest)); hoverLabel.setColor(Misc.getTextColor()); return;
         }
         setDefaultHover();
     }
 
     private void setDefaultHover() {
         if (hoverLabel == null) return;
-        hoverLabel.setText("将鼠标移到推进箭头、阻滞箭头、战线边缘或星系节点上查看局部态势。粗线表示更强的部署。 ");
+        hoverLabel.setText("悬停查看来源与日期；点击固定报告；右键星系下达请求。宽虚线区分交战双方，细虚线区分势力。");
         hoverLabel.setColor(new Color(180, 190, 205));
     }
 
@@ -353,10 +366,12 @@ public final class PTSDFrontMapPanel extends BaseCustomUIPanelPlugin {
         maxX = maxY = -Float.MAX_VALUE;
         if (Global.getSector() == null) { minX = minY = -10000f; maxX = maxY = 10000f; resetView(); return; }
         for (StarSystemAPI system : Global.getSector().getStarSystems()) {
+            if (!PTSDHumanWarReports.known(PTSDCrisisState.get(), system)) continue;
             Vector2f p = system.getLocation();
             minX = Math.min(minX, p.x); maxX = Math.max(maxX, p.x);
             minY = Math.min(minY, p.y); maxY = Math.max(maxY, p.y);
         }
+        if (minX == Float.MAX_VALUE) { minX = minY = -10000f; maxX = maxY = 10000f; }
         float padX = Math.max(2500f, (maxX - minX) * 0.05f);
         float padY = Math.max(2500f, (maxY - minY) * 0.05f);
         minX -= padX; maxX += padX; minY -= padY; maxY += padY;
@@ -401,7 +416,10 @@ public final class PTSDFrontMapPanel extends BaseCustomUIPanelPlugin {
 
     private static Color getFactionColor(String factionId, Color fallback) {
         FactionAPI faction = factionId == null || Global.getSector() == null ? null : Global.getSector().getFaction(factionId);
-        return faction == null ? fallback : faction.getBaseUIColor();
+        Color base = faction == null ? fallback : faction.getBaseUIColor();
+        float[] hsv = Color.RGBtoHSB(base.getRed(), base.getGreen(), base.getBlue(), null);
+        Color muted = Color.getHSBColor(hsv[0], Math.min(.35f, hsv[1]), Math.max(.55f, hsv[2]));
+        return new Color(muted.getRed(), muted.getGreen(), muted.getBlue(), 180);
     }
 
     private static void setColor(Color color, float alphaMult) {

@@ -11,6 +11,8 @@ import com.fs.starfarer.api.impl.campaign.AICoreOfficerPluginImpl;
 import com.fs.starfarer.api.impl.campaign.BaseAICoreOfficerPluginImpl;
 import com.fs.starfarer.api.impl.campaign.ids.Ranks;
 import com.fs.starfarer.api.impl.campaign.ids.Skills;
+import data.scripts.IIRT_Omega_ModPlugin;
+import data.scripts.campaign.invasion.PTSDCrisisState;
 import org.lazywizard.lazylib.MathUtils;
 
 import java.util.Random;
@@ -24,7 +26,12 @@ public class PTSD_Omega_AIOfficerPlugin extends BaseAICoreOfficerPluginImpl impl
     @Override
     public PersonAPI createPerson(String aiCoreId, String factionId, Random random) {
         if (random == null) random = new Random();
-        return createPerson(aiCoreId, factionId, random, 8 + random.nextInt(7));
+        PTSDCrisisState state = PTSDCrisisState.get();
+        int phaseBonus = state == null || state.phase == null ? 0 :
+                Math.max(0, Math.min(4, state.phase.ordinal() - PTSDCrisisState.Phase.RECON.ordinal()));
+        int baseline = 2 + IIRT_Omega_ModPlugin.omegaOfficerLevelBonus + phaseBonus;
+        return createPerson(aiCoreId, factionId, random,
+                Math.max(2, Math.min(20, baseline + random.nextInt(5) - 2)));
     }
 
     public PersonAPI createPerson(String aiCoreId, String factionId, Random random, int PTSD_Level) {
@@ -39,27 +46,20 @@ public class PTSD_Omega_AIOfficerPlugin extends BaseAICoreOfficerPluginImpl impl
         person.setName(new FullName(designation + "-" + (1000 + random.nextInt(9000)), "", ANY));
         //person.setPortraitSprite("graphics/portraits/special/portraits_GravenAI.png");
         person.setPortraitSprite(pickPortraitPreferNonDuplicate(theFaction, ANY));
-        person.getStats().setLevel(PTSD_Level);
-        person.getStats().setSkillLevel(Skills.HELMSMANSHIP, 2);
-        person.getStats().setSkillLevel(Skills.TARGET_ANALYSIS, 2);
-        person.getStats().setSkillLevel(Skills.IMPACT_MITIGATION, 2);
-        person.getStats().setSkillLevel(Skills.FIELD_MODULATION, 2);
-        person.getStats().setSkillLevel(Skills.GUNNERY_IMPLANTS, 2);
-        //person.getStats().setSkillLevel(Skills.RELIABILITY_ENGINEERING, 2);
-        person.getStats().setSkillLevel(Skills.COMBAT_ENDURANCE, 2);
-        person.getStats().setSkillLevel(Skills.DAMAGE_CONTROL, 2);
-        person.getStats().setSkillLevel(Skills.POINT_DEFENSE, 2);
-        person.getStats().setSkillLevel(Skills.ENERGY_WEAPON_MASTERY, 2);
-        if(PTSD_Level>4){
-            person.getStats().setSkillLevel(Skills.SYSTEMS_EXPERTISE, 2);
-        }
-        if(PTSD_Level>8){
-            person.getStats().setSkillLevel(Skills.OMEGA_ECM, 2);
-        }
-        if(PTSD_Level>12){
-            person.getStats().setSkillLevel(Skills.HYPERCOGNITION, 2);
-
-        }
+        int level = Math.max(2, Math.min(20, PTSD_Level));
+        person.getStats().setLevel(level);
+        // The configured level also limits combat skills; otherwise a nominally level-6
+        // officer would retain the old fixed set of eleven elite skills.
+        String[] skills = {
+                Skills.HELMSMANSHIP, Skills.TARGET_ANALYSIS, Skills.IMPACT_MITIGATION,
+                Skills.FIELD_MODULATION, Skills.GUNNERY_IMPLANTS, Skills.COMBAT_ENDURANCE,
+                Skills.DAMAGE_CONTROL, Skills.POINT_DEFENSE, Skills.ENERGY_WEAPON_MASTERY,
+                Skills.SYSTEMS_EXPERTISE, Skills.OMEGA_ECM, Skills.HYPERCOGNITION
+        };
+        int available = level > 12 ? skills.length : level > 8 ? skills.length - 1 :
+                level > 4 ? skills.length - 2 : skills.length - 3;
+        for (int index = 0; index < Math.min(level, available); index++)
+            person.getStats().setSkillLevel(skills[index], 2);
         float mult = AICoreOfficerPluginImpl.OMEGA_MULT;
         person.getMemoryWithoutUpdate().set(AICoreOfficerPlugin.AUTOMATED_POINTS_MULT, mult);
         person.setPersonality("reckless");

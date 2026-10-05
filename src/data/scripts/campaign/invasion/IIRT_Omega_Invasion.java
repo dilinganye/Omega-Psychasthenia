@@ -39,7 +39,7 @@ import static data.scripts.IIRT_Omega_ModPlugin.*;
  * The persistent strategic state is authoritative; physical fleets are nearby projections of it.
  */
 public class IIRT_Omega_Invasion implements EveryFrameScript {
-    public enum STAGE { START, COLLECT_DATA, INVADE, REPAIR, FULL_ATTACK, END }
+    public enum STAGE { START, COLLECT_DATA, INVADE, REPAIR, MOBILIZE, FULL_ATTACK, END }
 
     public static final String stage_id = "$IIRT_Omega_Invasion_Stage";
     public static final String baseSystem_id = "$IIRT_Omega_Base_System";
@@ -49,7 +49,7 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
     public static final String IIRT_Omega_Faction = PSYCHASTHENIA_FACTION;
     public static final String GAMMA_LEGION_FACTION = "Gamma_Legion";
 
-    private static final String SCOUT_TAG = "IIRT_Omega_Scout";
+    static final String SCOUT_TAG = "IIRT_Omega_Scout";
     private static final String CRISIS_FLEET_TAG = "PTSD_crisis_fleet";
     private static final String EVENT_MEMORY = "$PTSD_strategic_event";
     private static final String FORTRESS_MEMORY = "$PTSD_black_hole_fortress";
@@ -99,6 +99,9 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
         PTSDCrisisProgress.advance(state, day);
         PTSDLocalPanicManager.advance(state, day, random);
         PTSDCrisisIncidentManager.advance(state, day, random);
+        PTSDE2Director.advance(state, day);
+        PTSDConditionalNewsDirector.advance(state, day);
+        PTSDReconReportDirector.advance(state, day);
         enforceCrisisDiplomacy(state);
         if (day >= state.nextIsolationSyncDay) {
             PTSDOccupationManager.syncMapVisibility();
@@ -115,11 +118,15 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
         Global.getSector().getMemoryWithoutUpdate().set(stage_id, currStage);
         revealNearbyCrisisActivity(state);
         processMaterializationAndEncounters(state, day);
+        PTSDOmegaEncounterResponse.attachExistingLocalPursuers();
         resolveDueEvents(state, day);
         if (day >= state.nextWeightUpdateDay) {
             updateSystemWeights(state, day);
             state.nextWeightUpdateDay = day + Math.max(1f, strategic_update_interval);
         }
+        PTSDLateWarDirector.advance(state, day);
+        PTSDHumanWarReports.advance(state, day);
+        PTSDControlledPatrolDirector.advance(state, day);
 
         switch (state.phase) {
             case DORMANT:
@@ -132,14 +139,21 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
                 break;
             case EXPANSION:
                 ensureBase(state);
+                runRecon(state, day);
                 runExpansion(state, day);
                 if (stageElapsed >= invade_time) transitionToEnabled(state, PTSDCrisisState.Phase.FORTIFICATION);
                 break;
             case FORTIFICATION:
                 ensureBase(state);
+                runRecon(state, day);
                 runExpansion(state, day);
                 runFortification(state, day);
-                if (stageElapsed >= repair_time && PTSDCrisisProgress.isReadyForInvasion(state)) advancePrewarGate(state, day);
+                PTSDLateWarDirector.checkFortificationExit(state, stageElapsed, day);
+                break;
+            case MOBILIZATION:
+                ensureBase(state);
+                runFortification(state, day);
+                if (stageElapsed >= 22f) advancePrewarGate(state, day);
                 break;
             case WAR:
                 ensureBase(state);
@@ -199,6 +213,7 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
         if (stage == STAGE.COLLECT_DATA) return PTSDCrisisState.Phase.RECON;
         if (stage == STAGE.INVADE) return PTSDCrisisState.Phase.EXPANSION;
         if (stage == STAGE.REPAIR) return PTSDCrisisState.Phase.FORTIFICATION;
+        if (stage == STAGE.MOBILIZE) return PTSDCrisisState.Phase.MOBILIZATION;
         if (stage == STAGE.FULL_ATTACK) return PTSDCrisisState.Phase.WAR;
         if (stage == STAGE.END) return PTSDCrisisState.Phase.ENDED;
         return PTSDCrisisState.Phase.DORMANT;
@@ -208,12 +223,13 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
         if (phase == PTSDCrisisState.Phase.RECON) return STAGE.COLLECT_DATA;
         if (phase == PTSDCrisisState.Phase.EXPANSION) return STAGE.INVADE;
         if (phase == PTSDCrisisState.Phase.FORTIFICATION) return STAGE.REPAIR;
+        if (phase == PTSDCrisisState.Phase.MOBILIZATION) return STAGE.MOBILIZE;
         if (phase == PTSDCrisisState.Phase.WAR) return STAGE.FULL_ATTACK;
         if (phase == PTSDCrisisState.Phase.ENDED) return STAGE.END;
         return STAGE.START;
     }
 
-    private static void transition(PTSDCrisisState state, PTSDCrisisState.Phase next) {
+    static void transition(PTSDCrisisState state, PTSDCrisisState.Phase next) {
         if (state.phase == next) return;
         PTSDCrisisState.Phase previous = state.phase;
         state.phase = next;
@@ -236,7 +252,12 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
     public static void devTransition(PTSDCrisisState.Phase next) {
         if (Global.getSector() == null || !Global.getSettings().isDevMode()) return;
         PTSDCrisisState state = PTSDCrisisState.get();
-        if (state != null && next != null) transition(state, next);
+        if (state == null || next == null || next == state.phase) return;
+        if (next == PTSDCrisisState.Phase.WAR) beginWar(state);
+        else {
+            transition(state, next);
+            if (next == PTSDCrisisState.Phase.MOBILIZATION) PTSDMobilizationIntel.ensureIntel();
+        }
     }
 
     public static void devTriggerSoftWarning() {
@@ -345,13 +366,17 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
         if (phase == PTSDCrisisState.Phase.DORMANT) return PTSDCrisisState.Phase.RECON;
         if (phase == PTSDCrisisState.Phase.RECON) return PTSDCrisisState.Phase.EXPANSION;
         if (phase == PTSDCrisisState.Phase.EXPANSION) return PTSDCrisisState.Phase.FORTIFICATION;
-        if (phase == PTSDCrisisState.Phase.FORTIFICATION) return PTSDCrisisState.Phase.WAR;
+        if (phase == PTSDCrisisState.Phase.FORTIFICATION) return PTSDCrisisState.Phase.MOBILIZATION;
+        if (phase == PTSDCrisisState.Phase.MOBILIZATION) return PTSDCrisisState.Phase.WAR;
         return PTSDCrisisState.Phase.ENDED;
     }
     private void runRecon(PTSDCrisisState state, float day) {
         if (state.totalScoutSightings >= warning_encounter_threshold) showSoftWarning(state);
         if (day < state.nextScoutDay) return;
-        state.nextScoutDay = day + frequencyAdjusted(randomBetween(scout_min_interval, scout_max_interval));
+        boolean late = state.phase != PTSDCrisisState.Phase.RECON;
+        state.nextScoutDay = day + frequencyAdjusted(randomBetween(scout_min_interval, scout_max_interval)) *
+                (late ? data.scripts.IIRT_Omega_ModPlugin.reconPostPhaseIntervalMultiplier : 1f);
+        if (late && !PTSDReconReportDirector.hasBlindSpot(state)) return;
         if (countTaggedFleets(SCOUT_TAG) >= Math.max(1, Math.round(scout_max_active))) return;
         spawnScout(state);
     }
@@ -412,16 +437,23 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
                         WATCHER_FACTION.equals(market.getFactionId()) ||
                         PSYCHASTHENIA_FACTION.equals(market.getFactionId())) continue;
                 PTSDCrisisState.SystemData data = state.getSystemData(market.getStarSystem().getId());
+                if (state.phase != PTSDCrisisState.Phase.RECON &&
+                        PTSDReconReportDirector.isSurveyed(data, PTSDCrisisState.getDay())) continue;
                 targets.add(market.getPrimaryEntity(),
-                        (2f + market.getSize()) / (1f + data.scoutVisits * 0.3f));
+                        (2f + market.getSize()) *
+                                (PTSDReconReportDirector.isSurveyed(data, PTSDCrisisState.getDay()) ? .25f : 2f));
             }
         } else {
             WeightedRandomPicker<StarSystemAPI> systems = new WeightedRandomPicker<StarSystemAPI>(random);
             for (StarSystemAPI system : Global.getSector().getStarSystems()) {
                 if (system == null || system.hasTag(Tags.SYSTEM_CUT_OFF_FROM_HYPER)) continue;
                 PTSDCrisisState.SystemData data = state.getSystemData(system.getId());
-                float weight = (system.isEnteredByPlayer() ? 1.2f : 1f) /
-                        (1f + data.scoutVisits * 0.28f);
+                Float lowUntil = state.reconLowActivityUntil.get(system.getId());
+                if (lowUntil != null && lowUntil > PTSDCrisisState.getDay()) continue;
+                boolean surveyed = PTSDReconReportDirector.isSurveyed(data, PTSDCrisisState.getDay());
+                if (state.phase != PTSDCrisisState.Phase.RECON && surveyed) continue;
+                float weight = (system.isEnteredByPlayer() ? 1.2f : 1f) *
+                        (surveyed ? .15f : 3f);
                 if (type == IIRT_Omega_ScoutAI.MissionType.RELAY) {
                     for (SectorEntityToken relay : system.getEntitiesWithTag(Tags.COMM_RELAY)) {
                         targets.add(relay, 8f * weight);
@@ -473,10 +505,13 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
         Vector2f.add(destination, source, source);
         FleetParamsV3 params = new FleetParamsV3(source, WATCHER_FACTION, 0.4f,
                 FleetTypes.MERC_SCOUT, 12f + random.nextFloat() * 14f, 0f, 0f, 0f, 0f, 0f, 0f);
-        params.maxNumShips = Math.max(3, Global.getSettings().getMaxShipsInFleet() / 4);
+        params.maxNumShips = 3;
         CampaignFleetAPI scout = PTSD_BaseShard_Util.createFleet(params, params.combatPts,
-                PTSD_BaseShard_Util.FleetRole.RECON, params.random);
+                PTSD_BaseShard_Util.FleetRole.RECON, params.random,
+                new PTSD_BaseShard_Util.FleetLimits(26f, 3,
+                        com.fs.starfarer.api.combat.ShipAPI.HullSize.DESTROYER));
         if (scout == null) return false;
+        if (!commitScoutAssets(scout, plan.systemId)) return false;
         Global.getSector().getHyperspace().addEntity(scout);
         scout.setLocation(source.x, source.y);
         scout.setName("无法识别的微弱信号");
@@ -508,8 +543,11 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
                     FleetTypes.MERC_SCOUT, 7f, 0f, 0f, 0f, 0f, 0f, 0f);
             params.maxNumShips = 1;
             CampaignFleetAPI scout = PTSD_BaseShard_Util.createFleet(params, params.combatPts,
-                PTSD_BaseShard_Util.FleetRole.RECON, params.random);
+                PTSD_BaseShard_Util.FleetRole.RECON, params.random,
+                new PTSD_BaseShard_Util.FleetLimits(12f, 1,
+                        com.fs.starfarer.api.combat.ShipAPI.HullSize.FRIGATE));
             if (scout == null) return null;
+            if (!commitScoutAssets(scout, systemId)) return null;
             target.getContainingLocation().addEntity(scout);
             Vector2f offset = Misc.getUnitVectorAtDegreeAngle(seeded.nextFloat() * 360f);
             offset.scale(4200f + seeded.nextFloat() * 2600f);
@@ -535,15 +573,27 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
             return null;
         }
     }
+
+    private static boolean commitScoutAssets(CampaignFleetAPI scout, String systemId) {
+        PTSDCrisisState state = PTSDCrisisState.get();
+        float committedFp = Math.max(0f, scout.getFleetPoints());
+        if (state == null || state.late == null || state.late.strategicReserve < committedFp) {
+            PTSDCrisisDevIntel.report("侦察舰队未启航", "战略资产不足：需要 " +
+                    committedFp + "，现有 " + (state == null || state.late == null ? 0f :
+                    state.late.strategicReserve), systemId, null);
+            return false;
+        }
+        state.late.strategicReserve -= committedFp;
+        PTSDLateWarDirector.recordSpending(state, "侦察舰启航 " + scout.getId(), 0f, committedFp);
+        scout.getMemoryWithoutUpdate().set("$PTSD_scout_committed_fp", committedFp);
+        return true;
+    }
     public static void reportScoutMissionStage(String systemId, String fleetId, String missionType, String stage) {
         PTSDCrisisState state = PTSDCrisisState.get();
         if (state != null && systemId != null && "抵达任务区".equals(stage)) {
             PTSDCrisisState.SystemData data = state.getSystemData(systemId);
             data.scoutVisits++;
             data.lastObservedDay = PTSDCrisisState.getDay();
-            recordScoutSurvey(systemId, fleetId, missionType);
-            PTSDCrisisProgress.add(state, PTSDCrisisProgress.Variable.RECON_CONFIDENCE,
-                    0.6f, "SCOUT_ARRIVAL", systemId);
         }
         PTSDCrisisDevIntel.report("侦察任务阶段", missionType + "：" + stage, systemId, fleetId);
     }
@@ -560,9 +610,7 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
             data.lastObservedDay = PTSDCrisisState.getDay();
         }
         state.visibleStage = Math.max(state.visibleStage, visibleStageForPhase(state.phase));
-        PTSDCrisisProgress.add(state, PTSDCrisisProgress.Variable.RECON_CONFIDENCE, 1.5f, "SCOUT_SIGHTING", systemId);
         PTSDCrisisProgress.add(state, PTSDCrisisProgress.Variable.HUMAN_AWARENESS, 4f, "SCOUT_SIGHTING", systemId);
-        PTSDCrisisProgress.add(state, PTSDCrisisProgress.Variable.WATCHER_AGGRESSION, 1f, "SCOUT_SIGHTING", systemId);
         PTSDLocalPanicAPI.spreadFromSystem(systemId, 1.2f, 12000f, "SCOUT_SIGHTING");
         if (state.totalScoutSightings >= warning_encounter_threshold) showSoftWarning(state);
         else if (state.softWarningShown) PTSDCrisisIntel.ensureIntel();
@@ -578,7 +626,6 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
         state.totalScoutEscapes++;
         PTSDCrisisState.SystemData data = state.getSystemData(systemId);
         if (data != null) data.hostileContacts++;
-        PTSDCrisisProgress.add(state, PTSDCrisisProgress.Variable.RECON_CONFIDENCE, 0.8f, "SCOUT_ESCAPE", systemId);
         if (escapedPlayer) {
             state.totalOmegaEncounters++;
             state.visibleStage = Math.max(state.visibleStage, visibleStageForPhase(state.phase));
@@ -616,63 +663,14 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
         }
         data.lastReconSampleDay = PTSDCrisisState.getDay();
         data.lastObservedDay = data.lastReconSampleDay;
-        PTSDCrisisAPI.recordEvidence(systemId, "SCOUT_DAILY_MAX", fleetId,
-                data.reconDailyMax, -1f, -1f, -1, data.reconDailyMax > 0f ? 1 : 0,
-                .72f, 45f, false, 0f);
+        PTSDReconReportDirector.queueDailyMaximum(state, systemId, fleetId, data.reconDailyMax, dayBucket);
         if (newDay) {
-            PTSDCrisisProgress.add(state, PTSDCrisisProgress.Variable.RECON_CONFIDENCE,
-                    Math.min(0.5f, 0.05f + strength / 1000f), "RECON_DAILY_MAX", systemId);
             PTSDCrisisDevIntel.report("侦察日结",
                     "当日最高舰队强度 " + Math.round(strength) +
                             (fleetId == null ? "" : " / 提交舰队 " + fleetId), systemId, fleetId);
         }
     }
 
-    /** Records only what a scout can observe after physically reaching its task system. */
-    private static void recordScoutSurvey(String systemId, String fleetId, String missionType) {
-        PTSDCrisisState state = PTSDCrisisState.get();
-        StarSystemAPI system = state == null ? null : state.resolveSystem(systemId);
-        if (system == null) return;
-        float fleetStrength = 0f;
-        boolean hasFleet = false;
-        for (CampaignFleetAPI other : system.getFleets()) {
-            if (other == null || other.getFaction() == null) continue;
-            String factionId = other.getFaction().getId();
-            if (PSYCHASTHENIA_FACTION.equals(factionId) || WATCHER_FACTION.equals(factionId)) continue;
-            hasFleet = true;
-            fleetStrength += Math.max(0f, other.getFleetPoints());
-        }
-        float marketDefense = 0f;
-        float value = 1f;
-        boolean hasColony = false;
-        for (MarketAPI market : Global.getSector().getEconomy().getMarkets(system)) {
-            if (market == null || market.isPlanetConditionMarketOnly() ||
-                    PSYCHASTHENIA_FACTION.equals(market.getFactionId()) ||
-                    WATCHER_FACTION.equals(market.getFactionId())) continue;
-            hasColony = true;
-            float size = market.getSize();
-            value += size * size * 12f;
-            if (market.isPlayerOwned()) value += 55f;
-            marketDefense += size * size * 9f + market.getStabilityValue() * 3f;
-            if (market.hasIndustry(Industries.PATROLHQ)) marketDefense += 18f;
-            if (market.hasIndustry(Industries.MILITARYBASE)) marketDefense += 45f;
-            if (market.hasIndustry(Industries.HIGHCOMMAND)) marketDefense += 80f;
-            if (market.hasIndustry(Industries.ORBITALSTATION)) marketDefense += 28f;
-            if (market.hasIndustry(Industries.BATTLESTATION)) marketDefense += 60f;
-            if (market.hasIndustry(Industries.STARFORTRESS)) marketDefense += 105f;
-            if (market.hasIndustry(Industries.HEAVYINDUSTRY) || market.hasIndustry(Industries.ORBITALWORKS)) value += 45f;
-        }
-        float confidence = "COLONY_INFILTRATION".equals(missionType) ? .88f :
-                ("RELAY".equals(missionType) ? .76f :
-                        ("HYPERSPACE_WATCH".equals(missionType) ? .52f : .62f));
-        float noise = .84f + new Random(31L * systemId.hashCode() +
-                (long) Math.floor(PTSDCrisisState.getDay())).nextFloat() * .32f;
-        boolean observesMarkets = !"HYPERSPACE_WATCH".equals(missionType);
-        PTSDCrisisAPI.recordEvidence(systemId, "SCOUT_SURVEY", missionType + ":" + fleetId,
-                fleetStrength * noise, observesMarkets ? marketDefense * noise : -1f,
-                observesMarkets ? value * noise : -1f, observesMarkets ? (hasColony ? 1 : 0) : -1,
-                hasFleet ? 1 : 0, confidence, 120f, false, 0f);
-    }
     private static int visibleStageForPhase(PTSDCrisisState.Phase phase) {
         if (phase == PTSDCrisisState.Phase.RECON || phase == PTSDCrisisState.Phase.DORMANT) return 1;
         if (phase == PTSDCrisisState.Phase.EXPANSION) return 2;
@@ -691,14 +689,32 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
 
     private void advancePrewarGate(PTSDCrisisState state, float day) {
         if (!state.prewarHunterSpawned) {
-            StarSystemAPI targetSystem = findPlayerTargetSystem();
+            StarSystemAPI targetSystem = null;
             CampaignFleetAPI player = Global.getSector().getPlayerFleet();
-            if (targetSystem == null || player == null) return;
+            float newest = -1f;
+            for (PTSDLateState.ThreatEvidence evidence : state.late.threatEvidence) {
+                if (evidence == null || !"CONFIRMED_UPLOADED".equals(evidence.uploadState) ||
+                        evidence.expiresDay <= day || evidence.sourceSystemId == null) continue;
+                StarSystemAPI candidate = state.resolveSystem(evidence.sourceSystemId);
+                if (candidate != null && evidence.day > newest) {
+                    newest = evidence.day;
+                    targetSystem = candidate;
+                }
+            }
+            if (targetSystem == null) targetSystem = state.resolveSystem(state.baseSystemId);
+            if (targetSystem == null) return;
+            float hunterFP = 32f + Math.min(28f, PTSDThreatDirector.getThreat(state, day) * .35f);
+            if (!PTSDLateWarDirector.reserveAttack(state, "prewar-hunter", hunterFP)) {
+                if (day >= state.phaseStartedDay + 30f) beginWar(state);
+                return;
+            }
             PTSDCrisisState.StrategicEvent hunter = state.addEvent(
                     PTSDCrisisState.EventType.PREWAR_HUNTER, PTSDCrisisAPI.SIDE_OMEGA,
                     WATCHER_FACTION, state.baseSystemId, targetSystem.getId(), null,
-                    32f + Math.min(28f, state.playerGrudge * .35f), 10f + random.nextFloat() * 4f);
-            hunter.targetEntityId = player.getId();
+                    hunterFP, 4f + random.nextFloat() * 4f);
+            if (player != null && player.getStarSystem() == targetSystem && newest >= 0f) {
+                hunter.targetEntityId = player.getId();
+            }
             hunter.opponentFactionId = Global.getSector().getPlayerFaction().getId();
             hunter.playerRelevant = true;
             hunter.description = "第四窥视对高价值目标的最终截获测试；该行动结束前，全面入侵进度被锁定。";
@@ -713,6 +729,11 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
             state.prewarHunterResolved = true;
             state.prewarHunterResolvedDay = day;
             if (state.warCommitDay <= day) state.warCommitDay = day + 1f + random.nextFloat() * 7f;
+        }
+        if (!state.prewarHunterResolved && day >= state.phaseStartedDay + 30f) {
+            state.prewarHunterResolved = true;
+            state.prewarHunterResolvedDay = day;
+            state.warCommitDay = day;
         }
         if (!state.prewarHunterResolved) return;
         showPrewarRedAlert(state);
@@ -741,13 +762,14 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
         }
         return best;
     }
-    private void beginWar(PTSDCrisisState state) {
+    static void beginWar(PTSDCrisisState state) {
         if (!isPhaseEnabled(PTSDCrisisState.Phase.WAR)) {
             transition(state, PTSDCrisisState.Phase.ENDED);
             PTSDCrisisDevIntel.report("全面战争阶段已禁用", "危机由要塞阶段直接结束", state.baseSystemId, null);
             return;
         }
         transition(state, PTSDCrisisState.Phase.WAR);
+        PTSDLateWarDirector.onWarStarted(state);
         showHardWarning(state);
         configureWarFaction();
     }
@@ -854,7 +876,7 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
             }
         }
     }
-    private void configureWarFaction() {
+    private static void configureWarFaction() {
         FactionAPI omega = Global.getSector().getFaction(PSYCHASTHENIA_FACTION);
         if (omega == null) return;
         omega.getDoctrine().setNumShips(5);
@@ -959,8 +981,32 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
         }
         PlanetAPI planet = picker.pick();
         if (planet == null) return;
-        String activeFactionId = PTSDCrisisProgress.getActiveFactionId(state);
+        boolean unbuiltBlackHole = false;
+        if (state.phase == PTSDCrisisState.Phase.FORTIFICATION && state.late != null &&
+                PTSDFortressDirector.activeFortressCount(state) <
+                        Math.round(max_black_hole_fortresses)) {
+            for (StarSystemAPI possible : Global.getSector().getStarSystems()) {
+                if (possible.getStar() != null && possible.getStar().getSpec().isBlackHole() &&
+                        !state.late.committedIds.contains("fortress-site:" + possible.getId())) {
+                    unbuiltBlackHole = true;
+                    break;
+                }
+            }
+        }
+        if (unbuiltBlackHole && state.late.warPoints < 15f) {
+            PTSDCrisisDevIntel.report("行星扩张延后", planet.getName() +
+                    "：预留至少10准备点供黑洞工程开工",
+                    planet.getStarSystem().getId(), planet.getId());
+            return;
+        }
         PTSDCrisisState.SystemData data = state.getSystemData(planet.getStarSystem().getId());
+        float constructionFP = 35f + Math.min(5, data.conversionLevel + 1) * 12f;
+        if (!PTSDLateWarDirector.reserveConstruction(state, planet.getId(), constructionFP)) {
+            PTSDCrisisDevIntel.report("行星扩张未执行", planet.getName() + "：准备点或战略资产不足",
+                    planet.getStarSystem().getId(), planet.getId());
+            return;
+        }
+        String activeFactionId = PTSDCrisisProgress.getActiveFactionId(state);
         data.conversionLevel = Math.min(5, data.conversionLevel + 1);
         applyPlanetMutation(planet, Math.max(1, data.conversionLevel));
         PTSDCrisisProgress.add(state, PTSDCrisisProgress.Variable.NEST_DEVELOPMENT,
@@ -977,10 +1023,10 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
         }
         state.addEvent(PTSDCrisisState.EventType.CONSTRUCTION, PTSDCrisisAPI.SIDE_OMEGA,
                 activeFactionId, state.baseSystemId, planet.getStarSystem().getId(),
-                planet.getMarket() == null ? null : planet.getMarket().getId(), 35f + data.conversionLevel * 12f, 7f);
+                planet.getMarket() == null ? null : planet.getMarket().getId(), constructionFP, 7f);
     }
 
-    private static void applyPlanetMutation(PlanetAPI planet, int level) {
+    static void applyPlanetMutation(PlanetAPI planet, int level) {
         if (planet == null || planet.getSpec() == null) return;
         int clamped = Math.max(1, Math.min(5, level));
         int pulse = 24 * clamped;
@@ -1000,16 +1046,14 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
         if (day < state.nextFortressDay) return;
         String activeFactionId = PTSDCrisisProgress.getActiveFactionId(state);
         state.nextFortressDay = day + Math.max(4f, frequencyAdjusted(expansion_interval * 1.5f));
-        if (countFortresses(state) < Math.max(0, Math.round(max_black_hole_fortresses))) createBlackHoleFortress(state);
+        // Persistent staged stations are managed by PTSDFortressDirector.
         if (state.baseSystemId != null && state.countActiveEvents(PTSDCrisisState.EventType.GARRISON) < max_guard_fleets) {
-            state.addEvent(PTSDCrisisState.EventType.GARRISON, PTSDCrisisAPI.SIDE_OMEGA,
-                    activeFactionId, state.baseSystemId, state.baseSystemId, state.baseMarketId, 85f, 12f);
+            if (PTSDLateWarDirector.reserveAttack(state, "garrison:" + Math.round(day), 85f)) {
+                state.addEvent(PTSDCrisisState.EventType.GARRISON, PTSDCrisisAPI.SIDE_OMEGA,
+                        activeFactionId, state.baseSystemId, state.baseSystemId, state.baseMarketId, 85f, 12f);
+            }
         }
-        for (PTSDCrisisState.SystemData data : state.systems.values()) {
-            if (!data.blackHoleFortress || hasActiveEventFor(state, PTSDCrisisState.EventType.FORTRESS_PATROL, data.systemId)) continue;
-            state.addEvent(PTSDCrisisState.EventType.FORTRESS_PATROL, PTSDCrisisAPI.SIDE_OMEGA,
-                    activeFactionId, data.systemId, data.systemId, null, 135f, 18f);
-        }
+        // Fortress escorts belong to the persistent fortress ledger, not a disposable event.
     }
 
     private boolean hasActiveEventFor(PTSDCrisisState state, PTSDCrisisState.EventType type, String systemId) {
@@ -1025,61 +1069,17 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
         return result;
     }
 
-    private void createBlackHoleFortress(PTSDCrisisState state) {
-        WeightedRandomPicker<StarSystemAPI> picker = new WeightedRandomPicker<StarSystemAPI>(random);
-        for (StarSystemAPI system : Global.getSector().getStarSystems()) {
-            if (system.getStar() == null || !system.getStar().getSpec().isBlackHole()) continue;
-            PTSDCrisisState.SystemData data = state.getSystemData(system.getId());
-            if (data.blackHoleFortress) continue;
-            float weight = (system.isEnteredByPlayer() ? 0.35f : 1.2f) * (1f + system.getLocation().length() / 18000f);
-            picker.add(system, weight);
-        }
-        StarSystemAPI system = picker.pick();
-        if (system == null) return;
-        String activeFactionId = PTSDCrisisProgress.getActiveFactionId(state);
-        CampaignFleetAPI fortress = Global.getFactory().createEmptyFleet(activeFactionId, "癫狂视界要塞", true);
-        FleetMemberAPI member;
-        try { member = Global.getFactory().createFleetMember(FleetMemberType.SHIP, "IIRT_Omega_Station_Stable"); }
-        catch (Throwable ex) { Global.getLogger(getClass()).warn("Unable to create Omega black-hole station variant", ex); return; }
-        fortress.getFleetData().addFleetMember(member);
-        fortress.setStationMode(true);
-        fortress.setNoFactionInName(true);
-        fortress.addTag(CRISIS_FLEET_TAG);
-        fortress.getMemoryWithoutUpdate().set(FORTRESS_MEMORY, true);
-        fortress.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_MAKE_AGGRESSIVE, true);
-        fortress.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_NO_JUMP, true);
-        fortress.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_NO_SHIP_RECOVERY, true);
-        // createEmptyFleet() may not have initialized its ability map yet; stations need no campaign abilities.
-        system.addEntity(fortress);
-
-        fortress.setCircularOrbitWithSpin(system.getStar(), random.nextFloat() * 360f,
-                Math.max(850f, system.getStar().getRadius() + 550f), 18f, 1f, 2f);
-        system.getStar().getSpec().setGlowColor(new Color(225, 35, 255));
-        system.getStar().getSpec().setCoronaColor(new Color(175, 20, 230, 210));
-        system.getStar().applySpecChanges();
-        PTSDCrisisState.SystemData data = state.getSystemData(system.getId());
-        data.blackHoleFortress = true;
-        data.omegaControl = 1f;
-        data.humanControl = 0f;
-        data.conversionLevel = Math.max(data.conversionLevel, 4);
-        state.addEvent(PTSDCrisisState.EventType.FORTRESS_PATROL, PTSDCrisisAPI.SIDE_OMEGA,
-                activeFactionId, system.getId(), system.getId(), null, 150f, 18f);
-        PTSDCrisisProgress.add(state, PTSDCrisisProgress.Variable.BLOCKADE_DENSITY,
-                10f, "BLACK_HOLE_FORTRESS", system.getId());
-        PTSDCrisisProgress.add(state, PTSDCrisisProgress.Variable.REALITY_DISTORTION,
-                7f, "BLACK_HOLE_FORTRESS", system.getId());
-        PTSDCrisisDevIntel.report("黑洞要塞建立",
-                system.getName() + " 的黑洞已转化为欧米伽要塞", system.getId(), fortress.getId());
-    }
     private void runWar(PTSDCrisisState state, float day) {
         showHardWarning(state);
         configureWarFaction();
         runExpansion(state, day);
         runFortification(state, day);
-        scheduleGrudgeRaid(state, day);
+        // The evidence-based trap director owns player-specific deployments.
         if (day >= state.nextOmegaTurnDay) {
             scheduleOmegaTurn(state);
-            state.nextOmegaTurnDay = day + Math.max(2f, frequencyAdjusted(randomBetween(front_turn_min_interval, front_turn_max_interval)));
+            state.nextOmegaTurnDay = day + Math.max(2f,
+                    frequencyAdjusted(randomBetween(front_turn_min_interval, front_turn_max_interval)) /
+                            lateOffensiveTempo);
         }
         if (day >= state.nextHumanTurnDay) {
             scheduleHumanTurn(state);
@@ -1092,38 +1092,21 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
         }
     }
 
-    private void scheduleGrudgeRaid(PTSDCrisisState state, float day) {
-        if (day < state.nextGrudgeRaidDay || state.playerGrudge <= 0f) return;
-        float grudge = Math.min(100f, state.playerGrudge);
-        state.nextGrudgeRaidDay = day + Math.max(1.5f, 8f - grudge * .06f) + random.nextFloat() * 3f;
-        if (random.nextFloat() > .20f + grudge * .0075f) return;
-        CampaignFleetAPI player = Global.getSector().getPlayerFleet();
-        StarSystemAPI targetSystem = findPlayerTargetSystem();
-        if (player == null || targetSystem == null) return;
-        float supplies = player.getCargo() == null ? 99999f : player.getCargo().getSupplies();
-        float lowThreshold = Math.max(45f, player.getFleetPoints() * .8f);
-        boolean execution = supplies < lowThreshold;
-        float strength = execution ? 160f + grudge * 2.2f : 24f + grudge * .5f;
-        PTSDCrisisState.StrategicEvent raid = state.addEvent(PTSDCrisisState.EventType.GRUDGE_RAID,
-                PTSDCrisisAPI.SIDE_OMEGA, PSYCHASTHENIA_FACTION, state.baseSystemId,
-                targetSystem.getId(), null, Math.min(final_invasion_max_strength, strength),
-                execution ? 14f : 8f);
-        raid.targetEntityId = player.getId();
-        raid.opponentFactionId = Global.getSector().getPlayerFaction().getId();
-        raid.playerRelevant = true;
-        raid.description = execution ? "供应崩溃已被确认；执行高强度追杀。" : "以低成本袭扰持续消耗目标补给。";
-        PTSDCrisisDevIntel.report(execution ? "记恨追杀舰队" : "记恨消耗舰队",
-                "记恨值 " + Math.round(grudge) + " / 目标补给 " + Math.round(supplies), targetSystem.getId(), null);
-    }
     private void scheduleOmegaTurn(PTSDCrisisState state) {
         MarketAPI target = pickAttackTarget(state);
         if (target == null || target.getStarSystem() == null) return;
         StarSystemAPI source = pickOmegaSource(state, target.getStarSystem());
         PTSDCrisisState.SystemData targetData = state.getSystemData(target.getStarSystem().getId());
-        float confidence = Math.min(1f, 0.15f + targetData.scoutVisits * 0.16f + targetData.playerSightings * 0.08f);
+        float confidence = Math.min(1f, 0.15f + targetData.beliefConfidence * .8f);
         float resistance = PTSDCrisisAPI.getFactionResistance(target.getFactionId());
         float strength = Math.min(final_invasion_max_strength,
                 Math.max(55f, 75f + targetData.attackWeight * 1.8f + confidence * 65f + resistance * 2.5f));
+        PTSDCrisisFactionModifierAPI.Effects factionEffect = PTSDCrisisFactionModifierAPI.get(
+                target.getFactionId(), target.getStarSystem().getId());
+        if (factionEffect.immune) return;
+        strength = Math.min(final_invasion_max_strength, strength * factionEffect.omegaStrength);
+        String attackId = "turn:" + target.getId() + ":" + Math.round(PTSDCrisisState.getDay());
+        if (!PTSDLateWarDirector.reserveAttack(state, attackId, strength)) return;
         PTSDCrisisState.StrategicEvent event = state.addEvent(PTSDCrisisState.EventType.ATTACK,
                 PTSDCrisisAPI.SIDE_OMEGA, PSYCHASTHENIA_FACTION,
                 source == null ? state.baseSystemId : source.getId(), target.getStarSystem().getId(),
@@ -1139,15 +1122,20 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
             if (market.isPlanetConditionMarketOnly() || market.getStarSystem() == null || market.getPrimaryEntity() == null) continue;
             String factionId = market.getFactionId();
             if (PSYCHASTHENIA_FACTION.equals(factionId) || WATCHER_FACTION.equals(factionId) || Factions.OMEGA.equals(factionId)) continue;
+            PTSDCrisisFactionModifierAPI.Effects factionEffect = PTSDCrisisFactionModifierAPI.get(
+                    factionId, market.getStarSystem().getId());
+            if (factionEffect.immune) continue;
             PTSDCrisisState.SystemData data = state.getSystemData(market.getStarSystem().getId());
             // The market is an implementation candidate, but Omega may only select it after its
             // own evidence has established that a colony exists in this system.
-            if (!data.hasNonCrisisColony || data.beliefConfidence < .08f) continue;
+            if (!data.hasNonCrisisColony ||
+                    !PTSDLateWarDirector.hasValidEvidence(data, PTSDCrisisState.getDay())) continue;
             float weight = Math.max(0.05f, data.attackWeight);
             if (market.isPlayerOwned()) weight *= 1.25f;
             PTSDCrisisState.PlayerMarker marker = state.playerMarkers.get(data.systemId);
             if (marker != null && "OMEGA_BASE".equals(marker.type)) weight *= Math.min(1.25f, marker.weight);
-            picker.add(market, PTSDCrisisAPI.modifyWeight(data.systemId, PTSDCrisisAPI.SIDE_OMEGA, weight));
+            picker.add(market, PTSDCrisisAPI.modifyWeight(data.systemId, PTSDCrisisAPI.SIDE_OMEGA,
+                    weight * factionEffect.targetWeight));
         }
         return picker.pick();
     }
@@ -1180,7 +1168,9 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
         PTSDCrisisState.SystemData data = state.getSystemData(attack.targetSystemId);
         float baseDefense = Math.max(35f, data.observedMarketDefense * 0.38f + market.getSize() * 9f);
         PTSDCrisisState.PlayerMarker marker = state.playerMarkers.get(attack.targetSystemId);
-        if (marker != null && "DEFEND".equals(marker.type)) baseDefense *= Math.min(1.35f, marker.weight);
+        // A defense beacon is a request, not additional ships or firepower.
+        baseDefense *= PTSDCrisisFactionModifierAPI.get(market.getFactionId(),
+                market.getStarSystem().getId()).humanStrength;
         baseDefense = PTSDCrisisAPI.modifyWeight(attack.targetSystemId, PTSDCrisisAPI.SIDE_HUMAN, baseDefense);
         float delay = Math.max(2f, attack.resolveDay - PTSDCrisisState.getDay());
         StarSystemAPI humanSource = pickHumanSource(market.getStarSystem(), market.getFactionId());
@@ -1218,7 +1208,7 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
                     }
                 }
                 PTSDCrisisState.PlayerMarker marker = state.playerMarkers.get(data.systemId);
-                if (marker != null && "DEFEND".equals(marker.type)) weight *= Math.min(1.35f, marker.weight);
+                // A defense beacon is a request, not additional ships or firepower.
                 if ("INTERCEPTOR".equals(force.specialization) && underAttack) weight *= 1.45f;
                 if ("LINE".equals(force.specialization)) weight *= 0.8f + Math.min(1.5f, data.humanDefenseWeight / 80f);
                 if ("STRIKE".equals(force.specialization) && data.omegaControl >= 0.5f) weight *= 1.8f;
@@ -1336,7 +1326,12 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
                     event.type == PTSDCrisisState.EventType.EXTERNAL || event.type == PTSDCrisisState.EventType.DEFENSE ||
                     event.type == PTSDCrisisState.EventType.MERCENARY_DEFENSE ||
                     event.type == PTSDCrisisState.EventType.GRUDGE_RAID) {
-                event.successful = true;
+                event.successful = !PTSDCrisisAPI.SIDE_OMEGA.equals(event.side) ||
+                        (state.resolveSystem(event.targetSystemId) != null &&
+                         (event.status != PTSDCrisisState.EventStatus.MATERIALIZED || hasEventFleet(event)) &&
+                         (event.type != PTSDCrisisState.EventType.GARRISON &&
+                          event.type != PTSDCrisisState.EventType.FORTRESS_PATROL ||
+                          state.getSystemData(event.targetSystemId).omegaControl >= .5f));
                 event.status = PTSDCrisisState.EventStatus.RESOLVED;
                 despawnEventFleets(event);
                 PTSDCrisisAPI.notifyResolved(event);
@@ -1395,13 +1390,15 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
         }
         float noise = .88f + random.nextFloat() * .24f;
         boolean truthReady = data.lastWeightUpdateDay > 0f;
-        PTSDCrisisAPI.recordEvidence(event.targetSystemId, "FIRE_PROBE", event.id,
-                truthReady ? data.groundTruthFleetStrength * noise : -1f,
-                truthReady ? data.groundTruthMarketDefense * noise : -1f,
-                truthReady ? data.groundTruthStrategicValue * noise : -1f,
-                truthReady ? (data.groundTruthHasNonCrisisColony ? 1 : 0) : -1,
-                truthReady ? (data.groundTruthHasNonCrisisFleet ? 1 : 0) : -1,
-                confidence, event.successful ? 180f : 60f, contaminated, 0f);
+        // Fire probes may learn only what the actual encounter exposed. The previous code copied
+        // a world-wide ground-truth snapshot even when the probe was destroyed before upload.
+        if (event.probeEngaged && event.successful && hasFleet) {
+            PTSDCrisisAPI.recordEvidence(event.targetSystemId, "FIRE_PROBE_CONTACT", event.id,
+                    Math.max(0f, event.probeObservedPlayerFP), -1f, -1f, -1, 1,
+                    confidence, 30f, contaminated, 0f);
+        }
+        PTSDThreatDirector.recordProbe(state, event, outcome,
+                event.probeObservedPlayerFP, hasFleet);
         if (hasFleet) despawnEventFleets(event);
         PTSDCrisisDevIntel.report("火力侦察结算",
                 outcome + " / 接触 " + event.probeEngaged + " / 玩家介入 " +
@@ -1478,7 +1475,7 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
         PTSDCrisisAPI.notifyResolved(attack);
     }
 
-    private void destroyAndClaimColony(PTSDCrisisState state, MarketAPI market) {
+    static void destroyAndClaimColony(PTSDCrisisState state, MarketAPI market) {
         int oldSize = market.getSize();
         market.setAdmin(null);
         market.setPlayerOwned(false);
@@ -1510,10 +1507,14 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
         if (market.getPlanetEntity() != null) applyPlanetMutation(market.getPlanetEntity(), 5);
         if (market.getStarSystem() != null) {
             String systemId = market.getStarSystem().getId();
-            state.addEvent(PTSDCrisisState.EventType.CONSTRUCTION, PTSDCrisisAPI.SIDE_OMEGA,
-                    PSYCHASTHENIA_FACTION, state.baseSystemId, systemId, market.getId(), 70f, 8f);
-            state.addEvent(PTSDCrisisState.EventType.GARRISON, PTSDCrisisAPI.SIDE_OMEGA,
-                    PSYCHASTHENIA_FACTION, state.baseSystemId, systemId, market.getId(), 95f, 10f);
+            if (PTSDLateWarDirector.reserveAttack(state, "occupation-build:" + market.getId(), 70f)) {
+                state.addEvent(PTSDCrisisState.EventType.CONSTRUCTION, PTSDCrisisAPI.SIDE_OMEGA,
+                        PSYCHASTHENIA_FACTION, state.baseSystemId, systemId, market.getId(), 70f, 8f);
+            }
+            if (PTSDLateWarDirector.reserveAttack(state, "occupation-garrison:" + market.getId(), 95f)) {
+                state.addEvent(PTSDCrisisState.EventType.GARRISON, PTSDCrisisAPI.SIDE_OMEGA,
+                        PSYCHASTHENIA_FACTION, state.baseSystemId, systemId, market.getId(), 95f, 10f);
+            }
         }
     }
     private void updateSystemWeights(PTSDCrisisState state, float day) {
@@ -1600,7 +1601,7 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
             data.humanDefenseWeight *= 1f + Math.min(0.4f, humanOccupationAttention * 0.05f);
             data.humanDefenseWeight *= 1f + state.humanCohesion / 300f;
             PTSDCrisisState.PlayerMarker marker = state.playerMarkers.get(system.getId());
-            if (marker != null && "DEFEND".equals(marker.type)) data.humanDefenseWeight *= Math.min(1.35f, marker.weight);
+            // A defense beacon is a request, not additional ships or firepower.
             data.attackWeight = PTSDCrisisAPI.modifyWeight(system.getId(), PTSDCrisisAPI.SIDE_OMEGA, data.attackWeight);
             data.humanDefenseWeight = PTSDCrisisAPI.modifyWeight(system.getId(), PTSDCrisisAPI.SIDE_HUMAN, data.humanDefenseWeight);
             data.lastWeightUpdateDay = day;
@@ -1850,7 +1851,33 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
                 ? PTSDOmegaFleetScaling.severityFor(event.type, event.strength) : 0f;
         float totalCombat = PTSDCrisisAPI.SIDE_OMEGA.equals(event.side)
                 ? PTSDOmegaFleetScaling.scale(baseCombat, severity) : baseCombat;
-        int maxGroups = pursuit ? 1 : Math.max(1, Math.min(3, (int) Math.floor(totalCombat / 24f)));
+        PTSDCrisisFleetLimits omegaLimits = PTSDCrisisAPI.SIDE_OMEGA.equals(event.side)
+                ? PTSDCrisisFleetLimits.forPhase(state, PTSDCrisisState.getDay()) : null;
+        if (omegaLimits != null) totalCombat = Math.min(totalCombat, omegaLimits.totalFp);
+        int occupiedGroups = 0;
+        if (state.phase == PTSDCrisisState.Phase.RECON &&
+                event.type == PTSDCrisisState.EventType.FIRE_PROBE && omegaLimits != null) {
+            float occupiedFp = 0f;
+            for (PTSDCrisisState.StrategicEvent other : state.events) {
+                if (other == event || other.type != PTSDCrisisState.EventType.FIRE_PROBE ||
+                        !system.getId().equals(other.targetSystemId) ||
+                        other.status != PTSDCrisisState.EventStatus.MATERIALIZED) continue;
+                for (CampaignFleetAPI existing : findEventFleets(other)) {
+                    if (existing == null || !existing.isAlive()) continue;
+                    occupiedFp += Math.max(0f, existing.getFleetPoints());
+                    occupiedGroups++;
+                }
+            }
+            totalCombat = Math.min(totalCombat, Math.max(0f, omegaLimits.totalFp - occupiedFp));
+            if (occupiedGroups >= 3 || totalCombat < 10f) {
+                PTSDCrisisDevIntel.report("火力侦察等待占额",
+                        event.id + "：同星系已有 " + occupiedGroups + " 队 / " +
+                                Math.round(occupiedFp) + " FP", system.getId(), null);
+                return;
+            }
+        }
+        int maxGroups = pursuit ? 1 : Math.max(1, Math.min(3 - occupiedGroups,
+                (int) Math.floor(totalCombat / 24f)));
         int groupCount = pursuit ? 1 : 1 + random.nextInt(maxGroups);
         float[] shares = new float[groupCount];
         float shareTotal = 0f;
@@ -1863,6 +1890,7 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
         event.materializedFleetIds.clear();
         event.materializedFleetId = null;
         boolean playerInsideTarget = player != null && player.getStarSystem() == system;
+        float actualTotalFp = 0f;
         for (int index = 0; index < groupCount; index++) {
             SectorEntityToken target = pursuit ? primaryTarget : pickProjectionTarget(system, primaryTarget);
             SectorEntityToken spawnFocus = playerInsideTarget ? player : target;
@@ -1877,22 +1905,28 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
             }
             if (spawn == null) continue;
             float combat = Math.max(10f, totalCombat * shares[index] / shareTotal);
+            if (omegaLimits != null) combat = Math.min(combat,
+                    Math.min(omegaLimits.perFleetFp, omegaLimits.totalFp - actualTotalFp));
+            if (combat < 3f) continue;
             float baseShare = Math.max(10f, baseCombat * shares[index] / shareTotal);
             String fleetType = event.type == PTSDCrisisState.EventType.MERCENARY_DEFENSE ?
                     FleetTypes.MERC_ARMADA : FleetTypes.TASK_FORCE;
             FleetParamsV3 params = new FleetParamsV3(spawn, factionId, 1f, fleetType,
                     combat, 0f, 0f, 0f, 0f, 0f, 0f);
-            params.maxNumShips = Math.max(8, Math.round(Global.getSettings().getMaxShipsInFleet() * 1.25f));
+            params.maxNumShips = omegaLimits == null
+                    ? Math.max(8, Math.round(Global.getSettings().getMaxShipsInFleet() * 1.25f))
+                    : omegaLimits.maxShips;
             CampaignFleetAPI fleet;
-            if (PTSDCrisisAPI.SIDE_OMEGA.equals(event.side)) {
+            if (omegaLimits != null) {
                 fleet = PTSD_BaseShard_Util.createFleet(params, combat,
-                        PTSD_BaseShard_Util.FleetRole.GUARD_ASSAULT, random);
+                        PTSD_BaseShard_Util.FleetRole.GUARD_ASSAULT, random, omegaLimits.forFleet(combat));
             } else {
                 fleet = FleetFactoryV3.createFleet(params);
             }
             if (fleet == null) continue;
-            if (PTSDCrisisAPI.SIDE_OMEGA.equals(event.side)) {
-                PTSDOmegaFleetScaling.record(fleet, baseShare, combat, severity);
+            if (omegaLimits != null) {
+                actualTotalFp += fleet.getFleetPoints();
+                PTSDOmegaFleetScaling.record(fleet, baseShare, fleet.getFleetPoints(), severity);
             }
             spawnLocation.addEntity(fleet);
             fleet.setLocation(spawn.x, spawn.y);
@@ -1933,10 +1967,19 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
             } else {
                 fleet.addAssignment(FleetAssignment.DEFEND_LOCATION, target, assignmentDays, "阻滞进攻");
             }
+            if (PTSDCrisisAPI.SIDE_OMEGA.equals(event.side) && target == player &&
+                    (event.type == PTSDCrisisState.EventType.PREWAR_HUNTER ||
+                     event.type == PTSDCrisisState.EventType.GRUDGE_RAID ||
+                     event.type == PTSDCrisisState.EventType.FIRE_PROBE ||
+                     event.type == PTSDCrisisState.EventType.ATTACK)) {
+                PTSDOmegaEncounterResponse.attachPursuer(fleet, player);
+            }
             if (PTSDCrisisAPI.SIDE_OMEGA.equals(event.side)) {
                 PTSDCrisisDevIntel.report("精神创伤分支舰队生成",
                         event.type + " / 分支 " + PTSD_BaseShard_Util.getFleetBranchName(fleet) +
-                                " / 强度 " + Math.round(combat),
+                                " / 实有自动分 " + Math.round(fleet.getFleetPoints()) +
+                                " / 本事件上限 " + Math.round(omegaLimits.totalFp) +
+                                " / 单队上限 " + Math.round(omegaLimits.perFleetFp),
                         event.targetSystemId, fleet.getId());
             }
             event.materializedFleetIds.add(fleet.getId());
@@ -1950,7 +1993,8 @@ public class IIRT_Omega_Invasion implements EveryFrameScript {
         event.status = PTSDCrisisState.EventStatus.MATERIALIZED;
         PTSDCrisisDevIntel.report("战略事件实体化",
                 event.type + " / " + event.side + " / " + event.materializedFleetIds.size() +
-                        "支分遣舰队 / 总强度 " + Math.round(totalCombat),
+                        "支分遣舰队 / 实有自动分 " + Math.round(
+                                omegaLimits == null ? totalCombat : actualTotalFp),
                 event.targetSystemId, event.materializedFleetId);
     }
 

@@ -290,10 +290,10 @@ public final class PTSDJeOtloesDialog implements InteractionDialogPlugin {
             return;
         }
         text.addPara("\n\"你要的事情我办完了，我希望你还记得。\"他顿了顿，\"" +
-                incident.sourceLabel + "，关于" + incident.headline + "的那件事。\"");
-        text.addPara("\n\"官方报告的说法是，我想你也还记得：" + incident.publicText + "\"");
-        text.addPara("\"" + incident.trueText + "\"");
+                PTSDPlayerNewsText.source(incident) + "，关于" + PTSDPlayerNewsText.headline(incident) + "的那件事。\"");
+        text.addPara("\n\"官方报告的说法是，我想你也还记得：" + PTSDPlayerNewsText.report(incident) + "\"");
         PTSDNewsSiteManager.resolveRemotely(PTSDCrisisState.get(), incident);
+        text.addPara("\"" + PTSDPlayerNewsText.investigativeNote(incident) + "\"");
         if (incident.siteTitle != null && !incident.siteTitle.isEmpty()) {
             text.addPara("\n\"现场是" + incident.siteTitle + "。" + incident.siteDescription + "\"");
         }
@@ -310,6 +310,11 @@ public final class PTSDJeOtloesDialog implements InteractionDialogPlugin {
         options.clearOptions();
         text.addPara("\n\n你了解到这一事件对周边殖民地的影响：" + label,
                 impact >= 40f ? Color.RED : Misc.getHighlightColor());
+        if (percent >= 100) {
+            text.addPara("调查未带回可核验的结论。原有影响记录保留，本次不登记完成战绩。");
+            addLeave(options, "结束会面");
+            return;
+        }
         text.addPara("\n\"但，我尽可能降低了影响，现在理论上，这件事造成的影响为之前的" +
                 percent + "%\"");
         addLeave(options, "结束会面");

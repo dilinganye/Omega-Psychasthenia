@@ -33,6 +33,14 @@ public final class PTSDCrisisNewsAPI {
         default SectorEntityToken onIncidentCreated(IncidentContext context) { return null; }
     }
 
+    /** A SCRIPTED card with its own save-persistent lifecycle. Ambient handlers remain unchanged. */
+    public interface ChainNewsHandler extends CustomNewsHandler {
+        String unavailableReason(PTSDCrisisState state);
+        void start(PTSDCrisisState state, PTSDLateState.FTChain chain);
+        void advanceChain(PTSDCrisisState state, PTSDLateState.FTChain chain, float day);
+        boolean choose(PTSDCrisisState state, PTSDLateState.FTChain chain, String action);
+    }
+
     public static final class TargetSelection {
         public final StarSystemAPI system;
         public final MarketAPI market;
@@ -100,6 +108,23 @@ public final class PTSDCrisisNewsAPI {
             new LinkedHashMap<String, CustomNewsHandler>();
 
     private PTSDCrisisNewsAPI() { }
+
+    /** Game scripts cannot reflectively invoke constructors; built-in handlers are registered directly. */
+    public static void registerBuiltinHandlers() {
+        final String base = "data.scripts.campaign.invasion.news.ft.";
+        registerHandler(base + "FT01Handler", new data.scripts.campaign.invasion.news.ft.FT01Handler());
+        registerHandler(base + "FT02Handler", new data.scripts.campaign.invasion.news.ft.FT02Handler());
+        registerHandler(base + "FT03Handler", new data.scripts.campaign.invasion.news.ft.FT03Handler());
+        registerHandler(base + "FT04Handler", new data.scripts.campaign.invasion.news.ft.FT04Handler());
+        registerHandler(base + "FT05Handler", new data.scripts.campaign.invasion.news.ft.FT05Handler());
+        registerHandler(base + "FT06Handler", new data.scripts.campaign.invasion.news.ft.FT06Handler());
+        registerHandler(base + "FT07Handler", new data.scripts.campaign.invasion.news.ft.FT07Handler());
+        registerHandler(base + "FT08Handler", new data.scripts.campaign.invasion.news.ft.FT08Handler());
+        registerHandler(base + "FT09Handler", new data.scripts.campaign.invasion.news.ft.FT09Handler());
+        registerHandler(base + "FT10Handler", new data.scripts.campaign.invasion.news.ft.FT10Handler());
+        registerHandler("data.scripts.campaign.invasion.news.FugitiveShuttleNewsHandler",
+                new data.scripts.campaign.invasion.news.FugitiveShuttleNewsHandler());
+    }
 
     public static void registerHandler(String alias, CustomNewsHandler handler) {
         if (alias == null || alias.trim().isEmpty() || handler == null) return;

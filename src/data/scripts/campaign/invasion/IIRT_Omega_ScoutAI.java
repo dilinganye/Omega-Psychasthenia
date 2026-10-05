@@ -8,6 +8,7 @@ import com.fs.starfarer.api.campaign.LocationAPI;
 import com.fs.starfarer.api.campaign.PlanetAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
+import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.ai.FleetAssignmentDataAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Abilities;
 import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
@@ -51,6 +52,9 @@ public final class IIRT_Omega_ScoutAI extends BaseAssignmentAI {
     private boolean arrived;
     private boolean escapeReported;
     private int consecutiveEmptyReconDays;
+    private float nextBatchReportDay;
+    private float emptyRerouteDay;
+    private int reconHopCount;
 
     public IIRT_Omega_ScoutAI(CampaignFleetAPI fleet, SectorEntityToken target) {
         this(fleet, target, MissionType.RELAY,
@@ -126,6 +130,12 @@ public final class IIRT_Omega_ScoutAI extends BaseAssignmentAI {
         missionStage = missionType == MissionType.WILDERNESS_ROAM ? MissionStage.ROAM : MissionStage.OBSERVE;
         fleet.getMemoryWithoutUpdate().set("$PTSD_scout_stage", missionStage.name());
         IIRT_Omega_Invasion.reportScoutMissionStage(targetSystemId, fleet.getId(), missionType.name(), "抵达任务区");
+        PTSDReconReportDirector.queueBatch(PTSDCrisisState.get(), fleet, targetSystemId);
+        nextBatchReportDay = PTSDCrisisState.getDay() + data.scripts.IIRT_Omega_ModPlugin.reconReportInterval;
+        emptyRerouteDay = isUninhabitedTarget() ? PTSDCrisisState.getDay() +
+                data.scripts.IIRT_Omega_ModPlugin.reconEmptyRerouteMin + (float) Math.random() *
+                Math.max(0f, data.scripts.IIRT_Omega_ModPlugin.reconEmptyRerouteMax -
+                        data.scripts.IIRT_Omega_ModPlugin.reconEmptyRerouteMin) : 0f;
         assignOnStation();
     }
 
@@ -161,6 +171,18 @@ public final class IIRT_Omega_ScoutAI extends BaseAssignmentAI {
 
         if (missionStage == MissionStage.TRAVEL && isAtTarget()) beginOnStation();
         if (missionStage == MissionStage.ROAM && stageDays >= nextRoamDay) assignOnStation();
+        if ((missionStage == MissionStage.OBSERVE || missionStage == MissionStage.ROAM) &&
+                nextBatchReportDay > 0f && PTSDCrisisState.getDay() >= nextBatchReportDay) {
+            PTSDReconReportDirector.queueBatch(PTSDCrisisState.get(), fleet, targetSystemId);
+            nextBatchReportDay = PTSDCrisisState.getDay() + data.scripts.IIRT_Omega_ModPlugin.reconReportInterval;
+        }
+        if ((missionStage == MissionStage.OBSERVE || missionStage == MissionStage.ROAM) &&
+                emptyRerouteDay > 0f && PTSDCrisisState.getDay() >= emptyRerouteDay) {
+            emptyRerouteDay = 0f;
+            submitDailyReconMaximum();
+            if (reconHopCount < 3 && switchToNearbySystem()) reconHopCount++;
+            else beginEscape(null, false);
+        }
 
         checkInterval.advance(days);
         if (checkInterval.intervalElapsed()) {
@@ -182,7 +204,8 @@ public final class IIRT_Omega_ScoutAI extends BaseAssignmentAI {
         }
         // Only a broken/pathless mission may hit this failsafe; ordinary travel gets ample time.
         if (missionStage == MissionStage.TRAVEL && missionDays >= 120f) beginEscape(null, false);
-        if (missionStage == MissionStage.ESCAPE && fleeDays >= 18f && !fleet.isVisibleToPlayerFleet()) finishEscape();
+        if (missionStage == MissionStage.ESCAPE && fleet.getBattle() == null &&
+                !fleet.isVisibleToPlayerFleet()) finishEscape();
     }
 
     private void ensureRuntimeFields() {
@@ -202,6 +225,13 @@ public final class IIRT_Omega_ScoutAI extends BaseAssignmentAI {
         if (targetSystemId == null && target != null && target.getStarSystem() != null) {
             targetSystemId = target.getStarSystem().getId();
         }
+        if ((missionStage == MissionStage.OBSERVE || missionStage == MissionStage.ROAM) &&
+                nextBatchReportDay <= 0f)
+            nextBatchReportDay = PTSDCrisisState.getDay() + data.scripts.IIRT_Omega_ModPlugin.reconReportInterval;
+        if ((missionStage == MissionStage.OBSERVE || missionStage == MissionStage.ROAM) &&
+                emptyRerouteDay <= 0f && reconHopCount < 3 && isUninhabitedTarget())
+            emptyRerouteDay = PTSDCrisisState.getDay() +
+                    data.scripts.IIRT_Omega_ModPlugin.reconEmptyRerouteMin;
     }
 
     private boolean isAtTarget() {
@@ -214,6 +244,10 @@ public final class IIRT_Omega_ScoutAI extends BaseAssignmentAI {
         if (sightingReported) return;
         sightingReported = true;
         IIRT_Omega_Invasion.reportScoutSighting(targetSystemId);
+        CampaignFleetAPI player = Global.getSector().getPlayerFleet();
+        if (player != null && fleet.getStarSystem() != null && player.getStarSystem() == fleet.getStarSystem() &&
+                Misc.getDistance(player.getLocation(), fleet.getLocation()) <= 12000f)
+            PTSDReconReportDirector.queuePlayerContact(PTSDCrisisState.get(), fleet, fleet.getStarSystem().getId());
     }
 
     private CampaignFleetAPI findImmediateThreat(boolean playerCanSeeScout) {
@@ -296,64 +330,44 @@ public final class IIRT_Omega_ScoutAI extends BaseAssignmentAI {
         IIRT_Omega_Invasion.reportReconDailyMaximum(targetSystemId, maximum,
                 fleet == null ? null : fleet.getId(), reconSampleDayBucket);
         consecutiveEmptyReconDays = maximum <= .01f ? consecutiveEmptyReconDays + 1 : 0;
-        if (consecutiveEmptyReconDays >= 5 && missionStage != MissionStage.ESCAPE) {
-            consecutiveEmptyReconDays = 0;
-            if (Math.random() < .65f && switchToNearbySystem()) return true;
-            beginEscape(null, false);
-            return true;
-        }
         return false;
+    }
+
+    private boolean isUninhabitedTarget() {
+        StarSystemAPI system = targetSystemId == null ? null : Global.getSector().getStarSystem(targetSystemId);
+        if (system == null) return false;
+        for (MarketAPI market : Global.getSector().getEconomy().getMarkets(system))
+            if (market != null && !market.isPlanetConditionMarketOnly()) return false;
+        return true;
     }
 
     private boolean switchToNearbySystem() {
         StarSystemAPI current = targetSystemId == null ? null : Global.getSector().getStarSystem(targetSystemId);
         if (current == null || fleet == null) return false;
-        final StarSystemAPI origin = current;
-        List<StarSystemAPI> systems = new ArrayList<StarSystemAPI>();
-        for (StarSystemAPI candidate : Global.getSector().getStarSystems()) {
-            if (candidate == null || candidate == current) continue;
-            if (candidate.hasTag(Tags.THEME_HIDDEN) || candidate.hasTag(Tags.SYSTEM_CUT_OFF_FROM_HYPER)) continue;
-            PTSDCrisisState state = PTSDCrisisState.get();
-            PTSDCrisisState.SystemData data = state == null ? null : state.getSystemData(candidate.getId());
-            if (data != null && (data.omegaControl >= .5f || data.conversionLevel > 0)) continue;
-            boolean hasTarget = !candidate.getJumpPoints().isEmpty();
-            if (!hasTarget) for (PlanetAPI planet : candidate.getPlanets()) {
-                if (planet != null && !planet.isStar()) { hasTarget = true; break; }
-            }
-            if (hasTarget) systems.add(candidate);
-        }
-        Collections.sort(systems, new Comparator<StarSystemAPI>() {
-            @Override public int compare(StarSystemAPI a, StarSystemAPI b) {
-                return Float.compare(Misc.getDistance(origin.getLocation(), a.getLocation()),
-                        Misc.getDistance(origin.getLocation(), b.getLocation()));
-            }
-        });
-        // Reuse the initial target restrictions and retry up to eight valid neighbouring systems.
-        int attempts = Math.min(8, systems.size());
-        for (int i = 0; i < attempts; i++) {
-            int pick = i + (int) (Math.random() * (systems.size() - i));
-            StarSystemAPI swap = systems.get(i);
-            systems.set(i, systems.get(pick));
-            systems.set(pick, swap);
-            StarSystemAPI next = systems.get(i);
+        PTSDCrisisState state = PTSDCrisisState.get();
+        StarSystemAPI next = PTSDReconReportDirector.nextUnscouted(state, current, fleet.getId());
+        if (next != null) {
             List<SectorEntityToken> candidates = new ArrayList<SectorEntityToken>();
             candidates.addAll(next.getJumpPoints());
             for (PlanetAPI planet : next.getPlanets()) if (planet != null && !planet.isStar()) candidates.add(planet);
-            if (candidates.isEmpty()) continue;
+            if (candidates.isEmpty()) return false;
             SectorEntityToken nextTarget = candidates.get((int) (Math.random() * candidates.size()));
-            if (nextTarget == null || nextTarget.getContainingLocation() != next) continue;
+            if (nextTarget == null || nextTarget.getContainingLocation() != next) return false;
             targetSystemId = next.getId();
             target = nextTarget;
             arrived = false;
             stageDays = 0f;
             missionStage = MissionStage.TRAVEL;
             reconSampleDayBucket = -1;
+            nextBatchReportDay = 0f;
             fleet.clearAssignments();
             beginTravel();
+            state.lastReconRoutingReason = current.getName() + " 无活跃殖民地；转往缺少实地报告的 " + next.getName();
             IIRT_Omega_Invasion.reportScoutMissionStage(targetSystemId, fleet.getId(),
-                    missionType == null ? "LEGACY" : missionType.name(), "连续五日未发现舰队，转向有效邻近星系");
+                    missionType == null ? "LEGACY" : missionType.name(), "无人星系短测绘完成，转向未侦察星系");
             return true;
         }
+        if (state != null) state.lastReconRoutingReason = current.getName() + " 周边无有效未侦察目标，执行撤离";
         return false;
     }
     private SectorEntityToken pickRoamTarget() {
@@ -382,7 +396,7 @@ public final class IIRT_Omega_ScoutAI extends BaseAssignmentAI {
         SectorEntityToken exit = createDistantExit(threat);
         fleet.clearAssignments();
         if (exit == null) { safeDespawn("无法建立撤离航线"); return; }
-        fleet.addAssignment(FleetAssignment.GO_TO_LOCATION_AND_DESPAWN, exit, 60f,
+        fleet.addAssignment(FleetAssignment.GO_TO_LOCATION, exit, 60f,
                 escapedPlayer ? "规避追踪并切断信号" : "沿静默航线撤离");
     }
 
@@ -401,10 +415,7 @@ public final class IIRT_Omega_ScoutAI extends BaseAssignmentAI {
     }
 
     private void checkEscapeComplete() {
-        CampaignFleetAPI player = Global.getSector().getPlayerFleet();
-        if (player == null || player.getContainingLocation() != fleet.getContainingLocation()) return;
-        float distance = Misc.getDistance(fleet.getLocation(), player.getLocation());
-        if (sightingReported && distance >= 18000f && !fleet.isVisibleToPlayerFleet()) finishEscape();
+        if (fleet.getBattle() == null && !fleet.isVisibleToPlayerFleet()) finishEscape();
     }
 
     private void finishEscape() {
@@ -414,6 +425,13 @@ public final class IIRT_Omega_ScoutAI extends BaseAssignmentAI {
     private void safeDespawn(String reason) {
         submitDailyReconMaximum();
         if (fleet != null && fleet.getBattle() == null && fleet.isAlive()) {
+            PTSDCrisisState state = PTSDCrisisState.get();
+            if ("完成撤离".equals(reason)) {
+                PTSDReconReportDirector.flushReturningScout(state, fleet.getId());
+                PTSDLateWarDirector.creditStrategicAssets(state, "scout-return:" + fleet.getId(),
+                        Math.max(0f, fleet.getFleetPoints()), "侦察舰安全返航，回收现存舰队自动分",
+                        targetSystemId);
+            }
             IIRT_Omega_Invasion.reportScoutMissionStage(targetSystemId, fleet.getId(),
                     missionType == null ? "LEGACY" : missionType.name(), reason);
             fleet.despawn(FleetDespawnReason.OTHER, null);

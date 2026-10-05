@@ -15,8 +15,10 @@ import java.util.Set;
 /** Player-facing crisis dossier: stage estimates, recorded investigations and recent sightings. */
 public final class PTSDCrisisIntel extends BaseIntelPlugin {
     private static final long serialVersionUID = 2L;
+    private static final String EXECUTE_INCIDENT = "PTSD_CRISIS_EXECUTE_INCIDENT:";
     private static final String GO_INCIDENT = "PTSD_CRISIS_GO_INCIDENT:";
     private static final String GO_TRACE = "PTSD_CRISIS_GO_TRACE:";
+    private static final String GO_FT09 = "PTSD_CRISIS_GO_FT09";
     private static final String TOGGLE_NEWS = "PTSD_CRISIS_TOGGLE_NEWS";
     private boolean devOnlyPreview;
 
@@ -62,6 +64,19 @@ public final class PTSDCrisisIntel extends BaseIntelPlugin {
         else if(state.visibleStage==2)info.addPara("推测阶段：%s。若干星体参数开始偏离历史记录。",opad,h,"据点营建");
         else info.addPara("推测阶段：%s。异常活动正围绕若干星系固化。",opad,omega,"大规模行动准备");
         info.addPara("已确认的异常接触：%s；被目击的侦察单位：%s。",opad,h,String.valueOf(state.totalOmegaEncounters),String.valueOf(state.totalScoutSightings));
+        if (state.late != null) {
+            PTSDLateState.FTChain wreck = state.late.ftChains.get("FT-09");
+            if (wreck != null && !wreck.resolved && state.resolveSystem(wreck.systemId) != null) {
+                info.addSectionHeading("匿名残片线索", omega, dark,
+                        com.fs.starfarer.api.ui.Alignment.MID, 12f);
+                info.addPara("一份没有署名的定位数据指向 " +
+                        state.resolveSystem(wreck.systemId).getName() +
+                        " 的失事区域。坐标约剩 " +
+                        Math.max(0, Math.round(wreck.expiresDay - PTSDCrisisState.getDay())) +
+                        " 日有效。", 5f);
+                info.addButton("前往匿名坐标", GO_FT09, omega, dark, width, 23f, 2f);
+            }
+        }
 
         int leads=0;
         for(PTSDCrisisState.CrisisIncident incident:state.incidents){
@@ -70,8 +85,15 @@ public final class PTSDCrisisIntel extends BaseIntelPlugin {
             if(leads++==0)info.addSectionHeading("已记录的新闻调查",omega,dark,com.fs.starfarer.api.ui.Alignment.MID,12f);
             String status=incident.investigationResolved?"已确认，位置保留":(incident.siteMaterialized?"现场已显现，等待抵近确认":"调查中，进入星系后投影现场");
             int left=Math.max(0,(int)Math.ceil(incident.investigationExpiresDay-PTSDCrisisState.getDay()));
-            info.addPara("%s｜%s｜%s（剩余 %s 天）",6f,incident.investigationResolved?h:Misc.getTextColor(),incident.headline,system.getName(),status,String.valueOf(left));
+            info.addPara("%s｜%s｜%s（剩余 %s 天）",6f,incident.investigationResolved?h:Misc.getTextColor(),PTSDPlayerNewsText.headline(incident),system.getName(),status,String.valueOf(left));
             if(incident.siteMaterialized)info.addPara("现场：%s｜%s",3f,new Color(206,142,255),String.valueOf(incident.siteTitle),String.valueOf(incident.siteConfirmationHint));
+            if (incident.scenarioTrigger != null && incident.investigationResolved)
+                info.addPara("%s", 3f, Misc.getTextColor(), PTSDPlayerNewsText.summary(incident));
+            if (PTSDConditionalNewsDirector.canChooseOperation(incident)) {
+                boolean communication = "SHARE_INTEL".equals(incident.scenarioEffect) || "COORDINATE".equals(incident.scenarioEffect);
+                info.addButton((communication ? "提交核验记录：" : "执行现场行动（10补给，驻留1日）：") + PTSDPlayerNewsText.action(incident),
+                        EXECUTE_INCIDENT + incident.id, omega, dark, width, 23f, 2f);
+            }
             if(!incident.investigationResolved)info.addButton("前往调查："+system.getName(),GO_INCIDENT+incident.id,omega,dark,width,23f,2f);
         }
         int traces=0;
@@ -88,8 +110,17 @@ public final class PTSDCrisisIntel extends BaseIntelPlugin {
         String systemId=null; SectorEntityToken target=null; PTSDCrisisState state=PTSDCrisisState.get();
         if(buttonId instanceof String&&state!=null){String id=(String)buttonId;
             if(TOGGLE_NEWS.equals(id)){PTSDCrisisAPI.setNewsIntelSubscribed(!PTSDCrisisAPI.isNewsIntelSubscribed());ui.updateUIForItem(this);return;}
+            else if(id.startsWith(EXECUTE_INCIDENT)) {
+                if (!PTSDConditionalNewsDirector.startPlayerOperation(state, id.substring(EXECUTE_INCIDENT.length())))
+                    Global.getSector().getCampaignUI().addMessage("行动未下达：请检查有效期、现场距离及10单位补给。", Misc.getGrayColor());
+                ui.updateUIForItem(this); return;
+            }
             else if(id.startsWith(GO_INCIDENT)){PTSDCrisisState.CrisisIncident item=PTSDCrisisAPI.getIncident(id.substring(GO_INCIDENT.length()));if(item!=null){systemId=item.targetSystemId;target=PTSDCrisisAPI.resolveIncidentTarget(item);}}
             else if(id.startsWith(GO_TRACE)){String traceId=id.substring(GO_TRACE.length());for(PTSDCrisisState.SignalTrace trace:state.signalTraces)if(trace!=null&&traceId.equals(trace.id)){systemId=trace.systemId;break;}}
+            else if (GO_FT09.equals(id) && state.late != null) {
+                PTSDLateState.FTChain wreck = state.late.ftChains.get("FT-09");
+                if (wreck != null) { systemId = wreck.systemId; target = PTSDFTDirector.target(wreck); }
+            }
         }
         if(target==null&&systemId!=null){StarSystemAPI system=state.resolveSystem(systemId);if(system!=null)target=system.getHyperspaceAnchor();}
         if(target!=null){Global.getSector().layInCourseFor(target);ui.updateUIForItem(this);return;}

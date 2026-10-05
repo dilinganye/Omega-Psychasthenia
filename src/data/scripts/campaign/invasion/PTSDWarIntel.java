@@ -102,11 +102,11 @@ public final class PTSDWarIntel extends BaseIntelPlugin {
     public void createSmallDescription(TooltipMakerAPI info, float width, float height) {
         PTSDCrisisState state = PTSDCrisisState.get();
         float opad = 10f;
-        info.addPara("这是一张由不完整通讯、殖民地报告与战场估算拼合的全星域战线图。舰队只在你靠近相关星系时实体化；远方战况由战略事件异步结算。", opad);
+        info.addPara("来自殖民地、盟军调令与本舰传感器的报告在这里汇合。失联区域保留末次记录；过期报告需要重新核验。", opad);
         if (state == null) return;
-        info.addPara("当前战线：%s 个活动；精神创伤实控星系：%s；玩家特化舰队：%s/8。", opad,
-                Misc.getHighlightColor(), String.valueOf(state.getActiveEvents().size()),
-                String.valueOf(countOmegaSystems(state)), String.valueOf(state.countActiveTaskForces()));
+        info.addPara("已收军报：%s 份；已知接触区域：%s；玩家特化舰队：%s/8。", opad,
+                Misc.getHighlightColor(), String.valueOf(state.humanWarReports.size()),
+                String.valueOf(reportedSystems(state)), String.valueOf(state.countActiveTaskForces()));
     }
 
     @Override
@@ -123,7 +123,7 @@ public final class PTSDWarIntel extends BaseIntelPlugin {
         TooltipMakerAPI mapHeader = mapPanel.createUIElement(mapWidth - 24f, 74f, false);
         mapHeader.addSectionHeading("全星域战线", omega, getFactionForUIColors().getDarkUIColor(),
                 com.fs.starfarer.api.ui.Alignment.MID, 0f);
-        LabelAPI help = mapHeader.addPara("滚轮缩放；按住左键拖动；右键重置视野。战线、控制区与推进箭头均为战略推演。", 5f);
+        LabelAPI help = mapHeader.addPara("滚轮缩放；左键拖动；点击固定报告；右键星系操作。宽虚线标识交战双方，细虚线按势力区分。", 5f);
         help.setColor(new Color(180, 190, 205));
         mapPanel.addUIElement(mapHeader).inTL(12f, 8f);
 
@@ -137,15 +137,30 @@ public final class PTSDWarIntel extends BaseIntelPlugin {
         TooltipMakerAPI side = panel.createUIElement(sideWidth, height, true);
         side.addSectionHeading("战区态势控制台", omega, getFactionForUIColors().getDarkUIColor(),
                 com.fs.starfarer.api.ui.Alignment.MID, 0f);
-        side.addPara("远方战况由战略层异步结算；舰队仅在玩家接近相关星系时临时实体化。", 8f);
+        side.addPara("军报按来源与日期保留。标记提出防御请求，实际支援取决于成员答复和可调拨舰队。", 8f);
         if (state == null) {
             side.addPara("战略数据尚未初始化。", Misc.getNegativeHighlightColor(), 10f);
         } else {
-            side.addPara("活动战线 %s　精神创伤实控 %s　玩家舰队 %s/8", 6f,
-                    Misc.getHighlightColor(), String.valueOf(state.getActiveEvents().size()),
-                    String.valueOf(countOmegaSystems(state)), String.valueOf(state.countActiveTaskForces()));
+            side.addPara("已收军报 %s　已知区域 %s　玩家舰队 %s/8", 6f,
+                    Misc.getHighlightColor(), String.valueOf(state.humanWarReports.size()),
+                    String.valueOf(reportedSystems(state)), String.valueOf(state.countActiveTaskForces()));
+            side.addSectionHeading("选中战区", human, Global.getSector().getPlayerFaction().getDarkUIColor(),
+                    com.fs.starfarer.api.ui.Alignment.MID, 10f);
+            LabelAPI selection = side.addPara("点击地图星系固定最近军报。", 6f);
+            mapPlugin.setParent(mapPanel, selection);
             addFrontSummary(side, state, sideWidth, 10f, omega, human);
-            addOrderControls(side, state, sideWidth, 10f, omega, human);
+            if (state.late != null && !state.late.alerts.isEmpty()) {
+                side.addSectionHeading("告警归档", omega, getFactionForUIColors().getDarkUIColor(),
+                        com.fs.starfarer.api.ui.Alignment.MID, 10f);
+                int shownAlerts = 0;
+                for (int index = state.late.alerts.size() - 1; index >= 0 && shownAlerts < 18; index--) {
+                    PTSDLateState.Alert alert = state.late.alerts.get(index);
+                    if (alert == null || !alert.delivered) continue;
+                    side.addPara("[%s] %s", 3f, Misc.getTextColor(), alert.source, alert.text);
+                    shownAlerts++;
+                }
+            }
+            side.addPara("防御信标、增援申请、授权后备队调动及航线规划：右键地图上的星系。", 10f, Misc.getGrayColor());
             addTaskForceControls(side, state, sideWidth, 10f, human);
         }
         panel.addUIElement(side).inTR(0f, 0f);
@@ -154,58 +169,20 @@ public final class PTSDWarIntel extends BaseIntelPlugin {
                                  Color omega, Color human) {
         info.addSectionHeading("活动战线", omega, getFactionForUIColors().getDarkUIColor(),
                 com.fs.starfarer.api.ui.Alignment.MID, opad);
-        List<PTSDCrisisState.StrategicEvent> events = state.getActiveEvents();
-        Collections.sort(events, new Comparator<PTSDCrisisState.StrategicEvent>() {
-            @Override
-            public int compare(PTSDCrisisState.StrategicEvent a, PTSDCrisisState.StrategicEvent b) {
-                return Float.compare(b.strength, a.strength);
-            }
+        List<PTSDCrisisState.HumanReport> reports = new ArrayList<PTSDCrisisState.HumanReport>(state.humanWarReports.values());
+        Collections.sort(reports, new Comparator<PTSDCrisisState.HumanReport>() {
+            public int compare(PTSDCrisisState.HumanReport a, PTSDCrisisState.HumanReport b) { return Float.compare(b.day, a.day); }
         });
-        if (events.isEmpty()) {
-            info.addPara("暂时没有可确认的推进箭头。战略层仍会按既定周期更新。", opad);
-            return;
-        }
         int shown = 0;
-        for (PTSDCrisisState.StrategicEvent event : events) {
-            if (shown >= 9) break;
-            StarSystemAPI target = state.resolveSystem(event.targetSystemId);
-            if (target == null) continue;
-            String side = PTSDCrisisAPI.SIDE_OMEGA.equals(event.side) ? "精神创伤推进" : "人类侧阻滞";
-            String status = event.status == PTSDCrisisState.EventStatus.MATERIALIZED ? "已实体化" : "远程推演";
-            Color color = PTSDCrisisAPI.SIDE_OMEGA.equals(event.side) ? omega : human;
-            info.addPara("%s → %s　强度 %s　[%s]", 3f, color,
-                    side, target.getName(), String.valueOf(Math.round(event.strength)), status);
-            if (event.description != null && !event.description.isEmpty()) {
-                info.addPara(event.description, 1f, Misc.getGrayColor(), new String[0]);
-            }
-            shown++;
+        for (PTSDCrisisState.HumanReport report : reports) {
+            if (shown++ >= 9) break;
+            StarSystemAPI system = state.resolveSystem(report.systemId); if (system == null) continue;
+            int age = Math.max(0, Math.round(PTSDCrisisState.getDay() - report.day));
+            info.addPara("%s｜%s｜%s日前%s", 5f, report.omega ? omega : human,
+                    system.getName(), report.source, String.valueOf(age), age > 10 ? "（过期）" : "");
+            info.addPara("%s", 2f, Misc.getTextColor(), report.text);
         }
-    }
-
-    private void addOrderControls(TooltipMakerAPI info, PTSDCrisisState state, float width, float opad,
-                                  Color omega, Color human) {
-        info.addSectionHeading("玩家战场标记", human, Global.getSector().getPlayerFaction().getDarkUIColor(),
-                com.fs.starfarer.api.ui.Alignment.MID, opad);
-        info.addPara("标记会影响人类侧权重，但每个标记的贡献受到大局上限约束，不会让全部防卫事件挤到一个星系。橙色表示报告敌方据点，青色表示重点防御。", opad);
-
-        List<PTSDCrisisState.SystemData> fronts = getFrontCandidates(state);
-        int shown = 0;
-        for (PTSDCrisisState.SystemData data : fronts) {
-            if (shown >= 4) break;
-            StarSystemAPI system = state.resolveSystem(data.systemId);
-            if (system == null) continue;
-            ButtonAPI defend = info.addButton("重点防御：" + system.getName(), BUTTON_MARK_DEFEND + data.systemId,
-                    human, Global.getSector().getPlayerFaction().getDarkUIColor(), width * 0.49f, 22f, 4f);
-            defend.setEnabled(true);
-            ButtonAPI base = info.addButton("报告据点：" + system.getName(), BUTTON_MARK_BASE + data.systemId,
-                    omega, getFactionForUIColors().getDarkUIColor(), width * 0.49f, 22f, 2f);
-            base.setEnabled(true);
-            shown++;
-        }
-        if (!state.playerMarkers.isEmpty()) {
-            info.addButton("清除全部战场标记", BUTTON_CLEAR, human,
-                    Global.getSector().getPlayerFaction().getDarkUIColor(), width, 22f, opad);
-        }
+        if (reports.isEmpty()) info.addPara("尚无可核实军报。", 5f, Misc.getGrayColor());
     }
 
     private void addTaskForceControls(TooltipMakerAPI info, PTSDCrisisState state, float width, float opad, Color human) {
@@ -239,20 +216,14 @@ public final class PTSDWarIntel extends BaseIntelPlugin {
         PTSDCrisisState state = PTSDCrisisState.get();
         List<ArrowData> result = new ArrayList<ArrowData>();
         if (state == null) return result;
-        for (PTSDCrisisState.StrategicEvent event : state.getActiveEvents()) {
-            StarSystemAPI target = state.resolveSystem(event.targetSystemId);
-            StarSystemAPI source = state.resolveSystem(event.sourceSystemId);
-            if (target == null) continue;
-            SectorEntityToken from = source == null ? getMapLocation(map) : source.getHyperspaceAnchor();
-            if (from == null || from == target.getHyperspaceAnchor()) continue;
-            FactionAPI faction = event.factionId == null ? null : Global.getSector().getFaction(event.factionId);
-            Color color;
-            if (faction != null) color = faction.getBaseUIColor();
-            else if (PTSDCrisisAPI.SIDE_OMEGA.equals(event.side)) color = getFactionForUIColors().getBaseUIColor();
-            else color = Global.getSector().getPlayerFaction().getBaseUIColor();
-            ArrowData arrow = new ArrowData(Math.max(6f, Math.min(24f, 5f + event.strength / 16f)),
-                    from, target.getHyperspaceAnchor(), color);
-            arrow.alphaMult = event.status == PTSDCrisisState.EventStatus.MATERIALIZED ? 0.9f : 0.52f;
+        for (PTSDCrisisState.HumanReport report : state.humanWarReports.values()) {
+            if (report == null || !report.movement || report.sourceSystemId == null) continue;
+            StarSystemAPI target = state.resolveSystem(report.systemId), source = state.resolveSystem(report.sourceSystemId);
+            if (target == null || source == null || source == target) continue;
+            FactionAPI faction = report.factionId == null ? null : Global.getSector().getFaction(report.factionId);
+            Color color = faction == null ? Misc.getBasePlayerColor() : faction.getBaseUIColor();
+            ArrowData arrow = new ArrowData(8f, source.getHyperspaceAnchor(), target.getHyperspaceAnchor(), color);
+            arrow.alphaMult = PTSDCrisisState.getDay() - report.day > 10f ? .2f : .5f;
             result.add(arrow);
         }
         return result;
@@ -266,6 +237,7 @@ public final class PTSDWarIntel extends BaseIntelPlugin {
             return;
         }
         String id = (String) buttonId;
+        if (PTSDMapCommands.handle(state, id)) { ui.updateUIForItem(this); return; }
         if (BUTTON_CLEAR.equals(id)) {
             state.playerMarkers.clear();
         } else if (id.startsWith(BUTTON_MARK_DEFEND)) {
@@ -359,7 +331,8 @@ public final class PTSDWarIntel extends BaseIntelPlugin {
             if (event.targetSystemId != null) activeTargets.add(event.targetSystemId);
         }
         for (PTSDCrisisState.SystemData data : state.systems.values()) {
-            if (activeTargets.contains(data.systemId) || data.omegaControl > 0f || data.attackWeight > 2f) result.add(data);
+            if (PTSDHumanWarReports.known(state, state.resolveSystem(data.systemId)) &&
+                    (activeTargets.contains(data.systemId) || state.playerMarkers.containsKey(data.systemId))) result.add(data);
         }
         Collections.sort(result, new Comparator<PTSDCrisisState.SystemData>() {
             @Override
@@ -370,12 +343,10 @@ public final class PTSDWarIntel extends BaseIntelPlugin {
         return result;
     }
 
-    private static int countOmegaSystems(PTSDCrisisState state) {
-        int result = 0;
-        for (PTSDCrisisState.SystemData data : state.systems.values()) {
-            if (data.omegaControl >= 0.5f) result++;
-        }
-        return result;
+    private int reportedSystems(PTSDCrisisState state) {
+        Set<String> ids = new HashSet<String>();
+        for (PTSDCrisisState.HumanReport report : state.humanWarReports.values()) if (report != null) ids.add(report.systemId);
+        return ids.size();
     }
 
     @Override
@@ -402,10 +373,8 @@ public final class PTSDWarIntel extends BaseIntelPlugin {
     public SectorEntityToken getMapLocation(SectorMapAPI map) {
         PTSDCrisisState state = PTSDCrisisState.get();
         if (state == null) return null;
-        StarSystemAPI base = state.resolveSystem(state.baseSystemId);
-        if (base != null) return base.getHyperspaceAnchor();
-        for (PTSDCrisisState.StrategicEvent event : state.getActiveEvents()) {
-            StarSystemAPI target = state.resolveSystem(event.targetSystemId);
+        for (PTSDCrisisState.HumanReport report : state.humanWarReports.values()) {
+            StarSystemAPI target = state.resolveSystem(report.systemId);
             if (target != null) return target.getHyperspaceAnchor();
         }
         return null;

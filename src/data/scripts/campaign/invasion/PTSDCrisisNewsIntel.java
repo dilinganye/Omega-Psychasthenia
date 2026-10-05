@@ -17,6 +17,8 @@ public final class PTSDCrisisNewsIntel extends BaseIntelPlugin {
     private static final long serialVersionUID = 2L;
     private static final String RECORD = "PTSD_NEWS_RECORD";
     private static final String TOGGLE_SUBSCRIPTION = "PTSD_NEWS_TOGGLE_SUBSCRIPTION";
+    private static final String E2_ACTION_0 = "PTSD_E2_ACTION_0";
+    private static final String E2_ACTION_1 = "PTSD_E2_ACTION_1";
     private String incidentId;
 
     public PTSDCrisisNewsIntel() { }
@@ -35,7 +37,7 @@ public final class PTSDCrisisNewsIntel extends BaseIntelPlugin {
         // The boolean is forceNoMessage. Unsubscribed articles remain available in the News
         // category and keep all simulation effects, but do not generate the lower-left push.
         Global.getSector().getIntelManager().addIntel(intel,
-                !PTSDCrisisAPI.isNewsIntelSubscribed());
+                !PTSDCrisisAPI.isNewsIntelSubscribed() || incident.silentNews);
     }
 
     public String getIncidentId() { return incidentId; }
@@ -50,13 +52,13 @@ public final class PTSDCrisisNewsIntel extends BaseIntelPlugin {
     private PTSDCrisisState.CrisisIncident incident() { return PTSDCrisisAPI.getIncident(incidentId); }
     @Override protected String getName() {
         PTSDCrisisState.CrisisIncident item = incident();
-        return item == null ? "过期的边缘新闻" : item.headline;
+        return item == null ? "过期的边缘新闻" : PTSDPlayerNewsText.headline(item);
     }
     @Override public String getSmallDescriptionTitle() { return getName(); }
     @Override public void createIntelInfo(TooltipMakerAPI info, ListInfoMode mode) {
         PTSDCrisisState.CrisisIncident item = incident();
         info.addPara(getName(), getTitleColor(mode), 0f);
-        if (item != null) info.addPara("内容来源：" + item.sourceLabel, 3f, Misc.getGrayColor());
+        if (item != null) info.addPara("内容来源：" + PTSDPlayerNewsText.source(item), 3f, Misc.getGrayColor());
     }
     @Override public void createSmallDescription(TooltipMakerAPI info, float width, float height) {
         PTSDCrisisState.CrisisIncident item = incident();
@@ -70,11 +72,42 @@ public final class PTSDCrisisNewsIntel extends BaseIntelPlugin {
         info.addButton(subscribed ? "停止订阅新闻推送" : "订阅新闻推送",
                 TOGGLE_SUBSCRIPTION, getFactionForUIColors().getBaseUIColor(),
                 getFactionForUIColors().getDarkUIColor(), width, 24f, 3f);
-        info.addPara("[%s / %s / %s]", 10f, news, item.sourceLabel,
+        info.addPara("[%s / %s / %s]", 10f, news, PTSDPlayerNewsText.source(item),
                 PTSDCrisisAPI.getSystemName(item.targetSystemId), remaining(item));
-        info.addPara(item.publicText, 8f);
-        if (item.investigable && !item.recordedByPlayer) {
-            info.addPara("报告中仍有一组可以定位的航路参数。记录后，位置将转入“边缘失联信号”。", 8f, Misc.getHighlightColor(), "记录");
+        info.addPara("%s", 8f, Misc.getTextColor(), PTSDPlayerNewsText.report(item));
+        boolean e2News = item.cardId != null && item.cardId.startsWith("E2-");
+        boolean e2Chain = e2News && ("E2-01".equals(item.cardId) ||
+                "E2-02".equals(item.cardId) || "E2-03".equals(item.cardId));
+        if (item.scenarioTrigger != null && !e2News) {
+            info.addPara("目标：%s；干预窗口约剩 %s 日。", 6f, Misc.getHighlightColor(),
+                    PTSDCrisisAPI.getSystemName(item.targetSystemId),
+                    String.valueOf(Math.max(0, Math.round(item.scenarioDeadline - PTSDCrisisState.getDay()))));
+            info.addPara("%s", 4f, Misc.getTextColor(), item.scenarioResolved ?
+                    "归档：" + PTSDPlayerNewsText.summary(item) :
+                    "可选行动：" + PTSDPlayerNewsText.action(item) + "。结果须在现场核查后判断。");
+        } else if (e2Chain) {
+            info.addPara("所涉港口：%s；约剩 %s 日核查。", 6f, Misc.getHighlightColor(),
+                    PTSDCrisisAPI.getSystemName(item.targetSystemId),
+                    String.valueOf(Math.max(0, Math.round(item.scenarioDeadline - PTSDCrisisState.getDay()))));
+            if (item.scenarioResolved) info.addPara("%s", 4f, Misc.getTextColor(), "归档：" + PTSDPlayerNewsText.summary(item));
+        } else if (e2News && item.scenarioResolved && item.effectSummary != null) {
+            info.addPara("%s", 4f, Misc.getTextColor(), "归档：" + PTSDPlayerNewsText.summary(item));
+        }
+        if (e2News) {
+            String status = PTSDE2Director.status(item);
+            if (!status.isEmpty()) info.addPara("地方事件：" + status, 6f);
+            String[] actions = PTSDE2Director.choices(item);
+            if (actions != null) {
+                info.addButton(actions[0], E2_ACTION_0, getFactionForUIColors().getBaseUIColor(),
+                        getFactionForUIColors().getDarkUIColor(), width, 24f, 4f);
+                info.addButton(actions[1], E2_ACTION_1, getFactionForUIColors().getBaseUIColor(),
+                        getFactionForUIColors().getDarkUIColor(), width, 24f, 4f);
+            }
+        }
+        if (item.investigable && !item.recordedByPlayer && !item.scenarioResolved) {
+            info.addPara(item.scenarioTrigger == null ?
+                    "报告中仍有一组可以定位的航路参数。记录后，位置将转入“边缘失联信号”。" :
+                    "可记录线索并前往现场核查。基础取证后，是否执行后续行动由你决定。", 8f, Misc.getHighlightColor(), "记录");
             info.addButton("记录调查线索", RECORD, getFactionForUIColors().getBaseUIColor(),
                     getFactionForUIColors().getDarkUIColor(), width, 24f, 8f);
         } else if (item.recordedByPlayer) {
@@ -86,6 +119,11 @@ public final class PTSDCrisisNewsIntel extends BaseIntelPlugin {
             } else if (!item.investigationResolved) {
                 info.addPara("进入目标星系后，现场证据会按新闻类型进行实体化；最长保留30日。", 6f, Misc.getGrayColor());
             }
+        } else if (e2Chain) {
+            info.addPara("前往所涉港口可核查当事船只；是否介入由现场情况决定。",
+                    8f, Misc.getGrayColor());
+        } else if (e2News) {
+            info.addPara("地方短讯，无现场干预目标。报道仍可能有误。", 8f, Misc.getGrayColor());
         } else {
             info.addPara("该条报道没有足够的定位信息，只作为普通新闻保留。", 8f, Misc.getGrayColor());
         }
@@ -98,6 +136,13 @@ public final class PTSDCrisisNewsIntel extends BaseIntelPlugin {
         }
     }
     @Override public void buttonPressConfirmed(Object buttonId, IntelUIAPI ui) {
+        if (E2_ACTION_0.equals(buttonId) || E2_ACTION_1.equals(buttonId)) {
+            if (!PTSDE2Director.choose(incident(), E2_ACTION_0.equals(buttonId) ? 0 : 1))
+                Global.getSector().getCampaignUI().addMessage(
+                        "该地方事件的目标、期限或费用条件已不满足。", Misc.getGrayColor());
+            ui.updateUIForItem(this);
+            return;
+        }
         if (TOGGLE_SUBSCRIPTION.equals(buttonId)) {
             PTSDCrisisAPI.setNewsIntelSubscribed(!PTSDCrisisAPI.isNewsIntelSubscribed());
             ui.updateUIForItem(this);

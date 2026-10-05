@@ -52,13 +52,19 @@ public final class PTSDCrisisIncidentManager {
         final String siteTemplates;
         final String siteHandler;
         final String martialSite;
+        final String delivery, visibility, trigger, action, remoteOutcome, omegaResponse, effect;
+        final String choice1, choice2;
+        final float minDay, priority;
 
         Card(String id, String category, String phases, boolean investigable, boolean filler,
              TargetKind target, String targetExpression, String targetArgument, float weight, float cooldown,
              float recon, float awareness, float aggression, float panic, float distortion,
              float physicalChance, float strength, String source, String icon,
              String[] headlines, String[] reports, String[] truths,
-             String siteTemplates, String siteHandler, String martialSite) {
+             String siteTemplates, String siteHandler, String martialSite,
+             String delivery, String visibility, String trigger, String action, String remoteOutcome,
+             String omegaResponse, String effect, String choice1, String choice2,
+             float minDay, float priority) {
             this.id = id;
             this.category = category;
             this.phases = phases;
@@ -84,6 +90,17 @@ public final class PTSDCrisisIncidentManager {
             this.siteTemplates = siteTemplates;
             this.siteHandler = siteHandler;
             this.martialSite = martialSite;
+            this.delivery = delivery;
+            this.visibility = visibility;
+            this.trigger = trigger;
+            this.action = action;
+            this.remoteOutcome = remoteOutcome;
+            this.omegaResponse = omegaResponse;
+            this.effect = effect;
+            this.choice1 = choice1;
+            this.choice2 = choice2;
+            this.minDay = minDay;
+            this.priority = priority;
         }
     }
 
@@ -139,6 +156,8 @@ public final class PTSDCrisisIncidentManager {
                     ParsedTarget parsedTarget = parseTarget(targetExpression);
                     TargetKind target = parsedTarget.kind;
                     String targetArgument = parsedTarget.argument;
+                    String visibility = row.optString("visibility", "PUBLIC").trim().toUpperCase();
+                    if (visibility.length() == 0) visibility = "PUBLIC";
                     if (target == TargetKind.CUSTOM && targetArgument != null) {
                         PTSDCrisisNewsAPI.resolveHandler(targetArgument);
                     }
@@ -158,7 +177,17 @@ public final class PTSDCrisisIncidentManager {
                             variants(row.optString("truth", "")),
                             row.optString("siteTemplates", "AUTO").trim(),
                             row.optString("siteHandler", "").trim(),
-                            row.optString("martialSite", "AUTO").trim());
+                            row.optString("martialSite", "AUTO").trim(),
+                            row.optString("delivery", "AMBIENT").trim().toUpperCase(),
+                            visibility,
+                            row.optString("trigger", "").trim().toUpperCase(),
+                            row.optString("action", "").trim(),
+                            row.optString("remoteOutcome", "").trim(),
+                            row.optString("omegaResponse", "").trim(),
+                            row.optString("effect", "").trim().toUpperCase(),
+                            row.optString("choice1", "").trim(), row.optString("choice2", "").trim(),
+                            (float) row.optDouble("minDay", 0d),
+                            (float) row.optDouble("priority", 1d));
                     addOrReplace(card);
                     loadedCards++;
                 } catch (Throwable rowError) {
@@ -177,6 +206,8 @@ public final class PTSDCrisisIncidentManager {
     }
 
     private static void addOrReplace(Card card) {
+        if (find(card.id) != null) Global.getLogger(PTSDCrisisIncidentManager.class).warn(
+                "Duplicate crisis news ID replaced by later merged row: " + card.id);
         removeCard(DARK, card.id);
         removeCard(PROBE, card.id);
         removeCard(NEWS, card.id);
@@ -204,6 +235,7 @@ public final class PTSDCrisisIncidentManager {
         List<Card> all = new ArrayList<Card>(); all.addAll(DARK); all.addAll(PROBE); all.addAll(NEWS);
         for (Card card : all) {
             if (!phaseMatches(card, state.phase)) continue;
+            if (!"AMBIENT".equals(card.delivery)) continue;
             // Contact-only cards are created through forceAndGet(), never the ambient news pool.
             if ("专项调查".equals(card.category)) continue;
             if (card.filler) filler.add(card);
@@ -258,7 +290,7 @@ public final class PTSDCrisisIncidentManager {
             if (card == null) return;
             Target target = pickTarget(card, state, random);
             if (target == null || target.system == null) continue;
-            createIncident(state, card, target, day, random, false);
+            createIncident(state, card, target, day, random, false, true);
             return;
         }
         state.nextIncidentDay = Math.min(state.nextIncidentDay, day + 2f);
@@ -281,7 +313,7 @@ public final class PTSDCrisisIncidentManager {
             if (card == null) return false;
             Target target = pickTarget(card, state, random);
             if (target == null) continue;
-            createIncident(state, card, target, PTSDCrisisState.getDay(), random, true);
+            createIncident(state, card, target, PTSDCrisisState.getDay(), random, true, true);
             return true;
         }
         return false;
@@ -292,10 +324,23 @@ public final class PTSDCrisisIncidentManager {
         ensureLoaded();
         Card card = find(cardId);
         if (card == null) return false;
+        if (!phaseMatches(card, state.phase)) {
+            PTSDCrisisDevIntel.report("CSV 新闻未投放", cardId + "：需要阶段 " + card.phases,
+                    null, null);
+            return false;
+        }
+        if ("CONDITIONAL".equals(card.delivery))
+            return PTSDConditionalNewsDirector.force(state, cardId);
+        if ("SCRIPTED".equals(card.delivery))
+            return PTSDLateEventDirector.force(state, cardId);
         Random random = new Random(Misc.genUID().hashCode());
         Target target = pickTarget(card, state, random);
-        if (target == null) return false;
-        createIncident(state, card, target, PTSDCrisisState.getDay(), random, true);
+        if (target == null) {
+            PTSDCrisisDevIntel.report("CSV 新闻未投放", cardId + "：找不到目标类型 " + card.targetExpression,
+                    null, null);
+            return false;
+        }
+        createIncident(state, card, target, PTSDCrisisState.getDay(), random, true, true);
         return true;
     }
 
@@ -308,19 +353,33 @@ public final class PTSDCrisisIncidentManager {
         Random random = new Random(Misc.genUID().hashCode());
         Target target = pickTarget(card, state, random);
         if (target == null) return null;
-        return createIncident(state, card, target, PTSDCrisisState.getDay(), random, true);
+        return createIncident(state, card, target, PTSDCrisisState.getDay(), random, true, true);
     }
+    public static PTSDCrisisState.CrisisIncident forceAndGetPrivate(String cardId) {
+        PTSDCrisisState state = PTSDCrisisState.get();
+        if (state == null || cardId == null) return null;
+        ensureLoaded();
+        Card card = find(cardId);
+        if (card == null || !phaseMatches(card, state.phase)) return null;
+        Random random = new Random(Misc.genUID().hashCode());
+        Target target = pickTarget(card, state, random);
+        return target == null ? null : createIncident(state, card, target,
+                PTSDCrisisState.getDay(), random, true, false);
+    }
+
     /** Read-only description used by the Dev event console. */
     public static final class DevCard {
         public final String id;
         public final String category;
         public final String headline;
         public final String phases;
+        public final String delivery;
         private DevCard(Card card) {
             id = card.id;
             category = card.category;
             headline = card.headlines == null || card.headlines.length == 0 ? card.id : card.headlines[0];
             phases = card.phases;
+            delivery = card.delivery;
         }
     }
 
@@ -330,16 +389,115 @@ public final class PTSDCrisisIncidentManager {
         List<DevCard> result = new ArrayList<DevCard>();
         PTSDCrisisState state = PTSDCrisisState.get();
         if (state == null) return result;
-        for (Card card : DARK) if (phaseMatches(card, state.phase)) result.add(new DevCard(card));
-        for (Card card : PROBE) if (phaseMatches(card, state.phase)) result.add(new DevCard(card));
-        for (Card card : NEWS) if (phaseMatches(card, state.phase)) result.add(new DevCard(card));
+        for (Card card : DARK) if (phaseMatches(card, state.phase) && !"SCRIPTED".equals(card.delivery)) result.add(new DevCard(card));
+        for (Card card : PROBE) if (phaseMatches(card, state.phase) && !"SCRIPTED".equals(card.delivery)) result.add(new DevCard(card));
+        for (Card card : NEWS) if (phaseMatches(card, state.phase) && !"SCRIPTED".equals(card.delivery)) result.add(new DevCard(card));
         return result;
+    }
+
+    public static String unavailableReason(String id) {
+        ensureLoaded();
+        Card card = find(id);
+        PTSDCrisisState state = PTSDCrisisState.get();
+        if (card == null) return "CSV 中不存在该 ID";
+        if (state == null) return "危机状态尚未初始化";
+        if (!phaseMatches(card, state.phase)) return "需要阶段 " + card.phases;
+        if ("CONDITIONAL".equals(card.delivery)) return PTSDConditionalNewsDirector.unavailableReason(state, id);
+        if ("SCRIPTED".equals(card.delivery)) return PTSDLateEventDirector.unavailableReason(state, id);
+        Float until = state.incidentCooldowns.get(id);
+        if (until != null && until > PTSDCrisisState.getDay())
+            return "普通抽取冷却剩余 " + Math.round(until - PTSDCrisisState.getDay()) + " 日；DEV 强制投放可绕过";
+        if (pickTarget(card, state, new Random(id.hashCode())) == null)
+            return "找不到满足 " + card.targetExpression + " 的现存目标";
+        return "可触发";
     }
     private static Card find(String id) {
         for (Card card : DARK) if (card.id.equalsIgnoreCase(id)) return card;
         for (Card card : PROBE) if (card.id.equalsIgnoreCase(id)) return card;
         for (Card card : NEWS) if (card.id.equalsIgnoreCase(id)) return card;
         return null;
+    }
+
+    public static final class ScriptedTemplate {
+        public final String id, title, report, intercept, source, trigger, action,
+                remoteOutcome, omegaResponse, effect, choice1, choice2, siteTemplate, delivery,
+                targetExpression, visibility;
+        public final float minDay, priority, panic;
+        ScriptedTemplate(Card card) {
+            id = card.id; title = card.headlines[0]; report = card.reports[0];
+            intercept = card.truths[0]; source = card.source; trigger = card.trigger;
+            action = card.action; remoteOutcome = card.remoteOutcome;
+            omegaResponse = card.omegaResponse; effect = card.effect;
+            choice1 = card.choice1; choice2 = card.choice2;
+            siteTemplate = card.siteTemplates; delivery = card.delivery;
+            targetExpression = card.targetExpression; visibility = card.visibility;
+            minDay = card.minDay; priority = card.priority; panic = card.panic;
+        }
+    }
+
+    public static ScriptedTemplate getTemplate(String id) {
+        ensureLoaded();
+        Card card = find(id);
+        return card == null ? null : new ScriptedTemplate(card);
+    }
+
+    public static List<ScriptedTemplate> getTemplates(String delivery, PTSDCrisisState.Phase phase) {
+        ensureLoaded();
+        List<ScriptedTemplate> result = new ArrayList<ScriptedTemplate>();
+        List<Card> all = new ArrayList<Card>(); all.addAll(DARK); all.addAll(PROBE); all.addAll(NEWS);
+        for (Card card : all) if (delivery.equals(card.delivery) && phaseMatches(card, phase))
+            result.add(new ScriptedTemplate(card));
+        return result;
+    }
+
+    public static PTSDCrisisState.CrisisIncident publishScripted(PTSDCrisisState state, String id,
+            String systemId, String targetId, String category, boolean important) {
+        ScriptedTemplate template = getTemplate(id);
+        if (state == null || template == null || systemId == null) return null;
+        if ("NONE".equals(template.visibility) || "DEV_ONLY".equals(template.visibility)) return null;
+        for (PTSDCrisisState.CrisisIncident existing : state.incidents)
+            if (existing != null && id.equals(existing.cardId) &&
+                    systemId.equals(existing.targetSystemId)) return existing;
+        PTSDCrisisState.CrisisIncident news = new PTSDCrisisState.CrisisIncident();
+        news.id = "PTSD_scripted_" + id + ":" + Misc.genUID();
+        news.cardId = id;
+        news.category = category;
+        news.phase = state.phase;
+        news.targetSystemId = systemId;
+        news.targetEntityId = targetId;
+        news.createdDay = PTSDCrisisState.getDay();
+        news.expiresDay = news.createdDay + 40f;
+        news.newsExpiresDay = news.createdDay + 10f;
+        news.sourceLabel = template.source;
+        news.headline = template.title;
+        news.publicText = template.report;
+        news.trueText = template.intercept;
+        news.effectSummary = ("FT-07".equals(id) || "FT-08".equals(id)) ? "地方报道已归档" :
+                id.startsWith("FT-") ? "报道已归档；调查线索另见危机记录" :
+                important ? "可在后期事件簿中选择应对" : "地方报告；后续由战区记录核实";
+        news.disclosed = true;
+        state.incidents.add(news);
+        if ("PUBLIC".equals(template.visibility)) PTSDCrisisNewsIntel.report(news);
+        return news;
+    }
+
+    static PTSDCrisisState.CrisisIncident publishConditional(PTSDCrisisState state, String id,
+            StarSystemAPI system, MarketAPI market, SectorEntityToken anchor, boolean falseReport) {
+        return publishConditional(state, id, system, market, anchor, falseReport, false);
+    }
+
+    static PTSDCrisisState.CrisisIncident publishConditional(PTSDCrisisState state, String id,
+            StarSystemAPI system, MarketAPI market, SectorEntityToken anchor,
+            boolean falseReport, boolean privateDelivery) {
+        Card card = find(id);
+        if (state == null || card == null || system == null || !"CONDITIONAL".equals(card.delivery)) return null;
+        Target target = new Target(system, market, anchor, null);
+        PTSDCrisisState.CrisisIncident incident = createIncident(state, card, target,
+                PTSDCrisisState.getDay(), new Random(Misc.genUID().hashCode()), false,
+                !privateDelivery);
+        incident.scenarioFalse = falseReport;
+        incident.investigationOutcome = falseReport ? 2 : 1;
+        return incident;
     }
 
     private static Card pick(List<Card> pool, PTSDCrisisState state, float day, Random random) {
@@ -485,7 +643,8 @@ public final class PTSDCrisisIncidentManager {
     }
 
     private static PTSDCrisisState.CrisisIncident createIncident(PTSDCrisisState state, Card card, Target target,
-                                       float day, Random random, boolean forced) {
+                                       float day, Random random, boolean forced,
+                                       boolean disclose) {
         int branch = random.nextInt(3);
         float branchMult = branch == 0 ? .85f : (branch == 2 ? 1.18f : 1f);
         PTSDCrisisState.CrisisIncident incident = new PTSDCrisisState.CrisisIncident();
@@ -507,7 +666,7 @@ public final class PTSDCrisisIncidentManager {
         incident.headline = card.headlines[branch];
         incident.publicText = reportVariant(card.reports[branch], branch);
         incident.trueText = truthVariant(card.truths[branch], branch);
-        incident.disclosed = true;
+        incident.disclosed = disclose;
         incident.investigable = card.investigable;
         incident.siteTemplate = inferSiteTemplates(card);
         incident.siteHandlerExpression = card.siteHandler == null ? "" : card.siteHandler;
@@ -518,10 +677,24 @@ public final class PTSDCrisisIncidentManager {
         incident.playerRelevant = player != null && player.getStarSystem() == target.system;
         incident.devForced = forced;
         incident.newsEffectLifecycleVersion = 1;
+        boolean conditional = "CONDITIONAL".equals(card.delivery);
+        if (conditional) {
+            incident.scenarioTrigger = card.trigger;
+            incident.scenarioAction = card.action;
+            incident.scenarioRemoteOutcome = card.remoteOutcome;
+            incident.scenarioOmegaResponse = card.omegaResponse;
+            incident.scenarioEffect = card.effect;
+            incident.scenarioDeadline = day + card.cooldown;
+            incident.newsExpiresDay = incident.scenarioDeadline;
+            incident.silentNews = card.priority < 2f && !incident.playerRelevant;
+        }
         boolean deferUntilVerified = card.investigable;
-        if (deferUntilVerified) {
+        if (conditional) {
+            incident.effectSummary = "待现场核实；公开报道不向敌方提供侦察数据";
+            incident.deferredEffectsSettled = true;
+        } else if (deferUntilVerified) {
             storeDeferredEffects(incident, state, card, branchMult);
-            incident.effectSummary = "待核实：当前仅产生局部恐慌；属实后其余影响按50%结算";
+            incident.effectSummary = "待核实：当前仅产生局部恐慌；属实后可提高人类认知，敌方仍须自行侦察";
         } else {
             incident.effectSummary = applyEffects(state, card, target.system.getId(), branchMult);
             incident.deferredEffectsSettled = true;
@@ -549,7 +722,7 @@ public final class PTSDCrisisIncidentManager {
             incident.customTargetCreationInvoked = true;
         }
 
-        boolean physicalRolled = card.physicalChance > 0f &&
+        boolean physicalRolled = !conditional && card.physicalChance > 0f &&
                 (forced || random.nextFloat() < card.physicalChance);
         if (deferUntilVerified) {
             incident.deferredPhysicalEffect = physicalRolled;
@@ -578,7 +751,7 @@ public final class PTSDCrisisIncidentManager {
         }
 
         state.incidents.add(incident);
-        while (state.incidents.size() > 100) state.incidents.remove(0);
+        while (state.incidents.size() > 250) state.incidents.remove(0);
         state.incidentCooldowns.put(card.id, day + card.cooldown);
         PTSDCrisisNewsIntel.report(incident);
         // PTSDNewsTicker.report(incident); 简介新闻条可动态但是需要字体所以烂完了
@@ -618,10 +791,18 @@ public final class PTSDCrisisIncidentManager {
         CampaignFleetAPI player = Global.getSector().getPlayerFleet();
         for (PTSDCrisisState.CrisisIncident incident : state.incidents) {
             if (incident == null || !incident.recordedByPlayer || incident.investigationResolved) continue;
+            if (incident.scenarioTrigger != null && incident.targetEntityId != null &&
+                    Global.getSector().getEntityById(incident.targetEntityId) == null) {
+                incident.investigationResult = PTSDTaskRules.InvestigationResult.TARGET_LOST;
+                PTSDConditionalNewsDirector.onExpired(state, incident, "现场目标已消失");
+                continue;
+            }
             if (incident.investigationExpiresDay <= 0f) incident.investigationExpiresDay = incident.createdDay + 30f;
             if (day >= incident.investigationExpiresDay) {
                 incident.investigationResolved = true;
                 incident.investigationReal = false;
+                incident.investigationResult = PTSDTaskRules.InvestigationResult.EXPIRED;
+                PTSDConditionalNewsDirector.onExpired(state, incident, "调查期限届满");
                 PTSDCrisisDevIntel.report("新闻调查过期", incident.headline + " / 达到30日上限", incident.targetSystemId, incident.targetEntityId);
                 continue;
             }
@@ -632,20 +813,29 @@ public final class PTSDCrisisIncidentManager {
             incident.investigationResolved = true;
             if (incident.investigationOutcome == 1) {
                 incident.investigationReal = true;
+                incident.investigationResult = PTSDTaskRules.InvestigationResult.CONFIRMED;
                 PTSDNewsSiteManager.confirm(state, incident);
                 Global.getSector().getCampaignUI().addMessage("现场发现了与报道相符的异常：" +
                         (incident.siteTitle == null || incident.siteTitle.isEmpty() ? "未分类痕迹" : incident.siteTitle), WHISPER_COLOR);
             } else if (incident.investigationOutcome == 3) {
                 incident.investigationReal = true;
+                incident.investigationResult = PTSDTaskRules.InvestigationResult.TRACKER;
                 IIRT_Omega_Invasion.spawnNewsTracker(incident.targetSystemId, target);
                 Global.getSector().getCampaignUI().addMessage("传感器边缘出现了一个正在跟踪你的微弱信号。", WHISPER_COLOR);
             } else {
                 incident.investigationReal = false;
-                disproveIncident(incident);
-                Global.getSector().getCampaignUI().addMessage("现场没有任何异常；这条报道已被证伪。", Misc.getGrayColor());
+                boolean supported = incident.investigationDisproofEvidence != null &&
+                        !incident.investigationDisproofEvidence.trim().isEmpty();
+                incident.investigationResult = supported ? PTSDTaskRules.InvestigationResult.DISPROVED :
+                        PTSDTaskRules.InvestigationResult.INCONCLUSIVE;
+                if (supported) disproveIncident(incident);
+                Global.getSector().getCampaignUI().addMessage(supported ?
+                        "现场记录足以证伪报道：" + incident.investigationDisproofEvidence :
+                        "未发现报道中的异常；仅凭现场空缺，尚不能证明报道失实。", Misc.getGrayColor());
             }
             PTSDCrisisDevIntel.report("新闻调查结算", "结果 " + incident.investigationOutcome,
                     incident.targetSystemId, incident.targetEntityId);
+            PTSDConditionalNewsDirector.onInvestigated(state, incident);
         }
         for (int i = state.signalTraces.size() - 1; i >= 0; i--) {
             PTSDCrisisState.SignalTrace trace = state.signalTraces.get(i);
@@ -691,31 +881,15 @@ public final class PTSDCrisisIncidentManager {
             return;
         }
         final float verifiedMult = .5f;
-        add(state, PTSDCrisisProgress.Variable.RECON_CONFIDENCE,
-                incident.deferredRecon * verifiedMult, incident.cardId, incident.targetSystemId);
         add(state, PTSDCrisisProgress.Variable.HUMAN_AWARENESS,
                 incident.deferredAwareness * verifiedMult, incident.cardId, incident.targetSystemId);
-        add(state, PTSDCrisisProgress.Variable.WATCHER_AGGRESSION,
-                incident.deferredAggression * verifiedMult, incident.cardId, incident.targetSystemId);
         add(state, PTSDCrisisProgress.Variable.REALITY_DISTORTION,
                 incident.deferredDistortion * verifiedMult, incident.cardId, incident.targetSystemId);
-        if (incident.targetSystemId != null) {
-            PTSDCrisisState.SystemData data = state.getSystemData(incident.targetSystemId);
-            data.lastObservedDay = PTSDCrisisState.getDay();
-            PTSDCrisisAPI.addIncidentWeightBias(incident.targetSystemId,
-                    incident.deferredWeightBias * verifiedMult);
-            PTSDCrisisAPI.recordEvidence(incident.targetSystemId, "NEWS_VERIFIED", incident.cardId,
-                    -1f, -1f, -1f, -1, -1,
-                    Math.min(.55f, .12f + (incident.deferredRecon + incident.deferredAggression) * .02f),
-                    120f, false, incident.deferredWeightBias * verifiedMult);
-            if (incident.deferredHostileContact) data.hostileContacts++;
-        }
         materializeDeferredPhysicalEffect(state, incident, verifiedMult);
         incident.deferredEffectsSettled = true;
-        incident.effectSummary = "已证实：保留局部恐慌；其余影响按50%结算（侦察+" +
-                round(incident.deferredRecon * verifiedMult) + "，认知+" +
-                round(incident.deferredAwareness * verifiedMult) + "，攻击性+" +
-                round(incident.deferredAggression * verifiedMult) + "）";
+        incident.effectSummary = "已证实：保留局部恐慌；人类认知+" +
+                round(incident.deferredAwareness * verifiedMult) +
+                "；敌方仍须自行观测并上传，公开新闻不提供敌方侦察证据";
     }
 
     static void activateVerifiedCustomTarget(PTSDCrisisState state,
@@ -779,21 +953,10 @@ public final class PTSDCrisisIncidentManager {
             // here: they may have local news/panic consequences, but teach Omega nothing.
             return "普通报道：未写入欧米伽认知或攻击权重";
         }
-        add(state, PTSDCrisisProgress.Variable.RECON_CONFIDENCE, card.recon * mult, card.id, systemId);
         add(state, PTSDCrisisProgress.Variable.HUMAN_AWARENESS, card.awareness * mult, card.id, systemId);
-        add(state, PTSDCrisisProgress.Variable.WATCHER_AGGRESSION, card.aggression * mult, card.id, systemId);
         add(state, PTSDCrisisProgress.Variable.REALITY_DISTORTION, card.distortion * mult, card.id, systemId);
-        PTSDCrisisState.SystemData data = state.getSystemData(systemId);
-        data.lastObservedDay = PTSDCrisisState.getDay();
-        float bias = Math.min(.22f, (card.recon + card.aggression) * .018f * mult);
-        PTSDCrisisAPI.addIncidentWeightBias(systemId, bias);
-        PTSDCrisisAPI.recordEvidence(systemId, "NEWS_INCIDENT", card.id,
-                -1f, -1f, -1f, -1, -1,
-                Math.min(.55f, .12f + (card.recon + card.aggression) * .04f),
-                120f, false, bias);
-        if (card.category.equals("火力侦察")) data.hostileContacts++;
-        return "侦察+" + round(card.recon * mult) + "，认知+" + round(card.awareness * mult) +
-                "，攻击性+" + round(card.aggression * mult);
+        return "人类认知+" + round(card.awareness * mult) +
+                "；敌方未从公开新闻取得侦察数据";
     }
 
     private static void add(PTSDCrisisState state, PTSDCrisisProgress.Variable variable,

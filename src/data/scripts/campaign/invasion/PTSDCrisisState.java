@@ -19,7 +19,7 @@ public final class PTSDCrisisState implements Serializable {
     private static final long serialVersionUID = 1L;
 
     public static final String PERSISTENT_KEY = "$PTSD_crisis_state_v2";
-    public static final int CURRENT_VERSION = 11;
+    public static final int CURRENT_VERSION = 17;
     public static final float CAMPAIGN_DAY_EPOCH_OFFSET = 700000f;
 
     public enum Phase {
@@ -27,6 +27,7 @@ public final class PTSDCrisisState implements Serializable {
         RECON,
         EXPANSION,
         FORTIFICATION,
+        MOBILIZATION,
         WAR,
         ENDED
     }
@@ -94,6 +95,10 @@ public final class PTSDCrisisState implements Serializable {
         public float createdDay;
         public float expiresDay;
         public boolean playerContaminated;
+        /** Recon reports are only strategic evidence after transmission. */
+        public String uploadState = "CONFIRMED_UPLOADED";
+        public String sourceGroup;
+        public boolean remoteEstimate;
     }
 
     public static final class SystemData implements Serializable {
@@ -120,6 +125,8 @@ public final class PTSDCrisisState implements Serializable {
         public float humanDefenseWeight = 1f;
         public float learningMultiplier = 1f;
         public float omegaControl;
+        /** Local defensive attention from actual patrol losses; never a player-position oracle. */
+        public float omegaLocalAlert, omegaLocalAlertDay;
         public float humanControl = 1f;
         public float lastObservedDay;
         public float lastReconSampleDay;
@@ -186,6 +193,7 @@ public final class PTSDCrisisState implements Serializable {
         /** FIRE_PROBE lifecycle; kept on the event so materialized and hidden outcomes converge. */
         public boolean probeEngaged;
         public boolean probePlayerIntervention;
+        public float probeObservedPlayerFP;
         public int probeDefeatedGroups;
         public String probeOutcome;
         /** PYRRHIC_HUMAN, OMEGA_DEFEAT, or HUMAN_DEFEAT. */
@@ -209,6 +217,14 @@ public final class PTSDCrisisState implements Serializable {
             this.createdDay = createdDay;
             this.resolveDay = resolveDay;
         }
+    }
+
+    /** Human-facing snapshots. Never refresh enemy values without a new visible observation. */
+    public static final class HumanReport implements Serializable {
+        private static final long serialVersionUID = 1L;
+        public String id, systemId, sourceSystemId, factionId, source, text;
+        public float day, strength = -1f;
+        public boolean omega, movement, battle;
     }
 
     /**
@@ -241,11 +257,24 @@ public final class PTSDCrisisState implements Serializable {
         public boolean devForced;
         public boolean investigable;
         public boolean readByPlayer;
+        /** Conditional news lifecycle, independent of ordinary random investigation cards. */
+        public String scenarioTrigger, scenarioAction, scenarioRemoteOutcome, scenarioOmegaResponse;
+        public String scenarioEffect;
+        public float scenarioDeadline;
+        public boolean scenarioResolved, scenarioFalse;
+        public boolean silentNews;
         public boolean recordedByPlayer;
         /** 0 unresolved, 1 matching evidence, 2 false report, 3 Fourth Watch tracker. */
         public int investigationOutcome;
         public boolean investigationResolved;
         public boolean investigationReal;
+        public PTSDTaskRules.InvestigationResult investigationResult;
+        /** A concrete comparison record or script-supplied proof, never absence alone. */
+        public String investigationDisproofEvidence;
+        public boolean playerOperationAccepted;
+        public boolean playerOperationCompleted;
+        public float playerOperationProgressDays;
+        public float playerOperationLastDay;
         public float newsExpiresDay;
         public float investigationExpiresDay;
         /** Exact per-market panic contribution caused by this news item. */
@@ -284,6 +313,17 @@ public final class PTSDCrisisState implements Serializable {
         public boolean martialSiteSpawned;
         public float siteHardExpireDay;
         public float siteCleanupDay;
+        /** Physical news-site recovery v1. A scout is only spawned if the player stays nearby. */
+        public int siteRecoveryVersion;
+        public String siteRecoveryFleetId;
+        public List<String> siteAbortedRecoveryFleetIds = new ArrayList<String>();
+        public boolean siteRecoveryDeparting;
+        /** Unexpected disappearance keeps its last physical position for one return-visit roll. */
+        public float siteLastX, siteLastY;
+        public boolean siteUnexpectedGone, siteUnexpectedAwaitExit, siteUnexpectedRollDone;
+        public String siteUnexpectedScoutFleetId;
+        public boolean siteUnexpectedScoutFleeing;
+        public boolean siteUnexpectedScoutSeenByPlayer;
 
         public CrisisIncident() { }
     }
@@ -372,6 +412,23 @@ public final class PTSDCrisisState implements Serializable {
     public float lastProgressUpdateDay;
     public float lastLocalPanicUpdateDay;
     public float nextPanicPirateDay;
+    public String reconPlayerTrailSystemId;
+    public float reconPlayerTrailExpiresDay;
+    public float reconPlayerTrailObservedDay;
+    public List<PendingReconReport> pendingReconReports = new ArrayList<PendingReconReport>();
+    public Map<String, Float> reconLowActivityUntil = new LinkedHashMap<String, Float>();
+    public String lastReconRoutingReason;
+    public float nextConditionalNewsDay;
+    public java.util.Set<String> conditionalNewsSeen = new java.util.LinkedHashSet<String>();
+
+    public static final class PendingReconReport implements Serializable {
+        private static final long serialVersionUID = 1L;
+        public String id, sourceFleetId, sourceSystemId, targetSystemId, sourceGroup, kind;
+        public float createdDay, uploadDay, expiresDay, fleetStrength = -1f,
+                marketDefense = -1f, strategicValue = -1f, confidence;
+        public int colonySignal = -1, fleetSignal = -1;
+        public boolean remote, uploaded;
+    }
 
     // Persisted player-centred RECON ambient-event scheduler and pending cross-system trap.
     public int reconPlayerEventDayBucket = -1;
@@ -435,6 +492,7 @@ public final class PTSDCrisisState implements Serializable {
 
     // Je Otloes independent contact/event state.
     public boolean jeIntroCompleted;
+    public boolean jeDead;
     public boolean jeResistedOnce;
     public String jePendingIntroMarketId;
     public String jePersonId;
@@ -444,7 +502,11 @@ public final class PTSDCrisisState implements Serializable {
     public String jeMeetingMarketId;
     public boolean jeMeetingReady;
     public boolean jePendingMeetingDialog;
+    public Map<String, HumanReport> humanWarReports = new LinkedHashMap<String, HumanReport>();
+    public float nextHumanReportDay;
     public int jeCompletedInvestigations;
+    public int jePersonalCompletedInvestigations;
+    public boolean jePrivateNetworkQualified;
     /** Campaign-day cooldowns and persisted contact outcomes; opening the dialog cannot reroll these. */
     public float jeLastTaskAcceptedDay;
     public float jePostTaskBusyUntilDay;
@@ -472,6 +534,7 @@ public final class PTSDCrisisState implements Serializable {
     public Map<String, Float> incidentCooldowns = new LinkedHashMap<String, Float>();
     public List<CrisisIncident> incidents = new ArrayList<CrisisIncident>();
     public List<SignalTrace> signalTraces = new ArrayList<SignalTrace>();
+    public PTSDLateState late = new PTSDLateState();
 
     private PTSDCrisisState() {
         float day = getDay();
@@ -513,6 +576,7 @@ public final class PTSDCrisisState implements Serializable {
         if ("COLLECT_DATA".equals(name)) phase = Phase.RECON;
         else if ("INVADE".equals(name)) phase = Phase.EXPANSION;
         else if ("REPAIR".equals(name)) phase = Phase.FORTIFICATION;
+        else if ("MOBILIZE".equals(name)) phase = Phase.MOBILIZATION;
         else if ("FULL_ATTACK".equals(name)) phase = Phase.WAR;
         else if ("END".equals(name)) phase = Phase.ENDED;
         else if (name == null) {
@@ -548,6 +612,16 @@ public final class PTSDCrisisState implements Serializable {
         if (incidentCooldowns == null) incidentCooldowns = new LinkedHashMap<String, Float>();
         if (incidents == null) incidents = new ArrayList<CrisisIncident>();
         if (signalTraces == null) signalTraces = new ArrayList<SignalTrace>();
+        if (humanWarReports == null) humanWarReports = new LinkedHashMap<String, HumanReport>();
+        if (pendingReconReports == null) pendingReconReports = new ArrayList<PendingReconReport>();
+        if (reconLowActivityUntil == null) reconLowActivityUntil = new LinkedHashMap<String, Float>();
+        if (conditionalNewsSeen == null) conditionalNewsSeen = new java.util.LinkedHashSet<String>();
+        if (late == null) {
+            late = new PTSDLateState();
+            late.legacyWarSave = version < 13 && phase == Phase.WAR;
+        }
+        if (version < 13 && late.humanResponseBudget <= 0f) late.humanResponseBudget = 90f;
+        late.repair();
         if (factionResistance == null) factionResistance = new LinkedHashMap<String, Float>();
         for (SystemData data : systems.values()) {
             if (data == null) continue;
@@ -577,6 +651,16 @@ public final class PTSDCrisisState implements Serializable {
             if (incident.panicByMarket == null) incident.panicByMarket =
                     new LinkedHashMap<String, Float>();
             if (incident.panicMitigationRatio <= 0f) incident.panicMitigationRatio = 1f;
+            if (incident.investigationResult == null) {
+                // Old false results include both disproved reports and expired leads.
+                // Never manufacture proof, personal task credit, or network access on migration.
+                incident.investigationResult = !incident.investigationResolved ?
+                        PTSDTaskRules.InvestigationResult.PENDING :
+                        incident.investigationReal && !incident.siteUnexpectedGone ?
+                                (incident.investigationOutcome == 3 ? PTSDTaskRules.InvestigationResult.TRACKER :
+                                        PTSDTaskRules.InvestigationResult.CONFIRMED) :
+                                PTSDTaskRules.InvestigationResult.LEGACY_UNVERIFIED;
+            }
         }
         for (StrategicEvent event : events) {
             if (event == null) continue;
@@ -627,30 +711,14 @@ public final class PTSDCrisisState implements Serializable {
                 humanCohesion = Math.max(humanCohesion, 10f);
                 break;
             case EXPANSION:
-                reconConfidence = Math.max(reconConfidence, 55f);
-                humanAwareness = Math.max(humanAwareness, 15f);
-                watcherAggression = Math.max(watcherAggression, 25f);
-                nestDevelopment = Math.max(nestDevelopment, 12f);
-                humanCohesion = Math.max(humanCohesion, 15f);
+                // Early plot timing remains fixed; no late metric is granted by phase entry.
                 break;
             case FORTIFICATION:
-                reconConfidence = Math.max(reconConfidence, 70f);
-                humanAwareness = Math.max(humanAwareness, 25f);
-                watcherAggression = Math.max(watcherAggression, 35f);
-                nestDevelopment = Math.max(nestDevelopment, 45f);
-                blockadeDensity = Math.max(blockadeDensity, 10f);
-                humanCohesion = Math.max(humanCohesion, 20f);
-                realityDistortion = Math.max(realityDistortion, 15f);
+                break;
+            case MOBILIZATION:
+                // The public phase does not fabricate reconnaissance, production or cohesion.
                 break;
             case WAR:
-                reconConfidence = Math.max(reconConfidence, 85f);
-                humanAwareness = Math.max(humanAwareness, 70f);
-                watcherAggression = Math.max(watcherAggression, 80f);
-                nestDevelopment = Math.max(nestDevelopment, 75f);
-                blockadeDensity = Math.max(blockadeDensity, 65f);
-                omegaEscalation = Math.max(omegaEscalation, 35f);
-                humanCohesion = Math.max(humanCohesion, 35f);
-                realityDistortion = Math.max(realityDistortion, 35f);
                 break;
             case ENDED:
                 reconConfidence = Math.max(reconConfidence, 90f);

@@ -26,6 +26,19 @@ public class PTSD_BaseShard_Util {
         GUARD_ASSAULT
     }
 
+    /** Optional physical limits for scripted fleets. Old callers remain unconstrained. */
+    public static final class FleetLimits {
+        public final float maxFp;
+        public final int maxShips;
+        public final ShipAPI.HullSize maxHullSize;
+
+        public FleetLimits(float maxFp, int maxShips, ShipAPI.HullSize maxHullSize) {
+            this.maxFp = Math.max(3f, maxFp);
+            this.maxShips = Math.max(1, maxShips);
+            this.maxHullSize = maxHullSize == null ? ShipAPI.HullSize.CAPITAL_SHIP : maxHullSize;
+        }
+    }
+
     public static final String BRANCH_TRAN = "ectoplasm_intervention";
     public static final String BRANCH_CUBE = "entropy_transport";
     public static final String BRANCH_WEB = "network_wraith";
@@ -653,9 +666,15 @@ public class PTSD_BaseShard_Util {
 
     public static CampaignFleetAPI createFleet(FleetParamsV3 params, float spawnPoints,
                                                 FleetRole role, Random random) {
-        BranchDefinition branch = prepareFleetParams(params, spawnPoints, role, random);
+        return createFleet(params, spawnPoints, role, random, null);
+    }
+
+    public static CampaignFleetAPI createFleet(FleetParamsV3 params, float spawnPoints,
+                                                FleetRole role, Random random, FleetLimits limits) {
+        BranchDefinition branch = prepareFleetParams(params, spawnPoints, role, random, limits);
         if (branch == null || params.addShips == null || params.addShips.isEmpty()) return null;
         CampaignFleetAPI fleet = FleetFactoryV3.createFleet(params);
+        if (!isWithinLimits(fleet, limits)) return null;
         tagFleet(fleet, branch);
         return fleet;
     }
@@ -666,21 +685,43 @@ public class PTSD_BaseShard_Util {
      */
     public static BranchDefinition prepareFleetParams(FleetParamsV3 params, float spawnPoints,
                                                        FleetRole role, Random random) {
+        return prepareFleetParams(params, spawnPoints, role, random, null);
+    }
+
+    public static BranchDefinition prepareFleetParams(FleetParamsV3 params, float spawnPoints,
+                                                       FleetRole role, Random random, FleetLimits limits) {
         if (params == null) return null;
         BranchDefinition branch = pickBranch(role, random);
         if (branch == null) return null;
-        populateParamsFromBranch(params, branch.variants, spawnPoints, random);
+        populateParamsFromBranch(params, branch.variants, spawnPoints, random, limits);
         return branch;
     }
 
     /** Explicit-branch overload useful for scripted fleets and external integrations. */
     public static BranchDefinition prepareFleetParams(FleetParamsV3 params, float spawnPoints,
                                                        String branchId, Random random) {
+        return prepareFleetParams(params, spawnPoints, branchId, random, null);
+    }
+
+    public static BranchDefinition prepareFleetParams(FleetParamsV3 params, float spawnPoints,
+                                                       String branchId, Random random, FleetLimits limits) {
         if (params == null) return null;
         BranchDefinition branch = getBranch(branchId);
         if (branch == null) return null;
-        populateParamsFromBranch(params, branch.variants, spawnPoints, random);
+        populateParamsFromBranch(params, branch.variants, spawnPoints, random, limits);
         return branch;
+    }
+
+    public static boolean isWithinLimits(CampaignFleetAPI fleet, FleetLimits limits) {
+        if (fleet == null) return false;
+        if (limits == null) return true;
+        if (fleet.getFleetData().getMembersListCopy().size() > limits.maxShips ||
+                fleet.getFleetPoints() > limits.maxFp + 0.01f) return false;
+        for (com.fs.starfarer.api.fleet.FleetMemberAPI member : fleet.getFleetData().getMembersListCopy()) {
+            if (member == null || member.getHullSpec() == null ||
+                    hullRank(member.getHullSpec().getHullSize()) > hullRank(limits.maxHullSize)) return false;
+        }
+        return true;
     }
 
     public static void tagFleet(CampaignFleetAPI fleet, BranchDefinition branch) {
@@ -714,16 +755,25 @@ public class PTSD_BaseShard_Util {
     private static void populateParamsFromBranch(FleetParamsV3 params,
             Map<ShipAPI.HullSize, ShardTypeVariants> variantData,
             float spawnPoints, Random random) {
+        populateParamsFromBranch(params, variantData, spawnPoints, random, null);
+    }
+
+    private static void populateParamsFromBranch(FleetParamsV3 params,
+            Map<ShipAPI.HullSize, ShardTypeVariants> variantData,
+            float spawnPoints, Random random, FleetLimits limits) {
         if (params == null || variantData == null) return;
         Random rng = random == null ? new Random() : random;
         params.addShips = new ArrayList<>();
-        int remaining = Math.max(7, Math.round(spawnPoints));
+        int remaining = limits == null ? Math.max(7, Math.round(spawnPoints)) :
+                Math.max(3, (int) Math.floor(Math.min(spawnPoints, limits.maxFp)));
         int maxShips = params.maxNumShips == null ? Global.getSettings().getMaxShipsInFleet() : params.maxNumShips;
+        if (limits != null) maxShips = Math.min(maxShips, limits.maxShips);
         int safety = 0;
         while (remaining >= 3 && params.addShips.size() < maxShips && safety++ < 300) {
-            ShipAPI.HullSize size = pickHullSize(remaining, variantData, rng);
-            String variant = pickVariantForSize(size, variantData);
-            if (variant == null) variant = pickAnyShipVariant(variantData, rng);
+            ShipAPI.HullSize size = limits == null ? pickHullSize(remaining, variantData, rng) : null;
+            String variant = limits == null ? pickVariantForSize(size, variantData) :
+                    pickLimitedVariant(remaining, variantData, limits.maxHullSize);
+            if (variant == null && limits == null) variant = pickAnyShipVariant(variantData, rng);
             if (variant == null) break;
             params.addShips.add(variant);
             remaining -= getVariantCost(variant, size);
@@ -738,6 +788,32 @@ public class PTSD_BaseShard_Util {
         params.linerPts = 0f;
         params.utilityPts = 0f;
         params.doNotPrune = true;
+    }
+
+    private static String pickLimitedVariant(int remaining,
+            Map<ShipAPI.HullSize, ShardTypeVariants> data, ShipAPI.HullSize maxSize) {
+        ShipAPI.HullSize[] order = {ShipAPI.HullSize.CAPITAL_SHIP, ShipAPI.HullSize.CRUISER,
+                ShipAPI.HullSize.DESTROYER, ShipAPI.HullSize.FRIGATE};
+        for (ShipAPI.HullSize size : order) {
+            if (hullRank(size) > hullRank(maxSize) || !hasUsableVariant(size, data)) continue;
+            for (int attempt = 0; attempt < 30; attempt++) {
+                String variant = pickVariantForSize(size, data);
+                if (variant == null) break;
+                try {
+                    if (hullRank(Global.getSettings().getVariant(variant).getHullSpec().getHullSize()) <= hullRank(maxSize) &&
+                            getVariantCost(variant, size) <= remaining) return variant;
+                } catch (Throwable ignored) { }
+            }
+        }
+        return null;
+    }
+
+    private static int hullRank(ShipAPI.HullSize size) {
+        if (size == ShipAPI.HullSize.CAPITAL_SHIP) return 4;
+        if (size == ShipAPI.HullSize.CRUISER) return 3;
+        if (size == ShipAPI.HullSize.DESTROYER) return 2;
+        if (size == ShipAPI.HullSize.FRIGATE) return 1;
+        return 0;
     }
 
     public static void assignShardAfterSpawnFleet(CampaignFleetAPI fleet,

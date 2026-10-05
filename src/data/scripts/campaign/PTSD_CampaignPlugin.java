@@ -46,7 +46,7 @@ public class PTSD_CampaignPlugin extends BaseCampaignPlugin {
         if (interactionTarget != null && interactionTarget.getMarket() != null &&
                 PTSDJeOtloesManager.eligibleMarket(interactionTarget.getMarket())) {
             PTSDCrisisState state = PTSDCrisisState.get();
-            if (state != null && state.jeMeetingReady &&
+            if (state != null && !state.jeDead && state.jeMeetingReady &&
                     interactionTarget.getMarket().getId().equals(state.jeMeetingMarketId)) {
                 state.jePendingMeetingDialog = false;
                 return new PluginPick<InteractionDialogPlugin>(

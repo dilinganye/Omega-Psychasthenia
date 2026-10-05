@@ -49,22 +49,14 @@ public final class PTSDCrisisProgress {
                 addRaw(state, Variable.WATCHER_AGGRESSION, 0.05f * days);
                 break;
             case EXPANSION:
-                addRaw(state, Variable.RECON_CONFIDENCE, 0.08f * days);
-                addRaw(state, Variable.WATCHER_AGGRESSION, 0.08f * days);
-                addRaw(state, Variable.NEST_DEVELOPMENT, 0.85f * days);
-                addRaw(state, Variable.REALITY_DISTORTION, 0.08f * days);
+                // Construction and revealed sites, rather than the calendar, supply these values.
                 break;
             case FORTIFICATION:
-                addRaw(state, Variable.WATCHER_AGGRESSION, 0.12f * days);
-                addRaw(state, Variable.NEST_DEVELOPMENT, 0.45f * days);
-                addRaw(state, Variable.BLOCKADE_DENSITY, 1.15f * days);
-                addRaw(state, Variable.REALITY_DISTORTION, 0.12f * days);
+                break;
+            case MOBILIZATION:
+                // Late-war production is accounted for by PTSDLateWarDirector.
                 break;
             case WAR:
-                addRaw(state, Variable.OMEGA_ESCALATION, 0.30f * days);
-                addRaw(state, Variable.BLOCKADE_DENSITY, 0.06f * days);
-                addRaw(state, Variable.HUMAN_COHESION, 0.04f * days);
-                addRaw(state, Variable.REALITY_DISTORTION, 0.10f * days);
                 break;
             case ENDED:
                 addRaw(state, Variable.HUMAN_COHESION, -0.03f * days);
@@ -139,20 +131,20 @@ public final class PTSDCrisisProgress {
     }
 
     public static float getInvasionReadiness(PTSDCrisisState state) {
-        if (state == null) return 0f;
-        return clamp(get(state, Variable.RECON_CONFIDENCE) * 0.30f +
-                get(state, Variable.NEST_DEVELOPMENT) * 0.35f +
-                get(state, Variable.BLOCKADE_DENSITY) * 0.35f);
+        if (state == null || state.late == null) return 0f;
+        return clamp(state.late.warPoints / 1.2f);
     }
 
     public static boolean isReadyForInvasion(PTSDCrisisState state) {
-        return getInvasionReadiness(state) >= INVASION_READINESS_THRESHOLD;
+        return state != null && state.late != null && state.late.warPoints >= 60f &&
+                state.late.warPointBelief >= 60f;
     }
 
     public static Era getEra(PTSDCrisisState state) {
         if (state == null || state.phase == PTSDCrisisState.Phase.DORMANT ||
                 state.phase == PTSDCrisisState.Phase.RECON || state.phase == PTSDCrisisState.Phase.EXPANSION ||
-                state.phase == PTSDCrisisState.Phase.FORTIFICATION) return Era.WATCHER_PRE_INVASION;
+                state.phase == PTSDCrisisState.Phase.FORTIFICATION ||
+                state.phase == PTSDCrisisState.Phase.MOBILIZATION) return Era.WATCHER_PRE_INVASION;
         if (state.phase == PTSDCrisisState.Phase.ENDED) return Era.AFTERMATH;
         return Era.PSYCHASTHENIA_POST_INVASION;
     }

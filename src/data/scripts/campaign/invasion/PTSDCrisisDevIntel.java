@@ -241,12 +241,12 @@ public final class PTSDCrisisDevIntel extends BaseIntelPlugin {
                 resistance.append(entry.getKey()).append(" ").append(format(entry.getValue()));
                 if (resistanceShown >= 6) break;
             }
-            info.addPara(resistance.toString(), 3f, Misc.getGrayColor(), new String[0]);
+            info.addPara(resistance.toString(), Misc.getGrayColor(), 3f);
         }
         info.addSectionHeading("直接访问情报", base, dark,
                 com.fs.starfarer.api.ui.Alignment.MID, opad);
         info.addPara("以下预览只在 DevMode 中补建；若剧情已正常解锁，则会自动转为正式情报。", 5f);
-        info.addButton("打开变量与事件控制台", OPEN_CONTROL, Color.ORANGE, new Color(80, 45, 20), width, 24f, 4f);
+        info.addButton("打开阶段与后期流程控制台", OPEN_CONTROL, Color.ORANGE, new Color(80, 45, 20), width, 24f, 4f);
         info.addButton("查看战前危机情报", OPEN_PREWAR, base, dark, width, 24f, 2f);
         info.addButton("查看战区态势情报", OPEN_WAR, base, dark, width, 24f, 2f);
         info.addButton("查看殖民星域攻击权重", OPEN_COLONY_WEIGHTS, base, dark, width, 24f, 2f);
@@ -366,8 +366,8 @@ public final class PTSDCrisisDevIntel extends BaseIntelPlugin {
                     Misc.getHighlightColor(), incident.cardId, String.valueOf(incident.randomBranch),
                     incident.category, incident.headline, where);
             info.addPara("公开：" + incident.publicText, 1f);
-            info.addPara("真实：" + incident.trueText + "｜" + incident.effectSummary, 1f,
-                    Misc.getGrayColor(), new String[0]);
+            info.addPara("真实：" + incident.trueText + "｜" + incident.effectSummary,
+                    Misc.getGrayColor(), 1f);
             addNavigationButtons(info, width, base, dark,
                     new DevButton(false, incident.linkedEventId, incident.targetSystemId, null),
                     new DevButton(true, incident.linkedEventId, incident.targetSystemId, null), where);
@@ -509,6 +509,14 @@ public final class PTSDCrisisDevIntel extends BaseIntelPlugin {
             if (market != null && market.getPrimaryEntity() != null) return market.getPrimaryEntity();
         }
         return resolveTarget(null, systemId, null);
+    }
+
+    public static boolean devArriveAt(String entityId, String systemId) {
+        if (Global.getSector() == null || !Global.getSettings().isDevMode()) return false;
+        SectorEntityToken target = resolveDisplayTarget(systemId, null, entityId);
+        if (target == null || target.getContainingLocation() == null) return false;
+        arriveAt(target);
+        return true;
     }
 
     private static void arriveAt(SectorEntityToken target) {

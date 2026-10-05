@@ -1,0 +1,66 @@
+{
+  "variantId": "PTSD_Omega_EDEN_ZONE",
+  "hullId": "PTSD_Omega_EDEN",
+  "displayName": "EDEN",
+  "goalVariant": false,
+  "fluxCapacitors": 0,
+  "fluxVents": 0,
+  "quality": 1,
+  "permaMods": [],
+  "hullMods": [],
+  "weaponGroups": [
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0007": "PTSD_Fracture_Volatilizatior"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0002": "PTSD_Intertitial_Injection",
+        "WS0003": "PTSD_Intertitial_Injection"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0004": "Omega_Vpdiver_S"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0001": "realitydisruptor"
+      }
+    },
+    {
+      "autofire": true,
+      "mode": "LINKED",
+      "weapons": {
+        "WS0005": "PTSD_Fracture_Cross"
+      }
+    },
+    {
+      "autofire": false,
+      "mode": "LINKED",
+      "weapons": {}
+    },
+    {
+      "autofire": true,
+      "mode": "ALTERNATING",
+      "weapons": {
+        "WS0006": "PTSD_Photonspreador",
+        "WS0008": "PTSD_Photonspreador",
+        "WS0009": "PTSD_Photonspreador",
+        "WS0010": "PTSD_Photonspreador"
+      }
+    }
+  ],
+  "modules": [],
+  "wings": []
+}

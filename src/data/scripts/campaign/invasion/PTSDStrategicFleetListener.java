@@ -30,6 +30,7 @@ public final class PTSDStrategicFleetListener extends BaseFleetEventListener {
                 !fleet.getMemoryWithoutUpdate().getBoolean("$PTSD_player_battle_counted")) {
             fleet.getMemoryWithoutUpdate().set("$PTSD_player_battle_counted", true);
             state.totalPlayerOmegaBattles++;
+            PTSDFTDirector.onPlayerEncounter(state, fleet.getId());
             PTSDCrisisDevIntel.report("玩家与危机势力交战",
                     "累计真实交战 " + state.totalPlayerOmegaBattles,
                     fleet.getStarSystem() == null ? null : fleet.getStarSystem().getId(),
@@ -40,9 +41,17 @@ public final class PTSDStrategicFleetListener extends BaseFleetEventListener {
         if (event != null && event.type == PTSDCrisisState.EventType.FIRE_PROBE) {
             event.probeEngaged = true;
             event.probePlayerIntervention |= battle.isPlayerInvolved();
+            if (battle.isPlayerInvolved() && Global.getSector().getPlayerFleet() != null) {
+                event.probeObservedPlayerFP = Math.max(event.probeObservedPlayerFP,
+                        Global.getSector().getPlayerFleet().getFleetPoints());
+            }
             if (defeated) event.probeDefeatedGroups++;
         }
         if (!defeated) return;
+        if (fleet.getMemoryWithoutUpdate().contains("$PTSD_fortress_transport"))
+            PTSDFTDirector.onTransportLost(state, fleet.getId(),
+                    fleet.getStarSystem() == null ? null : fleet.getStarSystem().getId(),
+                    fleet.getLocation().x, fleet.getLocation().y);
         if (event != null) {
             if (!PTSDCrisisAPI.SIDE_OMEGA.equals(event.side) || event.defeatLearningRecorded) return;
             event.defeatLearningRecorded = true;
@@ -62,6 +71,33 @@ public final class PTSDStrategicFleetListener extends BaseFleetEventListener {
             event.aftermathKind = "OMEGA_DEFEAT";
         }
         PTSDCrisisAPI.recordOmegaDefeat(opponent, player, systemId, strength);
+        if (player) PTSDLateEventDirector.onPlayerOmegaDefeat(state, fleet.getId(), systemId, event);
+        if (player && state.late != null && state.late.ftCountedDefeats.add(fleet.getId())) {
+            state.late.verifiedPlayerOmegaDefeats++;
+            PTSDFTDirector.onPlayerDefeat(state, fleet);
+        }
+        if (player) {
+            boolean witnessed = false;
+            if (systemId != null) {
+                PTSDCrisisState.SystemData local = state.getSystemData(systemId);
+                witnessed = local != null && local.omegaControl >= .5f;
+            }
+            if (!witnessed && fleet.getContainingLocation() != null) {
+                for (CampaignFleetAPI other : fleet.getContainingLocation().getFleets()) {
+                    if (other == fleet || other.getFaction() == null) continue;
+                    String id = other.getFaction().getId();
+                    if (IIRT_Omega_Invasion.WATCHER_FACTION.equals(id) ||
+                            IIRT_Omega_Invasion.PSYCHASTHENIA_FACTION.equals(id)) {
+                        witnessed = true;
+                        break;
+                    }
+                }
+            }
+            PTSDThreatDirector.recordVictory(state, fleet.getId(), systemId, strength, witnessed);
+        }
+        if (fleet.getMemoryWithoutUpdate().getBoolean("$PTSD_fortress")) {
+            PTSDFortressDirector.onFleetDefeated(state, fleet, player);
+        }
         if (player && event != null && event.type == PTSDCrisisState.EventType.PREWAR_HUNTER) {
             event.successful = false;
             event.status = PTSDCrisisState.EventStatus.RESOLVED;

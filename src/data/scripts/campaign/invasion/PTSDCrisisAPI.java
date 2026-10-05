@@ -162,17 +162,24 @@ public final class PTSDCrisisAPI {
     /** Records a news lead without revealing whether the source is true. */
     public static boolean recordNewsIncident(String incidentId) {
         PTSDCrisisState.CrisisIncident incident = getIncident(incidentId);
-        if (incident == null || !incident.investigable) return false;
+        if (incident == null || !incident.investigable || incident.scenarioResolved || incident.investigationResolved) return false;
+        if (!incident.recordedByPlayer && incident.scenarioTrigger != null &&
+                PTSDCrisisState.getDay() >= incident.scenarioDeadline) return false;
         if (!incident.recordedByPlayer) {
             incident.recordedByPlayer = true;
-            incident.investigationExpiresDay = PTSDCrisisState.getDay() + 30f;
+            incident.investigationExpiresDay = PTSDTaskRules.ordinaryDeadline(
+                    PTSDCrisisState.getDay(), incident.scenarioDeadline);
+            incident.investigationResult = PTSDTaskRules.InvestigationResult.PENDING;
+            if (incident.scenarioTrigger != null) incident.scenarioDeadline = incident.investigationExpiresDay;
+            if (incident.siteMaterialized) incident.siteHardExpireDay = incident.investigationExpiresDay;
             java.util.Random seeded = new java.util.Random(incident.id.hashCode() * 31L + 0x50545344L);
             float roll = seeded.nextFloat();
             PTSDCrisisState state = PTSDCrisisState.get();
             // The 5% Fourth Watch tracker branch does not exist before reconnaissance begins.
-            incident.investigationOutcome = state != null && state.phase == PTSDCrisisState.Phase.DORMANT
-                    ? (roll < .25f ? 1 : 2)
-                    : (roll < .25f ? 1 : (roll < .95f ? 2 : 3));
+            if (incident.scenarioTrigger == null)
+                incident.investigationOutcome = state != null && state.phase == PTSDCrisisState.Phase.DORMANT
+                        ? (roll < .25f ? 1 : 2)
+                        : (roll < .25f ? 1 : (roll < .95f ? 2 : 3));
             if (incident.investigationOutcome == 1) {
                 PTSDCrisisIncidentManager.activateVerifiedCustomTarget(state, incident);
             }
@@ -317,6 +324,9 @@ public final class PTSDCrisisAPI {
         evidence.createdDay = PTSDCrisisState.getDay();
         evidence.expiresDay = evidence.createdDay + Math.max(1f, lifetimeDays);
         evidence.playerContaminated = playerContaminated;
+        if ((colonySignal == 1 || fleetSignal == 1) &&
+                !"SCOUT_REMOTE_SWEEP".equals(sourceType))
+            state.reconLowActivityUntil.remove(systemId);
         data.evidence.add(evidence);
         while (data.evidence.size() > 64) data.evidence.remove(0);
         refreshBelief(data, evidence.createdDay);
@@ -343,6 +353,10 @@ public final class PTSDCrisisAPI {
         for (int i = data.evidence.size() - 1; i >= 0; i--) {
             PTSDCrisisState.EvidenceRecord item = data.evidence.get(i);
             if (item == null || item.expiresDay <= day) { data.evidence.remove(i); continue; }
+            if (item.uploadState != null && !"CONFIRMED_UPLOADED".equals(item.uploadState)) continue;
+            // A public report with no observed field cannot improve Omega's confidence.
+            if (item.fleetStrength < 0f && item.marketDefense < 0f && item.strategicValue < 0f &&
+                    item.colonySignal < 0 && item.fleetSignal < 0) continue;
             float life = Math.max(1f, item.expiresDay - item.createdDay);
             float freshness = Math.max(.08f, Math.min(1f, (item.expiresDay - day) / life));
             float trust = clamp01(item.confidence) * freshness * (item.playerContaminated ? .72f : 1f);
@@ -436,6 +450,7 @@ public final class PTSDCrisisAPI {
     }
 
     static void notifyResolved(PTSDCrisisState.StrategicEvent event) {
+        PTSDLateWarDirector.creditSuccessfulEvent(event);
         PTSDCrisisDevIntel.reportEventResolved(event);
         EventResult result = new EventResult(event);
         for (Map.Entry<String, InterventionProvider> entry :

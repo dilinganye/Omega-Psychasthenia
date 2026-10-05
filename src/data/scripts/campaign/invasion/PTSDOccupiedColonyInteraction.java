@@ -49,6 +49,11 @@ public final class PTSDOccupiedColonyInteraction implements InteractionDialogPlu
         this.dialog = dialog;
         SectorEntityToken target = dialog.getInteractionTarget();
         this.market = target == null ? null : target.getMarket();
+        if (target != null && market != null) {
+            PTSDCrisisState state = PTSDCrisisState.get();
+            if (state != null && market.getId().equals(state.baseMarketId))
+                PTSDFTDirector.onMotherInteraction(state, target.getId());
+        }
         this.context = PTSDOccupationAPI.createContext(market);
         if (target != null) {
             // Use the engine's actual spherical planet renderer; planet textures are equirectangular
@@ -309,6 +314,7 @@ public final class PTSDOccupiedColonyInteraction implements InteractionDialogPlu
             CampaignFleetAPI fleet = (CampaignFleetAPI) active;
             fleet.clearAssignments();
             fleet.addAssignment(FleetAssignment.ATTACK_LOCATION, player, 3f, "反定位信号源");
+            PTSDOmegaEncounterResponse.attachPursuer(fleet, player);
             dialog.dismiss();
             return;
         }
@@ -339,6 +345,7 @@ public final class PTSDOccupiedColonyInteraction implements InteractionDialogPlu
         fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_NO_SHIP_RECOVERY, true);
         fleet.addEventListener(new PTSDOccupationDefenseListener(market.getId(), negotiationResponse));
         fleet.addAssignment(FleetAssignment.ATTACK_LOCATION, player, 3f, "反定位信号源");
+        PTSDOmegaEncounterResponse.attachPursuer(fleet, player);
         fleet.addAssignment(FleetAssignment.GO_TO_LOCATION_AND_DESPAWN,
                 market.getPrimaryEntity(), 3f, "请求重构");
         market.getMemoryWithoutUpdate().set(PTSDOccupationManager.ACTIVE_DEFENSE_MEMORY, fleet.getId());

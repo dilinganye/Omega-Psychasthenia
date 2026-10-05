@@ -28,6 +28,7 @@ public final class PTSDJeOtloesManager implements EveryFrameScript, ColonyIntera
     public void advance(float amount) {
         PTSDCrisisState state = PTSDCrisisState.get();
         if (state == null) return;
+        if (state.jeDead) return;
         advanceTasks(state);
         if (state.jeDetectorGranted) {
             if (!Global.getSector().getCharacterData().getAbilities().contains(PTSDCrisisDetectorAbility.ID)) {
@@ -53,7 +54,7 @@ public final class PTSDJeOtloesManager implements EveryFrameScript, ColonyIntera
 
     public static ContactResult rollContactAttempt() {
         PTSDCrisisState state = PTSDCrisisState.get();
-        if (state == null) return ContactResult.MISSED;
+        if (state == null || state.jeDead) return ContactResult.MISSED;
         float day = PTSDCrisisState.getDay();
         int bucket = (int) Math.floor(day);
         if (state.jeContactDayBucket != bucket) {
@@ -111,7 +112,7 @@ public final class PTSDJeOtloesManager implements EveryFrameScript, ColonyIntera
     }
 
     public static boolean canStartAnotherTask(PTSDCrisisState state) {
-        return state != null && daysUntilNextTask(state) <= 0;
+        return state != null && !state.jeDead && daysUntilNextTask(state) <= 0;
     }
 
     private static void recordTaskAccepted(PTSDCrisisState state) {
@@ -159,7 +160,7 @@ public final class PTSDJeOtloesManager implements EveryFrameScript, ColonyIntera
         return Math.max(1f, 1.65f - Math.min(1f, readiness / 70f) * .65f);
     }
     public static boolean triggerUnlocked(PTSDCrisisState state) {
-        return state != null &&
+        return state != null && !state.jeDead &&
                 (state.totalScoutSightings >= 4 || state.totalPlayerOmegaBattles >= 1);
     }
 
@@ -174,13 +175,25 @@ public final class PTSDJeOtloesManager implements EveryFrameScript, ColonyIntera
     public static PTSDCrisisState.CrisisIncident startPlayerInvestigation(TextPanelAPI text) {
         PTSDCrisisState state = PTSDCrisisState.get();
         if (state == null || state.jePlayerTaskIncidentId != null || !canStartAnotherTask(state)) return null;
-        PTSDCrisisState.CrisisIncident incident =
-                PTSDCrisisIncidentManager.forceAndGet("JE-01");
+        com.fs.starfarer.api.util.WeightedRandomPicker<String> picker =
+                new com.fs.starfarer.api.util.WeightedRandomPicker<String>(new Random());
+        for (PTSDCrisisIncidentManager.ScriptedTemplate template :
+                PTSDCrisisIncidentManager.getTemplates("CONDITIONAL", state.phase)) {
+            if (template.id.startsWith("R2-") || template.id.startsWith("F2-")) {
+                if ("可触发".equals(PTSDConditionalNewsDirector.unavailableReason(state, template.id)))
+                    picker.add(template.id, Math.max(.1f, template.priority));
+            }
+        }
+        if ("可触发".equals(PTSDCrisisIncidentManager.unavailableReason("JE-01")))
+            picker.add("JE-01", .1f);
+        String selected = picker.pick();
+        PTSDCrisisState.CrisisIncident incident = selected == null ? null :
+                "JE-01".equals(selected) ?
+                        PTSDCrisisIncidentManager.forceAndGetPrivate(selected) :
+                        PTSDConditionalNewsDirector.forJe(state, selected);
         if (incident == null) return null;
-        PTSDCrisisAPI.recordNewsIncident(incident.id);
-        // Je's dedicated field work always has a material truth to find; ordinary news retains 25/70/5 outcomes.
-        incident.investigationOutcome = 1;
-        incident.investigationExpiresDay = PTSDCrisisState.getDay() + 30f;
+        if (!PTSDCrisisAPI.recordNewsIncident(incident.id)) return null;
+        // Retain the assigned lead's truth value; supported disproof is also a valid result.
         state.jePlayerTaskIncidentId = incident.id;
         recordTaskAccepted(state);
         PTSDCrisisIntel.ensureIntel();
@@ -197,6 +210,7 @@ public final class PTSDJeOtloesManager implements EveryFrameScript, ColonyIntera
         for (int i = state.incidents.size() - 1; i >= 0; i--) {
             PTSDCrisisState.CrisisIncident item = state.incidents.get(i);
             if (item == null || !item.investigable || item.investigationResolved ||
+                    (state.jePlayerTaskIncidentId != null && state.jePlayerTaskIncidentId.equals(item.id)) ||
                     item.panicByMarket == null || item.panicByMarket.isEmpty()) continue;
             picked = item;
             break;
@@ -221,13 +235,20 @@ public final class PTSDJeOtloesManager implements EveryFrameScript, ColonyIntera
             if (incident == null) {
                 state.jePlayerTaskIncidentId = null;
             } else if (incident.investigationResolved) {
+                state.jePlayerTaskIncidentId = null; // Claim once before any UI/callback.
+                if (!PTSDTaskRules.successfulInvestigation(incident.investigationResult)) {
+                    Global.getSector().getCampaignUI().addMessage("Je 委托已结束，未取得可核验的调查结论。", Misc.getGrayColor());
+                    PTSDJeOtloesIntel.ensureIntel().sendContactUpdate();
+                    return;
+                }
                 // mitigateIncident() accepts the fraction left behind. A stronger early-game
                 // bonus must therefore divide that fraction instead of multiplying it.
                 float remaining = Math.max(.05f, .5f / getEarlyPanicMitigationBonus(state));
                 float removed = PTSDLocalPanicAPI.mitigateIncident(
                         incident, remaining, "JE_PLAYER_CONFIRMED");
                 state.jeCompletedInvestigations++;
-                state.jePlayerTaskIncidentId = null;
+                state.jePersonalCompletedInvestigations++;
+                state.jePrivateNetworkQualified = true;
                 Global.getSector().getCampaignUI().addMessage(
                         "已确认的情报帮助附近殖民地压低了恐慌传播（-" +
                                 Math.round(removed) + "）。", Misc.getPositiveHighlightColor());
@@ -258,6 +279,14 @@ public final class PTSDJeOtloesManager implements EveryFrameScript, ColonyIntera
         PTSDCrisisState state = PTSDCrisisState.get();
         PTSDCrisisState.CrisisIncident incident = getAgentIncident();
         if (state == null || incident == null) return 100;
+        if (incident.investigationResolved && !PTSDTaskRules.successfulInvestigation(incident.investigationResult)) {
+            state.jeAgentIncidentId = null;
+            state.jeAgentReturnDay = 0f;
+            state.jeMeetingMarketId = null;
+            state.jeMeetingReady = false;
+            PTSDJeOtloesIntel.ensureIntel().sendContactUpdate();
+            return 100; // No panic mitigation or completion credit for a failed lead.
+        }
         int percent = 5 + new Random((long) incident.id.hashCode() * 31L +
                 (long) PTSDCrisisState.getDay()).nextInt(71);
         percent = Math.max(5, Math.round(percent / getEarlyPanicMitigationBonus(state)));
@@ -265,6 +294,7 @@ public final class PTSDJeOtloesManager implements EveryFrameScript, ColonyIntera
         PTSDNewsSiteManager.resolveRemotely(state, incident);
         incident.investigationResolved = true;
         incident.investigationReal = true;
+        incident.investigationResult = PTSDTaskRules.InvestigationResult.CONFIRMED;
         state.jeCompletedInvestigations++;
         state.jeAgentIncidentId = null;
         state.jeAgentReturnDay = 0f;

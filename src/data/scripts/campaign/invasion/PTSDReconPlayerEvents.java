@@ -10,6 +10,7 @@ import com.fs.starfarer.api.impl.campaign.DerelictShipEntityPlugin;
 import com.fs.starfarer.api.impl.campaign.fleets.FleetFactoryV3;
 import com.fs.starfarer.api.impl.campaign.fleets.FleetParamsV3;
 import com.fs.starfarer.api.impl.campaign.ids.Entities;
+import com.fs.starfarer.api.impl.campaign.ids.Abilities;
 import com.fs.starfarer.api.impl.campaign.ids.FleetTypes;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
@@ -46,7 +47,6 @@ public final class PTSDReconPlayerEvents {
             rollDaily(state, player, day);
         }
         checkTrapArrival(state, player, day);
-        updateReactiveRetreatFleets(player);
     }
 
     private static void rollDaily(PTSDCrisisState state, CampaignFleetAPI player, float day) {
@@ -60,18 +60,23 @@ public final class PTSDReconPlayerEvents {
     private static CampaignFleetAPI createFleet(LocationAPI location, Vector2f point, float fp,
                                                   PTSD_BaseShard_Util.FleetRole role, String explicitBranch) {
         if (location == null || point == null) return null;
+        // These ambient RECON encounters never use larger than destroyer hulls, even
+        // when the player has an endgame fleet or a strategic difficulty setting is raised.
+        float budget = Math.min(65f, Math.max(12f, fp));
+        PTSD_BaseShard_Util.FleetLimits limits = new PTSD_BaseShard_Util.FleetLimits(
+                budget, 3, com.fs.starfarer.api.combat.ShipAPI.HullSize.DESTROYER);
         FleetParamsV3 params = new FleetParamsV3(point, WATCHER, .5f, FleetTypes.PATROL_LARGE,
-                fp, 0f, 0f, 0f, 0f, 0f, 0f);
-        params.maxNumShips = Global.getSettings().getMaxShipsInFleet();
+                budget, 0f, 0f, 0f, 0f, 0f, 0f);
+        params.maxNumShips = 3;
         PTSD_BaseShard_Util.BranchDefinition branch;
         if (explicitBranch == null) {
-            branch = PTSD_BaseShard_Util.prepareFleetParams(params, fp, role, RANDOM);
+            branch = PTSD_BaseShard_Util.prepareFleetParams(params, budget, role, RANDOM, limits);
         } else {
-            branch = PTSD_BaseShard_Util.prepareFleetParams(params, fp, explicitBranch, RANDOM);
+            branch = PTSD_BaseShard_Util.prepareFleetParams(params, budget, explicitBranch, RANDOM, limits);
         }
         if (branch == null || params.addShips == null || params.addShips.isEmpty()) return null;
         CampaignFleetAPI fleet = FleetFactoryV3.createFleet(params);
-        if (fleet == null) return null;
+        if (!PTSD_BaseShard_Util.isWithinLimits(fleet, limits)) return null;
         PTSD_BaseShard_Util.tagFleet(fleet, branch);
         location.addEntity(fleet);
         fleet.setLocation(point.x, point.y);
@@ -98,21 +103,39 @@ public final class PTSDReconPlayerEvents {
         fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_MAKE_AGGRESSIVE, true);
         fleet.addAssignment(FleetAssignment.INTERCEPT, player, 20f, "逼近目标");
         fleet.addAssignment(FleetAssignment.GO_TO_LOCATION_AND_DESPAWN, escapeToken(player), 30f, "脱离观测区");
-        PTSDCrisisDevIntel.report("每日事件：等强机动舰队", "目标玩家；基准自动分 " + Math.round(fp) + "；分支 " + PTSD_BaseShard_Util.getFleetBranchName(fleet),
+        PTSDOmegaEncounterResponse.attachPursuer(fleet, player);
+        PTSDCrisisDevIntel.report("每日事件：有限火力机动舰队", "玩家舰队 " + Math.round(fp) +
+                " FP；本队实有 " + Math.round(fleet.getFleetPoints()) + " FP；分支 " + PTSD_BaseShard_Util.getFleetBranchName(fleet),
                 player.getStarSystem() == null ? null : player.getStarSystem().getId(), fleet.getId());
     }
 
     private static void armTrapFromNavigation(PTSDCrisisState state, CampaignFleetAPI player, float day) {
         if (state.reconTrapSystemId != null && day < state.reconTrapExpiresDay) return;
-        CampaignFleetAIAPI ai = player.getAI();
-        FleetAssignmentDataAPI assignment = ai == null ? null : ai.getCurrentAssignment();
-        SectorEntityToken target = assignment == null ? null : assignment.getTarget();
-        StarSystemAPI system = target == null ? null : target.getStarSystem();
-        if (!validTrapSystem(system, player)) return;
+        // A plotted navigation assignment is private player information. A scout which actually
+        // sees the player may extrapolate a nearby empty system, but cannot read that assignment.
+        boolean observed = false;
+        for (CampaignFleetAPI fleet : player.getContainingLocation().getFleets()) {
+            if (fleet == player || fleet.getFaction() == null ||
+                    !WATCHER.equals(fleet.getFaction().getId())) continue;
+            if (Misc.getDistance(fleet.getLocation(), player.getLocation()) < 4000f) {
+                observed = true;
+                break;
+            }
+        }
+        if (!observed) return;
+        StarSystemAPI system = null;
+        float best = Float.MAX_VALUE;
+        Vector2f origin = player.getLocationInHyperspace();
+        for (StarSystemAPI candidate : Global.getSector().getStarSystems()) {
+            if (!validTrapSystem(candidate, player)) continue;
+            float distance = Misc.getDistance(origin, candidate.getLocation());
+            if (distance < best) { best = distance; system = candidate; }
+        }
+        if (system == null) return;
         state.reconTrapSystemId = system.getId();
-        state.reconTrapTargetEntityId = target.getId();
+        state.reconTrapTargetEntityId = null;
         state.reconTrapExpiresDay = day + 45f;
-        PTSDCrisisDevIntel.report("每日事件：陷阱判定已埋设", "等待玩家跨星系进入导航目标；45日后失效", system.getId(), target.getId());
+        PTSDCrisisDevIntel.report("每日事件：陷阱判定已埋设", "侦察舰目击后的邻近星系预测；45日后失效", system.getId(), null);
     }
 
     private static boolean validTrapSystem(StarSystemAPI system, CampaignFleetAPI player) {
@@ -141,29 +164,43 @@ public final class PTSDReconPlayerEvents {
 
     private static void spawnTrapFormation(StarSystemAPI system, CampaignFleetAPI player) {
         SectorEntityToken focus = pickSystemFocus(system);
-        CampaignFleetAPI leader = createFleet(system, safeAround(focus, 5000f, 8500f), 500f,
-                PTSD_BaseShard_Util.FleetRole.GUARD_ASSAULT, PTSD_BaseShard_Util.BRANCH_WEB);
+        boolean inhabited = false;
+        for (MarketAPI market : Global.getSector().getEconomy().getMarkets(system)) {
+            if (market != null && !market.isPlanetConditionMarketOnly()) {
+                inhabited = true;
+                break;
+            }
+        }
+        // Shared actual-FP ceiling, including any generated escorts.
+        float[] budgets = inhabited ? new float[] {35f, 25f} : new float[] {40f, 30f, 20f};
+        float actualFp = 0f;
+        int actualGroups = 0;
+        CampaignFleetAPI leader = null;
+        for (int i = 0; i < budgets.length; i++) {
+            CampaignFleetAPI fleet = createFleet(system,
+                    i == 0 ? safeAround(focus, 5000f, 8500f) :
+                            safeAround(leader == null ? focus : leader, 1300f, 4200f),
+                    Math.min(budgets[i], (inhabited ? 60f : 90f) - actualFp),
+                    i == 0 ? PTSD_BaseShard_Util.FleetRole.RECON :
+                            PTSD_BaseShard_Util.FleetRole.GUARD_ASSAULT, null);
+            if (fleet == null) continue;
+            if (leader == null) leader = fleet;
+            fleet.setName("未知编队");
+            if (inhabited) {
+                fleet.setSensorProfile(20f);
+                fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_FLEET_TYPE, "未知编队");
+            }
+            makeTrapNeutral(fleet);
+            fleet.addAssignment(FleetAssignment.PATROL_SYSTEM, system.getCenter(), 30f, "保持静默机动");
+            actualFp += fleet.getFleetPoints();
+            actualGroups++;
+        }
         if (leader == null) return;
-        leader.setName("网络冥魂");
-        makeTrapNeutral(leader);
-        leader.addAssignment(FleetAssignment.PATROL_SYSTEM, system.getCenter(), 30f, "在星系内保持静默机动");
-        CampaignFleetAPI transport = createFleet(system, safeAround(leader, 600f, 1200f), 300f,
-                PTSD_BaseShard_Util.FleetRole.LOGISTICS_ENGINEERING, PTSD_BaseShard_Util.BRANCH_CUBE);
-        if (transport != null) {
-            transport.setName("熵级运载"); makeTrapNeutral(transport);
-            transport.addAssignment(FleetAssignment.FOLLOW, leader, 30f, "跟随领队");
-        }
-        for (int i = 0; i < 3; i++) {
-            CampaignFleetAPI escort = createFleet(system, safeAround(leader, 1300f, 4200f), 110f + RANDOM.nextFloat() * 150f,
-                    PTSD_BaseShard_Util.FleetRole.GUARD_ASSAULT, null);
-            if (escort == null) continue;
-            escort.setName("漫游静默"); makeTrapNeutral(escort);
-            escort.addAssignment(i == 0 ? FleetAssignment.FOLLOW : FleetAssignment.PATROL_SYSTEM,
-                    i == 0 ? leader : system.getCenter(), 30f, "漫游");
-        }
         Global.getSector().getCampaignUI().addMessage("传感器上出现了极端的能量反应", new Color(255, 105, 125));
         try { Global.getSector().addPing(leader, "sensor_burst", new Color(220, 90, 255)); } catch (Throwable ignored) { }
-        PTSDCrisisDevIntel.report("每日事件：陷阱舰群显现", "五支中立编队；网络冥魂500 FP领队；熵级运载300 FP跟随",
+        PTSDCrisisDevIntel.report("每日事件：陷阱舰群显现", actualGroups +
+                "支中立编队；" + (inhabited ? "有人/60" : "无人/90") +
+                " FP；实有自动分 " + Math.round(actualFp),
                 system.getId(), leader.getId());
     }
 
@@ -258,6 +295,7 @@ public final class PTSDReconPlayerEvents {
                 "逐段扫描散逸残骸");
         scout.addAssignment(FleetAssignment.GO_TO_LOCATION_AND_DESPAWN, escapeToken(player), 20f,
                 "结束取样并远离航路");
+        PTSDOmegaEncounterResponse.attachSurveyScout(scout);
         return true;
     }
 
@@ -276,22 +314,126 @@ public final class PTSDReconPlayerEvents {
                 PTSD_BaseShard_Util.FleetRole.RECON, null);
         if (fleet == null) return;
         fleet.setName("正在截获航迹的未知舰队");
-        fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_MAKE_AGGRESSIVE, true);
+        fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_MAKE_NON_AGGRESSIVE, true);
         fleet.getMemoryWithoutUpdate().set(REACTIVE_RETREAT, true);
-        fleet.addAssignment(FleetAssignment.INTERCEPT, player, 20f, "追击异常航迹");
-        fleet.addScript(new PostBattleEscapeScript(fleet, player));
-        PTSDCrisisDevIntel.report("每日事件：超空间试触追击", "受击后全舰撤退；返回生涯后高速脱离；FP " + Math.round(fp), null, fleet.getId());
+        if (fleet.getAbility(Abilities.INTERDICTION_PULSE) == null) fleet.addAbility(Abilities.INTERDICTION_PULSE);
+        if (fleet.getAbility(Abilities.SENSOR_BURST) == null) fleet.addAbility(Abilities.SENSOR_BURST);
+        if (fleet.getAbility(Abilities.EMERGENCY_BURN) == null) fleet.addAbility(Abilities.EMERGENCY_BURN);
+        fleet.addAssignment(FleetAssignment.GO_TO_LOCATION, player, 5f, "接近并扫描未知航迹");
+        fleet.addScript(new ReactivePulseScript(fleet, player));
+        PTSDCrisisDevIntel.report("每日事件：超空间试触追击",
+                "接近后发动原版阻断脉冲和主动扫描，再加力脱离；本队实有 " +
+                        Math.round(fleet.getFleetPoints()) + " FP", null, fleet.getId());
     }
 
-    private static void updateReactiveRetreatFleets(CampaignFleetAPI player) {
-        LocationAPI location = player.getContainingLocation(); if (location == null) return;
-        for (CampaignFleetAPI fleet : location.getFleets()) {
-            if (fleet != null && fleet.getMemoryWithoutUpdate().getBoolean(RETREAT_TRIGGERED) && !fleet.isDespawning()) {
-                fleet.clearAssignments();
-                fleet.getStats().getFleetwideMaxBurnMod().modifyFlat("PTSD_reactive_escape", 8f, "紧急撤离");
-                fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_MAKE_NON_AGGRESSIVE, true);
-                fleet.addAssignment(FleetAssignment.GO_TO_LOCATION_AND_DESPAWN, escapeToken(player), 20f, "紧急脱离接触");
+    private static final class ReactivePulseScript implements EveryFrameScript {
+        private final CampaignFleetAPI fleet, player;
+        private int stage;
+        private float elapsed;
+        private float observedFp;
+        private String observedSystemId;
+        private SectorEntityToken exit;
+        private boolean scanActivated;
+        ReactivePulseScript(CampaignFleetAPI fleet, CampaignFleetAPI player) {
+            this.fleet = fleet;
+            this.player = player;
+        }
+        public boolean isDone() { return fleet == null || !fleet.isAlive() || fleet.isDespawning() || stage == 3; }
+        public boolean runWhilePaused() { return false; }
+        public void advance(float amount) {
+            if (isDone() || Global.getSector() == null || fleet.getBattle() != null) return;
+            float days = Global.getSector().getClock().convertToDays(amount);
+            elapsed += days;
+            if (fleet.getMemoryWithoutUpdate().getBoolean(RETREAT_TRIGGERED) && stage < 2) beginEscape();
+            if (fleet.getContainingLocation() != player.getContainingLocation()) {
+                if (stage == 2) upload();
+                fleet.despawn();
+                stage = 3;
+                return;
             }
+            if (stage == 0) {
+                if (elapsed > 4f) { beginEscape(); return; }
+                if (Misc.getDistance(fleet, player) >
+                        com.fs.starfarer.api.impl.campaign.abilities.InterdictionPulseAbility.getRange(fleet) * .8f)
+                    return;
+                com.fs.starfarer.api.characters.AbilityPlugin pulse =
+                        fleet.getAbility(Abilities.INTERDICTION_PULSE);
+                if (pulse != null && pulse.isUsable()) {
+                    pulse.activate();
+                    stage = 1;
+                    elapsed = 0f;
+                } else {
+                    beginScan();
+                }
+            } else if (stage == 1) {
+                // The vanilla ability applies its own range, hit and cooldown rules.
+                if (fleet.getMemoryWithoutUpdate().getBoolean(MemFlags.JUST_DID_INTERDICTION_PULSE) ||
+                        elapsed > .15f) beginScan();
+            } else if (stage == 4) {
+                tryScan();
+            } else if (stage == 2) {
+                tryEmergencyBurn();
+                if (!fleet.isVisibleToPlayerFleet()) {
+                    upload();
+                    fleet.despawn();
+                    stage = 3;
+                } else if (exit == null || Misc.getDistance(fleet, exit) < 1800f) {
+                    exit = escapeToken(player);
+                    fleet.clearAssignments();
+                    fleet.addAssignment(FleetAssignment.GO_TO_LOCATION, exit, 4f, "加力脱离扫描区");
+                }
+            }
+        }
+        private void beginScan() {
+            stage = 4;
+            elapsed = 0f;
+            tryScan();
+        }
+        private void tryScan() {
+            com.fs.starfarer.api.characters.AbilityPlugin scanner = fleet.getAbility(Abilities.SENSOR_BURST);
+            if (scanner != null && scanner.isUsable()) {
+                scanner.activate();
+                scanActivated = true;
+            }
+            if (!scanActivated && elapsed < .5f) return;
+            if (scanActivated && Misc.getDistance(fleet, player) <= 6500f) {
+                observedFp = player.getFleetPoints();
+                if (player.getStarSystem() != null) observedSystemId = player.getStarSystem().getId();
+                else observedSystemId = nearestSystemTo(player);
+            }
+            beginEscape();
+        }
+        private void beginEscape() {
+            stage = 2;
+            elapsed = 0f;
+            fleet.getMemoryWithoutUpdate().set(RETREAT_TRIGGERED, true);
+            fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_MAKE_NON_AGGRESSIVE, true);
+            fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_MAKE_AGGRESSIVE, false);
+            fleet.clearAssignments();
+            exit = escapeToken(player);
+            fleet.addAssignment(FleetAssignment.GO_TO_LOCATION, exit, 8f, "紧急加力撤离");
+            tryEmergencyBurn();
+        }
+        private void tryEmergencyBurn() {
+            com.fs.starfarer.api.characters.AbilityPlugin burn = fleet.getAbility(Abilities.EMERGENCY_BURN);
+            if (burn != null && burn.isUsable() && !burn.isActive()) burn.activate();
+        }
+        private String nearestSystemTo(CampaignFleetAPI observed) {
+            StarSystemAPI nearest = null;
+            float best = Float.MAX_VALUE;
+            for (StarSystemAPI candidate : Global.getSector().getStarSystems()) {
+                if (candidate == null) continue;
+                float distance = Misc.getDistance(candidate.getLocation(), observed.getLocationInHyperspace());
+                if (distance < best) { best = distance; nearest = candidate; }
+            }
+            return nearest == null ? null : nearest.getId();
+        }
+        private void upload() {
+            if (observedFp <= 0f || observedSystemId == null) return;
+            PTSDThreatDirector.recordAction(PTSDCrisisState.get(), "FRONT",
+                    "reactive-scan:" + fleet.getId(), observedSystemId,
+                    Math.min(100f, observedFp / 5f), .65f, true, 35f);
+            observedFp = 0f;
         }
     }
 
@@ -335,19 +477,6 @@ public final class PTSDReconPlayerEvents {
             else if (range > 5200f) fleet.addAssignment(FleetAssignment.FOLLOW, player, .4f, "维持遥测距离");
             else fleet.addAssignment(FleetAssignment.HOLD, fleet, .4f, "保持距离");
             if (days <= 0f) { fleet.clearAssignments(); fleet.addAssignment(FleetAssignment.GO_TO_LOCATION_AND_DESPAWN, escapeToken(player), 10f, "信号消失"); }
-        }
-    }
-
-    private static final class PostBattleEscapeScript implements EveryFrameScript {
-        private final CampaignFleetAPI fleet, player;
-        PostBattleEscapeScript(CampaignFleetAPI fleet, CampaignFleetAPI player) { this.fleet=fleet; this.player=player; }
-        public boolean isDone() { return fleet == null || !fleet.isAlive() || fleet.isDespawning(); }
-        public boolean runWhilePaused() { return false; }
-        public void advance(float amount) {
-            if (isDone() || fleet.getBattle() != null || !fleet.getMemoryWithoutUpdate().getBoolean(RETREAT_TRIGGERED)) return;
-            fleet.clearAssignments(); fleet.getStats().getFleetwideMaxBurnMod().modifyFlat("PTSD_reactive_escape", 8f, "紧急撤离");
-            fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_MAKE_NON_AGGRESSIVE, true);
-            fleet.addAssignment(FleetAssignment.GO_TO_LOCATION_AND_DESPAWN, escapeToken(player), 20f, "紧急脱离接触");
         }
     }
 

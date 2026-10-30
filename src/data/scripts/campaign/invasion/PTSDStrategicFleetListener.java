@@ -23,18 +23,16 @@ public final class PTSDStrategicFleetListener extends BaseFleetEventListener {
 
     @Override
     public void reportBattleOccurred(CampaignFleetAPI fleet, CampaignFleetAPI primaryWinner, BattleAPI battle) {
-        if (fleet == null || battle == null || !battle.isDone()) return;
+        if (fleet == null || battle == null) return;
         PTSDCrisisState state = PTSDCrisisState.get();
         if (state == null) return;
-        if (battle.isPlayerInvolved() &&
-                !fleet.getMemoryWithoutUpdate().getBoolean("$PTSD_player_battle_counted")) {
-            fleet.getMemoryWithoutUpdate().set("$PTSD_player_battle_counted", true);
-            state.totalPlayerOmegaBattles++;
-            PTSDFTDirector.onPlayerEncounter(state, fleet.getId());
-            PTSDCrisisDevIntel.report("玩家与危机势力交战",
-                    "累计真实交战 " + state.totalPlayerOmegaBattles,
-                    fleet.getStarSystem() == null ? null : fleet.getStarSystem().getId(),
-                    fleet.getId());
+        if (battle.isPlayerInvolved()) PTSDJeOtloesManager.recordPlayerBattle(fleet);
+        if (!battle.isDone()) return;
+        // A factory may install its event-specific listener after the common creation hook.
+        // Keep the generic first-contact fallback, but leave strategic consequences to that listener.
+        if (eventId == null) for (com.fs.starfarer.api.campaign.listeners.FleetEventListener listener : fleet.getEventListeners()) {
+            if (listener != this && listener instanceof PTSDStrategicFleetListener &&
+                    ((PTSDStrategicFleetListener) listener).eventId != null) return;
         }
         PTSDCrisisState.StrategicEvent event = eventId == null ? null : state.getEvent(eventId);
         boolean defeated = battle.wasFleetDefeated(fleet, primaryWinner);

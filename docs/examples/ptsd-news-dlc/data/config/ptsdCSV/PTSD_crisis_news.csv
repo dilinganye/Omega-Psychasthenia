@@ -1,0 +1,2 @@
+id,phases,category,target,weight,cooldown,investigable,filler,source,headline,report,truth,delivery,JeOnly,eventWeight,eventLoc
+DLC_EXAMPLE_01,RECON,暗流,POPULATED,1,20,true,false,地方航路记录,航次错录,据当地港务人员称，一份到港记录与值班日志存在出入，相关资料仍待核查。,当地保留的原始记录可用于核对报道。,AMBIENT,false,1,example.ptsd.news.PortRecordEvent

@@ -607,13 +607,16 @@ public class PTSD_BaseShard_Util {
 
     static {
         registerBranch(new BranchDefinition(BRANCH_TRAN, "介入灵质", TranvariantData)
-                .setWeight(FleetRole.RECON, 5f));
+                .setWeight(FleetRole.RECON, 3f));
         registerBranch(new BranchDefinition(BRANCH_CUBE, "熵级运载", CubevariantData)
+                .setWeight(FleetRole.RECON, 3f)
                 .setWeight(FleetRole.LOGISTICS_ENGINEERING, 5f));
         registerBranch(new BranchDefinition(BRANCH_WEB, "网络冥魂", WebvariantData)
+                .setWeight(FleetRole.RECON, 3f)
                 .setWeight(FleetRole.GUARD_ASSAULT, 5f));
         // 乱码尸骸始终保持基础权重，不因任务类型获得额外加成。
-        registerBranch(new BranchDefinition(BRANCH_BUG, "乱码尸骸", BugvariantData));
+        registerBranch(new BranchDefinition(BRANCH_BUG, "乱码尸骸", BugvariantData)
+                .setWeight(FleetRole.RECON, 3f));
     }
 
     /**
@@ -671,6 +674,13 @@ public class PTSD_BaseShard_Util {
 
     public static CampaignFleetAPI createFleet(FleetParamsV3 params, float spawnPoints,
                                                 FleetRole role, Random random, FleetLimits limits) {
+        return createFleet(params,spawnPoints,role,random,limits,false);
+    }
+    /** Existing virtual operations already committed their strength; projection is not new recruitment. */
+    public static CampaignFleetAPI createFleet(FleetParamsV3 params, float spawnPoints,
+                                                FleetRole role, Random random, FleetLimits limits, boolean committed) {
+        if(!committed && data.scripts.PTSDDifficultySettings.spawningPaused())return null;
+        if(!committed)limits = campaignLimits(limits);
         BranchDefinition branch = prepareFleetParams(params, spawnPoints, role, random, limits);
         if (branch == null || params.addShips == null || params.addShips.isEmpty()) return null;
         CampaignFleetAPI fleet = FleetFactoryV3.createFleet(params);
@@ -762,6 +772,8 @@ public class PTSD_BaseShard_Util {
             Map<ShipAPI.HullSize, ShardTypeVariants> variantData,
             float spawnPoints, Random random, FleetLimits limits) {
         if (params == null || variantData == null) return;
+        boolean recon = isReconCampaign();
+        limits = campaignLimits(limits);
         Random rng = random == null ? new Random() : random;
         params.addShips = new ArrayList<>();
         int remaining = limits == null ? Math.max(7, Math.round(spawnPoints)) :
@@ -771,7 +783,8 @@ public class PTSD_BaseShard_Util {
         int safety = 0;
         while (remaining >= 3 && params.addShips.size() < maxShips && safety++ < 300) {
             ShipAPI.HullSize size = limits == null ? pickHullSize(remaining, variantData, rng) : null;
-            String variant = limits == null ? pickVariantForSize(size, variantData) :
+            String variant = recon ? pickBalancedVariant(remaining, variantData, limits.maxHullSize, rng) :
+                    limits == null ? pickVariantForSize(size, variantData) :
                     pickLimitedVariant(remaining, variantData, limits.maxHullSize);
             if (variant == null && limits == null) variant = pickAnyShipVariant(variantData, rng);
             if (variant == null) break;
@@ -788,6 +801,52 @@ public class PTSD_BaseShard_Util {
         params.linerPts = 0f;
         params.utilityPts = 0f;
         params.doNotPrune = true;
+    }
+
+    private static boolean isReconCampaign() {
+        if (Global.getSector() == null) return false;
+        Object state = Global.getSector().getPersistentData().get(data.scripts.campaign.invasion.PTSDCrisisState.PERSISTENT_KEY);
+        return state instanceof data.scripts.campaign.invasion.PTSDCrisisState &&
+                (((data.scripts.campaign.invasion.PTSDCrisisState)state).phase == data.scripts.campaign.invasion.PTSDCrisisState.Phase.RECON ||
+                ((data.scripts.campaign.invasion.PTSDCrisisState)state).phase == data.scripts.campaign.invasion.PTSDCrisisState.Phase.DORMANT);
+    }
+
+    private static FleetLimits campaignLimits(FleetLimits limits) {
+        if (!isReconCampaign()) return limits;
+        data.scripts.campaign.invasion.PTSDCrisisState state=(data.scripts.campaign.invasion.PTSDCrisisState)
+                Global.getSector().getPersistentData().get(data.scripts.campaign.invasion.PTSDCrisisState.PERSISTENT_KEY);
+        data.scripts.campaign.invasion.PTSDCrisisFleetLimits profile=data.scripts.campaign.invasion.PTSDCrisisFleetLimits.forPhase(
+                state,data.scripts.campaign.invasion.PTSDCrisisState.getDay());
+        return new FleetLimits(limits == null ? profile.perFleetFp : Math.min(profile.perFleetFp, limits.maxFp),
+                limits == null ? profile.maxShips : Math.min(profile.maxShips, limits.maxShips),
+                limits == null || hullRank(limits.maxHullSize) > hullRank(profile.maxHullSize)
+                        ? profile.maxHullSize : limits.maxHullSize);
+    }
+
+    /** Equal chance per affordable actual hull size; variants retain their pool weights.
+     * Some historical frigate buckets contain destroyers, so bucket names are not sizes. */
+    private static String pickBalancedVariant(int remaining,
+            Map<ShipAPI.HullSize, ShardTypeVariants> data, ShipAPI.HullSize maxSize, Random random) {
+        Map<String, Float> weights = new LinkedHashMap<>();
+        for (ShardTypeVariants variants : data.values()) for (ShardType type : ShardType.values()) {
+            WeightedRandomPicker<String> pool = variants.get(type);
+            for (String variant : pool.getItems()) {
+                float weight = pool.getWeight(variant);
+                Float old = weights.get(variant);
+                if (old == null || weight > old) weights.put(variant, weight);
+            }
+        }
+        Map<ShipAPI.HullSize, WeightedRandomPicker<String>> pools = new EnumMap<>(ShipAPI.HullSize.class);
+        for (Map.Entry<String, Float> entry : weights.entrySet()) {
+            if (entry.getValue() <= 0 || !isShipVariant(entry.getKey())) continue;
+            ShipAPI.HullSize size = Global.getSettings().getVariant(entry.getKey()).getHullSpec().getHullSize();
+            if (hullRank(size) == 0 || hullRank(size) > hullRank(maxSize) || getVariantCost(entry.getKey(), size) > remaining) continue;
+            if (!pools.containsKey(size)) pools.put(size, new WeightedRandomPicker<String>(random));
+            pools.get(size).add(entry.getKey(), entry.getValue());
+        }
+        if (pools.isEmpty()) return null;
+        List<ShipAPI.HullSize> sizes = new ArrayList<>(pools.keySet());
+        return pools.get(sizes.get(random.nextInt(sizes.size()))).pick();
     }
 
     private static String pickLimitedVariant(int remaining,

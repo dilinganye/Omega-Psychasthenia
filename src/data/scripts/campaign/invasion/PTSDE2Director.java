@@ -95,7 +95,7 @@ public final class PTSDE2Director {
         params.maxNumShips = 5;
         CampaignFleetAPI fleet = FleetFactoryV3.createFleet(params);
         if (fleet == null || fleet.getFleetData().getMembersListCopy().isEmpty()) return null;
-        system.addEntity(fleet);
+        { system.addEntity(fleet); data.scripts.campaign.invasion.PTSDCampaignRuntime.entityAdded(fleet); }
         fleet.setLocation(point.x, point.y);
         fleet.setName(name);
         fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_MAKE_NON_AGGRESSIVE, true);

@@ -67,15 +67,25 @@ public final class PTSDGeneralStaffDirector {
                 }
             }
         }
-        // No substitute founder is invented when both are absent.
+        if(state.late.coalitionMembers.size()<2)for(String fallback:new String[]{"persean","luddic_church"}){
+            if(hasColony(fallback))state.late.coalitionMembers.add(fallback);
+            if(state.late.coalitionMembers.size()>=2)break;
+        }
+        if(state.late.coalitionMembers.isEmpty())return; // Re-evaluate if a lawful founder returns.
         state.late.coalitionFoundersRegistered = true;
+        for(String faction:new String[]{"independent","persean","sindrian_diktat","luddic_church"})
+            if(hasColony(faction))requestMembership(state,faction);
+        PTSDReliefState.get(state).playerInvited=true;
         reconcileMemberRelations(state);
     }
+
+    static boolean hasColony(String faction){for(MarketAPI m:PTSDOccupationManager.getAllMarkets())
+        if(m!=null&&!m.isPlanetConditionMarketOnly()&&faction.equals(m.getFactionId()))return true;return false;}
 
     public static boolean requestMembership(PTSDCrisisState state, String factionId) {
         if (state == null || state.late == null || !state.late.staffEstablished || factionId == null ||
                 Global.getSector().getFaction(factionId) == null || state.late.coalitionMembers.contains(factionId) ||
-                state.late.coalitionJoinRequests.containsKey(factionId) ||
+                state.late.coalitionJoinRequests.containsKey(factionId) || "luddic_path".equals(factionId) ||
                 IIRT_Omega_Invasion.PSYCHASTHENIA_FACTION.equals(factionId) ||
                 IIRT_Omega_Invasion.WATCHER_FACTION.equals(factionId)) return false;
         state.late.coalitionJoinRequests.put(factionId, PTSDCrisisState.getDay() + 2f);
@@ -97,7 +107,8 @@ public final class PTSDGeneralStaffDirector {
             }
             boolean player = Global.getSector().getPlayerFaction().getId().equals(faction);
             float relation = Global.getSector().getFaction(faction).getRelationship(playerAffiliation());
-            boolean willing = player || hasColony && (threatened || relation >= 0f);
+            boolean fixed=java.util.Arrays.asList("independent","persean","sindrian_diktat","luddic_church").contains(faction);
+            boolean willing = player || hasColony && (fixed || threatened || relation >= 0f);
             if (willing) {
                 state.late.coalitionMembers.add(faction);
                 reconcileMemberRelations(state);
@@ -124,6 +135,8 @@ public final class PTSDGeneralStaffDirector {
         Map<String, Float> result = new LinkedHashMap<String, Float>();
         if (state == null || state.late == null) return result;
         registerFounders(state);
+        Map<String, Float> contribution = new LinkedHashMap<String, Float>();
+        for (String member : state.late.coalitionMembers) { result.put(member, 0f); contribution.put(member, 0f); }
         for (MarketAPI market : PTSDOccupationManager.getAllMarkets()) {
             if (market == null || market.isPlanetConditionMarketOnly()) continue;
             String faction = market.getFactionId();
@@ -136,8 +149,17 @@ public final class PTSDGeneralStaffDirector {
         for (PTSDLateState.Contribution item : state.late.contributions) {
             if (item == null || item.factionAtTime == null ||
                     !PTSDHumanWarReports.member(state, item.factionAtTime)) continue;
-            Float old = result.get(item.factionAtTime);
-            result.put(item.factionAtTime, (old == null ? 0f : old) + Math.max(0f, item.amount));
+            Float old = contribution.get(item.factionAtTime);
+            contribution.put(item.factionAtTime, (old == null ? 0f : old) + Math.max(0f, item.amount) *
+                    (PTSDCrisisState.getDay() - item.day > 90f ? .5f : 1f));
+        }
+        float scaleTotal = 0f, contributionTotal = 0f;
+        for (float value : result.values()) scaleTotal += value;
+        for (float value : contribution.values()) contributionTotal += value;
+        for (String member : result.keySet()) {
+            float scaleShare = scaleTotal > 0f ? result.get(member) / scaleTotal : 1f / Math.max(1, result.size());
+            float creditShare = contributionTotal > 0f ? contribution.get(member) / contributionTotal : scaleShare;
+            result.put(member, 50f * scaleShare + 50f * creditShare);
         }
         return result;
     }
@@ -177,7 +199,7 @@ public final class PTSDGeneralStaffDirector {
         if (available < 60f) return proposalFailed(sponsor + " 可调拨舰队不足60点");
         String exportMarketId = null;
         if ("EVIDENCE".equals(method)) {
-            if (playerScore(state) < 20f && (front.evidenceIds == null || front.evidenceIds.isEmpty()))
+            if (playerScore(state) < 20f && !hasRecentHumanReport(state, front.systemId))
                 return proposalFailed("已核实战绩不足20点，且缺少敌军证据");
         } else if ("PRESSURE".equals(method)) {
             if (Global.getSector().getPlayerStats().getStoryPoints() < 1)
@@ -218,12 +240,13 @@ public final class PTSDGeneralStaffDirector {
         for (float votes : seats(state).values()) total += votes;
         float stance = Global.getSector().getFaction(sponsor) == null ? 0f :
                 Global.getSector().getFaction(sponsor).getRelationship(playerAffiliation());
-        float evidence = front.evidenceIds == null ? 0f : Math.min(.12f, front.evidenceIds.size() * .03f);
+        float evidence = hasRecentHumanReport(state, front.systemId) ? .12f : 0f;
         resolution.voteChance = Math.min(.95f, Math.max(.05f,
                 .2f + highest / Math.max(1f, total) * .4f + stance * .15f + evidence +
                 ("PRESSURE".equals(method) ? .2f : "SUPPLIES".equals(method) ||
                         "EXPORT".equals(method) ? .15f : .1f)));
         state.late.staffAvailableByFaction.put(sponsor, available - 60f);
+        PTSDCoalitionVotes.snapshot(state, resolution);
         state.late.resolutions.add(resolution);
         PTSDLateWarDirector.enqueueAlert(state, key, front.systemId,
                 "总参部登记：" + sponsor + " 已冻结60点舰队额度，正复核 " + front.systemId + " 的增援议案。", day);
@@ -236,10 +259,15 @@ public final class PTSDGeneralStaffDirector {
         PTSDCrisisDevIntel.report("总参部提案未受理", reason, null, null);
         return false;
     }
+    public static boolean hasRecentHumanReport(PTSDCrisisState state, String systemId) {
+        if (state == null || systemId == null) return false;
+        PTSDCrisisState.HumanReport report = PTSDHumanWarReports.latest(state, systemId);
+        return report != null && PTSDCrisisState.getDay() - report.day <= 10f;
+    }
 
     public static void advance(PTSDCrisisState state, float day) {
         if (state == null || state.late == null || state.phase != PTSDCrisisState.Phase.WAR) return;
-        if (!state.late.staffEstablished && day >= state.late.warStartedDay + 10f) {
+        if (!state.late.staffEstablished) {
             state.late.staffEstablished = true;
             PTSDGeneralStaffIntel.ensureIntel();
             PTSDLateWarDirector.enqueueAlert(state, "general-staff", state.baseSystemId,
@@ -284,6 +312,7 @@ public final class PTSDGeneralStaffDirector {
             }
         }
         for (PTSDLateState.Resolution resolution : state.late.resolutions) {
+            if (resolution != null && !resolution.resolved) PTSDCoalitionVotes.snapshot(state, resolution);
             if (resolution == null || resolution.resolved || day < resolution.day + 2f) continue;
             resolution.resolved = true;
             resolution.executedDay = day;
@@ -302,13 +331,23 @@ public final class PTSDGeneralStaffDirector {
                             exporter.getCommodityData(Commodities.SUPPLIES) != null &&
                             exporter.getCommodityData(Commodities.SUPPLIES).getMaxSupply() >= 3);
             if (front == null || front.resolved || available == null ||
-                    !sponsorCanSend || !contractValid) {
+                    !sponsorCanSend || !contractValid || !state.late.coalitionMembers.contains(resolution.sponsorFactionId)) {
                 resolution.outcome = "议案过期；预留资源返还";
                 state.late.staffAvailableByFaction.put(resolution.sponsorFactionId,
                         (available == null ? 0f : available) + resolution.reservedStrength);
-            } else if (Math.random() < resolution.voteChance) {
-                resolution.outcome = "通过并执行";
-                front.defense += resolution.reservedStrength;
+            } else if (PTSDCoalitionVotes.passed(resolution)) {
+                PTSDLateState.Reserve dispatched = new PTSDLateState.Reserve();
+                dispatched.id = "coalition-reserve-" + Misc.genUID();
+                dispatched.factionId = resolution.sponsorFactionId;
+                for (MarketAPI source : Global.getSector().getEconomy().getMarketsCopy())
+                    if (dispatched.factionId.equals(source.getFactionId()) && source.getStarSystem() != null) {
+                        dispatched.sourceSystemId = source.getStarSystem().getId(); break;
+                    }
+                dispatched.targetSystemId = front.systemId;
+                dispatched.strength = resolution.reservedStrength;
+                dispatched.authorized = true; dispatched.lastDay = day;
+                state.late.reserves.add(dispatched);
+                resolution.outcome = "通过；增援已出发，抵达后计入防线";
             } else {
                 resolution.outcome = "未获足够席位";
                 state.late.staffAvailableByFaction.put(resolution.sponsorFactionId,
@@ -334,6 +373,7 @@ public final class PTSDGeneralStaffDirector {
             if (reserve != null && reserve.id.equals(reserveId) && reserve.authorized &&
                     !reserve.destroyed) {
                 if (reserve.targetSystemId != null && !reserve.arrived) return false;
+                PTSDReserveDirector.withdrawSupport(state, reserve);
                 if (reserve.arrived && reserve.targetSystemId != null) {
                     reserve.sourceSystemId = reserve.targetSystemId;
                 }

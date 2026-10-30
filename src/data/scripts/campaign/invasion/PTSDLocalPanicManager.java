@@ -89,7 +89,7 @@ public final class PTSDLocalPanicManager {
         SectorEntityToken spawn = !system.getJumpPoints().isEmpty() ?
                 system.getJumpPoints().get(random.nextInt(system.getJumpPoints().size())) :
                 target.getPrimaryEntity();
-        system.addEntity(fleet);
+        { system.addEntity(fleet); data.scripts.campaign.invasion.PTSDCampaignRuntime.entityAdded(fleet); }
         fleet.setLocation(spawn.getLocation().x, spawn.getLocation().y);
         fleet.addAssignment(FleetAssignment.RAID_SYSTEM, target.getPrimaryEntity(),
                 8f + random.nextFloat() * 8f, "利用当地混乱");

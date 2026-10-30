@@ -27,6 +27,12 @@ public final class PTSDFortressDirector {
     private static final String[] VARIANTS = {"", "IIRT_Omega_Station_Small",
             "IIRT_Omega_Station_Stable", "IIRT_Omega_Station_Medium", "PTSD_Omega_EDEN_ZONE"};
     private PTSDFortressDirector() { }
+    private static com.fs.starfarer.api.campaign.PlanetAPI blackHole(StarSystemAPI system) {
+        if (system == null) return null;
+        for (com.fs.starfarer.api.campaign.PlanetAPI star : system.getPlanets())
+            if (star.isStar() && star.getSpec() != null && star.getSpec().isBlackHole()) return star;
+        return null;
+    }
 
     private static boolean isInhabited(StarSystemAPI system) {
         if (system == null || Global.getSector() == null) return false;
@@ -57,7 +63,7 @@ public final class PTSDFortressDirector {
         for (StarSystemAPI system : Global.getSector().getStarSystems())
             if (isInhabited(system)) candidates.add(system);
         for (StarSystemAPI system : candidates) {
-            if (system == null || system.getStar() == null || !system.getStar().getSpec().isBlackHole() ||
+            if (system == null || blackHole(system) == null ||
                     state.late.committedIds.contains("fortress-site:" + system.getId())) continue;
             construct(state, system, PTSDCrisisState.getDay());
             return state.late.fortresses.containsKey("fortress:" + system.getId());
@@ -183,21 +189,23 @@ public final class PTSDFortressDirector {
 
     public static void advance(PTSDCrisisState state, float day) {
         if (state == null || state.late == null) return;
-        if (state.late.fortresses.isEmpty()) adoptLegacyFortresses(state, day);
-        if (state.phase == PTSDCrisisState.Phase.FORTIFICATION &&
+        if (state.late.committedIds.add("fortress-legacy-adoption-v2")) adoptLegacyFortresses(state, day);
+        if ((state.phase == PTSDCrisisState.Phase.FORTIFICATION || state.phase == PTSDCrisisState.Phase.WAR) &&
                 day >= state.late.nextFortressBuildDay &&
                 activeFortressCount(state) <
                         Math.round(IIRT_Omega_ModPlugin.max_black_hole_fortresses)) {
+            state.late.nextFortressBuildDay = day + 2f;
             outer:
             for (int pass = 0; pass < 2; pass++)
                 for (StarSystemAPI system : Global.getSector().getStarSystems()) {
                     if (isInhabited(system) != (pass == 1) ||
-                            system.getStar() == null || !system.getStar().getSpec().isBlackHole())
+                            blackHole(system) == null)
                         continue;
                     if (state.late.committedIds.contains("fortress-site:" + system.getId())) continue;
                     if (state.late.warPoints < 10f || state.late.strategicReserve < 30f) break outer;
                     construct(state, system, day);
-                    state.late.nextFortressBuildDay = day + 30f;
+                    if (state.late.fortresses.containsKey("fortress:" + system.getId()))
+                        state.late.nextFortressBuildDay = day + 30f;
                     break outer;
                 }
         }
@@ -283,7 +291,7 @@ public final class PTSDFortressDirector {
                         FleetTypes.PATROL_SMALL, 5f, 0f, 0f, 0f, 0f, 0f, 0f);
                 CampaignFleetAPI remnant = FleetFactoryV3.createFleet(params);
                 if (remnant == null) continue;
-                system.addEntity(remnant);
+                { system.addEntity(remnant); data.scripts.campaign.invasion.PTSDCampaignRuntime.entityAdded(remnant); }
                 remnant.setLocation(p.x, p.y);
                 remnant.setName("地方防卫");
                 com.fs.starfarer.api.campaign.econ.MarketAPI refuge = nearestRefuge(system, faction);
@@ -333,6 +341,7 @@ public final class PTSDFortressDirector {
                 }
                 if (!listenerFound) fleet.getEventListeners().add(
                         new PTSDStrategicFleetListener(null, fleet.getFleetPoints()));
+                if (state.late.fortresses.containsKey(record.id)) continue;
                 state.late.fortresses.put(record.id, record);
                 state.late.committedIds.add("fortress-site:" + system.getId());
                 PTSDCrisisDevIntel.report("旧要塞接管", system.getName() + "：Stable工程接入新账本",
@@ -342,14 +351,37 @@ public final class PTSDFortressDirector {
     }
 
     private static void construct(PTSDCrisisState state, StarSystemAPI system, float day) {
+        construct(state, system, day, false);
+    }
+
+    static void startPhasePair(PTSDCrisisState state, float day) {
+        int built = 0;
+        for (String id : state.late.committedIds) if (id.startsWith("phase-fortress:")) built++;
+        for (StarSystemAPI system : Global.getSector().getStarSystems()) {
+            if (built >= 2) break;
+            if (blackHole(system) == null || isInhabited(system) ||
+                    system.hasTag(Tags.THEME_HIDDEN) || system.hasTag(Tags.SYSTEM_CUT_OFF_FROM_HYPER) ||
+                    state.late.committedIds.contains("fortress-site:" + system.getId())) continue;
+            construct(state, system, day, true);
+            if (state.late.fortresses.containsKey("fortress:" + system.getId())) {
+                state.late.committedIds.add("phase-fortress:" + system.getId());
+                state.late.nextFortressBuildDay = Math.max(state.late.nextFortressBuildDay, day + 30f);
+                built++;
+            }
+        }
+    }
+
+    private static void construct(PTSDCrisisState state, StarSystemAPI system, float day, boolean phaseGrant) {
+        com.fs.starfarer.api.campaign.PlanetAPI anchor = blackHole(system);
+        if (anchor == null) return;
         if (state.late.committedIds.contains("fortress-site:" + system.getId()) ||
-                state.late.warPoints < 10f || state.late.strategicReserve < 30f) return;
+                (!phaseGrant && (state.late.warPoints < 10f || state.late.strategicReserve < 30f))) return;
         CampaignFleetAPI station = makeFleet("未知设施", VARIANTS[1]);
         if (station == null) return;
         state.late.committedIds.add("fortress-site:" + system.getId());
-        system.addEntity(station);
-        station.setCircularOrbitWithSpin(system.getStar(), 0f,
-                Math.max(850f, system.getStar().getRadius() + 550f), 18f, 1f, 2f);
+        { system.addEntity(station); data.scripts.campaign.invasion.PTSDCampaignRuntime.entityAdded(station); }
+        station.setCircularOrbitWithSpin(anchor, 0f,
+                Math.max(850f, anchor.getRadius() + 550f), 18f, 1f, 2f);
         station.setStationMode(true);
         station.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_NO_JUMP, true);
         station.getMemoryWithoutUpdate().set("$PTSD_fortress", true);
@@ -357,21 +389,23 @@ public final class PTSDFortressDirector {
         record.id = "fortress:" + system.getId();
         record.originSystemId = system.getId();
         record.currentSystemId = system.getId();
-        record.blackHoleId = system.getStar().getId();
+        record.blackHoleId = anchor.getId();
         record.fleetId = station.getId();
         record.nextTransportDay = day + 4f;
         record.nextMoveRollDay = day + 30f;
         state.late.fortresses.put(record.id, record);
+        if (!phaseGrant) {
         state.late.warPoints -= 10f;
         state.late.warPointBelief = Math.max(0f, state.late.warPointBelief - 10f);
         state.late.strategicReserve -= 30f;
         PTSDLateWarDirector.recordSpending(state, "要塞开工 " + record.id, 10f, 30f);
+        }
         PTSDCrisisState.SystemData systemData = state.getSystemData(system.getId());
         systemData.blackHoleFortress = true;
         systemData.omegaControl = 1f;
         systemData.humanControl = 0f;
         PTSDCrisisDevIntel.report("黑洞工程开工", system.getName() +
-                "：准备-10，战略资产-30", system.getId(), station.getId());
+                (phaseGrant ? "：一次性阶段投入，免费开工" : "：准备-10，战略资产-30"), system.getId(), station.getId());
     }
 
     private static CampaignFleetAPI makeFleet(String name, String variant) {
@@ -381,6 +415,7 @@ public final class PTSDFortressDirector {
                     PTSDCrisisProgress.getActiveFactionId(current), name, true);
             fleet.getFleetData().addFleetMember(Global.getFactory().createFleetMember(FleetMemberType.SHIP, variant));
             for (FleetMemberAPI member : fleet.getFleetData().getMembersListCopy()) {
+                member.getRepairTracker().setCR(member.getRepairTracker().getMaxCR());
                 member.getStats().getCRLossPerSecondPercent().modifyMult("PTSD_black_hole_work", 0f);
             }
             fleet.setNoFactionInName(true);
@@ -460,6 +495,7 @@ public final class PTSDFortressDirector {
         record.tierProgress = 0f;
         record.tier++;
         FleetMemberAPI old = station.getFleetData().getMembersListCopy().get(0);
+        next.getRepairTracker().setCR(Math.min(next.getRepairTracker().getMaxCR(), old.getRepairTracker().getCR()));
         next.getStats().getCRLossPerSecondPercent().modifyMult("PTSD_black_hole_work", 0f);
         station.getFleetData().removeFleetMember(old);
         station.getFleetData().addFleetMember(next);
@@ -476,32 +512,33 @@ public final class PTSDFortressDirector {
     }
 
     private static void collapseBlackHole(StarSystemAPI system) {
-        if (system == null || system.getStar() == null) return;
+        com.fs.starfarer.api.campaign.PlanetAPI anchor = blackHole(system);
+        if (anchor == null) return;
         // Preserve the entity and all IDs; only the local visual/corona configuration changes.
-        system.getStar().getSpec().setBlackHole(false);
-        system.getStar().getSpec().setCoronaSize(0f);
-        system.getStar().getSpec().setScaleMultMapIcon(0f);
-        system.getStar().getSpec().setScaleMultStarscapeIcon(0f);
+        anchor.getSpec().setBlackHole(false);
+        anchor.getSpec().setCoronaSize(0f);
+        anchor.getSpec().setScaleMultMapIcon(0f);
+        anchor.getSpec().setScaleMultStarscapeIcon(0f);
         try {
             Global.getSettings().loadTexture("graphics/fx/empty.png");
-            system.getStar().getSpec().setTexture("graphics/fx/empty.png");
-            system.getStar().getSpec().setGlowTexture("graphics/fx/empty.png");
-            system.getStar().getSpec().setCoronaTexture("graphics/fx/empty.png");
+            anchor.getSpec().setTexture("graphics/fx/empty.png");
+            anchor.getSpec().setGlowTexture("graphics/fx/empty.png");
+            anchor.getSpec().setCoronaTexture("graphics/fx/empty.png");
         } catch (Exception ex) {
             Global.getLogger(PTSDFortressDirector.class).warn("Unable to hide former black hole", ex);
         }
         for (com.fs.starfarer.api.campaign.CampaignTerrainAPI terrain : system.getTerrainCopy()) {
-            if (terrain.getOrbitFocus() == system.getStar() &&
+            if (terrain.getOrbitFocus() == anchor &&
                     terrain.getPlugin() instanceof com.fs.starfarer.api.impl.campaign.terrain.StarCoronaTerrainPlugin) {
-                system.removeEntity(terrain);
+                { data.scripts.campaign.invasion.PTSDCampaignRuntime.leaving(terrain); system.removeEntity(terrain); }
             }
         }
-        system.getStar().getSpec().setGlowColor(new Color(115, 15, 140, 0));
-        system.getStar().getSpec().setCoronaColor(new Color(60, 0, 80, 0));
-        system.getStar().applySpecChanges();
+        anchor.getSpec().setGlowColor(new Color(115, 15, 140, 0));
+        anchor.getSpec().setCoronaColor(new Color(60, 0, 80, 0));
+        anchor.applySpecChanges();
         for (com.fs.starfarer.api.campaign.SectorEntityToken entity : system.getAllEntities()) {
-            if (entity == system.getStar()) continue;
-            if (entity.getOrbitFocus() == system.getStar()) entity.setOrbit(null);
+            if (entity == anchor) continue;
+            if (entity.getOrbitFocus() == anchor) entity.setOrbit(null);
         }
         system.getMemoryWithoutUpdate().set("$PTSD_collapsed_black_hole", true);
     }
@@ -511,6 +548,7 @@ public final class PTSDFortressDirector {
         if (station.getStarSystem() == null) return;
         int desired = record.tier == 4 ? 8 : Math.min(3, record.tier);
         for (String id : new ArrayList<String>(record.patrolIds)) if (findFleet(id) == null) record.patrolIds.remove(id);
+        for (String id : record.patrolIds) PTSDControlledPatrolDirector.installNodePatrol(findFleet(id));
         while (record.patrolIds.size() < desired && state.late.strategicReserve >=
                 (record.patrolIds.size() < 5 ? 30f : 70f)) {
             int index = record.patrolIds.size();
@@ -531,6 +569,7 @@ public final class PTSDFortressDirector {
             patrol.setLocation(station.getLocation().x + 800f + index * 100f,
                     station.getLocation().y + 800f);
             patrol.addAssignment(FleetAssignment.PATROL_SYSTEM, station, 10000f, "维护设施");
+            PTSDControlledPatrolDirector.installNodePatrol(patrol);
             record.patrolIds.add(patrol.getId());
             state.late.strategicReserve -= index < 5 ? 30f : 70f;
         }
@@ -618,7 +657,7 @@ public final class PTSDFortressDirector {
         record.lastHyperY = y;
         if (part >= 1f) {
             Global.getSector().getHyperspace().removeEntity(station);
-            target.addEntity(station);
+            { target.addEntity(station); data.scripts.campaign.invasion.PTSDCampaignRuntime.entityAdded(station); }
             station.setLocation(2500f, 2500f);
         }
     }
@@ -646,18 +685,12 @@ public final class PTSDFortressDirector {
         d.fortressId = fortressId;
         d.systemId = record.currentSystemId;
         d.combatStarted = true;
+        PTSDFortressCollapse.initialize(d);
         state.late.detonation = d;
         state.late.detonations.put(fortressId, d);
         StarSystemAPI system = state.resolveSystem(d.systemId);
-        if (system != null && system.getStar() != null &&
-                !system.getMemoryWithoutUpdate().getBoolean("$PTSD_fortress_detonation_fx")) {
-            system.getMemoryWithoutUpdate().set("$PTSD_fortress_detonation_fx", true);
-            system.addRingBand(system.getStar(), "misc", "rings_asteroids0", 256f, 0,
-                    new Color(180, 60, 220, 170), 300f,
-                    Math.max(1000f, system.getStar().getRadius() + 700f), 100000f);
-        }
         Global.getSector().getCampaignUI().addMessage(
-                "视界要塞失稳：180秒内撤离该星系！", Color.RED);
+                "视界要塞失稳：黑洞正在逆向坍缩，立即远离破裂波面！", Color.RED);
         return d;
     }
 
@@ -693,25 +726,18 @@ public final class PTSDFortressDirector {
             d.systemId = record.currentSystemId;
         }
         d.fortressId = record.id;
+        PTSDFortressCollapse.initialize(d);
         state.late.detonations.put(record.id, d);
         StarSystemAPI detonationSystem = state.resolveSystem(d.systemId);
-        if (detonationSystem != null && detonationSystem.getStar() != null &&
-                !detonationSystem.getMemoryWithoutUpdate().getBoolean("$PTSD_fortress_detonation_fx")) {
-            detonationSystem.getMemoryWithoutUpdate().set("$PTSD_fortress_detonation_fx", true);
-            detonationSystem.addRingBand(detonationSystem.getStar(), "misc",
-                    "rings_asteroids0", 256f, 0, new Color(180, 60, 220, 170),
-                    300f, Math.max(1000f,
-                            detonationSystem.getStar().getRadius() + 700f), 100000f);
-        }
         boolean playerPresent = Global.getSector().getPlayerFleet() != null &&
                 Global.getSector().getPlayerFleet().getStarSystem() != null &&
                 record.currentSystemId.equals(Global.getSector().getPlayerFleet().getStarSystem().getId());
         if (playerPresent) {
             state.late.detonation = d;
             if (!d.combatStarted)
-                Global.getSector().getCampaignUI().addMessage("视界要塞已失稳：180秒内撤离该星系！", Color.RED);
+                Global.getSector().getCampaignUI().addMessage("视界要塞已失稳：远离正在扩张的破裂波面！", Color.RED);
         } else {
-            d.remainingSeconds = 0f;
+            d.collapseElapsed=PTSDFortressCollapseVisual.DURATION;d.remainingSeconds = 0f;
             state.late.detonation = d;
         }
     }

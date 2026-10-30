@@ -25,7 +25,12 @@ public final class PTSDCrisisFleetLimits {
                 Math.min(perFleetFp, Math.max(3f, allocatedFp)), maxShips, maxHullSize);
     }
 
-    /** Default ceilings: RECON 150/65, WAR 325/120 rising linearly to 600/400 in 240 days. */
+    public static float reconProgress(PTSDCrisisState state, float day) {
+        if(state==null || state.phase!=PTSDCrisisState.Phase.RECON)return 0f;
+        return Math.max(0f,Math.min(1f,(day-state.phaseStartedDay)/Math.max(1f,collect_data_time*2f)));
+    }
+
+    /** Recon grows with the same elapsed-time denominator used for its phase transition. */
     public static PTSDCrisisFleetLimits forPhase(PTSDCrisisState state, float day) {
         PTSDCrisisState.Phase phase = state == null ? PTSDCrisisState.Phase.RECON : state.phase;
         float total, single;
@@ -51,12 +56,17 @@ public final class PTSDCrisisFleetLimits {
                 total = 150f; single = 65f; ships = 3; hull = ShipAPI.HullSize.DESTROYER;
         }
         float difficulty = difficultyIncrease();
-        // Ambient RECON ambushes are deliberately stricter; this override only affects
-        // strategic fire probes and subsequent strategic deployments.
-        if (phase == PTSDCrisisState.Phase.RECON && difficulty > 1f) {
-            hull = difficulty >= 1.5f ? ShipAPI.HullSize.CAPITAL_SHIP : ShipAPI.HullSize.CRUISER;
+        float curve = data.scripts.PTSDDifficultySettings.scale(state,day);
+        ships=Math.max(1,(int)Math.ceil(ships*curve));
+        // Difficulty does not skip early hull/count gates. These constrain new fleets only.
+        if (phase == PTSDCrisisState.Phase.RECON || phase == PTSDCrisisState.Phase.DORMANT) {
+            float p=reconProgress(state,day);
+            single=p<.25f?12f:p<.5f?18f:p<.75f?24f:p<.9f?30f:36f;
+            ships=Math.max(1,(int)Math.ceil((p<.25f?1:p<.75f?2:3)*curve));
+            hull=data.scripts.PTSDDifficultySettings.growthProgress(state,day)<.25f?ShipAPI.HullSize.FRIGATE:ShipAPI.HullSize.DESTROYER;
+            return new PTSDCrisisFleetLimits(total * difficulty * curve,single * curve,ships,hull);
         }
-        return new PTSDCrisisFleetLimits(total * difficulty, single * difficulty, ships, hull);
+        return new PTSDCrisisFleetLimits(total * difficulty * curve, single * difficulty * curve, ships, hull);
     }
 
     /** An increase to any gameplay difficulty control raises the strategic ceiling.
@@ -68,7 +78,6 @@ public final class PTSDCrisisFleetLimits {
         result = Math.max(result, unknown_event_frequency);
         result = Math.max(result, 3f / Math.max(1f, unknown_event_min_interval));
         result = Math.max(result, 7f / Math.max(1f, unknown_event_max_interval));
-        result = Math.max(result, omegaOfficerLevelBonus / 6f);
         result = Math.max(result, lateConstructionSpeed);
         result = Math.max(result, lateProductionMultiplier);
         result = Math.max(result, lateOffensiveTempo);

@@ -9,7 +9,7 @@ import com.fs.starfarer.api.util.Misc;
 import data.scripts.campaign.invasion.*;
 
 /** A physical four-ship pursuit trap. The ambush is armed only after a real chase. */
-public final class FT03Handler extends AbstractFTHandler {
+public class FT03Handler extends AbstractFTHandler {
     protected String id() { return "FT-03"; }
     @Override public String unavailableReason(PTSDCrisisState state) {
         CampaignFleetAPI player = player();

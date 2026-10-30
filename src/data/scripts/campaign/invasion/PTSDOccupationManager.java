@@ -38,6 +38,10 @@ public final class PTSDOccupationManager {
     public static void prepareStrategicShell(MarketAPI market) {
         if (market == null) return;
         boolean newlyIsolated = !market.getMemoryWithoutUpdate().getBoolean(STRATEGIC_SHELL_MEMORY);
+        if (!newlyIsolated && !market.isInEconomy() && market.isPlanetConditionMarketOnly()) {
+            market.setHidden(!Global.getSettings().isDevMode());
+            return;
+        }
         market.getMemoryWithoutUpdate().set(CONTROLLED_MEMORY, true);
         market.getMemoryWithoutUpdate().set(STRATEGIC_SHELL_MEMORY, true);
         market.setPlayerOwned(false);
@@ -102,13 +106,15 @@ public final class PTSDOccupationManager {
                 if (!IIRT_Omega_Invasion.WATCHER_FACTION.equals(factionId) &&
                         !IIRT_Omega_Invasion.PSYCHASTHENIA_FACTION.equals(factionId)) continue;
                 if (fleet.getMemoryWithoutUpdate().getBoolean(MemFlags.MEMORY_KEY_TRADE_FLEET)) {
-                    if (fleet.getBattle() == null) fleet.despawn(com.fs.starfarer.api.campaign.CampaignEventListener.FleetDespawnReason.OTHER, null);
+                    if (fleet.getBattle() == null) { data.scripts.campaign.invasion.PTSDCampaignRuntime.leaving(fleet); fleet.despawn(com.fs.starfarer.api.campaign.CampaignEventListener.FleetDespawnReason.OTHER, null); }
                     continue;
                 }
-                if (fleet.isStationMode() || fleet.hasTag(SCOUT_TAG) ||
+                if (fleet.isStationMode() || fleet.hasTag(SCOUT_TAG) || fleet.hasTag("PTSD_crisis_fleet") ||
+                        fleet.getMemoryWithoutUpdate().getBoolean("$PTSD_legacy_guard_normalized") ||
                         fleet.getMemoryWithoutUpdate().contains(EVENT_MEMORY) ||
                         fleet.getMemoryWithoutUpdate().getBoolean(FORTRESS_MEMORY) || guardTarget == null) continue;
                 fleet.clearAssignments();
+                fleet.getMemoryWithoutUpdate().set("$PTSD_legacy_guard_normalized", true);
                 fleet.setName("\"轰鸣\"");
                 fleet.setNoFactionInName(true);
                 fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_MAKE_AGGRESSIVE, true);

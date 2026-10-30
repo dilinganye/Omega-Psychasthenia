@@ -10,7 +10,7 @@ import com.fs.starfarer.api.util.Misc;
 import data.scripts.campaign.cargo.PTSDOmegaFleetSupport;
 import data.scripts.campaign.invasion.*;
 
-public final class FT05Handler extends AbstractFTHandler {
+public class FT05Handler extends AbstractFTHandler {
     protected String id() { return "FT-05"; }
     @Override public void start(PTSDCrisisState state, PTSDLateState.FTChain chain) {
         super.start(state, chain);

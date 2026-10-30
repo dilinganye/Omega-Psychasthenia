@@ -77,6 +77,7 @@ public final class IIRT_Omega_ScoutAI extends BaseAssignmentAI {
 
     private void configureFleet() {
         if (fleet == null) return;
+        PTSDCampaignRuntime.normalizeFleet(PTSDCrisisState.get(), fleet);
         fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_MAKE_NON_AGGRESSIVE, true);
         fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_AVOID_PLAYER_SLOWLY, true);
         fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_FORCE_TRANSPONDER_OFF, true);
@@ -157,6 +158,12 @@ public final class IIRT_Omega_ScoutAI extends BaseAssignmentAI {
 
     @Override
     public void advance(float amount) {
+        long start = PTSDCampaignPerformance.begin();
+        try { advanceRuntime(amount); }
+        finally { PTSDCampaignPerformance.end("侦察", start); }
+    }
+
+    private void advanceRuntime(float amount) {
         ensureRuntimeFields();
         if (isDone() || fleet == null || !fleet.isAlive() || fleet.isExpired() || fleet.getContainingLocation() == null) {
             setDone();
@@ -244,6 +251,7 @@ public final class IIRT_Omega_ScoutAI extends BaseAssignmentAI {
         if (sightingReported) return;
         sightingReported = true;
         IIRT_Omega_Invasion.reportScoutSighting(targetSystemId);
+        PTSDJeOtloesManager.recordFleetEncounter(fleet);
         CampaignFleetAPI player = Global.getSector().getPlayerFleet();
         if (player != null && fleet.getStarSystem() != null && player.getStarSystem() == fleet.getStarSystem() &&
                 Misc.getDistance(player.getLocation(), fleet.getLocation()) <= 12000f)
@@ -256,7 +264,8 @@ public final class IIRT_Omega_ScoutAI extends BaseAssignmentAI {
         CampaignFleetAPI player = Global.getSector().getPlayerFleet();
         CampaignFleetAPI closest = null;
         float closestDistance = Float.MAX_VALUE;
-        for (CampaignFleetAPI other : new ArrayList<CampaignFleetAPI>(location.getFleets())) {
+        for (CampaignFleetAPI other : PTSDCampaignRuntime.fleets(location)) {
+            if (other == null || !other.isAlive() || other.isExpired() || other.getContainingLocation() != location) continue;
             if (other == null || other == fleet || !other.isAlive() || other.isExpired()) continue;
             String factionId = other.getFaction() == null ? null : other.getFaction().getId();
             if (IIRT_Omega_Invasion.WATCHER_FACTION.equals(factionId) ||
@@ -287,7 +296,8 @@ public final class IIRT_Omega_ScoutAI extends BaseAssignmentAI {
     private boolean hasForeignFleetNearby(float range) {
         LocationAPI location = fleet.getContainingLocation();
         if (location == null) return false;
-        for (CampaignFleetAPI other : location.getFleets()) {
+        for (CampaignFleetAPI other : PTSDCampaignRuntime.fleets(location)) {
+            if (other == null || !other.isAlive() || other.isExpired() || other.getContainingLocation() != location) continue;
             if (other == null || other == fleet || !other.isAlive()) continue;
             String factionId = other.getFaction() == null ? null : other.getFaction().getId();
             if (IIRT_Omega_Invasion.WATCHER_FACTION.equals(factionId) ||
@@ -306,7 +316,8 @@ public final class IIRT_Omega_ScoutAI extends BaseAssignmentAI {
             reconSampleDayBucket = bucket;
         }
         float strength = 0f;
-        for (CampaignFleetAPI other : fleet.getContainingLocation().getFleets()) {
+        for (CampaignFleetAPI other : PTSDCampaignRuntime.fleets(fleet.getContainingLocation())) {
+            if (other == null || !other.isAlive() || other.isExpired() || other.getContainingLocation() != fleet.getContainingLocation()) continue;
             if (other == null || other == fleet || other.getFaction() == null) continue;
             String factionId = other.getFaction().getId();
             if (IIRT_Omega_Invasion.WATCHER_FACTION.equals(factionId) ||
@@ -434,7 +445,7 @@ public final class IIRT_Omega_ScoutAI extends BaseAssignmentAI {
             }
             IIRT_Omega_Invasion.reportScoutMissionStage(targetSystemId, fleet.getId(),
                     missionType == null ? "LEGACY" : missionType.name(), reason);
-            fleet.despawn(FleetDespawnReason.OTHER, null);
+            { data.scripts.campaign.invasion.PTSDCampaignRuntime.leaving(fleet); fleet.despawn(FleetDespawnReason.OTHER, null); }
         }
         setDone();
     }

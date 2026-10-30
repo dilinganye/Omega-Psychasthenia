@@ -71,13 +71,15 @@ public class IIRT_Omega_ModPlugin extends BaseModPlugin {
 	public static float hidden_materialization_range = 5000f;
 	public static float expansion_interval = 14f;
 	public static float max_black_hole_fortresses = 3f;
+	public static int fortificationExpansionSystems = 4;
+	public static float warSingularityMultiplier = 3f;
 	public static float front_turn_min_interval = 6f;
 	public static float front_turn_max_interval = 12f;
 	public static float omega_fleet_strength_multiplier = 1f;
 	/** Added to the two-level Omega officer baseline before phase and +/-2 variation. */
-	public static int omegaOfficerLevelBonus = 6;
 	public static float unknown_event_strength_flat = 0f;
 	public static float unknown_event_frequency = 1f;
+	public static float news_true_chance = .90f; // 设置：普通调查属实概率
 	public static float unknown_event_min_interval = 3f;
 	public static float unknown_event_max_interval = 7f;
 	/** Late-crisis controls. Values are refreshed from LunaLib and read at the next settlement. */
@@ -180,6 +182,19 @@ public class IIRT_Omega_ModPlugin extends BaseModPlugin {
 	}
 	@Override
 	public void onGameLoad(boolean newGame) {
+		data.scripts.campaign.invasion.PTSDCampaignRuntime.reset();
+		for (com.fs.starfarer.api.EveryFrameScript runtimeScript : Global.getSector().getScripts()) {
+			if (runtimeScript instanceof IIRT_Omega_Invasion)
+				((IIRT_Omega_Invasion) runtimeScript).invalidateRuntimeSync();
+		}
+		Object crisisSavedState = Global.getSector().getPersistentData().get(
+				data.scripts.campaign.invasion.PTSDCrisisState.PERSISTENT_KEY);
+		if (crisisSavedState instanceof data.scripts.campaign.invasion.PTSDCrisisState) {
+			data.scripts.campaign.invasion.PTSDCrisisState restored =
+					(data.scripts.campaign.invasion.PTSDCrisisState) crisisSavedState;
+			restored.invalidateRuntime();
+			restored.ensureRuntimeReady();
+		}
 		data.scripts.campaign.invasion.PTSDCrisisNewsAPI.registerBuiltinHandlers();
 		this.registerCampaignPlugin(new PTSD_CampaignPlugin());
 		if (!Global.getSector().hasScript(PTSDFortressEscapeScript.class)) {
@@ -274,122 +289,106 @@ public class IIRT_Omega_ModPlugin extends BaseModPlugin {
 	}
 	private static void updateLunaSettings() {
 		if (!hasLunaLib) return;
+		PTSDDifficultySettings.reconcile();
 
 		String PTSD = getModId();
 		omega_invasion_enabled = PTSDModPluginAltLuna.getLunaBoolean(PTSD,
-				"PTSD_omega_invasion_enabled", omega_invasion_enabled);
+				"PTSD_omega_invasion_enabled", omega_invasion_enabled); // 设置：潘多拉魔盒
+		news_true_chance = Math.max(0, Math.min(100, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_news_true_chance", 90))) / 100f; // 设置：普通调查属实概率（百分比）
 		unknown_event_frequency = Math.max(0.1f, Math.min(5f,
-				PTSDModPluginAltLuna.getLunaFloat(PTSD, "PTSD_unknown_event_frequency", unknown_event_frequency)));
+				PTSDModPluginAltLuna.getLunaFloat(PTSD, "PTSD_unknown_event_frequency", unknown_event_frequency))); // 设置：未知事件频率
 		unknown_event_min_interval = Math.max(1f,
-				PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_unknown_event_min_interval", (int) unknown_event_min_interval));
+				PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_unknown_event_min_interval", (int) unknown_event_min_interval)); // 设置：未知事件触发下限（天）
 		unknown_event_max_interval = Math.max(unknown_event_min_interval,
-				PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_unknown_event_max_interval", (int) unknown_event_max_interval));
+				PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_unknown_event_max_interval", (int) unknown_event_max_interval)); // 设置：未知事件触发上限（天）
 		unknown_event_strength_flat = Math.max(0f, Math.min(200f,
-				PTSDModPluginAltLuna.getLunaFloat(PTSD, "PTSD_unknown_event_strength_flat", unknown_event_strength_flat)));
+				PTSDModPluginAltLuna.getLunaFloat(PTSD, "PTSD_unknown_event_strength_flat", unknown_event_strength_flat))); // 设置：未知事件强度增值
 		omega_fleet_strength_multiplier = Math.max(0.5f, Math.min(10f,
-				PTSDModPluginAltLuna.getLunaFloat(PTSD, "PTSD_unknown_event_strength_multiplier", omega_fleet_strength_multiplier)));
-		omegaOfficerLevelBonus = lateInt(PTSD, "PTSD_omega_officer_level_bonus", 6, 0, 12);
-		lateConstructionSpeed = lateFloat(PTSD, "PTSD_late_construction_speed", 1f, .5f, 2f);
-		lateProductionMultiplier = lateFloat(PTSD, "PTSD_late_production_multiplier", 1f, .5f, 2f);
-		lateOffensiveTempo = lateFloat(PTSD, "PTSD_late_offensive_tempo", 1f, .5f, 2f);
-		latePlayerResponse = lateFloat(PTSD, "PTSD_late_player_response", 1f, .5f, 2f);
-		lateAlertDensity = lateFloat(PTSD, "PTSD_late_alert_density", 1f, .5f, 2f);
+				PTSDModPluginAltLuna.getLunaFloat(PTSD, "PTSD_unknown_event_strength_multiplier", omega_fleet_strength_multiplier))); // 设置：未知事件强度倍率
+		lateConstructionSpeed = lateFloat(PTSD, "PTSD_late_construction_speed", 1f, .5f, 2f); // 设置：要塞建设速度
+		lateProductionMultiplier = lateFloat(PTSD, "PTSD_late_production_multiplier", 1f, .5f, 2f); // 设置：战争准备点产出倍率
+		lateOffensiveTempo = lateFloat(PTSD, "PTSD_late_offensive_tempo", 1f, .5f, 2f); // 设置：战区攻势频率
+		latePlayerResponse = lateFloat(PTSD, "PTSD_late_player_response", 1f, .5f, 2f); // 设置：针对玩家的应对频率
+		lateAlertDensity = lateFloat(PTSD, "PTSD_late_alert_density", 1f, .5f, 2f); // 设置：首波告警显示密度
+		fortificationExpansionSystems = Math.max(0, Math.min(20,
+			PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_fortification_expansion_systems", 4))); // 设置：要塞阶段新增占领区
+		warSingularityMultiplier = lateFloat(PTSD, "PTSD_war_singularity_multiplier", 3f, 2f, 20f); // 设置：战争特异点防御倍数
 
 		// The public event bounds also govern scout appearances so all unknown activity shares one cadence control.
 		scout_min_interval = unknown_event_min_interval;
 		scout_max_interval = unknown_event_max_interval;
-		if (Global.getSettings() == null || !Global.getSettings().isDevMode()) {
-			resetReconDevDefaults();
-			lateProductionInterval = 10f;
-			lateBaseIncome = 4f;
-			lateOutpostIncome = 2f;
-			lateFortressIncome = new float[] {0f, 1f, 2f, 3f, 5f};
-			lateProductionPerTurnCap = 20f;
-			lateProductionStorageCap = 200f;
-			lateMobilizationThreshold = 60f;
-			lateSurpriseThreshold = 120f;
-			lateSurpriseMinimum = 45f;
-			lateFortificationDeadline = 180f;
-			lateFortressWork = new float[] {0f, 20f, 30f, 40f, 50f};
-			lateTransportInterval = new float[] {0f, 8f, 7f, 5f, 5f};
-			lateEventMajorCooldown = 5f;
-			lateEventShortCooldown = 3f;
-			lateEventTaskDeadline = 12f;
-			lateFrontStrikeMin = 3f;
-			lateFrontStrikeMax = 5f;
-			return;
-		}
-		int playerReport = lateInt(PTSD, "PTSD_recon_report_player", 20, 0, 100);
-		int threeReport = lateInt(PTSD, "PTSD_recon_report_three", 25, 0, 100);
-		int twoReport = lateInt(PTSD, "PTSD_recon_report_two", 40, 0, 100);
+		// Hidden numeric settings remain effective through difficulty presets outside DevMode.
+		int playerReport = lateInt(PTSD, "PTSD_recon_report_player", 20, 0, 100); // 设置：玩家线索附报概率％
+		int threeReport = lateInt(PTSD, "PTSD_recon_report_three", 25, 0, 100); // 设置：周边三星系附报概率％
+		int twoReport = lateInt(PTSD, "PTSD_recon_report_two", 40, 0, 100); // 设置：周边双星系附报概率％
 		reconReportPlayerChance = playerReport;
 		reconReportThreeChance = Math.min(threeReport, 100 - playerReport);
 		reconReportTwoChance = Math.min(twoReport, 100 - playerReport - reconReportThreeChance);
-		reconReportInterval = lateInt(PTSD, "PTSD_recon_report_interval", 5, 1, 20);
-		reconUploadMin = lateInt(PTSD, "PTSD_recon_upload_min", 1, 1, 10);
-		reconUploadMax = Math.max(reconUploadMin, lateInt(PTSD, "PTSD_recon_upload_max", 3, 1, 15));
-		reconRemoteError = lateInt(PTSD, "PTSD_recon_remote_error", 25, 0, 60) / 100f;
-		reconRemoteLifetime = lateInt(PTSD, "PTSD_recon_remote_lifetime", 45, 5, 180);
-		reconLowFleetThreshold = lateInt(PTSD, "PTSD_recon_low_fleet_fp", 30, 0, 150);
-		reconEmptyRerouteMin = lateInt(PTSD, "PTSD_recon_empty_reroute_min", 2, 1, 15);
+		reconReportInterval = lateInt(PTSD, "PTSD_recon_report_interval", 5, 1, 20); // 设置：批量报告间隔（天）
+		reconUploadMin = lateInt(PTSD, "PTSD_recon_upload_min", 1, 1, 10); // 设置：上传最短窗口（天）
+		reconUploadMax = Math.max(reconUploadMin, lateInt(PTSD, "PTSD_recon_upload_max", 3, 1, 15)); // 设置：上传最长窗口（天）
+		reconRemoteError = lateInt(PTSD, "PTSD_recon_remote_error", 25, 0, 60) / 100f; // 设置：远距估测误差％
+		reconRemoteLifetime = lateInt(PTSD, "PTSD_recon_remote_lifetime", 45, 5, 180); // 设置：远距报告有效期（天）
+		reconLowFleetThreshold = lateInt(PTSD, "PTSD_recon_low_fleet_fp", 30, 0, 150); // 设置：低活动舰队估值上限
+		reconEmptyRerouteMin = lateInt(PTSD, "PTSD_recon_empty_reroute_min", 2, 1, 15); // 设置：无人改道最短等待（天）
 		reconEmptyRerouteMax = Math.max(reconEmptyRerouteMin,
-				lateInt(PTSD, "PTSD_recon_empty_reroute_max", 4, 1, 20));
-		reconPostPhaseIntervalMultiplier = lateInt(PTSD, "PTSD_recon_post_phase_multiplier", 3, 1, 10);
-		reconNewsDensity = lateInt(PTSD, "PTSD_news_recon_density", 100, 10, 300) / 100f;
-		expansionNewsDensity = lateInt(PTSD, "PTSD_news_expansion_density", 100, 10, 300) / 100f;
-		fortressNewsDensity = lateInt(PTSD, "PTSD_news_fortress_density", 100, 10, 300) / 100f;
-		reconNewsFalseRate = lateInt(PTSD, "PTSD_news_recon_false", 30, 0, 60) / 100f;
+				lateInt(PTSD, "PTSD_recon_empty_reroute_max", 4, 1, 20)); // 设置：无人改道最长等待（天）
+		reconPostPhaseIntervalMultiplier = lateInt(PTSD, "PTSD_recon_post_phase_multiplier", 3, 1, 10); // 设置：营建后侦察间隔倍率
+		reconNewsDensity = lateInt(PTSD, "PTSD_news_recon_density", 100, 10, 300) / 100f; // 设置：侦察条件新闻密度％
+		expansionNewsDensity = lateInt(PTSD, "PTSD_news_expansion_density", 100, 10, 300) / 100f; // 设置：营建条件新闻密度％
+		fortressNewsDensity = lateInt(PTSD, "PTSD_news_fortress_density", 100, 10, 300) / 100f; // 设置：要塞条件新闻密度％
+		reconNewsFalseRate = lateInt(PTSD, "PTSD_news_recon_false", 30, 0, 60) / 100f; // 设置：侦察误报率％
 		expansionNewsFalseRate = Math.min(reconNewsFalseRate,
-				lateInt(PTSD, "PTSD_news_expansion_false", 18, 0, 50) / 100f);
+				lateInt(PTSD, "PTSD_news_expansion_false", 18, 0, 50) / 100f); // 设置：营建误报率％
 		fortressNewsFalseRate = Math.min(expansionNewsFalseRate,
-				lateInt(PTSD, "PTSD_news_fortress_false", 8, 0, 35) / 100f);
-		lateProductionInterval = lateInt(PTSD, "PTSD_late_production_interval", 10, 2, 30);
-		lateBaseIncome = lateInt(PTSD, "PTSD_late_base_income", 4, 1, 20);
-		lateOutpostIncome = lateInt(PTSD, "PTSD_late_outpost_income", 2, 0, 10);
+				lateInt(PTSD, "PTSD_news_fortress_false", 8, 0, 35) / 100f); // 设置：要塞误报率％
+		lateProductionInterval = lateInt(PTSD, "PTSD_late_production_interval", 10, 2, 30); // 设置：生产周期（天）
+		lateBaseIncome = lateInt(PTSD, "PTSD_late_base_income", 4, 1, 20); // 设置：母星每期产出
+		lateOutpostIncome = lateInt(PTSD, "PTSD_late_outpost_income", 2, 0, 10); // 设置：据点每期产出
 		lateFortressIncome = new float[] {0f,
-				lateInt(PTSD, "PTSD_late_small_income", 1, 0, 10),
-				lateInt(PTSD, "PTSD_late_stable_income", 2, 0, 10),
-				lateInt(PTSD, "PTSD_late_medium_income", 3, 0, 10),
-				lateInt(PTSD, "PTSD_late_eden_income", 5, 0, 15)};
-		lateProductionPerTurnCap = lateInt(PTSD, "PTSD_late_turn_cap", 20, 1, 100);
+				lateInt(PTSD, "PTSD_late_small_income", 1, 0, 10), // 设置：Small每期产出
+				lateInt(PTSD, "PTSD_late_stable_income", 2, 0, 10), // 设置：Stable每期产出
+				lateInt(PTSD, "PTSD_late_medium_income", 3, 0, 10), // 设置：Medium每期产出
+				lateInt(PTSD, "PTSD_late_eden_income", 5, 0, 15)}; // 设置：EDEN每期产出
+		lateProductionPerTurnCap = lateInt(PTSD, "PTSD_late_turn_cap", 20, 1, 100); // 设置：单期产出上限
 		lateProductionStorageCap = Math.max(lateProductionPerTurnCap,
-				lateInt(PTSD, "PTSD_late_storage_cap", 200, 45, 500));
-		lateMobilizationThreshold = lateInt(PTSD, "PTSD_late_mobilization_threshold", 60, 15, 200);
+				lateInt(PTSD, "PTSD_late_storage_cap", 200, 45, 500)); // 设置：准备点储存上限
+		lateMobilizationThreshold = lateInt(PTSD, "PTSD_late_mobilization_threshold", 60, 15, 200); // 设置：常规动员门槛
 		lateSurpriseThreshold = Math.max(lateMobilizationThreshold + 5f,
-				lateInt(PTSD, "PTSD_late_surprise_threshold", 120, 30, 300));
+				lateInt(PTSD, "PTSD_late_surprise_threshold", 120, 30, 300)); // 设置：直接突袭估计门槛
 		lateSurpriseMinimum = Math.min(lateSurpriseThreshold,
-				lateInt(PTSD, "PTSD_late_surprise_minimum", 45, 10, 150));
-		lateFortificationDeadline = lateInt(PTSD, "PTSD_late_fortification_deadline", 180, 30, 600);
+				lateInt(PTSD, "PTSD_late_surprise_minimum", 45, 10, 150)); // 设置：误判突袭真实下限
+		lateFortificationDeadline = lateInt(PTSD, "PTSD_late_fortification_deadline", 180, 30, 600); // 设置：要塞基础期限（实际×2）
 		lateFortressWork = new float[] {0f,
-				lateInt(PTSD, "PTSD_late_small_work", 20, 5, 100),
-				lateInt(PTSD, "PTSD_late_stable_work", 30, 5, 150),
-				lateInt(PTSD, "PTSD_late_medium_work", 40, 5, 200), 50f};
+				lateInt(PTSD, "PTSD_late_small_work", 20, 5, 100), // 设置：Small工程需求
+				lateInt(PTSD, "PTSD_late_stable_work", 30, 5, 150), // 设置：Stable工程需求
+				lateInt(PTSD, "PTSD_late_medium_work", 40, 5, 200), 50f}; // 设置：Medium工程需求
 		lateTransportInterval = new float[] {0f,
-				lateInt(PTSD, "PTSD_late_small_transport", 8, 2, 30),
-				lateInt(PTSD, "PTSD_late_stable_transport", 7, 2, 30),
-				lateInt(PTSD, "PTSD_late_medium_transport", 5, 2, 30), 5f};
-		lateEventMajorCooldown = lateInt(PTSD, "PTSD_late_major_card_cooldown", 5, 1, 30);
-		lateEventShortCooldown = lateInt(PTSD, "PTSD_late_short_card_cooldown", 3, 1, 30);
-		lateEventTaskDeadline = lateInt(PTSD, "PTSD_late_task_deadline", 12, 3, 40);
-		lateFrontStrikeMin = lateInt(PTSD, "PTSD_late_strike_min", 3, 1, 15);
+				lateInt(PTSD, "PTSD_late_small_transport", 8, 2, 30), // 设置：Small运输间隔
+				lateInt(PTSD, "PTSD_late_stable_transport", 7, 2, 30), // 设置：Stable运输间隔
+				lateInt(PTSD, "PTSD_late_medium_transport", 5, 2, 30), 5f}; // 设置：Medium运输间隔
+		lateEventMajorCooldown = lateInt(PTSD, "PTSD_late_major_card_cooldown", 5, 1, 30); // 设置：核心事件抽取间隔
+		lateEventShortCooldown = lateInt(PTSD, "PTSD_late_short_card_cooldown", 3, 1, 30); // 设置：短卡抽取间隔
+		lateEventTaskDeadline = lateInt(PTSD, "PTSD_late_task_deadline", 12, 3, 40); // 设置：现场任务期限
+		lateFrontStrikeMin = lateInt(PTSD, "PTSD_late_strike_min", 3, 1, 15); // 设置：战区炮击最短间隔
 		lateFrontStrikeMax = Math.max(lateFrontStrikeMin,
-				lateInt(PTSD, "PTSD_late_strike_max", 5, 1, 20));
+				lateInt(PTSD, "PTSD_late_strike_max", 5, 1, 20)); // 设置：战区炮击最长间隔
 
-		start_stage_time = Math.max(1f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_start_stage_time", (int) start_stage_time));
-		collect_data_time = Math.max(1f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_collect_data_time", (int) collect_data_time));
-		invade_time = Math.max(1f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_invade_time", (int) invade_time));
-		repair_time = Math.max(1f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_repair_time", (int) repair_time));
-		scout_spawn_radius = Math.max(100f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_scout_spawn_radius", (int) scout_spawn_radius));
-		max_guard_fleets = Math.max(0f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_max_guard_fleets", (int) max_guard_fleets));
-		final_invasion_max_strength = Math.max(1f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_final_invasion_max_strength", (int) final_invasion_max_strength));
-		scout_max_active = Math.max(1f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_scout_max_active", (int) scout_max_active));
-		warning_encounter_threshold = Math.max(1, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_warning_encounter_threshold", warning_encounter_threshold));
-		strategic_update_interval = Math.max(1f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_strategic_update_interval", (int) strategic_update_interval));
-		hidden_materialization_range = Math.max(1000f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_hidden_materialization_range", (int) hidden_materialization_range));
-		expansion_interval = Math.max(3f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_expansion_interval", (int) expansion_interval));
-		max_black_hole_fortresses = Math.max(0f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_max_black_hole_fortresses", (int) max_black_hole_fortresses));
-		front_turn_min_interval = Math.max(2f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_front_turn_min_interval", (int) front_turn_min_interval));
-		front_turn_max_interval = Math.max(front_turn_min_interval, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_front_turn_max_interval", (int) front_turn_max_interval));
+		start_stage_time = Math.max(1f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_start_stage_time", (int) start_stage_time)); // 设置：沉寂阶段时长（天）
+		collect_data_time = Math.max(1f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_collect_data_time", (int) collect_data_time)); // 设置：侦察基础时长（实际×2）
+		invade_time = Math.max(1f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_invade_time", (int) invade_time)); // 设置：营建最短时长（天）
+		repair_time = Math.max(1f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_repair_time", (int) repair_time)); // 设置：要塞阶段参考时长（天）
+		scout_spawn_radius = Math.max(100f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_scout_spawn_radius", (int) scout_spawn_radius)); // 设置：侦察目标附近半径
+		max_guard_fleets = Math.max(0f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_max_guard_fleets", (int) max_guard_fleets)); // 设置：最大卫戍事件数
+		final_invasion_max_strength = Math.max(1f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_final_invasion_max_strength", (int) final_invasion_max_strength)); // 设置：单次入侵基础强度上限
+		scout_max_active = Math.max(1f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_scout_max_active", (int) scout_max_active)); // 设置：同时存在侦察队上限
+		warning_encounter_threshold = Math.max(1, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_warning_encounter_threshold", warning_encounter_threshold)); // 设置：提前预警接触次数
+		strategic_update_interval = Math.max(1f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_strategic_update_interval", (int) strategic_update_interval)); // 设置：权重更新间隔（天）
+		hidden_materialization_range = Math.max(1000f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_hidden_materialization_range", (int) hidden_materialization_range)); // 设置：事件实体化距离
+		expansion_interval = Math.max(3f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_expansion_interval", (int) expansion_interval)); // 设置：行星异化间隔（天）
+		max_black_hole_fortresses = Math.max(0f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_max_black_hole_fortresses", (int) max_black_hole_fortresses)); // 设置：黑洞要塞上限
+		front_turn_min_interval = Math.max(2f, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_front_turn_min_interval", (int) front_turn_min_interval)); // 设置：战线回合最短间隔
+		front_turn_max_interval = Math.max(front_turn_min_interval, PTSDModPluginAltLuna.getLunaInt(PTSD, "PTSD_front_turn_max_interval", (int) front_turn_max_interval)); // 设置：战线回合最长间隔
 		phase_dormant_enabled = PTSDModPluginAltLuna.getLunaBoolean(PTSD, "PTSD_phase_dormant_enabled", phase_dormant_enabled);
 		phase_recon_enabled = PTSDModPluginAltLuna.getLunaBoolean(PTSD, "PTSD_phase_recon_enabled", phase_recon_enabled);
 		phase_expansion_enabled = PTSDModPluginAltLuna.getLunaBoolean(PTSD, "PTSD_phase_expansion_enabled", phase_expansion_enabled);
@@ -493,6 +492,7 @@ public class IIRT_Omega_ModPlugin extends BaseModPlugin {
 	}
 
 	private static void installJeOtloesManager() {
+        data.scripts.campaign.invasion.PTSDPlayerBattleObserver.install();
 		SectorAPI sector = Global.getSector();
 		if (sector == null) return;
 		if (!sector.hasScript(PTSDJeOtloesManager.class)) {
@@ -507,6 +507,7 @@ public class IIRT_Omega_ModPlugin extends BaseModPlugin {
 		SectorAPI sector = Global.getSector();
 		if (sector != null && !sector.hasScript(PTSDCrisisDevWatcher.class)) {
 			sector.addTransientScript(new PTSDCrisisDevWatcher());
+            sector.addTransientListener(new PTSDDifficultyCurveEditor.DialogListener());
 		}
 	}
 

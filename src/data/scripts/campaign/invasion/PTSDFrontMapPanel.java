@@ -25,6 +25,7 @@ import java.util.Set;
 public final class PTSDFrontMapPanel extends BaseCustomUIPanelPlugin {
     private static final class Edge {
         String fromId;
+        Vector2f approximateFrom;
         String toId;
         Color color;
         float width;
@@ -39,6 +40,7 @@ public final class PTSDFrontMapPanel extends BaseCustomUIPanelPlugin {
     private CustomPanelAPI parent;
     private UIPanelAPI contextMenu;
     private final List<Edge> edges = new ArrayList<Edge>();
+    private final List<List<Vector2f>> attackOutlines = new ArrayList<List<Vector2f>>();
     private float minX;
     private float maxX;
     private float minY;
@@ -51,7 +53,7 @@ public final class PTSDFrontMapPanel extends BaseCustomUIPanelPlugin {
     public PTSDFrontMapPanel() {
         computeBounds();
         PTSDCrisisState state = PTSDCrisisState.get();
-        if (state != null) edges.addAll(getEdges(state));
+        if (state != null) { edges.addAll(getEdges(state)); buildAttackRegions(state); }
         // Enemy truth and unreported NPC forces are deliberately excluded.
     }
 
@@ -119,6 +121,7 @@ public final class PTSDFrontMapPanel extends BaseCustomUIPanelPlugin {
         GL11.glEnable(GL11.GL_SCISSOR_TEST);
         GL11.glScissor(Math.round(mapLeft() * scale), Math.round(mapBottom() * scale),
                 Math.round((mapRight()-mapLeft()) * scale), Math.round((mapTop()-mapBottom()) * scale));
+        drawAttackRegions(state, alphaMult);
         for (Edge edge : edges) drawEdge(edge, alphaMult);
         drawSystemNodes(state, alphaMult);
 
@@ -170,7 +173,7 @@ public final class PTSDFrontMapPanel extends BaseCustomUIPanelPlugin {
     }
 
     private void drawEdge(Edge edge, float alphaMult) {
-        Vector2f from = getScreenPoint(edge.fromId);
+        Vector2f from = edge.approximateFrom == null ? getScreenPoint(edge.fromId) : screenPoint(edge.approximateFrom);
         Vector2f to = getScreenPoint(edge.toId);
         if (from == null || to == null) return;
         GL11.glEnable(GL11.GL_LINE_STIPPLE);
@@ -239,7 +242,15 @@ public final class PTSDFrontMapPanel extends BaseCustomUIPanelPlugin {
 
     private List<Edge> getEdges(PTSDCrisisState state) {
         List<Edge> result = new ArrayList<Edge>();
+        for (PTSDCrisisState.StrategicEvent event : state.events) {
+            if (!event.simulatedWarOperation || !event.operationArrived || PTSDCrisisState.getDay()-event.operationContactDay>45) continue;
+            Edge edge=new Edge();edge.toId=event.targetSystemId;edge.approximateFrom=new Vector2f(event.approachX,event.approachY);
+            edge.omega=true;edge.arrow=true;edge.width=3f;edge.color=new Color(175,105,130,150);
+            edge.description="殖民地遇袭通报 / 约略来袭方向，非出发地 / "+Math.round(event.operationContactDay)+"日";
+            result.add(edge);
+        }
         for (PTSDCrisisState.HumanReport report : state.humanWarReports.values()) {
+            if (report != null && report.omega) continue;
             if (report == null || !report.movement || report.sourceSystemId == null ||
                     report.sourceSystemId.equals(report.systemId)) continue;
             Edge edge = new Edge(); edge.fromId = report.sourceSystemId; edge.toId = report.systemId;
@@ -249,8 +260,23 @@ public final class PTSDFrontMapPanel extends BaseCustomUIPanelPlugin {
             float variation = ((report.sourceSystemId + ":" + report.systemId).hashCode() & 255) / 255f * .08f - .04f;
             Color routeColor = Color.getHSBColor((routeHSV[0] + variation + 1f) % 1f, routeHSV[1], routeHSV[2]);
             edge.color = new Color(routeColor.getRed(), routeColor.getGreen(), routeColor.getBlue(), 180);
-            edge.description = report.source + "｜记录日期 " + Math.round(report.day) + "｜" + report.text;
+            edge.description = report.source + " / 记录日期 " + Math.round(report.day) + "\n" + report.text;
             result.add(edge);
+        }
+        for (PTSDLateState.Reserve reserve : state.late.reserves) {
+            if (reserve.destroyed || !reserve.authorized || reserve.sourceSystemId == null || reserve.targetSystemId == null ||
+                    reserve.sourceSystemId.equals(reserve.targetSystemId) || !PTSDHumanWarReports.member(state,reserve.factionId)) continue;
+            Edge edge=new Edge();edge.fromId=reserve.sourceSystemId;edge.toId=reserve.targetSystemId;
+            edge.arrow=!reserve.arrived;edge.width=2f+Math.min(3f,reserve.strength/60f);
+            edge.color=getFactionColor(reserve.factionId,PTSDCommandSurface.INK);
+            edge.description="盟军调令 / "+reserve.factionId+" / "+(reserve.arrived?"已抵达协防":"正在前往战区")+" / 登记规模 "+Math.round(reserve.strength);
+            result.add(edge);
+        }
+        if(state.late.relief!=null)for(PTSDReliefState.Unit u:state.late.relief.units){
+            if(u.stage==PTSDReliefState.Stage.DONE||u.targetSystem==null||!PTSDReliefPanel.known(u))continue;
+            Edge edge=new Edge();edge.approximateFrom=new Vector2f(u.x,u.y);edge.toId=u.targetSystem;edge.arrow=true;edge.width=2.5f;
+            Color c=getFactionColor(u.faction,PTSDCommandSurface.AMBER);edge.color=new Color(c.getRed(),c.getGreen(),c.getBlue(),150);
+            edge.description=PTSDReliefPanel.stage(u)+" / "+u.status+" / "+(u.fleet==null?0:Math.round(u.fleet.getFleetPoints()))+" FP";result.add(edge);
         }
         return result;
     }
@@ -275,11 +301,11 @@ public final class PTSDFrontMapPanel extends BaseCustomUIPanelPlugin {
             inhabited = true;
             if (market.isPlayerOwned() || PTSDHumanWarReports.member(state, market.getFactionId())) memberRegion = true;
         }
-        if (inhabited && !memberRegion) return system.getName() + "｜非成员区域；无联合军报权限。";
-        if (report == null) return system.getName() + "｜尚无成员军报；无人区域不显示兵力数值。";
+        if (inhabited && !memberRegion) return system.getName() + " / 非成员区域；无联合军报权限。";
+        if (report == null) return system.getName() + " / 尚无成员军报；无人区域不显示兵力数值。";
         int age = Math.max(0, Math.round(PTSDCrisisState.getDay() - report.day));
-        return system.getName() + "｜" + report.source + "｜" + age + "日前" + (age > 10 ? "（过期）" : "") +
-                (!inhabited ? "" : report.strength < 0f ? "｜兵力未知" : "｜报告规模约 " + Math.round(report.strength)) + "｜" + report.text;
+        return system.getName() + "\n来源：" + report.source + "\n" + age + "日前" + (age > 10 ? "（过期）" : "") +
+                (!inhabited ? "" : report.strength < 0f ? " / 兵力未知" : "\n报告规模约 " + Math.round(report.strength)) + "\n" + report.text;
     }
 
     private void selectAt(float x, float y) {
@@ -298,27 +324,31 @@ public final class PTSDFrontMapPanel extends BaseCustomUIPanelPlugin {
         StarSystemAPI system = nearestSystem(x, y);
         if (parent == null || system == null) return;
         selectAt(x, y);
-        TooltipMakerAPI menu = parent.createUIElement(225f, 160f, false);
-        Color color = Misc.getBasePlayerColor(), dark = new Color(16, 23, 31);
-        menu.addPara("%s", 3f, color, system.getName());
-        menu.addButton("设置防御信标", "PTSD_MARK_DEFEND:" + system.getId(), color, dark, 225f, 23f, 5f);
-        menu.addButton("撤销此处信标", "PTSD_CLEAR_MARKER:" + system.getId(), color, dark, 225f, 23f, 2f);
-        menu.addButton("规划航线", "PTSD_MAP_COURSE:" + system.getId(), color, dark, 225f, 23f, 2f);
-        PTSDCrisisState state = PTSDCrisisState.get();
-        for (PTSDLateState.Front front : state.late.fronts.values()) {
-            if (front != null && !front.resolved && system.getId().equals(front.systemId)) {
-                menu.addButton("申请盟军增援", "PTSD_MAP_REINFORCE:" + front.id, color, dark, 225f, 23f, 2f); break;
-            }
+        final PTSDCrisisState state=PTSDCrisisState.get();
+        final java.util.List<String[]> actions=new java.util.ArrayList<String[]>();
+        actions.add(new String[]{"设置防御信标","PTSD_MARK_DEFEND:"+system.getId()});
+        actions.add(new String[]{"撤销此处信标","PTSD_CLEAR_MARKER:"+system.getId()});
+        actions.add(new String[]{"规划航线","PTSD_MAP_COURSE:"+system.getId()});
+        for(PTSDLateState.Front front:state.late.fronts.values())if(front!=null&&!front.resolved&&system.getId().equals(front.systemId)){
+            actions.add(new String[]{"申请增援","PTSD_MAP_REINFORCE:"+front.id});
+            actions.add(new String[]{"补给协作（60补给）","PTSD_MAP_SUPPORT:SUPPLIES:"+front.id});break;
         }
-        for (PTSDLateState.Reserve reserve : state.late.reserves) {
-            if (reserve == null || reserve.destroyed || !reserve.authorized) continue;
-            menu.addButton("调动授权后备队：" + reserve.id, "PTSD_MAP_RESERVE:" + reserve.id + ":" + system.getId(),
-                    color, dark, 225f, 23f, 2f);
+        for(PTSDLateState.Reserve reserve:state.late.reserves)if(reserve!=null&&!reserve.destroyed&&reserve.authorized)
+            actions.add(new String[]{"调动后备队 "+reserve.id,"PTSD_MAP_RESERVE:"+reserve.id+":"+system.getId()});
+        float menuHeight=Math.min(position.getHeight()-100,38+actions.size()*36);
+        CustomPanelAPI menu=parent.createCustomPanel(250,menuHeight,new PTSDCommandSurface(PTSDCommandSurface.INK));
+        TooltipMakerAPI list=menu.createUIElement(238,menuHeight-8,true);
+        list.addPara("%s",0,Misc.getHighlightColor(),system.getName());
+        for(final String[] action:actions){
+            CustomPanelAPI row=PTSDCommandSurface.tab(menu,232,action[0],false,new Runnable(){public void run(){
+                PTSDMapCommands.handle(PTSDCrisisState.get(),action[1]);closeContext();
+            }});
+            list.addCustom(row,3);
         }
-        contextMenu = parent.wrapTooltipWithBox(menu, color);
-        parent.addComponent(contextMenu).inTL(Math.max(4f, Math.min(position.getWidth()-245f, x-position.getX())),
-                Math.max(82f, Math.min(position.getHeight()-210f, position.getY()+position.getHeight()-y)));
-        parent.bringComponentToTop(contextMenu);
+        menu.addUIElement(list).inTL(6,4);contextMenu=menu;
+        parent.addComponent(menu).inTL(Math.max(4,Math.min(position.getWidth()-254,x-position.getX())),
+                Math.max(82,Math.min(position.getHeight()-menuHeight-6,position.getY()+position.getHeight()-y)));
+        parent.bringComponentToTop(menu);
     }
 
     private void updateHover(float mouseX, float mouseY) {
@@ -327,7 +357,7 @@ public final class PTSDFrontMapPanel extends BaseCustomUIPanelPlugin {
         Edge best = null;
         float bestDistance = 12f;
         for (Edge edge : edges) {
-            Vector2f from = getScreenPoint(edge.fromId);
+            Vector2f from = edge.approximateFrom == null ? getScreenPoint(edge.fromId) : screenPoint(edge.approximateFrom);
             Vector2f to = getScreenPoint(edge.toId);
             if (from == null || to == null) continue;
             float distance = distanceToSegment(mouseX, mouseY, from, to);
@@ -340,7 +370,7 @@ public final class PTSDFrontMapPanel extends BaseCustomUIPanelPlugin {
         }
         StarSystemAPI nearest = nearestSystem(mouseX, mouseY);
         if (nearest != null && hoverLabel != null) {
-            hoverLabel.setText(systemDescription(nearest)); hoverLabel.setColor(Misc.getTextColor()); return;
+            hoverLabel.setText(nearest.getName()+" / 点击查看详情，右键下达请求。"); hoverLabel.setColor(Misc.getTextColor()); return;
         }
         setDefaultHover();
     }
@@ -356,9 +386,36 @@ public final class PTSDFrontMapPanel extends BaseCustomUIPanelPlugin {
         StarSystemAPI system = Global.getSector().getStarSystem(systemId);
         if (system == null) return null;
         Vector2f location = system.getLocation();
+        return screenPoint(location);
+    }
+
+    private Vector2f screenPoint(Vector2f location) {
         float x = mapLeft() + (location.x - (centerX - viewSpanX() * 0.5f)) / viewSpanX() * (mapRight() - mapLeft());
         float y = mapBottom() + (location.y - (centerY - viewSpanY() * 0.5f)) / viewSpanY() * (mapTop() - mapBottom());
         return new Vector2f(x, y);
+    }
+
+    private void buildAttackRegions(PTSDCrisisState state) {
+        java.util.Map<String,List<Vector2f>> regions=new java.util.LinkedHashMap<String,List<Vector2f>>();
+        for(PTSDCrisisState.StrategicEvent e:state.events) {
+            if(!e.simulatedWarOperation||!e.operationArrived||PTSDCrisisState.getDay()-e.operationContactDay>45)continue;
+            List<Vector2f> points=regions.get(e.operationWaveId);
+            if(points==null){points=new ArrayList<Vector2f>();regions.put(e.operationWaveId,points);}
+            // Only confirmed impact areas enter the outline; pending targets remain secret.
+            for(int n=0;n<8;n++){double a=n*Math.PI/4;points.add(new Vector2f(e.operationTargetX+(float)Math.cos(a)*1800,
+                    e.operationTargetY+(float)Math.sin(a)*1800));}
+        }
+        for(List<Vector2f> points:regions.values()) attackOutlines.add(PTSDWarCampaignDirector.hull(points));
+    }
+
+    private void drawAttackRegions(PTSDCrisisState state,float alpha) {
+        for(List<Vector2f> outline:attackOutlines) {
+            setColor(new Color(155,85,115,25),alpha);GL11.glBegin(GL11.GL_POLYGON);
+            for(Vector2f p:outline){Vector2f v=screenPoint(p);GL11.glVertex2f(v.x,v.y);}GL11.glEnd();
+            GL11.glEnable(GL11.GL_LINE_STIPPLE);GL11.glLineStipple(3,(short)0x0F0F);GL11.glLineWidth(3f);
+            setColor(new Color(175,105,130,115),alpha);GL11.glBegin(GL11.GL_LINE_LOOP);
+            for(Vector2f p:outline){Vector2f v=screenPoint(p);GL11.glVertex2f(v.x,v.y);}GL11.glEnd();GL11.glDisable(GL11.GL_LINE_STIPPLE);
+        }
     }
 
     private void computeBounds() {

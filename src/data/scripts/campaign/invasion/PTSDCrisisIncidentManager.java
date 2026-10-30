@@ -32,6 +32,10 @@ public final class PTSDCrisisIncidentManager {
         final String phases;
         final boolean investigable;
         final boolean filler;
+        boolean jeOnly;
+        float eventWeight = 1f;
+        String eventLoc;
+        boolean eventManualCompletion;
         final TargetKind target;
         final String targetExpression;
         final String targetArgument;
@@ -68,7 +72,7 @@ public final class PTSDCrisisIncidentManager {
             this.id = id;
             this.category = category;
             this.phases = phases;
-            this.investigable = investigable;
+            this.investigable = investigable && !PTSDNewsPresentation.nonSpatial(id);
             this.filler = filler;
             this.target = target;
             this.targetExpression = targetExpression;
@@ -87,10 +91,16 @@ public final class PTSDCrisisIncidentManager {
             this.headlines = headlines;
             this.reports = reports;
             this.truths = truths;
+            if (!PTSDNewsScene.validTemplates(siteTemplates)) throw new IllegalArgumentException("Unknown site template: " + siteTemplates);
             this.siteTemplates = siteTemplates;
             this.siteHandler = siteHandler;
             this.martialSite = martialSite;
-            this.delivery = delivery;
+            // Legacy ambient rows contain a present but blank CSV cell, not a missing key.
+            this.delivery = delivery == null || delivery.trim().isEmpty() ? "AMBIENT" :
+                    delivery.trim().toUpperCase(java.util.Locale.ROOT);
+            if (!"AMBIENT".equals(this.delivery) && !"CONDITIONAL".equals(this.delivery) &&
+                    !"SCRIPTED".equals(this.delivery))
+                throw new IllegalArgumentException("Unsupported news delivery " + this.delivery + " for " + id);
             this.visibility = visibility;
             this.trigger = trigger;
             this.action = action;
@@ -101,6 +111,12 @@ public final class PTSDCrisisIncidentManager {
             this.choice2 = choice2;
             this.minDay = minDay;
             this.priority = priority;
+            for (String phase : phases.split("\\|")) {
+                String name = phase.trim().toUpperCase(java.util.Locale.ROOT);
+                if (!"ALL".equals(name)) PTSDCrisisState.Phase.valueOf(name);
+            }
+            if ("CONDITIONAL".equals(this.delivery) && !PTSDConditionalNewsDirector.knownTrigger(trigger))
+                throw new IllegalArgumentException("Unsupported conditional trigger " + trigger + " for " + id);
         }
     }
 
@@ -128,6 +144,7 @@ public final class PTSDCrisisIncidentManager {
     private static final List<Card> NEWS = new ArrayList<Card>();
     private static final Color WHISPER_COLOR = new Color(182, 164, 198);
     private static boolean loaded;
+    private static final java.util.Map<String,String> INVALID_ROWS = new java.util.LinkedHashMap<String,String>();
 
     private static void ensureLoaded() {
         if (loaded) return;
@@ -135,22 +152,26 @@ public final class PTSDCrisisIncidentManager {
         DARK.clear();
         PROBE.clear();
         NEWS.clear();
+        INVALID_ROWS.clear();
 
         int loadedCards = 0;
-        for (com.fs.starfarer.api.ModSpecAPI mod :
-                Global.getSettings().getModManager().getEnabledModsCopy()) {
+        { // 原版 API 本身已合并所有 DLC；不可再按每个模组重复合并整张表。
             JSONArray rows;
             try {
                 rows = Global.getSettings().getMergedSpreadsheetDataForMod(
-                        "id", "data/config/ptsdCSV/PTSD_crisis_news.csv", mod.getId());
+                        "id", "data/config/ptsdCSV/PTSD_crisis_news.csv", "Omega_PTSD");
             } catch (Throwable missingOrInvalidForMod) {
-                continue;
+                loaded = false;
+                Global.getLogger(PTSDCrisisIncidentManager.class).error("无法合并新闻主表与 DLC", missingOrInvalidForMod);
+                return;
             }
             for (int i = 0; i < rows.length(); i++) {
                 try {
                     JSONObject row = rows.getJSONObject(i);
                     String id = row.optString("id", "").trim();
                     if (id.length() == 0 || id.startsWith("#")) continue;
+                    // eventLoc 只扩充本行的内部配置，不修改游戏合并表或其他模组的行对象。
+                    row = data.scripts.campaign.invasion.news.NewsEventLoader.prepare(row);
                     String category = row.optString("category", "普通新闻").trim();
                     String targetExpression = row.optString("target", "ANY").trim();
                     ParsedTarget parsedTarget = parseTarget(targetExpression);
@@ -188,11 +209,17 @@ public final class PTSDCrisisIncidentManager {
                             row.optString("choice1", "").trim(), row.optString("choice2", "").trim(),
                             (float) row.optDouble("minDay", 0d),
                             (float) row.optDouble("priority", 1d));
+                    card.jeOnly = row.optBoolean("JeOnly", false);
+                    card.eventLoc = row.optString("eventLoc", "").trim();
+                    card.eventManualCompletion = row.optBoolean("eventManualCompletion", false);
+                    card.eventWeight = eventWeight(row.optString("eventWeight", ""));
                     addOrReplace(card);
                     loadedCards++;
                 } catch (Throwable rowError) {
+                    JSONObject bad = rows.optJSONObject(i);
+                    if (bad != null) INVALID_ROWS.put(bad.optString("id", "row:" + i), rowError.getMessage());
                     Global.getLogger(PTSDCrisisIncidentManager.class).warn(
-                            "Ignoring invalid crisis news row from " + mod.getId() + " at index " + i,
+                            "Ignoring invalid merged crisis news row at index " + i,
                             rowError);
                 }
             }
@@ -203,6 +230,23 @@ public final class PTSDCrisisIncidentManager {
             Global.getLogger(PTSDCrisisIncidentManager.class).error(
                     "Unable to load any PTSD crisis news CSV rows");
         }
+    }
+
+    /** Independent multiplier: legacy weight=0 is valid for conditional/scripted rows. */
+    static float eventWeight(String cell) {
+        if (cell == null || cell.trim().isEmpty()) return 1f;
+        float value = Float.parseFloat(cell.trim());
+        if (Float.isNaN(value) || Float.isInfinite(value) || value < 0f)
+            throw new IllegalArgumentException("Invalid eventWeight: " + cell);
+        return value;
+    }
+
+    public static boolean matchesPhase(String id, PTSDCrisisState.Phase phase) {
+        ensureLoaded(); return phaseMatches(find(id), phase);
+    }
+
+    public static boolean enabled(String id) {
+        ensureLoaded(); Card card = find(id); return card != null && card.eventWeight > 0f;
     }
 
     private static void addOrReplace(Card card) {
@@ -229,12 +273,16 @@ public final class PTSDCrisisIncidentManager {
     }
 
     private static List<Card> selectPool(PTSDCrisisState state, boolean fireProbe, Random random) {
+        return selectPool(state, fireProbe, random, null);
+    }
+
+    private static List<Card> selectPool(PTSDCrisisState state, boolean fireProbe, Random random, Boolean wantFiller) {
         ensureLoaded();
         List<Card> filler = new ArrayList<Card>();
         List<Card> substantive = new ArrayList<Card>();
         List<Card> all = new ArrayList<Card>(); all.addAll(DARK); all.addAll(PROBE); all.addAll(NEWS);
         for (Card card : all) {
-            if (!phaseMatches(card, state.phase)) continue;
+            if (card.eventWeight <= 0f || card.jeOnly || !phaseMatches(card, state.phase)) continue;
             if (!"AMBIENT".equals(card.delivery)) continue;
             // Contact-only cards are created through forceAndGet(), never the ambient news pool.
             if ("专项调查".equals(card.category)) continue;
@@ -250,13 +298,14 @@ public final class PTSDCrisisIncidentManager {
             // feed. Omega evidence is intentionally buried among mundane, often entertaining
             // stories instead of becoming a dedicated public crisis narrative.
             case DORMANT: fillerChance = .74f; break;
-            case RECON: fillerChance = .52f; break;
+            case RECON: fillerChance = .25f; break;
             case EXPANSION: fillerChance = .15f; break;
             case FORTIFICATION: fillerChance = .07f; break;
             case WAR: fillerChance = .02f; break;
             default: fillerChance = .1f;
         }
-        return !filler.isEmpty() && random.nextFloat() < fillerChance ? filler : substantive;
+        boolean selectFiller = wantFiller != null ? wantFiller : !filler.isEmpty() && random.nextFloat() < fillerChance;
+        return selectFiller ? filler : substantive;
     }
     /** Adds small, deterministic wording differences without changing the card's factual core. */
     private static String[] variants(String base) {
@@ -267,7 +316,9 @@ public final class PTSDCrisisIncidentManager {
         if (state == null || random == null) return;
         ensureLoaded();
         PTSDNewsSiteManager.advance(state, day, random);
+        PTSDFirstReconInvestigation.advanceSites(state);
         advanceInvestigations(state, day, random);
+        data.scripts.campaign.invasion.news.NewsEventLoader.advance(state, day);
         PTSDCrisisNewsAPI.advanceLoadedHandlers(state, day, random);
         float detectorFrequency = PTSDCrisisDetectorAbility.getEventFrequencyMultiplier();
         float configuredMax = Math.max(unknown_event_min_interval, unknown_event_max_interval) /
@@ -281,20 +332,26 @@ public final class PTSDCrisisIncidentManager {
 
         boolean fireProbe = state.phase == PTSDCrisisState.Phase.RECON &&
                 (state.watcherAggression >= 22f || state.reconConfidence >= 36f ||
-                        day - state.phaseStartedDay >= Math.max(8f, collect_data_time * .42f));
+                        day - state.phaseStartedDay >= Math.max(8f, collect_data_time * 2f * .42f));
         List<Card> pool = selectPool(state, fireProbe, random);
         if (pool == null) return;
 
-        for (int attempt = 0; attempt < 12; attempt++) {
-            Card card = pick(pool, state, day, random);
-            if (card == null) return;
-            Target target = pickTarget(card, state, random);
-            if (target == null || target.system == null) continue;
-            createIncident(state, card, target, day, random, false, true);
-            return;
+        boolean firstWasFiller = !pool.isEmpty() && pool.get(0).filler;
+        for (int category = 0; category < 2; category++) {
+            List<Card> candidates = new ArrayList<Card>(category == 0 ? pool :
+                    selectPool(state, fireProbe, random, !firstWasFiller));
+            while (!candidates.isEmpty()) {
+                Card card = pick(candidates, state, day, random);
+                if (card == null) break;
+                candidates.remove(card);
+                Target target = pickTarget(card, state, random);
+                if (target == null || target.system == null) continue;
+                createIncident(state, card, target, day, random, false, true);
+                return;
+            }
         }
         state.nextIncidentDay = Math.min(state.nextIncidentDay, day + 2f);
-        PTSDCrisisDevIntel.report("未知事件抽取失败", "候选目标均失效；两日后重试", null, null);
+        PTSDCrisisDevIntel.report("未知事件等待", "同阶段两类新闻暂无可投放条目（冷却、权重或目标限制）；两日后重试", null, null);
     }
 
     public static boolean forceRandomCategory(String category) {
@@ -307,7 +364,7 @@ public final class PTSDCrisisIncidentManager {
         for (Card card : NEWS) if (category.equals(card.category)) pool.add(card);
         Random random = new Random(Misc.genUID().hashCode());
         WeightedRandomPicker<Card> picker = new WeightedRandomPicker<Card>(random);
-        for (Card card : pool) picker.add(card, card.weight);
+        for (Card card : pool) picker.add(card, card.weight * card.eventWeight);
         for (int attempt = 0; attempt < 12; attempt++) {
             Card card = picker.pick();
             if (card == null) return false;
@@ -374,24 +431,31 @@ public final class PTSDCrisisIncidentManager {
         public final String headline;
         public final String phases;
         public final String delivery;
+        public final String siteTemplate;
+        public final String eventLoc;
+        public final float eventWeight;
+        public final boolean investigable;
         private DevCard(Card card) {
             id = card.id;
             category = card.category;
             headline = card.headlines == null || card.headlines.length == 0 ? card.id : card.headlines[0];
             phases = card.phases;
-            delivery = card.delivery;
+            delivery = card.delivery; siteTemplate = card.siteTemplates; eventWeight = card.eventWeight; investigable = card.investigable;
+            eventLoc = card.eventLoc;
         }
     }
 
     /** Returns only cards whose normal phase condition is currently satisfied. */
     public static List<DevCard> getDevCardsForCurrentPhase() {
-        ensureLoaded();
-        List<DevCard> result = new ArrayList<DevCard>();
         PTSDCrisisState state = PTSDCrisisState.get();
-        if (state == null) return result;
-        for (Card card : DARK) if (phaseMatches(card, state.phase) && !"SCRIPTED".equals(card.delivery)) result.add(new DevCard(card));
-        for (Card card : PROBE) if (phaseMatches(card, state.phase) && !"SCRIPTED".equals(card.delivery)) result.add(new DevCard(card));
-        for (Card card : NEWS) if (phaseMatches(card, state.phase) && !"SCRIPTED".equals(card.delivery)) result.add(new DevCard(card));
+        return getDevCardsForPhase(state == null ? null : state.phase);
+    }
+    public static List<DevCard> getDevCardsForPhase(PTSDCrisisState.Phase phase) {
+        ensureLoaded(); List<DevCard> result = new ArrayList<DevCard>();
+        if (phase == null) return result;
+        for (Card card : DARK) if (phaseMatches(card, phase) && !"SCRIPTED".equals(card.delivery)) result.add(new DevCard(card));
+        for (Card card : PROBE) if (phaseMatches(card, phase) && !"SCRIPTED".equals(card.delivery)) result.add(new DevCard(card));
+        for (Card card : NEWS) if (phaseMatches(card, phase) && !"SCRIPTED".equals(card.delivery)) result.add(new DevCard(card));
         return result;
     }
 
@@ -399,9 +463,11 @@ public final class PTSDCrisisIncidentManager {
         ensureLoaded();
         Card card = find(id);
         PTSDCrisisState state = PTSDCrisisState.get();
-        if (card == null) return "CSV 中不存在该 ID";
+        if (card == null) return INVALID_ROWS.containsKey(id) ? "配置错误：" + INVALID_ROWS.get(id) : "CSV 中不存在该 ID";
         if (state == null) return "危机状态尚未初始化";
         if (!phaseMatches(card, state.phase)) return "需要阶段 " + card.phases;
+        String extensionWait = data.scripts.campaign.invasion.news.NewsEventLoader.unavailable(card.eventLoc, state);
+        if (extensionWait != null) return extensionWait;
         if ("CONDITIONAL".equals(card.delivery)) return PTSDConditionalNewsDirector.unavailableReason(state, id);
         if ("SCRIPTED".equals(card.delivery)) return PTSDLateEventDirector.unavailableReason(state, id);
         Float until = state.incidentCooldowns.get(id);
@@ -422,8 +488,11 @@ public final class PTSDCrisisIncidentManager {
         public final String id, title, report, intercept, source, trigger, action,
                 remoteOutcome, omegaResponse, effect, choice1, choice2, siteTemplate, delivery,
                 targetExpression, visibility;
+        public final boolean jeOnly;
+        public final float weight, eventWeight;
         public final float minDay, priority, panic;
         ScriptedTemplate(Card card) {
+            jeOnly = card.jeOnly; eventWeight = card.eventWeight; weight = card.weight * card.eventWeight;
             id = card.id; title = card.headlines[0]; report = card.reports[0];
             intercept = card.truths[0]; source = card.source; trigger = card.trigger;
             action = card.action; remoteOutcome = card.remoteOutcome;
@@ -445,15 +514,23 @@ public final class PTSDCrisisIncidentManager {
         ensureLoaded();
         List<ScriptedTemplate> result = new ArrayList<ScriptedTemplate>();
         List<Card> all = new ArrayList<Card>(); all.addAll(DARK); all.addAll(PROBE); all.addAll(NEWS);
-        for (Card card : all) if (delivery.equals(card.delivery) && phaseMatches(card, phase))
+        for (Card card : all) if (card.eventWeight > 0f && !card.jeOnly && delivery.equals(card.delivery) && phaseMatches(card, phase))
             result.add(new ScriptedTemplate(card));
+        return result;
+    }
+
+    public static List<ScriptedTemplate> getJeTemplates(PTSDCrisisState.Phase phase) {
+        ensureLoaded();
+        List<ScriptedTemplate> result = new ArrayList<ScriptedTemplate>();
+        List<Card> all = new ArrayList<Card>(); all.addAll(DARK); all.addAll(PROBE); all.addAll(NEWS);
+        for (Card card : all) if (card.eventWeight > 0f && card.jeOnly && phaseMatches(card, phase)) result.add(new ScriptedTemplate(card));
         return result;
     }
 
     public static PTSDCrisisState.CrisisIncident publishScripted(PTSDCrisisState state, String id,
             String systemId, String targetId, String category, boolean important) {
         ScriptedTemplate template = getTemplate(id);
-        if (state == null || template == null || systemId == null) return null;
+        if (state == null || template == null || template.jeOnly || systemId == null) return null;
         if ("NONE".equals(template.visibility) || "DEV_ONLY".equals(template.visibility)) return null;
         for (PTSDCrisisState.CrisisIncident existing : state.incidents)
             if (existing != null && id.equals(existing.cardId) &&
@@ -461,6 +538,8 @@ public final class PTSDCrisisIncidentManager {
         PTSDCrisisState.CrisisIncident news = new PTSDCrisisState.CrisisIncident();
         news.id = "PTSD_scripted_" + id + ":" + Misc.genUID();
         news.cardId = id;
+        Card definition = find(id);
+        news.eventLoc = definition == null ? null : definition.eventLoc;
         news.category = category;
         news.phase = state.phase;
         news.targetSystemId = systemId;
@@ -477,6 +556,7 @@ public final class PTSDCrisisIncidentManager {
                 important ? "可在后期事件簿中选择应对" : "地方报告；后续由战区记录核实";
         news.disclosed = true;
         state.incidents.add(news);
+        data.scripts.campaign.invasion.news.NewsEventLoader.published(state,news,news.createdDay);
         if ("PUBLIC".equals(template.visibility)) PTSDCrisisNewsIntel.report(news);
         return news;
     }
@@ -491,6 +571,8 @@ public final class PTSDCrisisIncidentManager {
             boolean falseReport, boolean privateDelivery) {
         Card card = find(id);
         if (state == null || card == null || system == null || !"CONDITIONAL".equals(card.delivery)) return null;
+        if (data.scripts.campaign.invasion.news.NewsEventLoader.unavailable(card.eventLoc,state)!=null) return null;
+        if (card.jeOnly && !privateDelivery) return null;
         Target target = new Target(system, market, anchor, null);
         PTSDCrisisState.CrisisIncident incident = createIncident(state, card, target,
                 PTSDCrisisState.getDay(), new Random(Misc.genUID().hashCode()), false,
@@ -505,7 +587,7 @@ public final class PTSDCrisisIncidentManager {
         for (Card card : pool) {
             Float until = state.incidentCooldowns.get(card.id);
             if (until != null && day < until) continue;
-            float weight = card.weight;
+            float weight = card.weight * card.eventWeight;
             if ("P-11".equals(card.id)) weight *= 1f + state.totalScoutEscapes * .18f;
             if ("P-12".equals(card.id)) weight *= Math.max(.15f, state.watcherAggression / 55f);
             picker.add(card, weight);
@@ -524,7 +606,7 @@ public final class PTSDCrisisIncidentManager {
     }
 
     private static ParsedTarget parseTarget(String expression) {
-        String value = expression == null ? "ANY" : expression.trim();
+        String value = expression == null || expression.trim().isEmpty() ? "ANY" : expression.trim();
         int open = value.indexOf('(');
         if (open > 0 && value.endsWith(")")) {
             String type = value.substring(0, open).trim();
@@ -539,15 +621,14 @@ public final class PTSDCrisisIncidentManager {
         }
         try {
             return new ParsedTarget(TargetKind.valueOf(value.toUpperCase()), null);
-        } catch (Throwable ignored) {
-            Global.getLogger(PTSDCrisisIncidentManager.class).warn(
-                    "Unknown crisis news target expression, using ANY: " + value);
-            return new ParsedTarget(TargetKind.ANY, null);
+        } catch (IllegalArgumentException invalid) {
+            throw new IllegalArgumentException("Unsupported news target expression: " + value, invalid);
         }
     }
 
     private static Target pickTarget(Card card, PTSDCrisisState state, Random random) {
         if (card == null) return null;
+        if (data.scripts.campaign.invasion.news.NewsEventLoader.unavailable(card.eventLoc, state) != null) return null;
         if (card.target == TargetKind.CUSTOM) {
             PTSDCrisisNewsAPI.CustomNewsHandler handler =
                     PTSDCrisisNewsAPI.resolveHandler(card.targetArgument);
@@ -572,7 +653,7 @@ public final class PTSDCrisisIncidentManager {
         CampaignFleetAPI player = Global.getSector().getPlayerFleet();
         if (player != null && player.getStarSystem() != null && random.nextFloat() < .18f) {
             MarketAPI playerMarket = bestMarket(player.getStarSystem());
-            if (matches(card, player.getStarSystem(), playerMarket)) {
+            if (PTSDExpansionScenes.accepts(card.id,player.getStarSystem()) && matches(card, player.getStarSystem(), playerMarket) && PTSDNewsScene.accepts(card.siteTemplates,state,player.getStarSystem()) && (!"D-12".equals(card.id) || PTSDNewsScene.wildernessWreckSite(player.getStarSystem()))) {
                 return new Target(player.getStarSystem(), playerMarket);
             }
         }
@@ -581,6 +662,7 @@ public final class PTSDCrisisIncidentManager {
         for (StarSystemAPI system : Global.getSector().getStarSystems()) {
             if (system == null || system.hasTag(Tags.SYSTEM_CUT_OFF_FROM_HYPER) ||
                     system.hasTag(Tags.THEME_HIDDEN)) continue;
+            if (!PTSDExpansionScenes.accepts(card.id,system) || !PTSDNewsScene.accepts(card.siteTemplates,state,system) || "D-12".equals(card.id) && !PTSDNewsScene.wildernessWreckSite(system)) continue;
             List<MarketAPI> markets = Global.getSector().getEconomy().getMarkets(system);
             boolean populated = false;
             for (MarketAPI market : markets) {
@@ -645,11 +727,14 @@ public final class PTSDCrisisIncidentManager {
     private static PTSDCrisisState.CrisisIncident createIncident(PTSDCrisisState state, Card card, Target target,
                                        float day, Random random, boolean forced,
                                        boolean disclose) {
+        if (card.jeOnly) disclose = false;
         int branch = random.nextInt(3);
         float branchMult = branch == 0 ? .85f : (branch == 2 ? 1.18f : 1f);
         PTSDCrisisState.CrisisIncident incident = new PTSDCrisisState.CrisisIncident();
         incident.id = "PTSD_incident_" + Misc.genUID();
         incident.cardId = card.id;
+        incident.eventLoc = card.eventLoc;
+        incident.eventManualCompletion = card.eventManualCompletion;
         incident.category = card.category;
         incident.randomBranch = branch;
         incident.phase = state.phase;
@@ -669,6 +754,8 @@ public final class PTSDCrisisIncidentManager {
         incident.disclosed = disclose;
         incident.investigable = card.investigable;
         incident.siteTemplate = inferSiteTemplates(card);
+        incident.jeExclusiveScene=card.jeOnly;
+        PTSDNewsScene.preparePublicLocation(state,incident);
         incident.siteHandlerExpression = card.siteHandler == null ? "" : card.siteHandler;
         incident.customTargetHandlerExpression = card.target == TargetKind.CUSTOM && card.targetArgument != null
                 ? card.targetArgument : "";
@@ -751,7 +838,20 @@ public final class PTSDCrisisIncidentManager {
         }
 
         state.incidents.add(incident);
-        while (state.incidents.size() > 250) state.incidents.remove(0);
+        data.scripts.campaign.invasion.news.NewsEventLoader.published(state, incident, day);
+        // 清除历史记录不能吞掉仍在运行的 DLC 现场，否则不会再收到清理回调。
+        while (state.incidents.size() > 250) {
+            PTSDCrisisState.CrisisIncident removable = null;
+            for (PTSDCrisisState.CrisisIncident old : state.incidents) {
+                if (old == null) continue;
+                boolean inactive = old.investigationResolved || !old.recordedByPlayer && day >= old.newsExpiresDay;
+                if (inactive && !old.siteMaterialized && (old.eventLoc == null || old.eventLoc.isEmpty() || old.eventFinished)) {
+                    removable = old; break;
+                }
+            }
+            if (removable == null) break;
+            state.incidents.remove(removable);
+        }
         state.incidentCooldowns.put(card.id, day + card.cooldown);
         PTSDCrisisNewsIntel.report(incident);
         // PTSDNewsTicker.report(incident); 简介新闻条可动态但是需要字体所以烂完了
@@ -760,7 +860,7 @@ public final class PTSDCrisisIncidentManager {
                         "|影响：" + incident.effectSummary,
                 incident.targetSystemId, null);
 
-        if (incident.playerRelevant) {
+        if (disclose && incident.playerRelevant) {
             Global.getSector().getCampaignUI().addMessage(incident.headline + "：" + incident.publicText,
                     WHISPER_COLOR);
         }
@@ -770,7 +870,7 @@ public final class PTSDCrisisIncidentManager {
     private static SectorEntityToken pickInvestigationTarget(Card card, Target target, Random random) {
         if (target == null || target.system == null) return null;
         if ("P-08".equals(card.id) && !target.system.getJumpPoints().isEmpty()) {
-            return target.system.getJumpPoints().get(random.nextInt(target.system.getJumpPoints().size()));
+            return PTSDJumpBlockade.pick(target.system);
         }
         if (card.target == TargetKind.RELAY) {
             List<SectorEntityToken> relays = target.system.getEntitiesWithTag(Tags.COMM_RELAY);
@@ -791,25 +891,29 @@ public final class PTSDCrisisIncidentManager {
         CampaignFleetAPI player = Global.getSector().getPlayerFleet();
         for (PTSDCrisisState.CrisisIncident incident : state.incidents) {
             if (incident == null || !incident.recordedByPlayer || incident.investigationResolved) continue;
+            if (PTSDNewsScene.manages(incident) && incident.investigationOutcome == 1) continue;
             if (incident.scenarioTrigger != null && incident.targetEntityId != null &&
                     Global.getSector().getEntityById(incident.targetEntityId) == null) {
                 incident.investigationResult = PTSDTaskRules.InvestigationResult.TARGET_LOST;
                 PTSDConditionalNewsDirector.onExpired(state, incident, "现场目标已消失");
                 continue;
             }
-            if (incident.investigationExpiresDay <= 0f) incident.investigationExpiresDay = incident.createdDay + 30f;
+            if (incident.investigationExpiresDay <= 0f) incident.investigationExpiresDay = incident.createdDay + PTSDTaskRules.NEWS_INVESTIGATION_DAYS;
             if (day >= incident.investigationExpiresDay) {
                 incident.investigationResolved = true;
                 incident.investigationReal = false;
                 incident.investigationResult = PTSDTaskRules.InvestigationResult.EXPIRED;
                 PTSDConditionalNewsDirector.onExpired(state, incident, "调查期限届满");
-                PTSDCrisisDevIntel.report("新闻调查过期", incident.headline + " / 达到30日上限", incident.targetSystemId, incident.targetEntityId);
+                PTSDCrisisDevIntel.report("新闻调查过期", incident.headline + " / 调查期限届满", incident.targetSystemId, incident.targetEntityId);
                 continue;
             }
             SectorEntityToken target = PTSDCrisisAPI.resolveIncidentTarget(incident);
+            // 独立事件树自己完成证据/战斗判定；仍然执行上方统一的超时检查。
+            if (incident.eventManualCompletion) continue;
             if (player == null || target == null || player.getContainingLocation() != target.getContainingLocation()) continue;
             float radius = Math.max(1800f, target.getRadius() + 1200f);
             if (Misc.getDistance(player.getLocation(), target.getLocation()) > radius) continue;
+            PTSDJeOtloesManager.recordParticipation(state, "incident:" + incident.id);
             incident.investigationResolved = true;
             if (incident.investigationOutcome == 1) {
                 incident.investigationReal = true;
@@ -836,6 +940,7 @@ public final class PTSDCrisisIncidentManager {
             PTSDCrisisDevIntel.report("新闻调查结算", "结果 " + incident.investigationOutcome,
                     incident.targetSystemId, incident.targetEntityId);
             PTSDConditionalNewsDirector.onInvestigated(state, incident);
+            PTSDInvestigationRewards.complete(incident);
         }
         for (int i = state.signalTraces.size() - 1; i >= 0; i--) {
             PTSDCrisisState.SignalTrace trace = state.signalTraces.get(i);
@@ -872,7 +977,7 @@ public final class PTSDCrisisIncidentManager {
     }
 
     /** Called only after matching evidence has been confirmed, locally or by Je. */
-    static void confirmTrueEffects(PTSDCrisisState state, PTSDCrisisState.CrisisIncident incident) {
+    public static void confirmTrueEffects(PTSDCrisisState state, PTSDCrisisState.CrisisIncident incident) {
         if (state == null || incident == null || incident.deferredEffectsSettled) return;
         // Incidents created by pre-fix builds already applied their full effects at creation. The
         // missing version field deserializes as zero, so never double-apply them after hot update.
@@ -939,7 +1044,7 @@ public final class PTSDCrisisIncidentManager {
         }
     }
 
-    static void disproveIncident(PTSDCrisisState.CrisisIncident incident) {
+    public static void disproveIncident(PTSDCrisisState.CrisisIncident incident) {
         if (incident == null) return;
         if (incident.newsEffectLifecycleVersion >= 1) {
             PTSDLocalPanicAPI.removeIncidentPanic(incident, "NEWS_DISPROVED");

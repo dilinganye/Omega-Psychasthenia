@@ -30,6 +30,11 @@ import java.util.Set;
 public final class PTSDWarIntel extends BaseIntelPlugin {
     private static final long serialVersionUID = 1L;
     private boolean devOnlyPreview;
+    private PTSDGeneralStaffIntel coalitionView;
+    public PTSDGeneralStaffIntel coalitionView(){
+        if(coalitionView==null){coalitionView=new PTSDGeneralStaffIntel();coalitionView.openMapPage();}
+        coalitionView.owner=this;return coalitionView;
+    }
 
     private static final String BUTTON_CLEAR = "PTSD_CLEAR_MARKERS";
     private static final String BUTTON_MARK_DEFEND = "PTSD_MARK_DEFEND:";
@@ -80,7 +85,7 @@ public final class PTSDWarIntel extends BaseIntelPlugin {
     }
     @Override
     protected String getName() {
-        return devOnlyPreview ? "[DEV预览] 精神创伤危机：战区态势" : "精神创伤危机：战区态势";
+        return devOnlyPreview ? "[DEV预览] 人类联盟：指挥与战线" : "人类联盟：指挥与战线";
     }
 
     @Override
@@ -111,6 +116,9 @@ public final class PTSDWarIntel extends BaseIntelPlugin {
 
     @Override
     public void createLargeDescription(CustomPanelAPI panel, float width, float height) {
+        coalitionView().createLargeDescription(panel,width,height);
+    }
+    private void populateWarRoom(CustomPanelAPI panel, float width, float height) {
         PTSDCrisisState state = PTSDCrisisState.get();
         Color omega = getFactionForUIColors().getBaseUIColor();
         Color human = Global.getSector().getPlayerFaction().getBaseUIColor();
@@ -121,8 +129,9 @@ public final class PTSDWarIntel extends BaseIntelPlugin {
         PTSDFrontMapPanel mapPlugin = new PTSDFrontMapPanel();
         CustomPanelAPI mapPanel = panel.createCustomPanel(mapWidth, height, mapPlugin);
         TooltipMakerAPI mapHeader = mapPanel.createUIElement(mapWidth - 24f, 74f, false);
-        mapHeader.addSectionHeading("全星域战线", omega, getFactionForUIColors().getDarkUIColor(),
-                com.fs.starfarer.api.ui.Alignment.MID, 0f);
+        mapHeader.setParaFont("graphics/fonts/insignia21LTaa.fnt");
+        mapHeader.addPara("作战海图 / 已知战线", 0f, PTSDCommandSurface.AMBER);
+        mapHeader.setParaFontDefault();
         LabelAPI help = mapHeader.addPara("滚轮缩放；左键拖动；点击固定报告；右键星系操作。宽虚线标识交战双方，细虚线按势力区分。", 5f);
         help.setColor(new Color(180, 190, 205));
         mapPanel.addUIElement(mapHeader).inTL(12f, 8f);
@@ -148,6 +157,21 @@ public final class PTSDWarIntel extends BaseIntelPlugin {
                     com.fs.starfarer.api.ui.Alignment.MID, 10f);
             LabelAPI selection = side.addPara("点击地图星系固定最近军报。", 6f);
             mapPlugin.setParent(mapPanel, selection);
+            List<ArrowData> incoming = invasionArrows(state);
+            if (!incoming.isEmpty()) {
+                com.fs.starfarer.api.ui.MapParams map = new com.fs.starfarer.api.ui.MapParams();
+                map.arrows = incoming;
+                map.showSystems = new HashSet<StarSystemAPI>();
+                map.skipCurrLocMarkerRendering = true;
+                for (PTSDCrisisState.StrategicEvent e : state.events)
+                    if (e.simulatedWarOperation && e.operationArrived && PTSDCrisisState.getDay()-e.operationContactDay<=45) {
+                        StarSystemAPI target = state.resolveSystem(e.targetSystemId);
+                        if (target != null) map.showSystems.add(target);
+                    }
+                map.positionToShowAllMarkersAndSystems(false,220f);
+                side.addCustom(side.createSectorMap(sideWidth,220f,map,"来袭方位 / 近45日"),8f);
+                side.addPara("箭头仅表示约略来向，不代表敌方出发地。",4f,Misc.getGrayColor());
+            }
             addFrontSummary(side, state, sideWidth, 10f, omega, human);
             if (state.late != null && !state.late.alerts.isEmpty()) {
                 side.addSectionHeading("告警归档", omega, getFactionForUIColors().getDarkUIColor(),
@@ -185,6 +209,9 @@ public final class PTSDWarIntel extends BaseIntelPlugin {
         if (reports.isEmpty()) info.addPara("尚无可核实军报。", 5f, Misc.getGrayColor());
     }
 
+    public void addPlayerForces(TooltipMakerAPI info,float width){
+        PTSDCrisisState state=PTSDCrisisState.get();if(state!=null)addTaskForceControls(info,state,width,10,Global.getSector().getPlayerFaction().getBaseUIColor());
+    }
     private void addTaskForceControls(TooltipMakerAPI info, PTSDCrisisState state, float width, float opad, Color human) {
         info.addSectionHeading("殖民地特化舰队", human, Global.getSector().getPlayerFaction().getDarkUIColor(),
                 com.fs.starfarer.api.ui.Alignment.MID, opad);
@@ -217,7 +244,7 @@ public final class PTSDWarIntel extends BaseIntelPlugin {
         List<ArrowData> result = new ArrayList<ArrowData>();
         if (state == null) return result;
         for (PTSDCrisisState.HumanReport report : state.humanWarReports.values()) {
-            if (report == null || !report.movement || report.sourceSystemId == null) continue;
+            if (report == null || report.omega || !report.movement || report.sourceSystemId == null) continue;
             StarSystemAPI target = state.resolveSystem(report.systemId), source = state.resolveSystem(report.sourceSystemId);
             if (target == null || source == null || source == target) continue;
             FactionAPI faction = report.factionId == null ? null : Global.getSector().getFaction(report.factionId);
@@ -226,11 +253,27 @@ public final class PTSDWarIntel extends BaseIntelPlugin {
             arrow.alphaMult = PTSDCrisisState.getDay() - report.day > 10f ? .2f : .5f;
             result.add(arrow);
         }
+        result.addAll(invasionArrows(state));
+        return result;
+    }
+
+    private List<ArrowData> invasionArrows(PTSDCrisisState state) {
+        List<ArrowData> result=new ArrayList<ArrowData>();
+        for (PTSDCrisisState.StrategicEvent event : state.events) {
+            if (!event.simulatedWarOperation || !event.operationArrived ||
+                    PTSDCrisisState.getDay() - event.operationContactDay > 45f) continue;
+            StarSystemAPI target = state.resolveSystem(event.targetSystemId);
+            if (target == null) continue;
+            SectorEntityToken approximate = Global.getSector().getHyperspace().createToken(event.approachX,event.approachY);
+            ArrowData arrow = new ArrowData(10f,approximate,target.getHyperspaceAnchor(),new Color(190,100,115));
+            arrow.alphaMult=.55f;result.add(arrow);
+        }
         return result;
     }
 
     @Override
     public void buttonPressConfirmed(Object buttonId, IntelUIAPI ui) {
+        if(coalitionView!=null && !(buttonId instanceof String && ((String)buttonId).startsWith("PTSD_BUILD:"))){coalitionView.buttonPressConfirmed(buttonId,ui);return;}
         PTSDCrisisState state = PTSDCrisisState.get();
         if (state == null || !(buttonId instanceof String)) {
             super.buttonPressConfirmed(buttonId, ui);

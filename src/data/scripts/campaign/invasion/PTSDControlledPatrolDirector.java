@@ -12,7 +12,7 @@ import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.impl.campaign.fleets.FleetParamsV3;
 import com.fs.starfarer.api.impl.campaign.ids.FleetTypes;
 import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
-import com.fs.starfarer.api.util.Misc;
+import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import data.hullmods.shard.PTSD_BaseShard_Util;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -49,7 +49,7 @@ public final class PTSDControlledPatrolDirector {
         if (state == null || state.late == null || Global.getSector() == null ||
                 state.phase == PTSDCrisisState.Phase.DORMANT ||
                 state.phase == PTSDCrisisState.Phase.ENDED) return;
-        state.late.repair();
+        state.ensureRuntimeReady();
         CampaignFleetAPI player = Global.getSector().getPlayerFleet();
         StarSystemAPI current = player == null ? null : player.getStarSystem();
         for (PTSDCrisisState.SystemData data : state.systems.values()) {
@@ -63,14 +63,19 @@ public final class PTSDControlledPatrolDirector {
         if (current != null && state.getSystemData(current.getId()).omegaControl >= .5f) {
             state.late.controlledPatrolAwayDay.remove(current.getId());
             float each = Math.min(limit.singleFp, limit.totalFp / limit.fleets);
-            for (int index = 0; index < limit.fleets; index++) {
-                String id = current.getId() + ":" + index;
+            List<SectorEntityToken> guarded = occupiedPlanets(current);
+            for (int index = 0; index < limit.fleets + guarded.size(); index++) {
+                SectorEntityToken planet = index < limit.fleets ? null : guarded.get(index - limit.fleets);
+                String id = planet == null ? current.getId() + ":" + index :
+                        current.getId() + ":planet:" + planet.getId();
                 PTSDLateState.ControlledPatrol slot = state.late.controlledPatrols.get(id);
                 if (slot == null) {
                     slot = new PTSDLateState.ControlledPatrol();
                     slot.id = id; slot.systemId = current.getId(); slot.index = index;
+                    slot.waypointIndex = index;
                     state.late.controlledPatrols.put(id, slot);
                 }
+                slot.guardedPlanetId = planet == null ? null : planet.getId();
                 float previousNominal = slot.nominalFp;
                 slot.nominalFp = each;
                 // A stage increase may upgrade an intact slot, but leaving and re-entering
@@ -100,7 +105,8 @@ public final class PTSDControlledPatrolDirector {
                 new ArrayList<PTSDLateState.ControlledPatrol>(state.late.controlledPatrols.values())) {
             if (slot == null || slot.systemId == null) continue;
             if (current != null && slot.systemId.equals(current.getId()) &&
-                    slot.index < limit.fleets &&
+                    (slot.guardedPlanetId != null ? isStillOccupied(current, slot.guardedPlanetId) :
+                            slot.index < limit.fleets) &&
                     state.getSystemData(slot.systemId).omegaControl >= .5f) continue;
             Float away = state.late.controlledPatrolAwayDay.get(slot.systemId);
             if (away == null) {
@@ -111,7 +117,7 @@ public final class PTSDControlledPatrolDirector {
             CampaignFleetAPI fleet = fleet(slot.fleetId);
             if (fleet == null || fleet.getBattle() != null) continue;
             slot.survivingFp = Math.min(slot.nominalFp, Math.max(0f, fleet.getFleetPoints()));
-            fleet.despawn(FleetDespawnReason.OTHER, null);
+            { data.scripts.campaign.invasion.PTSDCampaignRuntime.leaving(fleet); fleet.despawn(FleetDespawnReason.OTHER, null); }
             slot.fleetId = null;
             PTSDCrisisDevIntel.report("实控巡逻卸载",
                     slot.id + "：离开8日，保存 " + Math.round(slot.survivingFp) + " FP",
@@ -121,8 +127,12 @@ public final class PTSDControlledPatrolDirector {
 
     private static CampaignFleetAPI spawn(PTSDCrisisState state, StarSystemAPI system,
                                            PTSDLateState.ControlledPatrol slot, Ceiling limit) {
-        Vector2f point = PTSDCrisisAPI.findSafePoint(system, system.getCenter(),
-                4500f, 12000f, RANDOM);
+        List<SectorEntityToken> anchors = patrolAnchors(system);
+        SectorEntityToken anchor = slot.guardedPlanetId == null ?
+                (anchors.isEmpty() ? null : anchors.get(Math.floorMod(slot.index, anchors.size()))) :
+                system.getEntityById(slot.guardedPlanetId);
+        if (anchor == null) return null;
+        Vector2f point = PTSDCrisisAPI.findSafePoint(system, anchor, 300f, 700f, RANDOM);
         if (point == null) return null;
         float budget = Math.min(limit.singleFp, Math.max(8f, slot.survivingFp));
         FleetParamsV3 params = new FleetParamsV3(point,
@@ -133,10 +143,10 @@ public final class PTSDControlledPatrolDirector {
                 PTSD_BaseShard_Util.FleetRole.GUARD_ASSAULT, RANDOM,
                 new PTSD_BaseShard_Util.FleetLimits(budget, limit.ships, limit.hull));
         if (fleet == null || fleet.getFleetPoints() > budget + .01f) return null;
-        system.addEntity(fleet);
+        { system.addEntity(fleet); data.scripts.campaign.invasion.PTSDCampaignRuntime.entityAdded(fleet); }
         fleet.setLocation(point.x, point.y);
         fleet.setName(state.phase == PTSDCrisisState.Phase.RECON ?
-                "未知编队" : "精神创伤巡弋单元");
+                "未知编队" : slot.guardedPlanetId == null ? "精神创伤巡弋单元" : "精神创伤近卫单元");
         fleet.setNoFactionInName(true);
         fleet.setTransponderOn(false);
         fleet.addTag(TAG);
@@ -157,24 +167,82 @@ public final class PTSDControlledPatrolDirector {
     private static void route(PTSDCrisisState state, StarSystemAPI system,
                               PTSDLateState.ControlledPatrol slot,
                               CampaignFleetAPI fleet, float day) {
-        if (day < slot.nextWaypointDay && fleet.getAI() != null &&
-                fleet.getAI().getCurrentAssignment() != null) return;
+        // Let the current trip finish. Reissuing every few days made distant nodes unreachable.
+        if (fleet.getAI() != null && fleet.getAI().getCurrentAssignment() != null) return;
+        if (slot.guardedPlanetId != null) {
+            SectorEntityToken planet = system.getEntityById(slot.guardedPlanetId);
+            if (planet == null || !isStillOccupied(system, slot.guardedPlanetId)) return;
+            fleet.addAssignment(FleetAssignment.ORBIT_AGGRESSIVE, planet, 2f, "在占领区近旁警戒");
+            return;
+        }
+        List<SectorEntityToken> anchors = patrolAnchors(system);
+        if (anchors.isEmpty()) return;
+        int index = Math.floorMod(slot.waypointIndex++, anchors.size());
+        SectorEntityToken anchor = anchors.get(index);
+        fleet.addAssignment(FleetAssignment.GO_TO_LOCATION, anchor, 60f, "巡查星球、设施与跃迁航路");
+        fleet.addAssignment(FleetAssignment.ORBIT_AGGRESSIVE, anchor, .4f, "检查航路节点");
+    }
+
+    static List<SectorEntityToken> patrolAnchors(StarSystemAPI system) {
         List<SectorEntityToken> anchors = new ArrayList<SectorEntityToken>();
         anchors.addAll(system.getJumpPoints());
         for (SectorEntityToken planet : system.getPlanets())
             if (planet != null && !planet.isStar()) anchors.add(planet);
-        anchors.addAll(system.getTerrainCopy());
-        if (anchors.isEmpty()) anchors.add(system.getCenter());
-        int index = Math.abs(slot.waypointIndex++ % anchors.size());
-        SectorEntityToken anchor = anchors.get(index);
-        Vector2f point = PTSDCrisisAPI.findSafePoint(system, anchor, 1800f, 4800f, RANDOM);
-        if (point == null) point = Misc.getPointAtRadius(anchor.getLocation(), 3000f);
-        SectorEntityToken waypoint = system.createToken(point);
-        fleet.clearAssignments();
-        fleet.addAssignment(FleetAssignment.GO_TO_LOCATION, waypoint, 8f,
-                "沿星系航道漫游巡查");
-        float alert = state.getSystemData(system.getId()).omegaLocalAlert;
-        slot.nextWaypointDay = day + (alert > .5f ? 2f : 4f);
+        for (SectorEntityToken entity : system.getAllEntities()) {
+            if (entity == null || anchors.contains(entity)) continue;
+            if (entity.hasTag(Tags.STATION) || entity.hasTag(Tags.COMM_RELAY) ||
+                    entity.hasTag(Tags.SENSOR_ARRAY) || entity.hasTag(Tags.NAV_BUOY) ||
+                    (entity instanceof CampaignFleetAPI && ((CampaignFleetAPI) entity).isStationMode()))
+                anchors.add(entity);
+        }
+        return anchors;
+    }
+
+    /** Existing fortress escorts retain transit orders; only free system roaming is replaced. */
+    public static void installNodePatrol(CampaignFleetAPI fleet) {
+        if (fleet == null || fleet.getMemoryWithoutUpdate().getBoolean("$PTSD_node_patrol")) return;
+        fleet.getMemoryWithoutUpdate().set("$PTSD_node_patrol", true);
+        fleet.addScript(new NodePatrol(fleet));
+    }
+
+    private static final class NodePatrol implements com.fs.starfarer.api.EveryFrameScript {
+        private final CampaignFleetAPI fleet;
+        private int next;
+        private float elapsed;
+        NodePatrol(CampaignFleetAPI fleet) { this.fleet = fleet; }
+        public boolean isDone() { return fleet == null || !fleet.isAlive(); }
+        public boolean runWhilePaused() { return false; }
+        public void advance(float amount) {
+            elapsed += Global.getSector().getClock().convertToDays(amount);
+            if (elapsed < .1f || isDone()) return;
+            elapsed = 0f;
+            if (fleet.getBattle() != null || fleet.getStarSystem() == null) return;
+            com.fs.starfarer.api.campaign.ai.FleetAssignmentDataAPI order = fleet.getCurrentAssignment();
+            if (order != null && order.getAssignment() != FleetAssignment.PATROL_SYSTEM) return;
+            List<SectorEntityToken> anchors = patrolAnchors(fleet.getStarSystem());
+            if (anchors.isEmpty()) return;
+            if (order != null) fleet.clearAssignments();
+            SectorEntityToken anchor = anchors.get(Math.floorMod(next++, anchors.size()));
+            fleet.addAssignment(FleetAssignment.GO_TO_LOCATION, anchor, 60f, "沿设施与跃迁航路巡查");
+            fleet.addAssignment(FleetAssignment.ORBIT_AGGRESSIVE, anchor, .4f, "检查航路节点");
+        }
+    }
+
+    private static List<SectorEntityToken> occupiedPlanets(StarSystemAPI system) {
+        List<SectorEntityToken> result = new ArrayList<SectorEntityToken>();
+        for (SectorEntityToken planet : system.getPlanets()) {
+            if (planet == null || planet.isStar() || planet.getFaction() == null) continue;
+            String faction = planet.getFaction().getId();
+            if (IIRT_Omega_Invasion.WATCHER_FACTION.equals(faction) ||
+                    IIRT_Omega_Invasion.PSYCHASTHENIA_FACTION.equals(faction)) result.add(planet);
+        }
+        return result;
+    }
+
+    private static boolean isStillOccupied(StarSystemAPI system, String planetId) {
+        for (SectorEntityToken planet : occupiedPlanets(system))
+            if (planetId.equals(planet.getId())) return true;
+        return false;
     }
 
     private static CampaignFleetAPI fleet(String id) {

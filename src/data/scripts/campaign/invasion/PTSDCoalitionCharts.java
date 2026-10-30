@@ -47,10 +47,9 @@ public final class PTSDCoalitionCharts {
         String[] titles = {"已承诺兵力", "有效殖民地", "累计贡献", "近90日贡献"};
         for (int metric = 0; metric < 4; metric++) {
             Map<String, Float> values = values(state, metric);
-            CustomPanelAPI cell = parent.createCustomPanel(cellWidth, cellHeight, null);
+            CustomPanelAPI cell = parent.createCustomPanel(cellWidth, cellHeight, new PTSDCommandSurface(PTSDCommandSurface.INK));
             TooltipMakerAPI title = cell.createUIElement(cellWidth, 46f, false);
-            title.addSectionHeading(titles[metric], Misc.getBasePlayerColor(), new Color(16,23,31),
-                    com.fs.starfarer.api.ui.Alignment.MID, 0f);
+            title.addPara("%s", 8f, PTSDCommandSurface.INK, "0"+(metric+1)+" / "+titles[metric]);
             float sum = 0f; for (float value : values.values()) sum += value;
             title.addPara("登记日期 %s｜总量 %s", 4f, Misc.getHighlightColor(),
                     String.valueOf(Math.round(PTSDCrisisState.getDay())), String.valueOf(Math.round(sum)));

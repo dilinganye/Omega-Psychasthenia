@@ -21,6 +21,11 @@ public final class PTSDFTIntel extends BaseIntelPlugin {
     }
     @Override protected String getName() { return "待核实航路线索"; }
     @Override public String getSmallDescriptionTitle() { return getName(); }
+    @Override public boolean hasLargeDescription() { return true; }
+    @Override public void createLargeDescription(com.fs.starfarer.api.ui.CustomPanelAPI panel,float width,float height) {
+        PTSDCommandSurface.document(panel,width,height,getName(),"航路档案 / 现场核查",PTSDCommandSurface.INK,
+                new PTSDCommandSurface.Content(){public void draw(TooltipMakerAPI info,float w,float h){createSmallDescription(info,w,h);}});
+    }
     @Override public void createSmallDescription(TooltipMakerAPI info, float width, float height) {
         PTSDCrisisState state = PTSDCrisisState.get();
         if (state == null || state.late == null) return;

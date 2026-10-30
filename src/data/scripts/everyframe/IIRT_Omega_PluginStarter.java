@@ -30,6 +30,11 @@ public class IIRT_Omega_PluginStarter extends BaseEveryFrameCombatPlugin {
     private CampaignFleetAPI reactiveRetreatFleet;
     private boolean retreatListenersInstalled;
     private long fortressClock;
+    private PTSDLateState.Detonation collapseVisual;
+    private Vector2f collapseOrigin=new Vector2f();
+    @Override public void renderInWorldCoords(com.fs.starfarer.api.combat.ViewportAPI viewport){
+        if(collapseVisual!=null&&!collapseVisual.exploded)data.scripts.campaign.invasion.PTSDFortressCollapseVisual.draw(collapseOrigin,collapseVisual.collapseElapsed,viewport.getAlphaMult());
+    }
 
     @Override
     public void advance(float amount, List<InputEventAPI> events) {
@@ -57,6 +62,7 @@ public class IIRT_Omega_PluginStarter extends BaseEveryFrameCombatPlugin {
         retreatListenersInstalled = false;
         reactiveRetreatFleet = null;
         fortressClock = 0L;
+        collapseVisual=null;
         if (engine != null && engine.isInCampaign() && engine.getContext() != null) {
             CampaignFleetAPI other = engine.getContext().getOtherFleet();
             if (other != null && other.getMemoryWithoutUpdate().getBoolean(PTSDReconPlayerEvents.REACTIVE_RETREAT)) {
@@ -77,14 +83,17 @@ public class IIRT_Omega_PluginStarter extends BaseEveryFrameCombatPlugin {
         ShipAPI destroyedShip = null;
         for (PTSDLateState.Fortress record : state.late.fortresses.values()) {
             if (record == null || record.tier < 4 || record.inTransit) continue;
+            CampaignFleetAPI player=Global.getSector().getPlayerFleet();
+            if(player==null||player.getStarSystem()==null||!player.getStarSystem().getId().equals(record.currentSystemId))continue;
             Object entity = record.fleetId == null ? null :
                     Global.getSector().getEntityById(record.fleetId);
             if (!(entity instanceof CampaignFleetAPI)) continue;
             CampaignFleetAPI station = (CampaignFleetAPI) entity;
             d = state.late.detonations.get(record.id);
-            if (d != null) break;
+            if (d != null && !d.exploded) break;
+            if(d!=null)continue;
             for (ShipAPI ship : engine.getShips()) {
-                if (ship == null || !ship.isHulk() || ship.getFleetMember() == null) continue;
+                if (ship == null || ship.isStationModule() || !ship.isHulk() || ship.getFleetMember() == null) continue;
                 for (com.fs.starfarer.api.fleet.FleetMemberAPI member :
                         station.getFleetData().getMembersListCopy()) {
                     if (member.getId().equals(ship.getFleetMember().getId())) {
@@ -99,6 +108,7 @@ public class IIRT_Omega_PluginStarter extends BaseEveryFrameCombatPlugin {
             if (d != null) break;
         }
         if (d == null) return;
+        if(collapseVisual!=d){collapseVisual=d;collapseOrigin=destroyedShip==null?new Vector2f():new Vector2f(destroyedShip.getLocation());}
         if (destroyedShip != null) {
             for (int i = 0; i < 8; i++) {
                 float angle = i * 45f;
@@ -108,7 +118,7 @@ public class IIRT_Omega_PluginStarter extends BaseEveryFrameCombatPlugin {
                 engine.spawnExplosion(at, new Vector2f(), new java.awt.Color(165, 50, 210, 180),
                         450f + i * 90f, 2.5f);
             }
-            engine.getFleetManager(0).getTaskManager(false).orderFullRetreat();
+
             engine.getContext().aiRetreatAllowed = true;
             engine.getContext().fightToTheLast = false;
         }
@@ -117,8 +127,9 @@ public class IIRT_Omega_PluginStarter extends BaseEveryFrameCombatPlugin {
         float seconds = Math.min(1f, Math.max(0f, (now - fortressClock) / 1000000000f));
         fortressClock = now;
         if (engine.isPaused() || d == null || d.exploded) return;
-        d.remainingSeconds = Math.max(0f, d.remainingSeconds - seconds);
-        if (d.remainingSeconds <= 0f) engine.endCombat(0f);
+        float previous=data.scripts.campaign.invasion.PTSDFortressCollapse.advance(d,seconds);
+        data.scripts.campaign.invasion.PTSDFortressCollapse.combat(d,engine,collapseOrigin,previous);
+        // Do not force combat to end or destroy the fleet; campaign transformation runs on return.
     }
 
     private void installReactiveRetreatListeners() {

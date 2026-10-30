@@ -21,6 +21,8 @@ public final class PTSDReconReportDirector {
 
     public static void advance(PTSDCrisisState state, float day) {
         if (state == null) return;
+        if (state.phase == PTSDCrisisState.Phase.DORMANT && state.pendingReconReports.isEmpty() &&
+                state.reconLowActivityUntil.isEmpty()) return;
         for (Iterator<PTSDCrisisState.PendingReconReport> it = state.pendingReconReports.iterator(); it.hasNext();) {
             PTSDCrisisState.PendingReconReport report = it.next();
             if (report == null) { it.remove(); continue; }
@@ -102,6 +104,18 @@ public final class PTSDReconReportDirector {
         report.expiresDay = report.createdDay + 25f;
     }
 
+    /** Mission-local payload: cannot enter the timed upload queue before the carrier returns. */
+    static PTSDCrisisState.PendingReconReport captureCarrierSurvey(PTSDCrisisState state, CampaignFleetAPI fleet,
+                                                                  StarSystemAPI system, boolean armed) {
+        String group=fleet.getId()+":carrier:"+system.getId();
+        int before=state.pendingReconReports.size();
+        queueSurvey(state,fleet,system,group,false,armed?"ARMED_CARRIER_SURVEY":"SCOUT_SURVEY");
+        return state.pendingReconReports.remove(before);
+    }
+    static void deliverCarrierSurvey(PTSDCrisisState state, PTSDCrisisState.PendingReconReport report) {
+        publish(state,report);
+    }
+
     private static void queueSurvey(PTSDCrisisState state, CampaignFleetAPI fleet,
                                     StarSystemAPI system, String group, boolean remote, String kind) {
         PTSDCrisisState.PendingReconReport report = create(state, fleet.getId(),
@@ -116,7 +130,7 @@ public final class PTSDReconReportDirector {
                     !IIRT_Omega_Invasion.WATCHER_FACTION.equals(market.getFactionId()) &&
                     !IIRT_Omega_Invasion.PSYCHASTHENIA_FACTION.equals(market.getFactionId())) {
                 populated = true;
-                if (remote || market.getPrimaryEntity() != null &&
+                if (remote || "ARMED_CARRIER_SURVEY".equals(kind) || market.getPrimaryEntity() != null &&
                         Misc.getDistance(fleet.getLocation(), market.getPrimaryEntity().getLocation()) <= 12000f) {
                     marketObserved = true;
                     defense += market.getSize() * market.getSize() * 9f + market.getStabilityValue() * 3f;
@@ -125,12 +139,13 @@ public final class PTSDReconReportDirector {
             }
         }
         float strength = 0f;
-        for (CampaignFleetAPI other : system.getFleets()) {
+        for (CampaignFleetAPI other : PTSDCampaignRuntime.fleets(system)) {
+            if (other == null || !other.isAlive() || other.isExpired() || other.getContainingLocation() != system) continue;
             if (other == null || !other.isAlive() || other.getFaction() == null || other == fleet) continue;
             String faction = other.getFaction().getId();
             if (IIRT_Omega_Invasion.WATCHER_FACTION.equals(faction) ||
                     IIRT_Omega_Invasion.PSYCHASTHENIA_FACTION.equals(faction)) continue;
-            if (!remote && fleet.getContainingLocation() == system &&
+            if (!remote && !"ARMED_CARRIER_SURVEY".equals(kind) && fleet.getContainingLocation() == system &&
                     Misc.getDistance(fleet.getLocation(), other.getLocation()) > 12000f) continue;
             strength += Math.max(0f, other.getFleetPoints());
         }
@@ -169,7 +184,7 @@ public final class PTSDReconReportDirector {
         report.uploadDay = report.createdDay + IIRT_Omega_ModPlugin.reconUploadMin +
                 random.nextFloat() * Math.max(0f, IIRT_Omega_ModPlugin.reconUploadMax - IIRT_Omega_ModPlugin.reconUploadMin);
         state.pendingReconReports.add(report);
-        PTSDCrisisDevIntel.report("侦察报告待上传", kind + "；源 " + originId + "；约 " +
+        if(!group.contains(":carrier:")) PTSDCrisisDevIntel.report("侦察报告待上传", kind + "；源 " + originId + "；约 " +
                 Math.round(report.uploadDay - report.createdDay) + " 日后传出", targetId, fleetId);
         return report;
     }
@@ -186,6 +201,9 @@ public final class PTSDReconReportDirector {
             state.reconLowActivityUntil.remove(report.targetSystemId);
         } else {
             PTSDCrisisState.SystemData data = state.getSystemData(report.targetSystemId);
+            if (!report.remote && ("SCOUT_SURVEY".equals(report.kind) || "ARMED_CARRIER_SURVEY".equals(report.kind)))
+                for (java.util.Iterator<PTSDCrisisState.EvidenceRecord> it=data.evidence.iterator();it.hasNext();)
+                    if ("WAR_OPENING_ESTIMATE".equals(it.next().sourceType)) it.remove();
             String stableGroup = report.sourceFleetId + ":" + report.targetSystemId + ":" + report.kind;
             for (Iterator<PTSDCrisisState.EvidenceRecord> it = data.evidence.iterator(); it.hasNext();) {
                 PTSDCrisisState.EvidenceRecord old = it.next();
@@ -201,7 +219,7 @@ public final class PTSDReconReportDirector {
                 evidence.remoteEstimate = report.remote;
                 evidence.uploadState = "CONFIRMED_UPLOADED";
                 PTSDCrisisAPI.refreshBelief(data, PTSDCrisisState.getDay());
-                if (!report.remote && "SCOUT_SURVEY".equals(report.kind)) {
+                if (!report.remote && ("SCOUT_SURVEY".equals(report.kind) || "ARMED_CARRIER_SURVEY".equals(report.kind))) {
                     PTSDCrisisProgress.add(state, PTSDCrisisProgress.Variable.RECON_CONFIDENCE,
                             .6f, "SCOUT_UPLOAD", report.targetSystemId);
                     PTSDLateWarDirector.creditStrategicAssets(state,
@@ -235,6 +253,7 @@ public final class PTSDReconReportDirector {
         if (state == null || origin == null) return null;
         float day = PTSDCrisisState.getDay();
         for (StarSystemAPI candidate : nearby(origin)) {
+            if (PTSDStrategicSurvey.postRecon(state) && !PTSDStrategicSurvey.populated(candidate)) continue;
             PTSDCrisisState.SystemData data = state.getSystemData(candidate.getId());
             if (data.omegaControl >= .5f || data.conversionLevel > 0) continue;
             boolean hasTarget = !candidate.getJumpPoints().isEmpty();
@@ -253,7 +272,7 @@ public final class PTSDReconReportDirector {
         if (fleetId == null) return false;
         for (PTSDCrisisState.PendingReconReport report : state.pendingReconReports)
             if (report != null && fleetId.equals(report.sourceFleetId) &&
-                    systemId.equals(report.targetSystemId) && "SCOUT_SURVEY".equals(report.kind) &&
+                    systemId.equals(report.targetSystemId) && ("SCOUT_SURVEY".equals(report.kind) || "ARMED_CARRIER_SURVEY".equals(report.kind)) &&
                     !report.remote) return true;
         return false;
     }
@@ -261,7 +280,7 @@ public final class PTSDReconReportDirector {
     public static boolean isSurveyed(PTSDCrisisState.SystemData data, float day) {
         if (data == null || data.evidence == null) return false;
         for (PTSDCrisisState.EvidenceRecord evidence : data.evidence)
-            if (evidence != null && "SCOUT_SURVEY".equals(evidence.sourceType) &&
+            if (evidence != null && (("SCOUT_SURVEY".equals(evidence.sourceType) || "ARMED_CARRIER_SURVEY".equals(evidence.sourceType)) || "UNINHABITED_BASELINE".equals(evidence.sourceType)) &&
                     !evidence.remoteEstimate && evidence.expiresDay > day &&
                     (evidence.uploadState == null || "CONFIRMED_UPLOADED".equals(evidence.uploadState)))
                 return true;
@@ -300,7 +319,7 @@ public final class PTSDReconReportDirector {
                 if (evidence == null || evidence.expiresDay <= day ||
                         evidence.uploadState != null &&
                                 !"CONFIRMED_UPLOADED".equals(evidence.uploadState)) continue;
-                if ("SCOUT_SURVEY".equals(evidence.sourceType) && !evidence.remoteEstimate) surveyed = true;
+                if (("SCOUT_SURVEY".equals(evidence.sourceType) || "ARMED_CARRIER_SURVEY".equals(evidence.sourceType)) && !evidence.remoteEstimate) surveyed = true;
                 if (evidence.remoteEstimate) estimated = true;
             }
             if (surveyed) local++;

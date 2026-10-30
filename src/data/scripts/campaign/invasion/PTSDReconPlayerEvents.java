@@ -62,7 +62,7 @@ public final class PTSDReconPlayerEvents {
         if (location == null || point == null) return null;
         // These ambient RECON encounters never use larger than destroyer hulls, even
         // when the player has an endgame fleet or a strategic difficulty setting is raised.
-        float budget = Math.min(65f, Math.max(12f, fp));
+        float budget = Math.min(PTSDCrisisFleetLimits.forPhase(PTSDCrisisState.get(),PTSDCrisisState.getDay()).perFleetFp, Math.max(12f, fp));
         PTSD_BaseShard_Util.FleetLimits limits = new PTSD_BaseShard_Util.FleetLimits(
                 budget, 3, com.fs.starfarer.api.combat.ShipAPI.HullSize.DESTROYER);
         FleetParamsV3 params = new FleetParamsV3(point, WATCHER, .5f, FleetTypes.PATROL_LARGE,
@@ -78,7 +78,7 @@ public final class PTSDReconPlayerEvents {
         CampaignFleetAPI fleet = FleetFactoryV3.createFleet(params);
         if (!PTSD_BaseShard_Util.isWithinLimits(fleet, limits)) return null;
         PTSD_BaseShard_Util.tagFleet(fleet, branch);
-        location.addEntity(fleet);
+        { location.addEntity(fleet); data.scripts.campaign.invasion.PTSDCampaignRuntime.entityAdded(fleet); }
         fleet.setLocation(point.x, point.y);
         fleet.setTransponderOn(false);
         fleet.setNoFactionInName(true);
@@ -86,6 +86,7 @@ public final class PTSDReconPlayerEvents {
         fleet.addTag("PTSD_crisis_fleet");
         fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_FORCE_TRANSPONDER_OFF, true);
         fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_NO_SHIP_RECOVERY, true);
+        PTSDCampaignRuntime.normalizeFleet(PTSDCrisisState.get(), fleet);
         return fleet;
     }
 
@@ -114,7 +115,7 @@ public final class PTSDReconPlayerEvents {
         // A plotted navigation assignment is private player information. A scout which actually
         // sees the player may extrapolate a nearby empty system, but cannot read that assignment.
         boolean observed = false;
-        for (CampaignFleetAPI fleet : player.getContainingLocation().getFleets()) {
+        for (CampaignFleetAPI fleet : PTSDCampaignRuntime.fleets(player.getContainingLocation())) {
             if (fleet == player || fleet.getFaction() == null ||
                     !WATCHER.equals(fleet.getFaction().getId())) continue;
             if (Misc.getDistance(fleet.getLocation(), player.getLocation()) < 4000f) {
@@ -301,7 +302,7 @@ public final class PTSDReconPlayerEvents {
 
     private static String pickNearbyFaction(CampaignFleetAPI player) {
         List<String> ids = new ArrayList<String>();
-        if (player.getContainingLocation() != null) for (CampaignFleetAPI fleet : player.getContainingLocation().getFleets()) {
+        if (player.getContainingLocation() != null) for (CampaignFleetAPI fleet : PTSDCampaignRuntime.fleets(player.getContainingLocation())) {
             if (fleet == null || fleet == player || WATCHER.equals(fleet.getFaction().getId()) || IIRT_Omega_Invasion.PSYCHASTHENIA_FACTION.equals(fleet.getFaction().getId())) continue;
             String id = fleet.getFaction().getId(); if (id != null && !ids.contains(id)) ids.add(id);
         }
@@ -347,7 +348,7 @@ public final class PTSDReconPlayerEvents {
             if (fleet.getMemoryWithoutUpdate().getBoolean(RETREAT_TRIGGERED) && stage < 2) beginEscape();
             if (fleet.getContainingLocation() != player.getContainingLocation()) {
                 if (stage == 2) upload();
-                fleet.despawn();
+                { PTSDEventFleetReturn.credit(fleet); data.scripts.campaign.invasion.PTSDCampaignRuntime.leaving(fleet); fleet.despawn(); }
                 stage = 3;
                 return;
             }
@@ -375,7 +376,7 @@ public final class PTSDReconPlayerEvents {
                 tryEmergencyBurn();
                 if (!fleet.isVisibleToPlayerFleet()) {
                     upload();
-                    fleet.despawn();
+                    { PTSDEventFleetReturn.credit(fleet); data.scripts.campaign.invasion.PTSDCampaignRuntime.leaving(fleet); fleet.despawn(); }
                     stage = 3;
                 } else if (exit == null || Misc.getDistance(fleet, exit) < 1800f) {
                     exit = escapeToken(player);
@@ -459,7 +460,7 @@ public final class PTSDReconPlayerEvents {
         public void advance(float amount) {
             if (isDone() || Global.getSector() == null) return;
             float d = Global.getSector().getClock().convertToDays(amount); days -= d; checkElapsed += d;
-            if (fleet.getContainingLocation() != player.getContainingLocation()) { fleet.despawn(); return; }
+            if (fleet.getContainingLocation() != player.getContainingLocation()) { { PTSDEventFleetReturn.credit(fleet); data.scripts.campaign.invasion.PTSDCampaignRuntime.leaving(fleet); fleet.despawn(); } return; }
             float range = Misc.getDistance(fleet, player);
             if (range < 1200f) {
                 Vector2f away = Vector2f.sub(fleet.getLocation(), player.getLocation(), null);

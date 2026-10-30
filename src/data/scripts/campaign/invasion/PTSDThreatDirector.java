@@ -188,7 +188,7 @@ public final class PTSDThreatDirector {
         CampaignFleetAPI fleet = PTSD_BaseShard_Util.createFleet(params,
                 40f, PTSD_BaseShard_Util.FleetRole.GUARD_ASSAULT, RANDOM);
         if (fleet == null) return false;
-        location.addEntity(fleet);
+        { location.addEntity(fleet); data.scripts.campaign.invasion.PTSDCampaignRuntime.entityAdded(fleet); }
         fleet.setLocation(point.x, point.y);
         fleet.setName("精神创伤战损截击群");
         fleet.addTag(TRAP_TAG);

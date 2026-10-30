@@ -84,7 +84,7 @@ public class FugitiveShuttleNewsHandler implements PTSDCrisisNewsAPI.CustomNewsH
                     "Skipping fugitive shuttle: no collision-safe target location");
             return null;
         }
-        context.system.addEntity(fleet);
+        { context.system.addEntity(fleet); data.scripts.campaign.invasion.PTSDCampaignRuntime.entityAdded(fleet); }
         fleet.setLocation(point.x, point.y);
         fleet.clearAssignments();
         fleet.addAssignment(FleetAssignment.HOLD, fleet, 1000f, "燃料耗尽，保持静默");
@@ -136,7 +136,7 @@ public class FugitiveShuttleNewsHandler implements PTSDCrisisNewsAPI.CustomNewsH
             float day = PTSDCrisisState.getDay();
             if (day >= hardExpireDay || day >= cleanupDay) {
                 fleet.setNoAutoDespawn(false);
-                fleet.despawn();
+                { data.scripts.campaign.invasion.PTSDCampaignRuntime.leaving(fleet); fleet.despawn(); }
                 done = true;
                 return;
             }
@@ -159,6 +159,10 @@ public class FugitiveShuttleNewsHandler implements PTSDCrisisNewsAPI.CustomNewsH
                 if (incident != null && incidentId.equals(incident.id)) {
                     incident.investigationResolved = true;
                     incident.investigationReal = true;
+                    incident.siteConfirmed = true;
+                    incident.investigationResult = data.scripts.campaign.invasion.PTSDTaskRules.InvestigationResult.CONFIRMED;
+                    data.scripts.campaign.invasion.PTSDConditionalNewsDirector.onInvestigated(state,incident);
+                    data.scripts.campaign.invasion.PTSDInvestigationRewards.complete(incident);
                     break;
                 }
             }

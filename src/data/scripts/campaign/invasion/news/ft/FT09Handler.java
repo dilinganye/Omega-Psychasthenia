@@ -9,7 +9,7 @@ import data.scripts.campaign.cargo.PTSDOmegaFleetSupport;
 import data.scripts.campaign.invasion.*;
 
 /** Internal name: 欢喜冤家-事件. This lead is never published to the ordinary news feed. */
-public final class FT09Handler extends AbstractFTHandler {
+public class FT09Handler extends AbstractFTHandler {
     protected String id() { return "FT-09"; }
     @Override public String unavailableReason(PTSDCrisisState state) {
         return state.late.lastFTTransportLossId == null ?
@@ -23,7 +23,7 @@ public final class FT09Handler extends AbstractFTHandler {
         SectorEntityToken site = system.createToken(state.late.lastFTTransportLossX,
                 state.late.lastFTTransportLossY);
         site.setName("匿名残片定位区");
-        system.addEntity(site);
+        { system.addEntity(site); data.scripts.campaign.invasion.PTSDCampaignRuntime.entityAdded(site); }
         chain.targetId = site.getId();
         chain.node = "ANONYMOUS_LEAD";
         chain.outcome = "一份匿名数据指向失事舰附近的漂浮物。坐标将在四十五日后失效。";

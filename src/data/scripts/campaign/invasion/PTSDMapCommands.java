@@ -10,6 +10,11 @@ public final class PTSDMapCommands {
 
     public static boolean handle(PTSDCrisisState state, String id) {
         if (state == null || id == null) return false;
+        if(id.startsWith("PTSD_MAP_SUPPORT:")){
+            String[] request=id.split(":",3);
+            if(request.length==3)PTSDGeneralStaffDirector.propose(state,request[2],request[1]);
+            return true;
+        }
         if (id.startsWith("PTSD_MARK_DEFEND:") || id.startsWith("PTSD_CLEAR_MARKER:") || id.startsWith("PTSD_MAP_COURSE:")) {
             String systemId = id.substring(id.indexOf(':') + 1);
             StarSystemAPI system = state.resolveSystem(systemId);

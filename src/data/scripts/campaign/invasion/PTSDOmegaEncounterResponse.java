@@ -54,7 +54,7 @@ public final class PTSDOmegaEncounterResponse implements EveryFrameScript {
         if (Global.getSector() == null) return;
         CampaignFleetAPI player = Global.getSector().getPlayerFleet();
         if (player == null || player.getContainingLocation() == null) return;
-        for (CampaignFleetAPI candidate : player.getContainingLocation().getFleets()) {
+        for (CampaignFleetAPI candidate : PTSDCampaignRuntime.fleets(player.getContainingLocation())) {
             if (candidate == null || candidate.getFaction() == null || !PTSDOmegaFaction(candidate) ||
                     candidate.getAI() == null) continue;
             FleetAssignmentDataAPI order = candidate.getAI().getCurrentAssignment();
@@ -67,6 +67,7 @@ public final class PTSDOmegaEncounterResponse implements EveryFrameScript {
 
     private static void attach(CampaignFleetAPI fleet, CampaignFleetAPI player, boolean scout) {
         if (fleet == null || fleet.getMemoryWithoutUpdate().getBoolean(INSTALLED)) return;
+        PTSDCampaignRuntime.normalizeFleet(PTSDCrisisState.get(), fleet);
         fleet.getMemoryWithoutUpdate().set(INSTALLED, true);
         fleet.addScript(new PTSDOmegaEncounterResponse(fleet, player, scout));
     }
@@ -97,7 +98,7 @@ public final class PTSDOmegaEncounterResponse implements EveryFrameScript {
             if (!fleet.hasTag("PTSD_late_trap") && !fleet.isVisibleToPlayerFleet() &&
                     (surveyScout || player == null || player.getContainingLocation() != location ||
                             Misc.getDistance(fleet, player) > 6500f)) {
-                fleet.despawn();
+                { PTSDEventFleetReturn.credit(fleet); data.scripts.campaign.invasion.PTSDCampaignRuntime.leaving(fleet); fleet.despawn(); }
                 return;
             }
             if (escapeWaypoint == null || Misc.getDistance(fleet, escapeWaypoint) < 1600f) {
@@ -149,7 +150,8 @@ public final class PTSDOmegaEncounterResponse implements EveryFrameScript {
                                                     boolean includePlayer) {
         CampaignFleetAPI nearest = null;
         float best = Float.MAX_VALUE;
-        for (CampaignFleetAPI other : location.getFleets()) {
+        for (CampaignFleetAPI other : PTSDCampaignRuntime.fleets(location)) {
+            if (other == null || !other.isAlive() || other.isExpired() || other.getContainingLocation() != location) continue;
             if (other == null || other == fleet || !other.isAlive() || other.isExpired() ||
                     other.getFaction() == null || PTSDOmegaFaction(other)) continue;
             if (other == player && !includePlayer) continue;

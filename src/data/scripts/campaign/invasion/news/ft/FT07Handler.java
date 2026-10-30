@@ -2,7 +2,7 @@ package data.scripts.campaign.invasion.news.ft;
 
 import data.scripts.campaign.invasion.*;
 
-public final class FT07Handler extends AbstractFTHandler {
+public class FT07Handler extends AbstractFTHandler {
     protected String id() { return "FT-07"; }
     @Override public void start(PTSDCrisisState state, PTSDLateState.FTChain chain) {
         super.start(state, chain);

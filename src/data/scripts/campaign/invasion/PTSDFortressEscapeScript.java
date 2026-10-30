@@ -21,7 +21,7 @@ import java.util.Map;
 
 /** A saved real-second clock; paused time is excluded and reloading resets the wall anchor. */
 public final class PTSDFortressEscapeScript implements EveryFrameScript {
-    private long wallAnchorNanos;
+    private transient long wallAnchorNanos;
     private Map<String, Float> hiddenTrapSeconds = new HashMap<String, Float>();
     private Map<String, Float> hiddenReserveSeconds = new HashMap<String, Float>();
     private transient InteractionDialogAPI observedDialog;
@@ -35,7 +35,7 @@ public final class PTSDFortressEscapeScript implements EveryFrameScript {
         if (wallAnchorNanos == 0L) { wallAnchorNanos = now; return; }
         float seconds = Math.min(1f, Math.max(0f, (now - wallAnchorNanos) / 1000000000f));
         wallAnchorNanos = now;
-        if (Global.getSector() == null) return;
+        if (Global.getSector() == null || Global.getCurrentState()!=com.fs.starfarer.api.GameState.CAMPAIGN) return;
         PTSDCrisisState state = PTSDCrisisState.get();
         if (state != null && state.late != null) observeSupplyVisit(state);
         if (Global.getSector().isPaused()) return;
@@ -48,7 +48,13 @@ public final class PTSDFortressEscapeScript implements EveryFrameScript {
         if (player == null) return;
         if (countdownBuckets == null) countdownBuckets = new HashMap<String, Integer>();
         for (PTSDLateState.Detonation d : state.late.detonations.values()) {
-            if (d == null || d.exploded) continue;
+            if (d == null) continue;
+            PTSDFortressCollapse.applyPending(d,player);
+            if(d.exploded)continue;
+            PTSDFortressCollapse.initialize(d);
+            StarSystemAPI effectSystem=state.resolveSystem(d.systemId);
+            org.lwjgl.util.vector.Vector2f effectCenter=effectSystem==null?null:effectSystem.getStar()==null?effectSystem.getCenter().getLocation():effectSystem.getStar().getLocation();
+            if(effectCenter!=null&&player.getStarSystem()==effectSystem)PTSDFortressCollapseVisual.install(d,effectCenter);
             if (player.getStarSystem() != null && d.systemId != null &&
                     d.systemId.equals(player.getStarSystem().getId())) {
                 int bucket = Math.max(0, (int) Math.ceil(d.remainingSeconds / 30f));
@@ -56,16 +62,14 @@ public final class PTSDFortressEscapeScript implements EveryFrameScript {
                 if (prior == null || prior.intValue() != bucket) {
                     countdownBuckets.put(d.fortressId, bucket);
                     Global.getSector().getCampaignUI().addMessage(
-                            "视界坍缩：撤离剩余约 " + Math.round(d.remainingSeconds) + " 秒",
+                            "视界正在破裂：异常演化约剩 " + Math.round(d.remainingSeconds) + " 秒",
                             Color.RED);
-                    if (player.getStarSystem().getStar() != null)
-                        Global.getSector().addPing(player.getStarSystem().getStar(),
-                                "sensor_burst", new Color(190, 65, 225));
                 }
             }
             d.battleEscaped = player.getStarSystem() == null ||
                     !d.systemId.equals(player.getStarSystem().getId());
-            d.remainingSeconds = Math.max(0f, d.remainingSeconds - seconds);
+            float previous=PTSDFortressCollapse.advance(d,seconds);
+            if(effectCenter!=null)PTSDFortressCollapse.campaign(d,player,effectCenter,previous);
             if (d.remainingSeconds <= 0f) explode(state, d, player);
         }
     }
@@ -216,10 +220,7 @@ public final class PTSDFortressEscapeScript implements EveryFrameScript {
             }
         }
         if (player != null && player.getStarSystem() == system) {
-            for (FleetMemberAPI member : new ArrayList<FleetMemberAPI>(player.getFleetData().getMembersListCopy())) {
-                player.getFleetData().removeFleetMember(member);
-            }
-            Global.getSector().getCampaignUI().addMessage("视界坍缩：仍处于星系内的舰队全灭。", Color.RED);
+            Global.getSector().getCampaignUI().addMessage("视界坍缩已结束。舰队仍有回应；损管组正在逐舰核对损伤。", Color.RED);
         } else {
             Global.getSector().getCampaignUI().addMessage("已脱离视界坍缩区。", Color.ORANGE);
         }

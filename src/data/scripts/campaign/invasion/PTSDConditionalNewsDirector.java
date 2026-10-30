@@ -31,6 +31,9 @@ public final class PTSDConditionalNewsDirector {
                 state.phase == PTSDCrisisState.Phase.ENDED) return;
         for (PTSDCrisisState.CrisisIncident incident : state.incidents) {
             if (incident == null || incident.scenarioTrigger == null || incident.scenarioResolved) continue;
+            // Specialized scenes own their entities, deadlines and investigation outcome.
+            if (PTSDNewsScene.manages(incident) && incident.investigationOutcome == 1 &&
+                    !incident.investigationResolved) continue;
             if (incident.targetEntityId != null &&
                     Global.getSector().getEntityById(incident.targetEntityId) == null) {
                 onExpired(state, incident, "现场目标已消失");
@@ -60,11 +63,11 @@ public final class PTSDConditionalNewsDirector {
         for (PTSDCrisisIncidentManager.ScriptedTemplate template : templates) {
             if (state.conditionalNewsSeen.contains(template.id) ||
                     day - state.phaseStartedDay < template.minDay) continue;
-            Target target = pickTarget(state, template.trigger, random);
+            Target target = pickTarget(state, template.trigger, template.siteTemplate, random);
             if (target == null) continue;
             choices.add(template);
             targets.add(target);
-            total += Math.max(.1f, template.priority);
+            total += Math.max(.1f, template.priority) * template.eventWeight;
         }
         if (choices.isEmpty()) return;
         // This director is the R2/E2/F2 pool; scaling only relative row weights would
@@ -72,7 +75,7 @@ public final class PTSDConditionalNewsDirector {
         if (random.nextFloat() >= .10f) return;
         float roll = random.nextFloat() * total;
         for (int i = 0; i < choices.size(); i++) {
-            roll -= Math.max(.1f, choices.get(i).priority);
+            roll -= Math.max(.1f, choices.get(i).priority) * choices.get(i).eventWeight;
             if (roll > 0f && i + 1 < choices.size()) continue;
             publish(state, choices.get(i), targets.get(i), false);
             return;
@@ -87,9 +90,17 @@ public final class PTSDConditionalNewsDirector {
         if (state.conditionalNewsSeen.contains(id)) return "该独立事件已投放";
         float remaining = template.minDay - (PTSDCrisisState.getDay() - state.phaseStartedDay);
         if (remaining > 0f) return "距离最早投放还需 " + Math.round(remaining) + " 日";
-        if (pickTarget(state, template.trigger, new Random(id.hashCode())) == null)
+        if (!knownTrigger(template.trigger)) return "数据错误：未知触发类型 " + template.trigger;
+        if (pickTarget(state, template.trigger, template.siteTemplate, new Random(id.hashCode())) == null)
             return "缺少触发类型 " + template.trigger + " 所需的现存目标";
         return "可触发";
+    }
+
+    static boolean knownTrigger(String trigger) {
+        return trigger != null && java.util.Arrays.asList("SCOUT", "REPORT", "PLAYER_TRAIL", "JUMP",
+                "RELAY", "MARKET", "WILDERNESS", "BLACK_HOLE", "BASE", "OUTPOST", "TRANSPORT",
+                "FORTRESS", "FORT_SMALL", "FORT_STABLE", "FORT_MEDIUM", "FORT_EDEN", "FORT_BLOCKED",
+                "FORT_MOVING").contains(trigger);
     }
 
     public static boolean force(PTSDCrisisState state, String id) {
@@ -99,17 +110,17 @@ public final class PTSDConditionalNewsDirector {
             return false;
         }
         PTSDCrisisIncidentManager.ScriptedTemplate template = PTSDCrisisIncidentManager.getTemplate(id);
-        Target target = pickTarget(state, template.trigger, new Random(Misc.genUID().hashCode()));
+        Target target = pickTarget(state, template.trigger, template.siteTemplate, new Random(Misc.genUID().hashCode()));
         return target != null && publish(state, template, target, true);
     }
 
     /** A true, private Je lead from the same target picker and one-shot card registry. */
     public static PTSDCrisisState.CrisisIncident forJe(PTSDCrisisState state, String id) {
-        if (!"可触发".equals(unavailableReason(state, id))) return null;
+        if (!PTSDCrisisIncidentManager.enabled(id) || !"可触发".equals(unavailableReason(state, id))) return null;
         PTSDCrisisIncidentManager.ScriptedTemplate template =
                 PTSDCrisisIncidentManager.getTemplate(id);
         if (template == null || !(id.startsWith("R2-") || id.startsWith("F2-"))) return null;
-        Target target = pickTarget(state, template.trigger,
+        Target target = pickTarget(state, template.trigger, template.siteTemplate,
                 new Random(Misc.genUID().hashCode()));
         if (target == null) return null;
         PTSDCrisisState.CrisisIncident incident = PTSDCrisisIncidentManager.publishConditional(
@@ -122,11 +133,18 @@ public final class PTSDConditionalNewsDirector {
         return incident;
     }
 
+    /** Explicit DEV entry bypasses seen/cooldown only, retaining the real target prerequisites. */
+    static PTSDCrisisState.CrisisIncident forSceneTest(PTSDCrisisState state, String id) {
+        if (!Global.getSettings().isDevMode()) return null;
+        PTSDCrisisIncidentManager.ScriptedTemplate template=PTSDCrisisIncidentManager.getTemplate(id);
+        if(template==null||!PTSDCrisisIncidentManager.matchesPhase(id,state.phase)||!"CONDITIONAL".equals(template.delivery)||!knownTrigger(template.trigger))return null;
+        Target target=pickTarget(state,template.trigger,template.siteTemplate,new Random(Misc.genUID().hashCode()));
+        return target==null?null:PTSDCrisisIncidentManager.publishConditional(state,id,target.system,target.market,target.anchor,false,true);
+    }
+
     private static boolean templatePhase(PTSDCrisisIncidentManager.ScriptedTemplate template,
                                          PTSDCrisisState.Phase phase) {
-        return !PTSDCrisisIncidentManager.getTemplates("CONDITIONAL", phase).isEmpty() &&
-                PTSDCrisisIncidentManager.getTemplates("CONDITIONAL", phase).stream()
-                        .anyMatch(item -> item.id.equals(template.id));
+        return PTSDCrisisIncidentManager.matchesPhase(template.id,phase);
     }
 
     private static boolean publish(PTSDCrisisState state,
@@ -144,7 +162,7 @@ public final class PTSDConditionalNewsDirector {
         if (incident == null) return false;
         incident.devForced = forced;
         state.conditionalNewsSeen.add(template.id);
-        if (template.id.startsWith("E2-")) PTSDE2Director.onPublished(state, incident);
+        // E2 remains reportage: publication must not spawn the retired local event chains.
         if (forced && incident.investigable) {
             PTSDCrisisAPI.recordNewsIncident(incident.id);
             PTSDNewsSiteManager.materialize(state, incident,
@@ -157,7 +175,7 @@ public final class PTSDConditionalNewsDirector {
         return true;
     }
 
-    private static Target pickTarget(PTSDCrisisState state, String trigger, Random random) {
+    private static Target pickTarget(PTSDCrisisState state, String trigger, String templates, Random random) {
         if (trigger == null || Global.getSector() == null) return null;
         List<Target> choices = new ArrayList<Target>();
         if ("SCOUT".equals(trigger) || "REPORT".equals(trigger)) {
@@ -230,6 +248,8 @@ public final class PTSDConditionalNewsDirector {
                 }
             }
         }
+        for (java.util.Iterator<Target> it=choices.iterator();it.hasNext();)
+            if (!PTSDNewsScene.accepts(templates,state,it.next().system)) it.remove();
         return choices.isEmpty() ? null : choices.get(random.nextInt(choices.size()));
     }
 
@@ -317,6 +337,7 @@ public final class PTSDConditionalNewsDirector {
         if (incident.playerOperationCompleted || incident.scenarioResolved) return;
         incident.playerOperationCompleted = true;
         incident.scenarioResolved = true;
+        PTSDInvestigationRewards.complete(incident);
         String result = applyPlayerEffect(state, incident);
         String response = applyResponse(state, incident);
         incident.effectSummary = PTSDPlayerNewsText.summary(incident);
@@ -357,7 +378,7 @@ public final class PTSDConditionalNewsDirector {
 
     private static String applyPlayerEffect(PTSDCrisisState state, PTSDCrisisState.CrisisIncident incident) {
         String effect = incident.scenarioEffect == null ? "VERIFY" : incident.scenarioEffect;
-        String systemId = incident.targetSystemId;
+        String systemId = incident.sceneSourceSystemId==null?incident.targetSystemId:incident.sceneSourceSystemId;
         if ("JAM_UPLOAD".equals(effect)) {
             int removed = 0;
             for (java.util.Iterator<PTSDCrisisState.PendingReconReport> it = state.pendingReconReports.iterator(); it.hasNext();) {

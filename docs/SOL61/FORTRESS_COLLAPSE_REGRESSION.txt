@@ -1,0 +1,19 @@
+FortressCollapseTest passed (CR floor, no healing, hit dedup, clock, authored wave crossings)
+DifficultyProfileTest passed (hidden preset, custom restore, export, curve preservation)
+DifficultyCurveTest passed
+PriorityTargetReconTest: passed (phase gates, star identity, dependency, source keys, dedup, carrier upload and snapshot)
+PrioritySweepTest: passed (physical/player protection, simulated casualties, free travel, dedup, zero refund)
+WarCampaignPolicyTest: passed (outer layer, shifted sector, duplicate points, costs, survivor refunds, singularity, travel)
+ControlledPatrolRouteTest: passed (real nodes, no terrain/random point, uninterrupted transit, close guard)
+VirtualWarLifecycleTest: passed (arrival, one alert, timed proximity, return delay, exact survivor credit, history retention)
+ReconFleetCompositionTest: passed (5000 fleets, progress boundaries, initial single frigate, three Cosinus only at 90%, equal branch weights, later phase unchanged)
+FirstReconInvestigationTest: passed (Je qualification, remote/invisible query rejection, first-arrival eligibility and dedup)
+NewsSceneMechanicsTest: passed (18 templates, prerequisites, sample dedup, error verdict, Je dedup, response dedup, persistence, estimate bounds, coverage)
+WarWaveArrivalTest: passed (transit gate, actual FP losses, arrival clock, battle postponement, feint window)
+InvestigationNavigationTest: passed (rendered buttons, materialization, confirmation, focus and real navigation target)
+SceneRevisionTest: passed (shared world entries, owned cleanup isolation, independent markers, abandonment, sampling, Gamma, convoy settlement)
+EncounterResponseRegressionTest: passed (saved IDs, hidden survey/reactive retreat, observation, ambush, trap, combat)
+LunaSettingsFormatTest: passed (364 source strings and public CSV)
+LateRuntimeRegressionTest: passed (44% truth, finite budgets, ballots, support once, hidden-market cache, legacy system ID)
+TaskRulesTest: passed
+HumanReportStateTest: passed

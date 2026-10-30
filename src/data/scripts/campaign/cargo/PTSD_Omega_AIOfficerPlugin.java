@@ -27,11 +27,8 @@ public class PTSD_Omega_AIOfficerPlugin extends BaseAICoreOfficerPluginImpl impl
     public PersonAPI createPerson(String aiCoreId, String factionId, Random random) {
         if (random == null) random = new Random();
         PTSDCrisisState state = PTSDCrisisState.get();
-        int phaseBonus = state == null || state.phase == null ? 0 :
-                Math.max(0, Math.min(4, state.phase.ordinal() - PTSDCrisisState.Phase.RECON.ordinal()));
-        int baseline = 2 + IIRT_Omega_ModPlugin.omegaOfficerLevelBonus + phaseBonus;
         return createPerson(aiCoreId, factionId, random,
-                Math.max(2, Math.min(20, baseline + random.nextInt(5) - 2)));
+                data.scripts.PTSDDifficultySettings.officerLevel(state, PTSDCrisisState.getDay()));
     }
 
     public PersonAPI createPerson(String aiCoreId, String factionId, Random random, int PTSD_Level) {

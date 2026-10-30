@@ -10,7 +10,15 @@ import java.util.Set;
 
 /** Save-persistent late crisis ledger. Physical fleets are projections of these records. */
 public final class PTSDLateState implements Serializable {
+    public PTSDReliefState relief;
     private static final long serialVersionUID = 1L;
+
+    public float nextCarrierReconDay, nextPriorityTargetDay;
+    public float nextMobilizationConvoyDay, convoyRequiredAssets, convoyRequiredPoints;
+    public boolean convoyRequirementLocked;
+    public List<PTSDMobilizationConvoys.Record> mobilizationConvoys=new ArrayList<PTSDMobilizationConvoys.Record>();
+    public Map<String, Float> priorityReconDays = new LinkedHashMap<String, Float>();
+    public Set<String> priorityOpeningLaunched = new LinkedHashSet<String>();
 
     public static final class ThreatEvidence implements Serializable {
         private static final long serialVersionUID = 1L;
@@ -29,6 +37,7 @@ public final class PTSDLateState implements Serializable {
         public float lastTravelDay;
         public float lastHyperX, lastHyperY;
         public int deliveredTransports, lostTransports;
+        public int eventEscortLevel;
         public boolean collapsed, destroyed, movedPrewar, inTransit, detonationHandled;
         public boolean warnedPlayer, autoSavePending, autoSaveAttempted;
         public List<String> patrolIds = new ArrayList<String>();
@@ -39,6 +48,7 @@ public final class PTSDLateState implements Serializable {
     public static final class Front implements Serializable {
         private static final long serialVersionUID = 1L;
         public String id, systemId, marketId, sourceSystemId;
+        public String operationId;
         public float attackBudget, barrage, defense, warningDay, nextStrikeDay;
         public float playerRescueWarningDay, playerRescueDeadline, lockedTravelDays;
         public int strikes;
@@ -58,7 +68,10 @@ public final class PTSDLateState implements Serializable {
         public float strength, distance, travelled, speed = 8f, lastDay;
         public boolean destroyed, arrived;
         public boolean authorized;
+        public String supportingFrontId;
+        public float committedDefense;
         public List<String> variantIds = new ArrayList<String>();
+        public List<com.fs.starfarer.api.fleet.FleetMemberAPI> members = new ArrayList<com.fs.starfarer.api.fleet.FleetMemberAPI>();
     }
 
     public static final class Alert implements Serializable {
@@ -73,6 +86,8 @@ public final class PTSDLateState implements Serializable {
         public String id, frontId, sponsorFactionId, method, outcome, exportMarketId;
         public float day, voteChance, reservedStrength, executedDay;
         public boolean resolved;
+        public Map<String, Float> seatSnapshot = new LinkedHashMap<String, Float>();
+        public Map<String, String> ballots = new LinkedHashMap<String, String>();
     }
 
     public static final class EventCard implements Serializable {
@@ -112,6 +127,7 @@ public final class PTSDLateState implements Serializable {
     public static final class ControlledPatrol implements Serializable {
         private static final long serialVersionUID = 1L;
         public String id, systemId, fleetId;
+        public String guardedPlanetId;
         public int index, waypointIndex;
         public float nominalFp, survivingFp, replenishDay, nextWaypointDay;
     }
@@ -120,6 +136,12 @@ public final class PTSDLateState implements Serializable {
         private static final long serialVersionUID = 1L;
         public String fortressId, systemId;
         public float remainingSeconds = 180f;
+        public float collapseElapsed;
+        public float collapseChance,collapseLossMin,collapseLossMax,collapseFloor,collapseLowCR,collapseDModChance;
+        public boolean collapseInitialized;
+        public java.util.Map<String,Integer> collapseHits=new java.util.HashMap<String,Integer>();
+        public java.util.Set<String> collapseDMods=new java.util.HashSet<String>();
+        public java.util.Set<String> pendingCollapseDMods=new java.util.HashSet<String>();
         public boolean combatStarted, battleEscaped, exploded, autoSaveAttempted;
     }
 
@@ -137,6 +159,14 @@ public final class PTSDLateState implements Serializable {
     public float humanResponseBudget = 90f;
     public float nextProductionDay, nextFrontDecisionDay, nextTrapDay;
     public float nextFortressBuildDay;
+    public boolean phaseExpansionSelected;
+    public List<String> phaseExpansionPlanetIds = new ArrayList<String>();
+    public float nextPhaseExpansionCheck;
+    public float nextOpeningPlanDay, openingAssetsRequired, openingPointsRequired;
+    public float nextRegionalOffensiveDay;
+    public int regionalOffensiveNumber;
+    public float regionalAssetsRequired, regionalPointsRequired;
+    public float nextWarReadinessReportDay;
     public float lastAdvanceDay, recentPlayerVictoryFP, previousPlayerVictoryFP;
     public float nextPlayerVictoryRollDay, nextWarningDay, warStartedDay;
     public int selectedBurstCount, nextAlertIndex;

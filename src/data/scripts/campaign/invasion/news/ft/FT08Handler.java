@@ -2,7 +2,7 @@ package data.scripts.campaign.invasion.news.ft;
 
 import data.scripts.campaign.invasion.*;
 
-public final class FT08Handler extends AbstractFTHandler {
+public class FT08Handler extends AbstractFTHandler {
     protected String id() { return "FT-08"; }
     @Override public String unavailableReason(PTSDCrisisState state) {
         PTSDLateState.FTChain permit = state.late.ftChains.get("FT-01");

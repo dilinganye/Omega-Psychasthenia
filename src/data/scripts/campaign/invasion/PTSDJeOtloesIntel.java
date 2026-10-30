@@ -97,11 +97,29 @@ public final class PTSDJeOtloesIntel extends BaseIntelPlugin {
         }
     }
 
+    @Override public boolean hasLargeDescription() { return true; }
+    @Override public void createLargeDescription(com.fs.starfarer.api.ui.CustomPanelAPI panel,float width,float height) {
+        PTSDNewsLocationPanel.document(panel,width,height,"Je Otloes / 私人信道","独立网络 / 任务回执",new java.awt.Color(163,151,185),
+                new PTSDCommandSurface.Content(){public void draw(TooltipMakerAPI info,float w,float h){createSmallDescription(info,w,h);}},currentTask(),true);
+    }
+    private PTSDCrisisState.CrisisIncident currentTask() {
+        PTSDCrisisState state=PTSDCrisisState.get();
+        if(state==null || state.jePlayerTaskIncidentId==null)return null;
+        for(PTSDCrisisState.CrisisIncident incident:state.incidents)
+            if(incident!=null && state.jePlayerTaskIncidentId.equals(incident.id))return incident;
+        return null;
+    }
     @Override public void createSmallDescription(TooltipMakerAPI info, float width, float height) {
         PersonAPI person = getOrCreatePerson();
         info.addImage(person.getPortraitSprite(), width, 96f, 8f);
         PTSDCrisisState state = PTSDCrisisState.get();
         if (state == null) return;
+        if(PTSDJeWarExpedition.unavailable(state)){
+            PTSDJeWarExpedition.Mission mission=state.late.relief.jeExpedition;
+            info.addPara("%s",8f,Misc.getHighlightColor(),"战区调查 / "+mission.status);
+            info.addPara(mission.missing?"最后一段回执停在受袭战区。Je尚未被确认死亡，但目前无法取得联系；需要后续救援线索。":"Je正在调查航程中；护航队的位置和求援期限已同步至联盟行动页。",6f);
+            info.addButton("查看Je战区调查与求援","JE_WAR_RELIEF",width-24,30,8);return;
+        }
         info.addPara("Je Otloes 通过一组不属于任何公开当局的信道与你保持联系。这个独立联系人不占用普通联系人上限。", 8f);
         info.addPara("但他似乎是个大忙人，如果一直联系不上，试着等一两天再说。", 5f);
         info.addPara("准确说，联系上他是个很看运气的事——或者你可以尝试足够烦人来引起他的注意力。", 5f);
@@ -131,8 +149,9 @@ public final class PTSDJeOtloesIntel extends BaseIntelPlugin {
 
     @Override public void buttonPressConfirmed(Object buttonId, IntelUIAPI ui) {
         PTSDCrisisState state = PTSDCrisisState.get();
+        if("JE_WAR_RELIEF".equals(buttonId)){PTSDWarIntel war=PTSDWarIntel.ensureIntel();war.coalitionView().openReliefPage();Global.getSector().getCampaignUI().showCoreUITab(com.fs.starfarer.api.campaign.CoreUITabId.INTEL,war);return;}
         if (CONTACT.equals(buttonId) && state != null && state.jeAgentIncidentId == null &&
-                !state.jeMeetingReady) {
+                !state.jeMeetingReady && !PTSDJeWarExpedition.unavailable(state)) {
             ui.showDialog(Global.getSector().getPlayerFleet(),
                     new PTSDJeOtloesDialog(PTSDJeOtloesDialog.Mode.CONTACT, null));
             return;

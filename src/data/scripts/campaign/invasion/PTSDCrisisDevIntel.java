@@ -525,7 +525,7 @@ public final class PTSDCrisisDevIntel extends BaseIntelPlugin {
         if (player == null || destination == null) return;
         if (player.getContainingLocation() != destination) {
             if (player.getContainingLocation() != null) player.getContainingLocation().removeEntity(player);
-            destination.addEntity(player);
+            { destination.addEntity(player); data.scripts.campaign.invasion.PTSDCampaignRuntime.entityAdded(player); }
             Global.getSector().setCurrentLocation(destination);
         }
         Vector2f offset = Misc.getUnitVectorAtDegreeAngle((float) (Math.random() * 360f));

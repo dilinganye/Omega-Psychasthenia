@@ -17,6 +17,7 @@ public final class PTSDEntropyTransportFactory {
     private PTSDEntropyTransportFactory() { }
     public static CampaignFleetAPI create(PTSDCrisisState state, LocationAPI location,
                                           float x, float y, float assetCost, String source) {
+        if (data.scripts.PTSDDifficultySettings.spawningPaused())return null;
         if (state == null || state.late == null || location == null ||
                 state.late.strategicReserve < assetCost) return null;
         FleetParamsV3 params = new FleetParamsV3(new Vector2f(x, y),
@@ -36,7 +37,7 @@ public final class PTSDEntropyTransportFactory {
         fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_FORCE_TRANSPONDER_OFF, true);
         fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_NO_SHIP_RECOVERY, true);
         fleet.getEventListeners().add(new PTSDStrategicFleetListener(null, fleet.getFleetPoints()));
-        location.addEntity(fleet);
+        { location.addEntity(fleet); data.scripts.campaign.invasion.PTSDCampaignRuntime.entityAdded(fleet); }
         fleet.setLocation(x, y);
         state.late.strategicReserve -= assetCost;
         PTSDLateWarDirector.recordSpending(state, source, 0f, assetCost);

@@ -20,6 +20,8 @@ public final class PTSDCrisisNewsIntel extends BaseIntelPlugin {
     private static final String E2_ACTION_0 = "PTSD_E2_ACTION_0";
     private static final String E2_ACTION_1 = "PTSD_E2_ACTION_1";
     private String incidentId;
+    private static final String AUTO_OPEN = "PTSD_NEWS_AUTO_OPEN";
+    private boolean autoOpenInvestigation; // Each new article defaults to staying on the news page.
 
     public PTSDCrisisNewsIntel() { }
     private PTSDCrisisNewsIntel(String incidentId) { this.incidentId = incidentId; setImportant(false); }
@@ -55,12 +57,26 @@ public final class PTSDCrisisNewsIntel extends BaseIntelPlugin {
         return item == null ? "过期的边缘新闻" : PTSDPlayerNewsText.headline(item);
     }
     @Override public String getSmallDescriptionTitle() { return getName(); }
+    @Override public boolean hasLargeDescription() { return true; }
+    @Override public void createLargeDescription(com.fs.starfarer.api.ui.CustomPanelAPI panel,float width,float height) {
+        PTSDNewsLocationPanel.document(panel,width,height,getName(),"公共新闻 / 来源核验",PTSDCommandSurface.AMBER,
+                new PTSDCommandSurface.Content(){public void draw(TooltipMakerAPI info,float w,float h){createSmallDescription(info,w,h);}},incident(),false);
+    }
     @Override public void createIntelInfo(TooltipMakerAPI info, ListInfoMode mode) {
         PTSDCrisisState.CrisisIncident item = incident();
         info.addPara(getName(), getTitleColor(mode), 0f);
         if (item != null) info.addPara("内容来源：" + PTSDPlayerNewsText.source(item), 3f, Misc.getGrayColor());
+        if (item != null && mode == ListInfoMode.MESSAGES) {
+            String report = PTSDPlayerNewsText.report(item);
+            if (report != null && !report.trim().isEmpty()) {
+                // The native lower-left notification wraps the public article body.
+                // Pass it as data so literal percentages are never parsed as format strings.
+                info.addPara("%s", 8f, getBulletColorForMode(mode), report);
+            }
+        }
     }
     @Override public void createSmallDescription(TooltipMakerAPI info, float width, float height) {
+        info.setParaFont("graphics/fonts/insignia21LTaa.fnt");
         PTSDCrisisState.CrisisIncident item = incident();
         if (item == null) { info.addPara("该条目的原始记录已不存在。", 10f); return; }
         item.readByPlayer = true;
@@ -71,13 +87,12 @@ public final class PTSDCrisisNewsIntel extends BaseIntelPlugin {
                 subscribed ? "已订阅" : "未订阅");
         info.addButton(subscribed ? "停止订阅新闻推送" : "订阅新闻推送",
                 TOGGLE_SUBSCRIPTION, getFactionForUIColors().getBaseUIColor(),
-                getFactionForUIColors().getDarkUIColor(), width, 24f, 3f);
+                getFactionForUIColors().getDarkUIColor(), width, 30f, 3f);
         info.addPara("[%s / %s / %s]", 10f, news, PTSDPlayerNewsText.source(item),
-                PTSDCrisisAPI.getSystemName(item.targetSystemId), remaining(item));
+                PTSDNewsPresentation.hasPublicLocation(item)?PTSDCrisisAPI.getSystemName(item.targetSystemId):"未提供具体地点", remaining(item));
         info.addPara("%s", 8f, Misc.getTextColor(), PTSDPlayerNewsText.report(item));
         boolean e2News = item.cardId != null && item.cardId.startsWith("E2-");
-        boolean e2Chain = e2News && ("E2-01".equals(item.cardId) ||
-                "E2-02".equals(item.cardId) || "E2-03".equals(item.cardId));
+        boolean e2Chain = false; // E2 is reportage, including the former three local chains.
         if (item.scenarioTrigger != null && !e2News) {
             info.addPara("目标：%s；干预窗口约剩 %s 日。", 6f, Misc.getHighlightColor(),
                     PTSDCrisisAPI.getSystemName(item.targetSystemId),
@@ -93,32 +108,26 @@ public final class PTSDCrisisNewsIntel extends BaseIntelPlugin {
         } else if (e2News && item.scenarioResolved && item.effectSummary != null) {
             info.addPara("%s", 4f, Misc.getTextColor(), "归档：" + PTSDPlayerNewsText.summary(item));
         }
-        if (e2News) {
-            String status = PTSDE2Director.status(item);
-            if (!status.isEmpty()) info.addPara("地方事件：" + status, 6f);
-            String[] actions = PTSDE2Director.choices(item);
-            if (actions != null) {
-                info.addButton(actions[0], E2_ACTION_0, getFactionForUIColors().getBaseUIColor(),
-                        getFactionForUIColors().getDarkUIColor(), width, 24f, 4f);
-                info.addButton(actions[1], E2_ACTION_1, getFactionForUIColors().getBaseUIColor(),
-                        getFactionForUIColors().getDarkUIColor(), width, 24f, 4f);
-            }
-        }
-        if (item.investigable && !item.recordedByPlayer && !item.scenarioResolved) {
+        if (PTSDNewsPresentation.canInvestigate(item) && !item.recordedByPlayer && !item.scenarioResolved) {
             info.addPara(item.scenarioTrigger == null ?
                     "报告中仍有一组可以定位的航路参数。记录后，位置将转入“边缘失联信号”。" :
                     "可记录线索并前往现场核查。基础取证后，是否执行后续行动由你决定。", 8f, Misc.getHighlightColor(), "记录");
+            info.addButton(autoOpenInvestigation ? "接取后自动打开失联信号：开启" : "接取后自动打开失联信号：关闭", AUTO_OPEN, width, 30f, 6f);
             info.addButton("记录调查线索", RECORD, getFactionForUIColors().getBaseUIColor(),
-                    getFactionForUIColors().getDarkUIColor(), width, 24f, 8f);
-        } else if (item.recordedByPlayer) {
+                    getFactionForUIColors().getDarkUIColor(), width, 30f, 8f);
+        } else if (item.investigationAbandoned) {
+            info.addPara("你已放弃这条调查；已有记录保留在新闻档案中。",8f,Misc.getGrayColor());
+        } else if (item.recordedByPlayer && PTSDNewsPresentation.canInvestigate(item)) {
             info.addPara("该条目已记入“边缘失联信号”。", 8f, Misc.getHighlightColor(), "已记入");
             if (item.siteMaterialized) {
                 info.addPara("现场投影：%s。%s", 6f, new Color(206,142,255),
                         item.siteTitle == null ? "未分类异常" : item.siteTitle,
                         item.siteConfirmationHint == null ? "抵近并扫描现场。" : item.siteConfirmationHint);
             } else if (!item.investigationResolved) {
-                info.addPara("进入目标星系后，现场证据会按新闻类型进行实体化；最长保留30日。", 6f, Misc.getGrayColor());
+                info.addPara("接取后至少有60日调查窗口；进入目标星系后，现场证据会按新闻类型进行实体化，保留至调查期限结束。", 6f, Misc.getGrayColor());
             }
+        } else if (PTSDNewsPresentation.ambientSite(item)) {
+            info.addPara("下方标出报道所涉区域，可自行前往查看打捞活动；此条新闻无需接取调查。",8f,Misc.getGrayColor());
         } else if (e2Chain) {
             info.addPara("前往所涉港口可核查当事船只；是否介入由现场情况决定。",
                     8f, Misc.getGrayColor());
@@ -148,7 +157,18 @@ public final class PTSDCrisisNewsIntel extends BaseIntelPlugin {
             ui.updateUIForItem(this);
             return;
         }
-        if (RECORD.equals(buttonId)) { PTSDCrisisAPI.recordNewsIncident(incidentId); PTSDCrisisIntel task = PTSDCrisisIntel.ensureIntel(); ui.updateIntelList(true); ui.selectItem(task); return; }
+        if (AUTO_OPEN.equals(buttonId)) { autoOpenInvestigation = !autoOpenInvestigation; ui.updateUIForItem(this); return; }
+        if (RECORD.equals(buttonId)) {
+            if (!PTSDCrisisAPI.recordNewsIncident(incidentId)) { ui.updateUIForItem(this); return; }
+            PTSDCrisisIntel task = PTSDCrisisIntel.ensureIntel();
+            task.focusIncident(incidentId);
+            if (!autoOpenInvestigation) { ui.updateUIForItem(this); return; }
+            // Explicit subset includes the dossier even while the list is filtered to this news item.
+            ui.updateIntelList(false, java.util.Collections.<com.fs.starfarer.api.campaign.comm.IntelInfoPlugin>singletonList(task));
+            ui.selectItem(task);
+            ui.updateUIForItem(task);
+            return;
+        }
         super.buttonPressConfirmed(buttonId, ui);
     }
     @Override public boolean shouldRemoveIntel() {
@@ -157,7 +177,7 @@ public final class PTSDCrisisNewsIntel extends BaseIntelPlugin {
     }
     @Override public SectorEntityToken getMapLocation(SectorMapAPI map) {
         PTSDCrisisState.CrisisIncident item = incident();
-        if (item == null || !item.recordedByPlayer || item.investigationResolved && !item.investigationReal) return null;
+        if (!PTSDNewsPresentation.hasPublicLocation(item) || !item.recordedByPlayer || item.investigationResolved && !item.investigationReal) return null;
         PTSDCrisisState state = PTSDCrisisState.get();
         StarSystemAPI system = state == null ? null : state.resolveSystem(item.targetSystemId);
         return system == null ? null : system.getHyperspaceAnchor();

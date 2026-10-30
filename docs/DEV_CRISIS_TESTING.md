@@ -1,5 +1,7 @@
 # 精神创伤危机：DevMode 观察与触发指南
 
+> 2026-10-17：快速检验当前版本请优先使用 [SOL61快速验收手册](SOL61/QUICK_ACCEPTANCE_GUIDE.md)。下文包含历史实现说明，尤其Alpha门禁、右键地图、战争投影与阶段时间，不能覆盖最新源码和SOL61修订。
+
 > 暗流 D-01～D-12、火力侦察 P-01～P-12、LunaLib 公开/Dev 设置及阶段开关的最新说明见 [DARK_CURRENT_FIRE_PROBE.md](DARK_CURRENT_FIRE_PROBE.md)。
 
 本文用于验证 `Omega_PTSD_Invasion` 的阶段推进、侦察、扩张、要塞化和全面战争。所有 `[DEV]` 内容只在 Starsector DevMode 开启时存在；关闭 DevMode 后，调试监视器和仅为调试补建的 Intel 会自动移除，正常的“偶然目击—逐步揭示”逻辑不受影响。

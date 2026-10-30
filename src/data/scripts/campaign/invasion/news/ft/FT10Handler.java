@@ -7,7 +7,7 @@ import com.fs.starfarer.api.campaign.SpecialItemData;
 import data.scripts.campaign.cargo.PTSDOmegaFleetSupport;
 import data.scripts.campaign.invasion.*;
 
-public final class FT10Handler extends AbstractFTHandler {
+public class FT10Handler extends AbstractFTHandler {
     protected String id() { return "FT-10"; }
     @Override public String unavailableReason(PTSDCrisisState state) {
         if (state.late.verifiedPlayerOmegaDefeats < 6) return "真实击毁危机舰队不足6支";

@@ -53,7 +53,22 @@ public final class PTSDNewsSiteManager {
         if (state == null || Global.getSector() == null) return;
         CampaignFleetAPI player = Global.getSector().getPlayerFleet();
         for (PTSDCrisisState.CrisisIncident incident : state.incidents) {
+            if (PTSDNewsPresentation.ambientSite(incident)) { PTSDNewsAmbientSalvage.advance(state,incident,day); continue; }
+            if (incident != null && PTSDNewsPresentation.nonSpatial(incident.cardId) && !incident.siteMaterialized) {
+                if(incident.recordedByPlayer&&!incident.investigationResolved){
+                    incident.investigationResolved=true;incident.investigationReal=false;
+                    incident.investigationResult=PTSDTaskRules.InvestigationResult.INCONCLUSIVE;
+                    incident.effectSummary="此条为非现场报道，没有可继续追踪的调查坐标。";
+                }
+                continue;
+            }
             if (incident == null || !incident.recordedByPlayer || incident.investigationOutcome != 1) continue;
+            if (incident.siteHandlerExpression != null && !incident.siteHandlerExpression.trim().isEmpty()) {
+                // DLC 现场只执行自己的生命周期，不能混入旧随机护卫/回收舰/目标失踪机制。
+                advanceCustomSite(state, incident, day, random, player);
+                continue;
+            }
+            if (PTSDNewsScene.manages(incident)) { PTSDNewsScene.advance(state, incident, day); continue; }
             if (incident.martialSiteSpawned && incident.siteEntityIds != null)
                 for (String id : incident.siteEntityIds) {
                     SectorEntityToken existing = Global.getSector().getEntityById(id);
@@ -69,23 +84,43 @@ public final class PTSDNewsSiteManager {
                     incident.targetSystemId.equals(player.getStarSystem().getId())) {
                 materialize(state, incident, random == null ? RANDOM : random, false, false);
             }
-            if (incident.siteMaterialized && incident.siteHandlerExpression != null && !incident.siteHandlerExpression.isEmpty()) {
-                PTSDNewsSiteAPI.SiteHandler handler = PTSDNewsSiteAPI.resolveHandler(incident.siteHandlerExpression);
-                if (handler != null) try { handler.advance(context(state, incident, random)); }
-                catch (Throwable ex) { Global.getLogger(PTSDNewsSiteManager.class).warn("Site advance failed", ex); }
-            }
             if (incident.siteMaterialized && incident.siteConfirmed) advanceRecovery(state, incident, day,
                     random == null ? RANDOM : random, player);
             if (!incident.investigationResolved && incident.investigationExpiresDay > 0f && day >= incident.investigationExpiresDay) cleanup(state, incident, true);
         }
     }
 
+    private static void advanceCustomSite(PTSDCrisisState state, PTSDCrisisState.CrisisIncident incident,
+                                          float day, Random random, CampaignFleetAPI player) {
+        if(incident.investigationResolved){
+            if(incident.siteMaterialized)cleanup(state,incident,false);
+            return;
+        }
+        if(incident.investigationExpiresDay>0f&&day>=incident.investigationExpiresDay){cleanup(state,incident,true);return;}
+        if(incident.eventError!=null)return;
+        PTSDCrisisIncidentManager.activateVerifiedCustomTarget(state,incident);
+        if(!incident.siteMaterialized&&player!=null&&player.getStarSystem()!=null&&
+                player.getStarSystem().getId().equals(incident.targetSystemId))
+            materialize(state,incident,random,false,false);
+        if(!incident.siteMaterialized||incident.eventError!=null)return;
+        PTSDNewsSiteAPI.SiteHandler handler=PTSDNewsSiteAPI.resolveHandler(incident.siteHandlerExpression);
+        if(handler!=null)try{handler.advance(context(state,incident,random));}
+        catch(Throwable error){
+            incident.eventError="现场推进: "+error.getMessage();
+            Global.getLogger(PTSDNewsSiteManager.class).error("自定义现场推进失败: "+incident.cardId,error);
+        }
+    }
+
     public static boolean materialize(PTSDCrisisState state, PTSDCrisisState.CrisisIncident incident,
                                       Random random, boolean forceMartial, boolean devForced) {
         if (state == null || incident == null || incident.siteMaterialized) return false;
+        if (PTSDNewsPresentation.nonSpatial(incident.cardId) || PTSDNewsPresentation.ambientSite(incident)) return false;
         if (!devForced && incident.investigationOutcome != 1) return false;
+        data.scripts.campaign.invasion.news.NewsEventLoader.accepted(state,incident,PTSDCrisisState.getDay());
+        if(incident.eventError!=null||incident.investigationResolved)return false;
         StarSystemAPI system = state.resolveSystem(incident.targetSystemId);
         if (system == null) return false;
+        if (PTSDNewsScene.manages(incident)) return PTSDNewsScene.materialize(state, incident, system, devForced);
         SectorEntityToken oldTarget = PTSDCrisisAPI.resolveIncidentTarget(incident);
         MarketAPI market = state.resolveMarket(incident.targetMarketId);
         if (oldTarget == null || oldTarget.getContainingLocation() != system) oldTarget = market != null ? market.getPrimaryEntity() : system.getCenter();
@@ -94,24 +129,31 @@ public final class PTSDNewsSiteManager {
         if (incident.siteHandlerExpression != null && !incident.siteHandlerExpression.trim().isEmpty()) {
             PTSDNewsSiteAPI.SiteHandler handler = PTSDNewsSiteAPI.resolveHandler(incident.siteHandlerExpression);
             if (handler != null) try { result = handler.materialize(new PTSDNewsSiteAPI.SiteContext(state, incident, system, market, oldTarget, rng)); }
-            catch (Throwable ex) { Global.getLogger(PTSDNewsSiteManager.class).warn("Custom site materialization failed", ex); }
+            catch (Throwable ex) {
+                incident.eventError="现场创建: "+ex.getMessage();
+                Global.getLogger(PTSDNewsSiteManager.class).error("Custom site materialization failed: "+incident.cardId,ex);
+            }
         }
+        if (result == null && incident.siteHandlerExpression != null && !incident.siteHandlerExpression.trim().isEmpty()) return false;
         if (result == null) result = materializeBuiltIn(state, incident, system, oldTarget, rng);
         if (result == null || result.anchor == null) return false;
         incident.siteMaterialized = true;
+        incident.siteCleanupNotified = false;
         incident.siteTitle = result.title;
         incident.siteDescription = result.description;
         incident.siteConfirmationHint = result.confirmationHint;
         if (incident.siteEntityIds == null) incident.siteEntityIds = new ArrayList<String>();
         incident.siteEntityIds.clear(); incident.siteEntityIds.addAll(result.entityIds);
-        if (!incident.siteEntityIds.contains(result.anchor.getId())) incident.siteEntityIds.add(result.anchor.getId());
+        // 自定义现场可借用原版设施；只有处理器明确返回的 owned IDs 才能清理。
+        if ((incident.siteHandlerExpression == null || incident.siteHandlerExpression.trim().isEmpty()) &&
+                !incident.siteEntityIds.contains(result.anchor.getId())) incident.siteEntityIds.add(result.anchor.getId());
         incident.targetEntityId = result.anchor.getId();
         incident.siteLastX = result.anchor.getLocation().x;
         incident.siteLastY = result.anchor.getLocation().y;
         incident.siteUnexpectedGone = false;
         incident.siteUnexpectedAwaitExit = false;
         incident.siteUnexpectedRollDone = false;
-        incident.siteHardExpireDay = incident.investigationExpiresDay > 0f ? incident.investigationExpiresDay : PTSDCrisisState.getDay() + 30f;
+        incident.siteHardExpireDay = incident.investigationExpiresDay > 0f ? incident.investigationExpiresDay : PTSDCrisisState.getDay() + PTSDTaskRules.NEWS_INVESTIGATION_DAYS;
         if ((forceMartial || incident.martialSiteEligible) && (forceMartial || rng.nextFloat() < .5f)) spawnMartialScene(incident, system, result.anchor, rng);
         PTSDCrisisDevIntel.report("新闻属实现场显现", result.title + " / " + result.description + (incident.martialSiteSpawned ? " / 武力调查场景" : ""), system.getId(), result.anchor.getId());
         if (devForced || Global.getSettings().isDevMode()) Global.getSector().getCampaignUI().addMessage("[DEV现场] " + result.title, new Color(206,142,255));
@@ -128,6 +170,8 @@ public final class PTSDNewsSiteManager {
         Vector2f point = findSafePoint(system, target, rng, 1800f, 5200f);
         if (point == null) return null;
         List<String> ids = new ArrayList<String>();
+        float evidenceDays = Math.max(1f, incident.investigationExpiresDay > 0f ?
+                incident.investigationExpiresDay - PTSDCrisisState.getDay() : PTSDTaskRules.NEWS_INVESTIGATION_DAYS);
         SectorEntityToken anchor;
         if (COMMUNICATION.equals(family)) {
             anchor = addEntity(system, title, choice % 2 == 0 ? Entities.SENSOR_ARRAY_MAKESHIFT : Entities.GENERIC_PROBE_ACTIVE, point, ids);
@@ -137,12 +181,12 @@ public final class PTSDNewsSiteManager {
             int count = choice == 4 ? 8 : 3;
             for (int i=0;i<count;i++) addEntity(system, choice==4?"空救生舱":"航迹记录节点", Entities.GENERIC_PROBE, nearby(point,rng,320f,1500f),ids);
         } else if (BATTLE.equals(family)) {
-            anchor = addDebris(system, title, point, rng, ids, 30f);
+            anchor = addDebris(system, title, point, rng, ids, evidenceDays);
             for (int i=0;i<1+rng.nextInt(2);i++) addWreck(system, nearby(point,rng,350f,1800f), Factions.INDEPENDENT, rng, ids, 45f);
             for (int i=0;i<3+rng.nextInt(3);i++) addDebris(system,"正在散逸的交战残骸区",
                     nearby(point,rng,280f,2100f),rng,ids,30f+rng.nextFloat()*20f);
         } else if (CREW.equals(family)) {
-            anchor = addWreck(system, point, Factions.INDEPENDENT, rng, ids, 30f);
+            anchor = addWreck(system, point, Factions.INDEPENDENT, rng, ids, evidenceDays);
             if (anchor != null) anchor.setName(title);
             for (int i=0;i<(choice==1?5:2);i++) addEntity(system,"失去记录的黑匣子",Entities.GENERIC_PROBE,nearby(point,rng,180f,900f),ids);
         } else if (FACILITY.equals(family)) {
@@ -243,7 +287,7 @@ public final class PTSDNewsSiteManager {
             }
             if (incident.siteUnexpectedScoutFleeing && incident.siteUnexpectedScoutSeenByPlayer &&
                     !scout.isVisibleToPlayerFleet()) {
-                if (scout.getContainingLocation() != null) scout.getContainingLocation().removeEntity(scout);
+                if (scout.getContainingLocation() != null) { PTSDEventFleetReturn.credit(scout); PTSDCampaignRuntime.leaving(scout); scout.getContainingLocation().removeEntity(scout); }
                 incident.siteUnexpectedScoutFleetId = null;
             }
             return;
@@ -263,6 +307,7 @@ public final class PTSDNewsSiteManager {
 
     private static void spawnUnexpectedScout(PTSDCrisisState.CrisisIncident incident,
                                              StarSystemAPI system, Vector2f site, Random random) {
+        if(data.scripts.PTSDDifficultySettings.spawningPaused())return;
         SectorEntityToken focus = system.createToken(site);
         Vector2f point = PTSDCrisisAPI.findSafePoint(system, focus, 800f, 1500f, random);
         if (point == null) return;
@@ -274,7 +319,7 @@ public final class PTSDNewsSiteManager {
             data.scripts.campaign.cargo.PTSD_OmegaOfficerGeneratorPlugin.repairExistingFleet(scout);
             for (com.fs.starfarer.api.fleet.FleetMemberAPI member : scout.getFleetData().getMembersListCopy())
                 member.getRepairTracker().setCR(.85f);
-            system.addEntity(scout);
+            { system.addEntity(scout); data.scripts.campaign.invasion.PTSDCampaignRuntime.entityAdded(scout); }
             scout.setLocation(point.x, point.y);
             scout.setNoFactionInName(true);
             scout.setTransponderOn(false);
@@ -376,7 +421,7 @@ public final class PTSDNewsSiteManager {
                 new PTSD_BaseShard_Util.FleetLimits(12f, 2,
                         com.fs.starfarer.api.combat.ShipAPI.HullSize.DESTROYER));
         if (scout == null) return;
-        system.addEntity(scout);
+        { system.addEntity(scout); data.scripts.campaign.invasion.PTSDCampaignRuntime.entityAdded(scout); }
         scout.setLocation(point.x, point.y);
         scout.setName("精神创伤快速回收侦察队");
         scout.setNoFactionInName(true);
@@ -410,7 +455,7 @@ public final class PTSDNewsSiteManager {
                 fleet.getMemoryWithoutUpdate().set("$PTSD_news_recovery_abort_order", true);
             }
             if (fleet.getBattle() == null && !fleet.isVisibleToPlayerFleet()) {
-                if (fleet.getContainingLocation() != null) fleet.getContainingLocation().removeEntity(fleet);
+                if (fleet.getContainingLocation() != null) { PTSDEventFleetReturn.credit(fleet); PTSDCampaignRuntime.leaving(fleet); fleet.getContainingLocation().removeEntity(fleet); }
                 incident.siteAbortedRecoveryFleetIds.remove(id);
             }
         }
@@ -423,7 +468,7 @@ public final class PTSDNewsSiteManager {
         }
         CampaignFleetAPI fleet = (CampaignFleetAPI) entity;
         if (fleet.getBattle() == null && !fleet.isVisibleToPlayerFleet()) {
-            if (fleet.getContainingLocation() != null) fleet.getContainingLocation().removeEntity(fleet);
+            if (fleet.getContainingLocation() != null) { PTSDEventFleetReturn.credit(fleet); PTSDCampaignRuntime.leaving(fleet); fleet.getContainingLocation().removeEntity(fleet); }
             incident.siteRecoveryFleetId = null;
             incident.siteRecoveryDeparting = false;
         }
@@ -441,9 +486,24 @@ public final class PTSDNewsSiteManager {
 
     public static void cleanup(PTSDCrisisState state, PTSDCrisisState.CrisisIncident incident, boolean expired) {
         if (incident == null || Global.getSector() == null) return;
-        if (incident.siteHandlerExpression != null && !incident.siteHandlerExpression.isEmpty()) {
+        if(incident.siteHandlerExpression!=null&&!incident.siteHandlerExpression.isEmpty()&&incident.siteEntityIds!=null){
+            // 独立现场的舰队仍在战斗时，连 onExpired 也延迟，避免扩展清理回调删除参战对象。
+            for(String id:incident.siteEntityIds){
+                if(id==null||id.isEmpty())continue;
+                SectorEntityToken object=Global.getSector().getEntityById(id);
+                if(object instanceof CampaignFleetAPI&&((CampaignFleetAPI)object).getBattle()!=null){
+                    if(expired){incident.investigationResolved=true;incident.investigationReal=false;
+                        if(incident.investigationResult==null||incident.investigationResult==PTSDTaskRules.InvestigationResult.PENDING)
+                            incident.investigationResult=PTSDTaskRules.InvestigationResult.EXPIRED;}
+                    return; // siteMaterialized 保留，脱战后下一次后台周期重试。
+                }
+            }
+        }
+        if (!incident.siteCleanupNotified && incident.siteHandlerExpression != null && !incident.siteHandlerExpression.isEmpty()) {
+            incident.siteCleanupNotified=true; // 先记录，避免失败回调在随后心跳反复结算。
             PTSDNewsSiteAPI.SiteHandler handler=PTSDNewsSiteAPI.resolveHandler(incident.siteHandlerExpression);
-            if(handler!=null)try{handler.onExpired(context(state,incident,RANDOM));}catch(Throwable ignored){}
+            if(handler!=null)try{handler.onExpired(context(state,incident,RANDOM));}
+            catch(Throwable error){Global.getLogger(PTSDNewsSiteManager.class).error("新闻现场清理失败: "+incident.cardId,error);}
         }
         if (incident.siteEntityIds == null) incident.siteEntityIds = new ArrayList<String>();
         for(String id:new ArrayList<String>(incident.siteEntityIds)){
@@ -466,7 +526,7 @@ public final class PTSDNewsSiteManager {
     private static void spawnMartialScene(PTSDCrisisState.CrisisIncident incident, StarSystemAPI system, SectorEntityToken anchor, Random rng){
         int wrecks=1+rng.nextInt(2);String faction=nearbyFaction(system);
         for(int i=0;i<wrecks;i++)addWreck(system,nearby(anchor.getLocation(),rng,450f,2200f),faction,rng,incident.siteEntityIds,45f+rng.nextFloat()*20f);
-        for(int i=0;i<3+rng.nextInt(4);i++)addDebris(system,"被反复扫描的临时残骸区",
+        for(int i=0;i<3+rng.nextInt(4);i++)addDebris(system,"来源不明的残骸区",
                 nearby(anchor.getLocation(),rng,380f,2600f),rng,incident.siteEntityIds,45f+rng.nextFloat()*20f);
         float fp=12f+rng.nextFloat()*28f;
         FleetParamsV3 params=new FleetParamsV3(anchor.getLocation(),IIRT_Omega_Invasion.WATCHER_FACTION,.25f,FleetTypes.MERC_SCOUT,fp,0f,0f,0f,0f,0f,0f);
@@ -475,13 +535,13 @@ public final class PTSDNewsSiteManager {
                 PTSD_BaseShard_Util.FleetRole.RECON,rng,
                 new PTSD_BaseShard_Util.FleetLimits(Math.min(40f,fp),3,
                         com.fs.starfarer.api.combat.ShipAPI.HullSize.DESTROYER));
-        if(fleet!=null){Vector2f p=PTSDCrisisAPI.findSafePoint(system,anchor,900f,2600f,rng);if(p==null)return;system.addEntity(fleet);fleet.setLocation(p.x,p.y);fleet.setName(rng.nextBoolean()?"正在测绘残骸的未知编队":"沉默的战场调查单元");fleet.setNoFactionInName(true);fleet.setTransponderOn(false);fleet.addTag("PTSD_omega_scout");fleet.addTag(Tags.SALVAGE_ENTITY_NO_DEBRIS);fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_MAKE_NON_AGGRESSIVE,true);fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_FORCE_TRANSPONDER_OFF,true);fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_NO_SHIP_RECOVERY,true);fleet.addAssignment(rng.nextBoolean()?FleetAssignment.ORBIT_PASSIVE:FleetAssignment.PATROL_SYSTEM,anchor,8f+rng.nextFloat()*7f,rng.nextBoolean()?"逐段扫描战损舰体":"重建最后一次交火");PTSDOmegaEncounterResponse.attachSurveyScout(fleet);incident.siteEntityIds.add(fleet.getId());incident.martialSiteSpawned=true;}
+        if(fleet!=null){Vector2f p=PTSDCrisisAPI.findSafePoint(system,anchor,900f,2600f,rng);if(p==null)return;{ system.addEntity(fleet); data.scripts.campaign.invasion.PTSDCampaignRuntime.entityAdded(fleet); }fleet.setLocation(p.x,p.y);fleet.setName(rng.nextBoolean()?"正在测绘残骸的未知编队":"沉默的战场调查单元");fleet.setNoFactionInName(true);fleet.setTransponderOn(false);fleet.addTag("PTSD_omega_scout");fleet.addTag(Tags.SALVAGE_ENTITY_NO_DEBRIS);fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_MAKE_NON_AGGRESSIVE,true);fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_FORCE_TRANSPONDER_OFF,true);fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_NO_SHIP_RECOVERY,true);fleet.addAssignment(rng.nextBoolean()?FleetAssignment.ORBIT_PASSIVE:FleetAssignment.PATROL_SYSTEM,anchor,8f+rng.nextFloat()*7f,rng.nextBoolean()?"逐段扫描战损舰体":"重建最后一次交火");PTSDOmegaEncounterResponse.attachSurveyScout(fleet);fleet.getMemoryWithoutUpdate().set("$PTSD_participation_key", "incident:" + incident.id);incident.siteEntityIds.add(fleet.getId());incident.martialSiteSpawned=true;}
     }
 
-    private static String nearbyFaction(StarSystemAPI system){for(MarketAPI m:Global.getSector().getEconomy().getMarkets(system))if(m!=null&&!m.isPlanetConditionMarketOnly()&&!IIRT_Omega_Invasion.WATCHER_FACTION.equals(m.getFactionId())&&!IIRT_Omega_Invasion.PSYCHASTHENIA_FACTION.equals(m.getFactionId()))return m.getFactionId();return Factions.INDEPENDENT;}
-    private static SectorEntityToken addEntity(StarSystemAPI system,String name,String type,Vector2f point,List<String>ids){try{point=safeLocal(system,point);if(point==null)return null;SectorEntityToken e=system.addCustomEntity(null,name,type,Factions.NEUTRAL);e.setLocation(point.x,point.y);e.addTag("PTSD_news_true_site");ids.add(e.getId());return e;}catch(Throwable ex){Global.getLogger(PTSDNewsSiteManager.class).warn("Unable to add site entity "+type,ex);return null;}}
-    private static SectorEntityToken addDebris(StarSystemAPI system,String name,Vector2f point,Random rng,List<String>ids,float days){point=safeLocal(system,point);if(point==null)return null;DebrisFieldParams p=new DebrisFieldParams(220f,-1f,days,.4f);p.source=DebrisFieldSource.BATTLE;p.baseSalvageXP=25;SectorEntityToken e=Misc.addDebrisField(system,p,rng);e.setLocation(point.x,point.y);e.setName(name);ids.add(e.getId());return e;}
-    private static SectorEntityToken addWreck(StarSystemAPI system,Vector2f point,String faction,Random rng,List<String>ids,float days){try{point=safeLocal(system,point);if(point==null)return null;DerelictShipEntityPlugin.DerelictShipData d=DerelictShipEntityPlugin.createRandom(faction,null,rng,0f);d.durationDays=days;SectorEntityToken e=BaseThemeGenerator.addSalvageEntity(rng,system,Entities.WRECK,faction,d);e.setLocation(point.x,point.y);e.addTag(Tags.UNRECOVERABLE);ids.add(e.getId());return e;}catch(Throwable ex){return null;}}
+    static String nearbyFaction(StarSystemAPI system){for(MarketAPI m:Global.getSector().getEconomy().getMarkets(system))if(m!=null&&!m.isPlanetConditionMarketOnly()&&!IIRT_Omega_Invasion.WATCHER_FACTION.equals(m.getFactionId())&&!IIRT_Omega_Invasion.PSYCHASTHENIA_FACTION.equals(m.getFactionId()))return m.getFactionId();return Factions.INDEPENDENT;}
+    static SectorEntityToken addEntity(StarSystemAPI system,String name,String type,Vector2f point,List<String>ids){try{point=safeLocal(system,point);if(point==null)return null;SectorEntityToken e=system.addCustomEntity(null,name,type,Factions.NEUTRAL);e.setLocation(point.x,point.y);e.addTag("PTSD_news_true_site");ids.add(e.getId());return e;}catch(Throwable ex){Global.getLogger(PTSDNewsSiteManager.class).warn("Unable to add site entity "+type,ex);return null;}}
+    static SectorEntityToken addDebris(StarSystemAPI system,String name,Vector2f point,Random rng,List<String>ids,float days){point=safeLocal(system,point);if(point==null)return null;DebrisFieldParams p=new DebrisFieldParams(220f,-1f,days,.4f);p.source=DebrisFieldSource.BATTLE;p.baseSalvageXP=25;SectorEntityToken e=Misc.addDebrisField(system,p,rng);e.setLocation(point.x,point.y);e.setName(name);ids.add(e.getId());return e;}
+    static SectorEntityToken addWreck(StarSystemAPI system,Vector2f point,String faction,Random rng,List<String>ids,float days){try{point=safeLocal(system,point);if(point==null)return null;DerelictShipEntityPlugin.DerelictShipData d=DerelictShipEntityPlugin.createRandom(faction,null,rng,0f);d.durationDays=days;SectorEntityToken e=BaseThemeGenerator.addSalvageEntity(rng,system,Entities.WRECK,faction,d);e.setLocation(point.x,point.y);e.setFacing(rng.nextFloat()*360f);e.addTag(Tags.UNRECOVERABLE);ids.add(e.getId());return e;}catch(Throwable ex){return null;}}
     private static Vector2f nearby(Vector2f point,Random rng,float min,float max){Vector2f p=new Vector2f(point);Vector2f off=Misc.getUnitVectorAtDegreeAngle(rng.nextFloat()*360f);off.scale(min+rng.nextFloat()*(max-min));return Vector2f.add(p,off,p);}
     private static Vector2f findSafePoint(StarSystemAPI system,SectorEntityToken anchor,Random rng,float min,float max){return PTSDCrisisAPI.findSafePoint(system,anchor==null?system.getCenter():anchor,min,max,rng);}
     private static Vector2f safeLocal(StarSystemAPI system,Vector2f point){if(PTSDCrisisAPI.isSafePoint(system,point))return point;return PTSDCrisisAPI.findSafePoint(system,point,250f,1800f,RANDOM);}
@@ -489,5 +549,5 @@ public final class PTSDNewsSiteManager {
     public static String normalizeFamily(String value){if(value==null||value.trim().isEmpty()||AUTO.equalsIgnoreCase(value.trim()))return DISTORTION;String[]parts=value.split("\\|");return parts[Math.abs(value.hashCode())%parts.length].trim().toUpperCase();}
     private static int familyIndex(String f){if(COMMUNICATION.equals(f))return 0;if(ROUTE.equals(f))return 1;if(BATTLE.equals(f))return 2;if(CREW.equals(f))return 3;if(FACILITY.equals(f))return 4;return 5;}
 
-    public static void devMaterializeLatest(String family,boolean martial){PTSDCrisisState s=PTSDCrisisState.get();if(s==null)return;for(int i=s.incidents.size()-1;i>=0;i--){PTSDCrisisState.CrisisIncident in=s.incidents.get(i);if(in==null||!in.investigable)continue;if(in.siteEntityIds==null)in.siteEntityIds=new ArrayList<String>();in.recordedByPlayer=true;in.investigationOutcome=1;in.investigationExpiresDay=PTSDCrisisState.getDay()+30f;in.siteTemplate=family;cleanup(s,in,false);materialize(s,in,new Random(Misc.genUID().hashCode()),martial,true);return;}}
+    public static void devMaterializeLatest(String family,boolean martial){PTSDCrisisState s=PTSDCrisisState.get();if(s==null)return;for(int i=s.incidents.size()-1;i>=0;i--){PTSDCrisisState.CrisisIncident in=s.incidents.get(i);if(in==null||!in.investigable)continue;if(in.siteEntityIds==null)in.siteEntityIds=new ArrayList<String>();in.recordedByPlayer=true;in.investigationOutcome=1;in.investigationExpiresDay=PTSDCrisisState.getDay()+PTSDTaskRules.NEWS_INVESTIGATION_DAYS;in.siteTemplate=family;cleanup(s,in,false);materialize(s,in,new Random(Misc.genUID().hashCode()),martial,true);return;}}
 }

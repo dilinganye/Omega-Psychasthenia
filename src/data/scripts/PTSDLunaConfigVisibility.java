@@ -3,7 +3,8 @@ package data.scripts;
 import com.fs.starfarer.api.Global;
 import lunalib.lunaSettings.LunaSettings;
 
-import java.lang.reflect.Method;
+import lunalib.backend.ui.settings.LunaSettingsLoader;
+import lunalib.backend.ui.settings.LunaSettingsData;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -17,7 +18,8 @@ public final class PTSDLunaConfigVisibility {
 
     static {
         String[] ids = {
-                "PTSDDevHeader", "PTSDDevText",
+                "PTSDDevHeader", "PTSDDevText", "PTSD_news_true_chance", "PTSD_rescue_interval", "PTSD_rescue_chance", "PTSD_rescue_max_active", "PTSD_rescue_credit_min", "PTSD_rescue_credit_max", "PTSD_rescue_xp_per_fp",
+                "PTSD_collapse_hit_chance","PTSD_collapse_cr_min","PTSD_collapse_cr_max","PTSD_collapse_cr_floor","PTSD_collapse_dmod_threshold","PTSD_collapse_dmod_chance",
                 "PTSD_start_stage_time", "PTSD_collect_data_time", "PTSD_invade_time", "PTSD_repair_time",
                 "PTSD_scout_spawn_radius", "PTSD_scout_max_active", "PTSD_warning_encounter_threshold",
                 "PTSD_strategic_update_interval", "PTSD_hidden_materialization_range", "PTSD_expansion_interval",
@@ -57,13 +59,21 @@ public final class PTSDLunaConfigVisibility {
         syncing = true;
         try {
             if (lastDevMode == null || lastDevMode.booleanValue() != dev) {
-                if (dev) addDevSettings(modId);
-                else removeSettings(modId, DEV_IDS);
+                data.scripts.campaign.invasion.PTSDPriorityTargetList.addSettings();
+                addDevSettings(modId);
+                PTSDDifficultySettings.register(modId);
+                PTSDDifficultySettings.registerCurves(modId);
+                PTSDDifficultySettings.capture(modId);
+                PTSDDifficultySettings.regroup(modId);
+                // Materialize hidden defaults before hiding metadata; presets still own these values.
                 LunaSettings.SettingsCreator.refresh(modId);
+                if (!dev) {removeSettings(modId, DEV_IDS);PTSDDifficultySettings.hideCurves(modId);}
                 IIRT_Omega_ModPlugin.reloadLunaSettingsAfterVisibilityChange();
                 lastDevMode = dev;
             }
         } catch (Throwable ex) {
+            // Do not retry a broken integration on every campaign frame.
+            lastDevMode = dev;
             Global.getLogger(PTSDLunaConfigVisibility.class).warn(
                     "Unable to synchronize Psychasthenia DevMode Luna settings visibility", ex);
         } finally {
@@ -72,13 +82,27 @@ public final class PTSDLunaConfigVisibility {
     }
 
     private static void addDevSettings(String modId) {
+        data.scripts.campaign.invasion.PTSDReliefSettings.register(modId,DEV_IDS);
+        addInt(modId,"PTSD_news_true_chance","普通调查属实概率","百分比；仅影响之后接取的普通调查。固定剧情及条件事件保持自己的真假规则。",90,0,100,"自定义难度");
+        addInt(modId,"PTSD_rescue_interval","战时求救判定间隔日","仅玩家在超空间时判定。",10,1,120,"自定义难度");
+        addInt(modId,"PTSD_rescue_chance","战时求救触发概率","每个窗口最多判定一次。",50,0,100,"自定义难度");
+        addInt(modId,"PTSD_rescue_max_active","战时求救同时事件上限","限制未结束事件。",3,0,10,"自定义难度");
+        addInt(modId,"PTSD_rescue_credit_min","战时求救谢礼下限","每起一次。",50000,0,1000000,"自定义难度");
+        addInt(modId,"PTSD_rescue_credit_max","战时求救谢礼上限","每起一次。",150000,0,2000000,"自定义难度");
+        addInt(modId,"PTSD_rescue_xp_per_fp","战时求救每存活FP经验","脱险兵力乘此值。",250,0,2000,"自定义难度");
+        addInt(modId,"PTSD_collapse_hit_chance","破裂波面影响舰船概率％","每个实际扫过的波面逐舰判定；开始演出时固定参数。",33,0,100,"自定义难度");
+        addInt(modId,"PTSD_collapse_cr_min","波面CR损失下限百分点","不产生直接舰体伤害。",5,0,50,"自定义难度");
+        addInt(modId,"PTSD_collapse_cr_max","波面CR损失上限百分点","不得低于损失下限。",10,0,50,"自定义难度");
+        addInt(modId,"PTSD_collapse_cr_floor","波面CR保护底线％","低于此值的舰船不会被事件进一步降CR，也不凭空修复。",10,0,100,"自定义难度");
+        addInt(modId,"PTSD_collapse_dmod_threshold","波面D插风险CR阈值％","冲击前CR低于此值才可能新增D插。",30,0,100,"自定义难度");
+        addInt(modId,"PTSD_collapse_dmod_chance","低CR波面D插概率％","每舰整场最多新增一个；战斗内记录、战后结算。",15,0,100,"自定义难度");
         LunaSettings.SettingsCreator.addHeader(modId, "PTSDDevHeader", "开发者阶段与内部参数", "开发");
         LunaSettings.SettingsCreator.addText(modId, "PTSDDevText",
                 "这些设置仅在 DevMode 中显示。阶段开关只影响 DevMode 测试；关闭 DevMode 后所有阶段恢复启用。", "开发");
 
         addInt(modId, "PTSD_start_stage_time", "沉寂阶段时长（天）", "暗流持续到公开侦察开始前的时间。", 150, 1, 365, "阶段");
         //addInt(modId, "PTSD_collect_data_time", "侦察阶段时长（天）", "包含常规观察与后半段火力侦察。", 730, 1, 1000, "阶段");
-        addInt(modId, "PTSD_collect_data_time", "侦察阶段时长（天）[Demo到此结束]", "包含常规观察与后半段火力侦察。[Demo到此结束]", 300, 150, 3600, "阶段");
+        addInt(modId, "PTSD_collect_data_time", "侦察基础时长（实际×2）", "包含常规观察与后半段火力侦察；实际阶段时长为此数值两倍，兼容既有设置。", 300, 150, 3600, "阶段");
         addInt(modId, "PTSD_invade_time", "营建最短时长（天）", "营建结束后进入要塞化；战争准备点需由实际设施产出。", 365, 30, 1825, "阶段");
         addInt(modId, "PTSD_repair_time", "要塞阶段参考时长（天）", "实际离场由准备点、情报及最迟期限共同决定。", 200, 30, 1825, "阶段");
 
@@ -126,7 +150,7 @@ public final class PTSDLunaConfigVisibility {
         addInt(modId, "PTSD_late_mobilization_threshold", "常规动员门槛", "需同时满足真实与估计准备点及航路情报。", 60, 15, 200, "后期调试");
         addInt(modId, "PTSD_late_surprise_threshold", "直接突袭估计门槛", "仍需至少两个进攻来源与真实资源下限。", 120, 30, 300, "后期调试");
         addInt(modId, "PTSD_late_surprise_minimum", "误判突袭真实下限", "估计值再高也不得在真实资源不足时突袭。", 45, 10, 150, "后期调试");
-        addInt(modId, "PTSD_late_fortification_deadline", "要塞化最迟期限（天）", "达到期限会带着实际资源缺口进入动员。", 180, 30, 600, "后期调试");
+        addInt(modId, "PTSD_late_fortification_deadline", "要塞基础期限（实际×2）", "实际最迟期限为此数值两倍；达到期限会带着实际资源缺口进入动员。", 180, 30, 600, "后期调试");
         addInt(modId, "PTSD_late_small_work", "Small工程需求", "仅作用于之后的运输入站结算。", 20, 5, 100, "后期调试");
         addInt(modId, "PTSD_late_stable_work", "Stable工程需求", "仅作用于之后的运输入站结算。", 30, 5, 150, "后期调试");
         addInt(modId, "PTSD_late_medium_work", "Medium工程需求", "仅作用于之后的运输入站结算。", 40, 5, 200, "后期调试");
@@ -159,20 +183,11 @@ public final class PTSDLunaConfigVisibility {
         LunaSettings.SettingsCreator.addBoolean(modId, id, name, text, value, "阶段开关");
     }
 
-    @SuppressWarnings("unchecked")
-    private static void removeSettings(String modId, Set<String> ids) throws Exception {
-        Class<?> loader = Class.forName("lunalib.backend.ui.settings.LunaSettingsLoader");
-        Method getter = loader.getMethod("getSettingsData");
-        Object raw = getter.invoke(null);
-        if (!(raw instanceof List)) return;
-        Iterator<Object> iterator = ((List<Object>) raw).iterator();
+    private static void removeSettings(String modId, Set<String> ids) {
+        Iterator<LunaSettingsData> iterator = LunaSettingsLoader.getSettingsData().iterator();
         while (iterator.hasNext()) {
-            Object data = iterator.next();
-            Method getModId = data.getClass().getMethod("getModID");
-            Method getFieldId = data.getClass().getMethod("getFieldID");
-            Object dataMod = getModId.invoke(data);
-            Object field = getFieldId.invoke(data);
-            if (modId.equals(dataMod) && field instanceof String && ids.contains(field)) iterator.remove();
+            LunaSettingsData data = iterator.next();
+            if (modId.equals(data.getModID()) && ids.contains(data.getFieldID())) iterator.remove();
         }
     }
 }

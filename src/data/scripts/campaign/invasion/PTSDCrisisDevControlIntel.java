@@ -33,6 +33,8 @@ import java.util.Set;
  */
 public final class PTSDCrisisDevControlIntel extends BaseIntelPlugin {
     private static final long serialVersionUID = 1L;
+    private transient TooltipMakerAPI currentBody;
+    private float savedScroll;
     private static final String REFRESH = "PTSD_CTRL_REFRESH";
 
     public interface Condition { boolean isAvailable(PTSDCrisisState state); }
@@ -48,6 +50,17 @@ public final class PTSDCrisisDevControlIntel extends BaseIntelPlugin {
         }
     }
     private static final Map<String, Action> REGISTERED = new LinkedHashMap<String, Action>();
+    static {
+        String[] names={"大量残骸求救","少量残骸求救","撤离舰队追逐","大型舰队交战求救"};
+        for(int n=0;n<4;n++){final int kind=n;
+            registerAction("WAR救援测试","WAR_RESCUE_"+n,names[n],"生成真实救援现场；需要非联盟人类星系。",
+                new Condition(){public boolean isAvailable(PTSDCrisisState s){return s!=null&&s.phase==PTSDCrisisState.Phase.WAR;}},
+                new Executor(){public void execute(PTSDCrisisState s,IntelUIAPI ui){
+                    Global.getSector().getCampaignUI().addMessage(PTSDWarRescue.devSpawn(kind)?"求救现场已生成，请查看战时求救Intel。":"未生成：缺少合法星系、舰队编成或阶段不符。");
+                }});
+        }
+    }
+
 
     public static void registerAction(String header, String id, String label, String description,
                                       Condition condition, Executor executor) {
@@ -81,11 +94,14 @@ public final class PTSDCrisisDevControlIntel extends BaseIntelPlugin {
         info.addPara(s==null?"危机尚未初始化。":"阶段 "+s.phase+"；此处可修改全局状态并按正常条件触发事件。",10f);
     }
     @Override public void createLargeDescription(CustomPanelAPI panel,float width,float height){
-        TooltipMakerAPI info=panel.createUIElement(width,height,true);
+        TooltipMakerAPI info=panel.createUIElement(width,height,true);currentBody=info;
         PTSDCrisisState s=PTSDCrisisState.get(); Color base=getFactionForUIColors().getBaseUIColor(),dark=getFactionForUIColors().getDarkUIColor();
         info.addSectionHeading("全局变量控制",base,dark,Alignment.MID,0f);
         if(s==null){info.addPara("危机状态尚未初始化。",Misc.getNegativeHighlightColor(),10f);panel.addUIElement(info).inTL(0,0);return;}
         info.addPara("这里有意不包含逐星系侦察、攻击权重和星球恐慌表。所有修改都会写入当前存档。",8f);
+        info.addButton(PTSDCampaignPerformance.isEnabled() ? "停止性能摘要采集" : "采集性能摘要（每15秒写入日志）",
+                "PERFORMANCE", base, dark, Math.max(220f, width - 24f), 24f, 4f);
+        info.addButton("现场模板、舰队与分批测试", "SCENE_PANEL", base, dark, width-24, 28, 6);
         addPhases(info,s,width,base,dark);
         addReconControls(info,s,width,base,dark);
         if (s.late != null) addLateControls(info,s,width,base,dark);
@@ -96,6 +112,7 @@ public final class PTSDCrisisDevControlIntel extends BaseIntelPlugin {
         addCsvEvents(info,s,width,base,dark);
         info.addButton("刷新控制台",REFRESH,base,dark,width,24f,10f);
         panel.addUIElement(info).inTL(0,0);
+        if(info.getExternalScroller()!=null)info.getExternalScroller().setYOffset(savedScroll);
     }
     private void addProgress(TooltipMakerAPI i,PTSDCrisisState s,float w,Color b,Color d){
         String[][] vars={{"RECON_CONFIDENCE","侦察置信"},{"HUMAN_AWARENESS","人类认知"},{"WATCHER_AGGRESSION","第四窥视攻击性"},{"NEST_DEVELOPMENT","前哨发展"},{"BLOCKADE_DENSITY","封锁密度"},{"OMEGA_ESCALATION","精神创伤升级"},{"HUMAN_COHESION","人类凝聚"},{"GLOBAL_PANIC","全局恐慌加成"},{"REALITY_DISTORTION","现实扭曲"}};
@@ -103,13 +120,9 @@ public final class PTSDCrisisDevControlIntel extends BaseIntelPlugin {
     }
     private void addReconControls(TooltipMakerAPI i,PTSDCrisisState s,float w,Color b,Color d) {
         i.addSectionHeading("侦察报告与盲点",b,d,Alignment.MID,12f);
-        int officerPhase = Math.max(0, Math.min(4,
-                s.phase.ordinal() - PTSDCrisisState.Phase.RECON.ordinal()));
-        int officerBase = 2 + IIRT_Omega_ModPlugin.omegaOfficerLevelBonus + officerPhase;
-        i.addPara("新生欧米伽军官：基础2 + Luna难度加成"+
-                IIRT_Omega_ModPlugin.omegaOfficerLevelBonus+" + 阶段"+officerPhase+
-                " = "+officerBase+"级；随机范围 "+Math.max(2,officerBase-2)+"～"+
-                Math.min(20,officerBase+2)+"级。仅影响之后生成的军官。",3f);
+        i.addPara("新生欧米伽军官：当前阶段等级曲线为 "+
+                data.scripts.PTSDDifficultySettings.officerLevel(s,PTSDCrisisState.getDay())+
+                "级；不附加阶段加成或随机等级浮动。仅影响之后生成的军官。",3f);
         i.addPara(PTSDReconReportDirector.coverageSummary(s),5f);
         i.addPara("批量报告概率 玩家/三星系/双星系/仅本地："+
                 Math.round(IIRT_Omega_ModPlugin.reconReportPlayerChance)+"/"+
@@ -133,6 +146,10 @@ public final class PTSDCrisisDevControlIntel extends BaseIntelPlugin {
                 fmt(IIRT_Omega_ModPlugin.expansionNewsFalseRate*100f)+"/"+
                 fmt(IIRT_Omega_ModPlugin.fortressNewsFalseRate*100f)+
                 "%；R2/E2/F2自然投放×0.1，DEV固定属实",3f);
+        i.addPara("Je会面：" + (s.jeIntroCompleted ? "已完成" : PTSDJeOtloesManager.triggerUnlocked(s) ? "已解锁，等待合适港口" : "尚未满足条件") +
+                " / 交战 " + s.totalPlayerOmegaBattles + " / 有效参与 " + (s.jeParticipationIds == null ? 0 : s.jeParticipationIds.size()), 3f);
+        i.addPara("资格：真实交战至少1次，或侦察目击至少4次，或去重有效参与至少4次；侦察队脱离次数不计资格。",3f);
+        if(s.jeParticipationIds!=null&&!s.jeParticipationIds.isEmpty())i.addPara("参与凭据："+s.jeParticipationIds,3f);
         i.addPara("最近改道："+(s.lastReconRoutingReason==null?"无":s.lastReconRoutingReason),3f);
         int shown=0;
         for(PTSDCrisisState.PendingReconReport report:s.pendingReconReports)
@@ -149,6 +166,7 @@ public final class PTSDCrisisDevControlIntel extends BaseIntelPlugin {
         counter(i,w,b,d,"JE_TASKS","Je 已完成任务",s.jeCompletedInvestigations);
         i.addPara("玩家记恨：%s",5f,Misc.getHighlightColor(),fmt(s.playerGrudge));buttons(i,w,b,d,"GRUDGE",10f);
         PTSDCrisisFleetLimits fleetLimits=PTSDCrisisFleetLimits.forPhase(s,PTSDCrisisState.getDay());
+        if(s.phase==PTSDCrisisState.Phase.RECON)i.addPara("侦察历时进度："+Math.round(100*PTSDCrisisFleetLimits.reconProgress(s,PTSDCrisisState.getDay()))+"％；单队上限12/18/24/30/36 FP，按25/50/75/90％递增；初期只允许单艘护卫舰。",3f);
         i.addPara("当前战略实体舰队上限：合计 "+fmt(fleetLimits.totalFp)+
                 " / 单队 "+fmt(fleetLimits.perFleetFp)+" FP；单队最多 "+fleetLimits.maxShips+
                 " 艘；最高舰种 "+fleetLimits.maxHullSize+
@@ -161,9 +179,11 @@ public final class PTSDCrisisDevControlIntel extends BaseIntelPlugin {
                 "；机动额度 "+fmt(late.strategicReserve)+"；联合防务额度 "+fmt(late.humanResponseBudget)+
                 "；玩家威胁 "+fmt(PTSDThreatDirector.getThreat(s,PTSDCrisisState.getDay())),5f);
         i.addPara("要塞 "+late.fortresses.size()+"；首波 "+late.selectedBurstCount+
-                "/4；战区 "+late.fronts.size()+"；总参部 "+(late.staffEstablished?"已成立":"未成立")+
+                " 个外围目标；战区 "+late.fronts.size()+"；总参部 "+(late.staffEstablished?"已成立":"未成立")+
                 "；后备队 "+late.reserves.size(),3f);
         i.addPara("生产："+(late.lastProductionBreakdown==null?"母星建成后开始校准":late.lastProductionBreakdown),3f);
+        i.addPara("外围首波需求：准备点 "+fmt(late.openingPointsRequired)+" / 战略资产 "+fmt(late.openingAssetsRequired)+
+                "；区域攻势第 "+late.regionalOffensiveNumber+" 轮；下次检查日 "+fmt(late.nextRegionalOffensiveDay),3f);
         i.addPara("战略资产上限5000；最近任务回收："+
                 (late.lastAssetCreditCause==null?"无":late.lastAssetCreditCause+
                         "，实际+"+fmt(late.lastAssetCreditAmount)+
@@ -179,6 +199,9 @@ public final class PTSDCrisisDevControlIntel extends BaseIntelPlugin {
                 "，告警×"+fmt(data.scripts.IIRT_Omega_ModPlugin.lateAlertDensity)+
                 "；来源："+(data.scripts.IIRT_Omega_ModPlugin.hasLunaLib?
                 "LunaLib（缺项使用内置默认）":"内置默认"),3f);
+        lateButton(i,w,b,d,"校验指定打击名单（只读）","LATE:PRIORITY_AUDIT");
+        if(s.phase==PTSDCrisisState.Phase.RECON || PTSDPrewarReconDirector.regularPhase(s.phase))
+            lateButton(i,w,b,d,"测试：立即执行一期侦察与名单行动","LATE:RECON_CYCLE");
         buttons(i,w,b,d,"LATE_WAR_POINTS",20f);
         buttons(i,w,b,d,"LATE_BELIEF",20f);
         buttons(i,w,b,d,"LATE_RESERVE",40f);
@@ -199,13 +222,14 @@ public final class PTSDCrisisDevControlIntel extends BaseIntelPlugin {
             lateButton(i,w,b,d,"模拟超空间完整要塞被击毁","LATE:DESTROY_HYPER");
         }
         if(s.phase==PTSDCrisisState.Phase.FORTIFICATION||s.phase==PTSDCrisisState.Phase.MOBILIZATION){
-            i.addPara("四处爆发点测试：先提供侦察回执和真实准备点，再切换 WAR；首波只结算一次。",5f);
+            i.addPara("全外围首波测试：先检查生产与预算，再切换 WAR；动员最终期限到达后不会因资源不足继续等待。",5f);
+            lateButton(i,w,b,d,"测试：补足当前首波预算（改变资源）","LATE:OPENING_BUDGET");
             lateButton(i,w,b,d,"向四处边缘殖民地写入模拟侦察回执","LATE:FOUR_ROUTES");
         }
         if(s.phase==PTSDCrisisState.Phase.MOBILIZATION)
             lateButton(i,w,b,d,"打开公开动员情报","LATE:OPEN_MOBILIZATION");
         if(s.phase==PTSDCrisisState.Phase.WAR){
-            if(!late.firstWaveSelected)lateButton(i,w,b,d,"按真实预算结算首波四处爆发点","LATE:FIRST_WAVE");
+            if(!late.firstWaveSelected)lateButton(i,w,b,d,"按真实预算部署全外围首波","LATE:FIRST_WAVE");
             lateButton(i,w,b,d,"立即推进一轮战区结算","LATE:FRONT_TURN");
             if(!late.staffEstablished)lateButton(i,w,b,d,"建立联合总参部","LATE:STAFF");
             else lateButton(i,w,b,d,"打开联合总参部情报","LATE:OPEN_STAFF");
@@ -310,13 +334,13 @@ public final class PTSDCrisisDevControlIntel extends BaseIntelPlugin {
         if(s.phase==PTSDCrisisState.Phase.MOBILIZATION&&!s.prewarHunterSpawned)sectionButton(i,w,b,d,"大事件：战前高价值目标截获","创建有预算的第四窥视截获舰队。","EVENT:PREWAR_HUNTER");
         if(s.prewarHunterResolved&&!s.prewarRedAlertShown)sectionButton(i,w,b,d,"大事件：多当局联合红色警报","确认未知舰体新闻属实并启动战争倒计时。","EVENT:RED_ALERT");
         if(s.phase==PTSDCrisisState.Phase.WAR&&!s.hardWarningShown)sectionButton(i,w,b,d,"大事件：边缘失联信号危险警告","发布全面战争硬警告并切换正式危机情报。","EVENT:HARD_WARNING");        if(s.phase==PTSDCrisisState.Phase.RECON){
-            sectionButton(i,w,b,d,"大战略事件：火力侦察","在当前星系生成火力侦察；默认单队65、合计150自动分上限。","EVENT:FIRE_PROBE");
-            sectionButton(i,w,b,d,"侦察每日事件：等强机动","按玩家威胁选择目标，但本队至多65自动分、三艘驱逐级舰船。","EVENT:RECON_MATCHED");
+            sectionButton(i,w,b,d,"大战略事件：火力侦察","在当前星系生成火力侦察；单队舰级/数量/FP上限随侦察历时递增，见当前编成上限。","EVENT:FIRE_PROBE");
+            sectionButton(i,w,b,d,"侦察每日事件：等强机动","按玩家威胁选择目标；受当前侦察历时编成上限约束，按可用舰级均衡抽取。","EVENT:RECON_MATCHED");
             sectionButton(i,w,b,d,"侦察每日事件：跨星系陷阱判定","仅依据附近侦察舰目击与公开航路推定无人星系，不读取玩家自动导航目标。","EVENT:RECON_TRAP_ARM");
             sectionButton(i,w,b,d,"侦察每日事件：立即显现陷阱舰群","有人星系最多两队/60， 无人星系最多三队/90；均为未知编队和驱逐级以下。","EVENT:RECON_TRAP_NOW");
             sectionButton(i,w,b,d,"侦察每日事件：不可接触观察单元","在玩家附近生成主动控制距离的介入灵质侦察舰。","EVENT:RECON_OBSERVER");
             sectionButton(i,w,b,d,"侦察每日事件：航路残骸群","生成1至2艘残舰与2至4片小型残骸区；70%概率附带介入灵质调查小队。","EVENT:RECON_WRECKS");
-            sectionButton(i,w,b,d,"侦察每日事件：受击即撤追击舰队","生成最多65自动分、三艘驱逐级舰船的追击队；受击后撤离。","EVENT:RECON_PURSUER");
+            sectionButton(i,w,b,d,"侦察每日事件：受击即撤追击舰队","生成受当前侦察历时编成上限约束的追击队；受击后撤离。","EVENT:RECON_PURSUER");
             sectionButton(i,w,b,d,"新闻现场：通讯与传感器","将最新可调查新闻设为属实并投影通讯类现场。","EVENT:SITE_COMMUNICATION");
             sectionButton(i,w,b,d,"新闻现场：航路与导航","将最新可调查新闻设为属实并投影航路类现场。","EVENT:SITE_ROUTE");
             sectionButton(i,w,b,d,"新闻现场：战斗与残骸","将最新可调查新闻设为属实并投影战场类现场。","EVENT:SITE_BATTLE");
@@ -349,13 +373,16 @@ public final class PTSDCrisisDevControlIntel extends BaseIntelPlugin {
 
     @Override public void buttonPressConfirmed(Object buttonId,IntelUIAPI ui){
         if(!Global.getSettings().isDevMode()||!(buttonId instanceof String))return;String id=(String)buttonId;PTSDCrisisState s=PTSDCrisisState.get();if(s==null)return;
+        if(currentBody!=null&&currentBody.getExternalScroller()!=null)savedScroll=currentBody.getExternalScroller().getYOffset();
+        if("SCENE_PANEL".equals(id)){openIntel(ui,PTSDSceneDevIntel.ensure());return;}
         if(REFRESH.equals(id)){ui.updateUIForItem(this);return;}
+        if("PERFORMANCE".equals(id)){PTSDCampaignPerformance.toggle();ui.updateUIForItem(this);return;}
         if(id.startsWith("VAR:")){String[] p=id.split(":");PTSDCrisisProgress.add(s,PTSDCrisisProgress.Variable.valueOf(p[1]),Float.parseFloat(p[2]),"DEV_CONTROL",null);}
         else if(id.startsWith("COUNT:")){adjustCount(s,id);}
         else if(id.startsWith("GRUDGE:")){s.playerGrudge=Math.max(0f,Math.min(200f,s.playerGrudge+Float.parseFloat(id.substring(7))));}
-        else if(id.startsWith("LATE_WAR_POINTS:")){s.late.warPoints=Math.max(0f,Math.min(200f,s.late.warPoints+Float.parseFloat(id.substring(16))));}
+        else if(id.startsWith("LATE_WAR_POINTS:")){s.late.warPoints=Math.max(0f,s.late.warPoints+Float.parseFloat(id.substring(16)));}
         else if(id.startsWith("LATE_BELIEF:")){s.late.warPointBelief=Math.max(0f,Math.min(200f,s.late.warPointBelief+Float.parseFloat(id.substring(12))));}
-        else if(id.startsWith("LATE_RESERVE:")){s.late.strategicReserve=Math.max(0f,Math.min(700f,s.late.strategicReserve+Float.parseFloat(id.substring(13))));}
+        else if(id.startsWith("LATE_RESERVE:")){s.late.strategicReserve=Math.max(0f,s.late.strategicReserve+Float.parseFloat(id.substring(13)));}
         else if(id.startsWith("LATE:")){executeLate(id.substring(5),s,ui);}
         else if(id.startsWith("PHASE:")){IIRT_Omega_Invasion.devTransition(PTSDCrisisState.Phase.valueOf(id.substring(6)));}
         else if(id.startsWith("NEWS:")){
@@ -366,7 +393,7 @@ public final class PTSDCrisisDevControlIntel extends BaseIntelPlugin {
         }
         else if(id.startsWith("REG:")){Action a=REGISTERED.get(id.substring(4));if(a!=null&&(a.condition==null||a.condition.isAvailable(s)))a.executor.execute(s,ui);}
         else if(id.startsWith("EVENT:")){executeBuiltin(id.substring(6),s,ui);}
-        ui.updateIntelList(true);ui.updateUIForItem(this);
+        ui.updateUIForItem(this);
     }
     private void adjustCount(PTSDCrisisState s,String id){String[] p=id.split(":");int n=Math.round(Float.parseFloat(p[2]));if("SCOUT_SIGHTINGS".equals(p[1]))s.totalScoutSightings=Math.max(0,s.totalScoutSightings+n);else if("SCOUT_ESCAPES".equals(p[1]))s.totalScoutEscapes=Math.max(0,s.totalScoutEscapes+n);else if("OMEGA_ENCOUNTERS".equals(p[1]))s.totalOmegaEncounters=Math.max(0,s.totalOmegaEncounters+n);else if("PLAYER_BATTLES".equals(p[1]))s.totalPlayerOmegaBattles=Math.max(0,s.totalPlayerOmegaBattles+n);else if("VISIBLE_STAGE".equals(p[1]))s.visibleStage=Math.max(0,Math.min(4,s.visibleStage+n));else if("JE_TASKS".equals(p[1]))s.jeCompletedInvestigations=Math.max(0,s.jeCompletedInvestigations+n);}
     private void executeLate(String action, PTSDCrisisState s, IntelUIAPI ui) {
@@ -394,6 +421,28 @@ public final class PTSDCrisisDevControlIntel extends BaseIntelPlugin {
         else if("DESTROY_LOCAL".equals(action))done=PTSDFortressDirector.devDestroyOne(s,false);
         else if("DESTROY_HYPER".equals(action))done=PTSDFortressDirector.devDestroyOne(s,true);
         else if("FOUR_ROUTES".equals(action))done=devSeedFourRoutes(s)>0;
+        else if("PRIORITY_AUDIT".equals(action)) {
+            for(PTSDPriorityTargetList.Entry entry:PTSDPriorityTargetList.entries())
+                PTSDCrisisDevIntel.report("指定打击名单校验",entry.starId+"；原因："+entry.reason+"；来源："+entry.sourceMod+
+                        "；依赖："+entry.requiredMod+"；启用："+entry.enabled()+"；解析："+(entry.system()!=null),
+                        entry.system()==null?null:entry.system().getId(),entry.starId);
+            done=true;
+        }
+        else if("RECON_CYCLE".equals(action)) {
+            if(s.phase==PTSDCrisisState.Phase.RECON || PTSDPrewarReconDirector.regularPhase(s.phase)) {
+                s.late.nextCarrierReconDay=day;s.late.nextPriorityTargetDay=day;
+                if(s.late.priorityReconDays!=null)s.late.priorityReconDays.clear();
+                PTSDPrewarReconDirector.advance(s,day);PTSDPriorityTargetDirector.advance(s,day);done=true;
+            }
+        }
+        else if("OPENING_BUDGET".equals(action)) {
+            PTSDStrategicSurvey.prepareWarOpening(s,PTSDCrisisState.getDay());
+            PTSDWarCampaignDirector.prepare(s,PTSDCrisisState.getDay(),true);
+            s.late.warPoints=Math.max(s.late.warPoints,s.late.openingPointsRequired);
+            s.late.warPointBelief=Math.max(s.late.warPointBelief,s.late.warPoints);
+            s.late.strategicReserve=Math.max(s.late.strategicReserve,s.late.openingAssetsRequired);
+            done=true;
+        }
         else if("FIRST_WAVE".equals(action)&&s.phase==PTSDCrisisState.Phase.WAR){
             boolean before=s.late.firstWaveSelected;
             PTSDLateWarDirector.onWarStarted(s);
@@ -440,24 +489,32 @@ public final class PTSDCrisisDevControlIntel extends BaseIntelPlugin {
         }
         else if("OPEN_MOBILIZATION".equals(action)){
             PTSDMobilizationIntel intel=PTSDMobilizationIntel.ensureIntel();
-            if(intel!=null){ui.selectItem(intel);done=true;}
+            if(intel!=null){openIntel(ui,intel);done=true;}
         }
         else if("OPEN_WAR".equals(action)){
             PTSDWarIntel intel=PTSDWarIntel.ensureIntel();
-            if(intel!=null){ui.selectItem(intel);done=true;}
+            if(intel!=null){openIntel(ui,intel);done=true;}
         }
         else if("OPEN_STAFF".equals(action)){
             PTSDGeneralStaffIntel intel=PTSDGeneralStaffIntel.ensureIntel();
-            if(intel!=null){ui.selectItem(intel);done=true;}
+            if(intel!=null){openIntel(ui,intel);done=true;}
         }
         else if("OPEN_EVENTS".equals(action)){
             PTSDLateEventIntel intel=PTSDLateEventIntel.ensureIntel();
-            if(intel!=null){ui.selectItem(intel);done=true;}
+            if(intel!=null){openIntel(ui,intel);done=true;}
         }
         String result=done?"已执行":lateFailureReason(action,s);
         PTSDCrisisDevIntel.report("DEV 后期操作",action+"："+result,s.baseSystemId,null);
         if(!done)Global.getSector().getCampaignUI().addMessage("[DEV] "+action+"："+result,Misc.getGrayColor());
     }
+    static void openIntel(IntelUIAPI ui, IntelInfoPlugin intel) {
+        if (intel == null) return;
+        // selectItem only selects an existing row. An explicit subset also bypasses
+        // the source panel's DEV/category filter for cross-category destinations.
+        ui.updateIntelList(false, Collections.singletonList(intel));
+        ui.selectItem(intel);
+    }
+
     private String lateFailureReason(String action,PTSDCrisisState s){
         if("PRODUCE".equals(action))return "母星尚未建成或控制权不符；没有可结算的生产源";
         if("CHECK_GATE".equals(action)){
@@ -468,7 +525,7 @@ public final class PTSDCrisisDevControlIntel extends BaseIntelPlugin {
             return "要塞化已过 "+Math.round(PTSDCrisisState.getDay()-s.phaseStartedDay)+
                     " 日；真实/估计准备 "+fmt(s.late.warPoints)+"/"+fmt(s.late.warPointBelief)+
                     "；有效航路 "+routes+"；期限 "+
-                    Math.round(data.scripts.IIRT_Omega_ModPlugin.lateFortificationDeadline)+" 日";
+                    Math.round(data.scripts.IIRT_Omega_ModPlugin.lateFortificationDeadline * 2f)+" 日";
         }
         if("BUILD_FORTRESS".equals(action))return "需要至少10准备点、30战略资产、未占用的黑洞星系及剩余要塞名额";
         if("COMPLETE_FORTRESS".equals(action))return "没有可模拟升级的现存、未毁、未在途要塞；检查完整体变体资源";

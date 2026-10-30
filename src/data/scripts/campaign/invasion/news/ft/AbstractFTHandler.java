@@ -104,7 +104,7 @@ public abstract class AbstractFTHandler implements PTSDCrisisNewsAPI.ChainNewsHa
         fleet.getMemoryWithoutUpdate().set("$PTSD_ft_id", chain.id);
         if (memoryKey != null) fleet.getMemoryWithoutUpdate().set(memoryKey, true);
         fleet.getEventListeners().add(new PTSDStrategicFleetListener(null, fleet.getFleetPoints()));
-        system.addEntity(fleet);
+        { system.addEntity(fleet); data.scripts.campaign.invasion.PTSDCampaignRuntime.entityAdded(fleet); }
         fleet.setLocation(x, y);
         state.late.strategicReserve -= assetCost;
         PTSDLateWarDirector.recordSpending(state, chain.id + " 实体舰队", 0f, assetCost);

@@ -45,6 +45,7 @@ public final class PTSDNewsSiteAPI {
         public final String title;
         public final String description;
         public final String confirmationHint;
+        /** Only entities CREATED by this event; borrowed relays/markets must NOT be listed. */
         public final List<String> entityIds;
 
         public SiteResult(SectorEntityToken anchor, String title, String description,
@@ -69,8 +70,7 @@ public final class PTSDNewsSiteAPI {
         SiteHandler handler = HANDLERS.get(key);
         if (handler != null) return handler;
         try {
-            Class<?> type = Global.getSettings().getScriptClassLoader().loadClass(key);
-            Object value = type.getDeclaredConstructor().newInstance();
+            Object value = Global.getSettings().getInstanceOfScript(key);
             if (!(value instanceof SiteHandler)) throw new IllegalArgumentException(key + " does not implement SiteHandler");
             handler = (SiteHandler)value; HANDLERS.put(key, handler); return handler;
         } catch (Throwable ex) {

@@ -30,6 +30,13 @@ public final class PTSDLateWarDirector {
         if (state == null || state.late == null) return;
         PTSDLateState late = state.late;
         if (!late.initialized) initialize(state, day);
+        if (state.phase == PTSDCrisisState.Phase.FORTIFICATION || state.phase == PTSDCrisisState.Phase.MOBILIZATION)
+            PTSDWarCampaignDirector.prepare(state, day, false);
+        if (state.phase == PTSDCrisisState.Phase.FORTIFICATION && day >= late.nextPhaseExpansionCheck) {
+            late.nextPhaseExpansionCheck = day + 2f;
+            expandFortificationFrontier(state);
+            PTSDFortressDirector.startPhasePair(state, day);
+        }
         if (state.phase == PTSDCrisisState.Phase.EXPANSION ||
                 state.phase == PTSDCrisisState.Phase.FORTIFICATION)
             ensureDevelopedPlanets(state);
@@ -62,6 +69,7 @@ public final class PTSDLateWarDirector {
             PTSDGeneralStaffDirector.advance(state, day);
         }
         PTSDFortressDirector.advanceDetonation(state);
+        PTSDReliefDirector.advance(state,day);
         PTSDLateEventDirector.advance(state, day);
         deliverAlerts(state, day);
     }
@@ -82,23 +90,86 @@ public final class PTSDLateWarDirector {
         }
     }
 
+    private static void expandFortificationFrontier(final PTSDCrisisState state) {
+        if (state.late.phaseExpansionSelected) return;
+        final List<StarSystemAPI> origins = new ArrayList<StarSystemAPI>();
+        final List<PlanetAPI> candidates = new ArrayList<PlanetAPI>();
+        for (StarSystemAPI system : Global.getSector().getStarSystems()) {
+            if (state.getSystemData(system.getId()).omegaControl >= .5f) {
+                origins.add(system); continue;
+            }
+            if (system.hasTag(com.fs.starfarer.api.impl.campaign.ids.Tags.THEME_HIDDEN) ||
+                    system.hasTag(com.fs.starfarer.api.impl.campaign.ids.Tags.SYSTEM_CUT_OFF_FROM_HYPER)) continue;
+            boolean inhabited = false;
+            for (MarketAPI market : Global.getSector().getEconomy().getMarkets(system))
+                if (!market.isPlanetConditionMarketOnly()) { inhabited = true; break; }
+            if (inhabited) continue;
+            for (PlanetAPI planet : system.getPlanets()) if (!planet.isStar()) {
+                candidates.add(planet); break; // One occupation site per system.
+            }
+        }
+        if (origins.isEmpty()) return;
+        Collections.sort(candidates, new Comparator<PlanetAPI>() {
+            public int compare(PlanetAPI a, PlanetAPI b) {
+                return Float.compare(distance(a), distance(b));
+            }
+            private float distance(PlanetAPI planet) {
+                float distance = Float.MAX_VALUE;
+                for (StarSystemAPI origin : origins)
+                    distance = Math.min(distance, Misc.getDistance(origin.getLocation(),
+                            planet.getStarSystem().getLocation()));
+                return distance;
+            }
+        });
+        if (state.late.phaseExpansionPlanetIds == null)
+            state.late.phaseExpansionPlanetIds = new ArrayList<String>();
+        int desired = IIRT_Omega_ModPlugin.fortificationExpansionSystems;
+        for (int i = 0; i < Math.min(desired, candidates.size()); i++) {
+            PlanetAPI planet = candidates.get(i);
+            planet.setFaction(PTSDCrisisProgress.getActiveFactionId(state));
+            if (planet.getMarket() != null)
+                planet.getMarket().setFactionId(PTSDCrisisProgress.getActiveFactionId(state));
+            IIRT_Omega_Invasion.applyPlanetMutation(planet, 5);
+            PTSDCrisisState.SystemData data = state.getSystemData(planet.getStarSystem().getId());
+            data.omegaControl = 1f; data.humanControl = 0f; data.conversionLevel = 5;
+            state.late.phaseExpansionPlanetIds.add(planet.getId());
+        }
+        state.late.phaseExpansionSelected = true;
+        PTSDCrisisDevIntel.report("要塞阶段扩张", "免费新增 " +
+                state.late.phaseExpansionPlanetIds.size() + "/" + desired + " 处占领区；不足表示没有更多合法无人星系",
+                state.baseSystemId, null);
+    }
+
     private static void produce(PTSDCrisisState state, float day, boolean dev) {
         PTSDLateState late = state.late;
         StringBuilder sources = new StringBuilder();
         float income = sourceIncome(state, day, sources);
         float capped = Math.min(IIRT_Omega_ModPlugin.lateProductionPerTurnCap,
                 income * IIRT_Omega_ModPlugin.lateProductionMultiplier);
+        // Scale active industry to sector population instead of budgeting a sector-wide war
+        // with the former four-target cap. No functioning sources means no extra production.
+        float buildCycles = state.phase == PTSDCrisisState.Phase.WAR ? 3f : 6f;
+        float requiredPoints = Math.max(late.openingPointsRequired,late.regionalPointsRequired);
+        float requiredAssets = Math.max(late.openingAssetsRequired,late.regionalAssetsRequired);
+        if (income > 0f && requiredPoints > 0f)
+            capped = Math.max(capped, requiredPoints / buildCycles * IIRT_Omega_ModPlugin.lateProductionMultiplier);
         float before = late.warPoints;
-        late.warPoints = Math.min(IIRT_Omega_ModPlugin.lateProductionStorageCap, before + capped);
+        float preparationCap = Math.max(IIRT_Omega_ModPlugin.lateProductionStorageCap, requiredPoints * 1.25f);
+        late.warPoints = Math.min(preparationCap, before + capped);
         float credited = late.warPoints - before;
-        late.warPointBelief = Math.min(IIRT_Omega_ModPlugin.lateProductionStorageCap,
+        late.warPointBelief = Math.min(preparationCap,
                 late.warPointBelief + credited);
         float assetIncome = income <= 0f ? 0f : 8f +
                 Math.min(IIRT_Omega_ModPlugin.lateProductionPerTurnCap, income) * 2f;
         StringBuilder planets = new StringBuilder();
         float planetIncome = planetAssetIncome(state, late.productionSettlementCount, planets);
+        if (income > 0f && requiredAssets > 0f)
+            assetIncome = Math.max(assetIncome,
+                    requiredAssets / buildCycles * IIRT_Omega_ModPlugin.lateProductionMultiplier - planetIncome);
+        float productionCurve = data.scripts.PTSDDifficultySettings.productionScale(state,day);
+        assetIncome *= productionCurve;planetIncome *= productionCurve;
         float beforeAssets = late.strategicReserve;
-        late.strategicReserve = Math.max(beforeAssets, Math.min(STRATEGIC_ASSET_CAP,
+        late.strategicReserve = Math.max(beforeAssets, Math.min(Math.max(STRATEGIC_ASSET_CAP, requiredAssets * 1.25f),
                 beforeAssets + assetIncome + planetIncome));
         float assetCredited = late.strategicReserve - beforeAssets;
         late.productionSettlementCount++;
@@ -180,8 +251,10 @@ public final class PTSDLateWarDirector {
         PTSDLateState late = state.late;
         if (!late.committedIds.add("asset-credit:" + key)) return 0f;
         float before = late.strategicReserve;
+        float cap = key.startsWith("virtual-return:") || key.startsWith("war-wave-return:") || key.startsWith("mobilization-convoy:") ?
+                before + amount : Math.max(STRATEGIC_ASSET_CAP, late.openingAssetsRequired * 1.25f);
         late.strategicReserve = Math.max(before,
-                Math.min(STRATEGIC_ASSET_CAP, before + amount));
+                Math.min(cap, before + amount));
         float credited = late.strategicReserve - before;
         late.lastAssetCreditCause = reason;
         late.lastAssetCreditAmount = credited;
@@ -193,7 +266,7 @@ public final class PTSDLateWarDirector {
     }
 
     public static void creditSuccessfulEvent(PTSDCrisisState.StrategicEvent event) {
-        if (event == null || !event.successful ||
+        if (event == null || event.simulatedWarOperation || !event.successful ||
                 !PTSDCrisisAPI.SIDE_OMEGA.equals(event.side) || event.id == null ||
                 event.type == PTSDCrisisState.EventType.EXTERNAL) return;
         creditStrategicAssets(PTSDCrisisState.get(), "event:" + event.id, 5f,
@@ -277,6 +350,9 @@ public final class PTSDLateWarDirector {
         if (state == null || state.late == null || id == null) return false;
         PTSDLateState late = state.late;
         if (late.committedIds.contains("construction:" + id)) return false;
+        if ((state.phase == PTSDCrisisState.Phase.FORTIFICATION || state.phase == PTSDCrisisState.Phase.MOBILIZATION) &&
+                (late.warPoints - 5f < late.openingPointsRequired ||
+                        late.strategicReserve - fp < late.openingAssetsRequired)) return false;
         if (late.warPoints < 5f || late.strategicReserve < fp) return false;
         late.warPoints -= 5f;
         late.warPointBelief = Math.max(0f, late.warPointBelief - 5f);
@@ -324,24 +400,31 @@ public final class PTSDLateWarDirector {
         for (PTSDCrisisState.SystemData data : state.systems.values()) {
             if (data.hasNonCrisisColony && hasValidEvidence(data, day)) { routeKnown = true; break; }
         }
-        if (elapsed >= 10f && sources >= 2 && routeKnown &&
+        if (elapsed >= 20f && sources >= 2 && routeKnown &&
                 (late.warPoints >= IIRT_Omega_ModPlugin.lateSurpriseThreshold ||
                         (late.warPointBelief >= IIRT_Omega_ModPlugin.lateSurpriseThreshold &&
                                 late.warPoints >= IIRT_Omega_ModPlugin.lateSurpriseMinimum))) {
-            enqueueAlert(state, "surprise:" + Math.round(day), state.baseSystemId,
-                    "联合警戒网：四处边缘航路几乎同时失去回执；预定动员程序已失去时效。", day);
             IIRT_Omega_Invasion.beginWar(state);
+            if(state.phase==PTSDCrisisState.Phase.WAR)
+                enqueueAlert(state, "surprise:" + Math.round(day), state.baseSystemId,
+                        "联合警戒网紧急通报：多地侦测到未知武装编队接近。各港正核对来袭方向，民用航班暂停离港。", day);
             return;
         }
-        if (elapsed >= 30f && ((late.warPoints >= IIRT_Omega_ModPlugin.lateMobilizationThreshold &&
+        if (elapsed >= 60f && ((late.warPoints >= IIRT_Omega_ModPlugin.lateMobilizationThreshold &&
                 late.warPointBelief >= IIRT_Omega_ModPlugin.lateMobilizationThreshold && routeKnown) ||
-                elapsed >= IIRT_Omega_ModPlugin.lateFortificationDeadline)) {
+                elapsed >= IIRT_Omega_ModPlugin.lateFortificationDeadline * 2f)) {
             IIRT_Omega_Invasion.transition(state, PTSDCrisisState.Phase.MOBILIZATION);
             Global.getSector().getCampaignUI().addMessage(
                     "多当局联合确认：边缘未知舰体事件具有统一来源。殖民地防务计划进入公开修订。", RED);
             PTSDCrisisIntel.ensureIntel();
             PTSDMobilizationIntel.ensureIntel();
         }
+    }
+
+    public static float affordableAttackStrength(PTSDCrisisState state) {
+        if (state == null || state.late == null) return 0f;
+        return Math.max(0f, Math.min(state.late.strategicReserve,
+                (float)Math.floor(state.late.warPoints / 10f) * 80f));
     }
 
     public static boolean reserveAttack(PTSDCrisisState state, String eventId, float fp) {
@@ -359,103 +442,8 @@ public final class PTSDLateWarDirector {
     }
 
     public static void onWarStarted(PTSDCrisisState state) {
-        if (state == null || state.late == null || state.late.firstWaveSelected) return;
-        PTSDLateState late = state.late;
-        late.firstWaveSelected = true;
-        late.warStartedDay = PTSDCrisisState.getDay();
-        List<MarketAPI> candidates = new ArrayList<MarketAPI>();
-        for (MarketAPI market : PTSDOccupationManager.getAllMarkets()) {
-            if (market == null || market.isPlanetConditionMarketOnly() || market.getStarSystem() == null ||
-                    market.getPrimaryEntity() == null) continue;
-            String faction = market.getFactionId();
-            if (IIRT_Omega_Invasion.WATCHER_FACTION.equals(faction) ||
-                    IIRT_Omega_Invasion.PSYCHASTHENIA_FACTION.equals(faction)) continue;
-            PTSDCrisisFactionModifierAPI.Effects effect =
-                    PTSDCrisisFactionModifierAPI.get(faction, market.getStarSystem().getId());
-            if (effect.immune || effect.targetWeight <= 0f) continue;
-            PTSDCrisisState.SystemData data = state.getSystemData(market.getStarSystem().getId());
-            if (data == null || !data.hasNonCrisisColony || !hasValidEvidence(data, PTSDCrisisState.getDay())) continue;
-            candidates.add(market);
-        }
-        Collections.sort(candidates, new Comparator<MarketAPI>() {
-            @Override public int compare(MarketAPI a, MarketAPI b) {
-                return Float.compare(score(state, b), score(state, a));
-            }
-        });
-        int created = 0;
-        int burstLimit = Math.max(1, Math.min(4, (int) (late.warPoints / 30f)));
-        for (MarketAPI market : candidates) {
-            if (created >= burstLimit || late.warPoints < 10f || late.strategicReserve < 45f) break;
-            String systemId = market.getStarSystem().getId();
-            boolean used = false;
-            for (PTSDLateState.Front front : late.fronts.values()) {
-                if (systemId.equals(front.systemId)) { used = true; break; }
-            }
-            if (used) continue;
-            PTSDLateState.Front front = new PTSDLateState.Front();
-            front.id = "burst:" + market.getId();
-            front.systemId = systemId;
-            front.marketId = market.getId();
-            front.sourceSystemId = sourceFor(state, market.getStarSystem());
-            front.warningDay = PTSDCrisisState.getDay();
-            front.nextStrikeDay = front.warningDay + 3f;
-            front.attackBudget = Math.min(120f, late.strategicReserve /
-                    Math.max(1f, burstLimit - created));
-            if (front.attackBudget < 45f) break;
-            front.burst = true;
-            PTSDCrisisState.SystemData observed = state.getSystemData(systemId);
-            for (PTSDCrisisState.EvidenceRecord evidence : observed.evidence) {
-                if (evidence != null && evidence.id != null &&
-                        evidence.expiresDay > PTSDCrisisState.getDay()) front.evidenceIds.add(evidence.id);
-            }
-            late.warPoints -= 10f;
-            late.warPointBelief = Math.max(0f, late.warPointBelief - 10f);
-            late.strategicReserve -= front.attackBudget;
-            recordSpending(state, "首波 " + front.id, 10f, front.attackBudget);
-            late.fronts.put(front.id, front);
-            created++;
-            enqueueAlert(state, front.id + ":0", systemId,
-                    market.getName() + "：民用中继失联。地方政府仍称港口运行正常。", front.warningDay);
-            String[] sources = {"港务台", "地方防务部", "客运登记处", "深空监听阵列", "商船互助网"};
-            String[] notices = {"所有入港时刻表作废", "外轨道武装信号正在增加",
-                    "撤离船票已超出可用泊位", "同一坐标出现互相矛盾的舰数", "救援航路暂停受理"};
-            for (int n = 0; n < sources.length; n++) {
-                enqueueAlert(state, front.id + ":peak:" + n, systemId,
-                        "[" + sources[n] + "] " + market.getName() + "：" + notices[n] + "。",
-                        front.warningDay + .15f * (n + 1));
-            }
-        }
-        late.selectedBurstCount = created;
-        if (late.warPointBelief > late.warPoints + 15f) {
-            enqueueAlert(state, "underprepared-first-wave", state.baseSystemId,
-                    "联合监听：数条敌方集结线到达时间相互矛盾；部分补给船晚于主力出航。", late.warStartedDay + .5f);
-        }
-        if (created == 0) {
-            int probes = 0;
-            for (StarSystemAPI unknown : Global.getSector().getStarSystems()) {
-                if (probes >= 2) break;
-                if (unknown == null || unknown.getId().equals(state.baseSystemId) ||
-                        state.getSystemData(unknown.getId()).omegaControl >= .5f) continue;
-                boolean immune = false;
-                for (MarketAPI market : PTSDOccupationManager.getAllMarkets()) {
-                    if (market != null && market.getStarSystem() == unknown &&
-                            PTSDCrisisFactionModifierAPI.get(market.getFactionId(), unknown.getId()).immune) {
-                        immune = true;
-                        break;
-                    }
-                }
-                if (immune) continue;
-                if (!reserveAttack(state, "war-blind-probe:" + unknown.getId(), 25f)) break;
-                PTSDCrisisState.StrategicEvent probe = state.addEvent(PTSDCrisisState.EventType.SCOUT,
-                        PTSDCrisisAPI.SIDE_OMEGA, IIRT_Omega_Invasion.PSYCHASTHENIA_FACTION,
-                        state.baseSystemId, unknown.getId(), null, 25f, 7f);
-                probe.description = "首轮情报不足：低成本盲探，不视为已确认殖民地攻势。";
-                probes++;
-            }
-        }
-        PTSDWarIntel.ensureIntel();
-        PTSDCrisisDevIntel.report("全线入侵爆发点", "真实准备支撑 " + created + "/4 个爆发点",
-                state.baseSystemId, null);
+        if (state == null || state.late == null) return;
+        PTSDWarCampaignDirector.start(state);
     }
 
     private static String sourceFor(PTSDCrisisState state, StarSystemAPI target) {
@@ -493,7 +481,7 @@ public final class PTSDLateWarDirector {
         float outer = Math.min(3f, system.getLocation().length() / 15000f);
         float threat = PTSDThreatDirector.localThreat(state, system.getId(), PTSDCrisisState.getDay());
         PTSDCrisisState.PlayerMarker marker = state.playerMarkers.get(system.getId());
-        float prepared = 1f; // A player request does not change enemy evidence or create defenses.
+        float prepared = 160f / (80f + Math.max(0f, data.observedMarketDefense) + Math.max(0f, data.observedFleetStrength)); // Only uploaded enemy estimates influence selection.
         return effect.targetWeight * prepared * (1f + outer + Math.min(1f, market.getSize() / 8f)) *
                 Math.max(.25f, data.beliefConfidence) * (1f - Math.min(.65f, threat / 140f));
     }
@@ -504,6 +492,11 @@ public final class PTSDLateWarDirector {
         float day = PTSDCrisisState.getDay();
         for (PTSDLateState.Front front : state.late.fronts.values()) {
             if (front == null || front.resolved) continue;
+            if (front.operationId != null) {
+                PTSDCrisisState.StrategicEvent event=state.getEvent(front.operationId);
+                if(event!=null)event.resolveDay=Math.max(day,event.operationRescueDeadline);
+                return event!=null;
+            }
             front.nextStrikeDay = day;
             advanceFronts(state, day);
             return true;
@@ -514,6 +507,7 @@ public final class PTSDLateWarDirector {
     private static void advanceFronts(PTSDCrisisState state, float day) {
         PTSDLateState late = state.late;
         for (PTSDLateState.Front front : late.fronts.values()) {
+            if (front != null && front.operationId != null) continue;
             if (front == null || front.resolved || day < front.nextStrikeDay) continue;
             MarketAPI market = state.resolveMarket(front.marketId);
             if (market == null || market.isPlanetConditionMarketOnly()) {

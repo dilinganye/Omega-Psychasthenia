@@ -9,7 +9,7 @@ import com.fs.starfarer.api.util.Misc;
 import data.scripts.campaign.invasion.*;
 
 /** No public news. Direct interaction skips the ambient warning sequence. */
-public final class FT04Handler extends AbstractFTHandler {
+public class FT04Handler extends AbstractFTHandler {
     protected String id() { return "FT-04"; }
     @Override public String unavailableReason(PTSDCrisisState state) {
         return state.baseSystemId == null || state.baseMarketId == null ?

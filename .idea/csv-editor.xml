@@ -143,6 +143,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\data\config\ptsdCSV\PTSD_first_wave_targets.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\data\config\title_screen_variants.csv">
           <value>
             <Attribute>

@@ -403,7 +403,7 @@ public final class PTSDLateEventDirector {
             Global.getLogger(PTSDLateEventDirector.class).warn("Unable to create escort convoy", ex);
             return false;
         }
-        system.addEntity(convoy);
+        { system.addEntity(convoy); data.scripts.campaign.invasion.PTSDCampaignRuntime.entityAdded(convoy); }
         SectorEntityToken departure = lastSurvivors ? system.getStar() : market.getPrimaryEntity();
         if (departure == null) departure = system.getJumpPoints().get(0);
         convoy.setLocation(departure.getLocation().x + 500f,
@@ -422,6 +422,7 @@ public final class PTSDLateEventDirector {
     }
 
     private static boolean createBattleTarget(PTSDCrisisState state, PTSDLateState.EventCard card) {
+        if(data.scripts.PTSDDifficultySettings.spawningPaused())return false;
         StarSystemAPI system = state.resolveSystem(card.systemId);
         if (system == null) return false;
         PTSDLateState.Front donor = frontFor(state, card);
@@ -448,7 +449,7 @@ public final class PTSDLateEventDirector {
                     "敌方从主攻编组抽出30点火力巡查航路；原战区压力降低。",
                     PTSDCrisisState.getDay());
         }
-        system.addEntity(fleet);
+        { system.addEntity(fleet); data.scripts.campaign.invasion.PTSDCampaignRuntime.entityAdded(fleet); }
         SectorEntityToken anchor = system.getStar();
         MarketAPI market = state.resolveMarket(card.targetEntityId);
         if (market != null && market.getPrimaryEntity() != null) anchor = market.getPrimaryEntity();
@@ -576,7 +577,7 @@ public final class PTSDLateEventDirector {
                 PTSDCrisisProgress.add(state, PTSDCrisisProgress.Variable.HUMAN_AWARENESS,
                         4f, card.id + ":verified", card.systemId);
             PTSDLateState.Front front = frontFor(state, card);
-            if (front != null && ("DEFEND".equals(card.orderKind) || "BATTLE".equals(card.orderKind)))
+            if (state.phase != PTSDCrisisState.Phase.WAR && front != null && ("DEFEND".equals(card.orderKind) || "BATTLE".equals(card.orderKind)))
                 front.defense += 12f;
             if ("ESCORT".equals(card.orderKind)) {
                 if (!state.playerMarkers.containsKey(card.systemId))
@@ -624,14 +625,10 @@ public final class PTSDLateEventDirector {
                     "：消息只在人类网络传播，敌方未获得回执；准备点不变");
         }
         if ("WR-JE-01".equals(card.id)) {
-            if (choice == 2 && Math.random() < .3d) {
-                state.jeDead = true;
-                state.jeMeetingReady = false;
-                state.jePlayerTaskIncidentId = null;
-                state.jeAgentIncidentId = null;
-                return label + "：Je 遇难；关键记录已转交联合秘书处";
-            }
-            return label + "：联合秘书处登记了关键坐标；Je 的个人记录仍保留";
+            if(choice!=2)return label+"：调查暂缓，Je保留现有记录。";
+            String result=PTSDJeWarExpedition.start(state,card);
+            if(result==null){reject(state,card,"Je当前忙碌，或没有合法调查航程与护航舰队");return null;}
+            return result;
         }
         if ("WR-GS-01".equals(card.id))
             return choice == 1 ? label + "：现有个人战绩 " +
@@ -672,9 +669,7 @@ public final class PTSDLateEventDirector {
                 reject(state, card, "邻区没有仍在交战的战线或联合额度不足15点");
                 return null;
             }
-            state.late.humanResponseBudget -= 15f;
-            neighbor.defense += 15f;
-            return label + "：邻区 " + neighbor.systemId + " 防务+15；联合额度-15";
+            return coordinateRelief(state,card,neighbor,15f,label);
         }
         if (("WR-05".equals(card.id) || "WR-GS-03".equals(card.id)) && choice == 1) {
             PTSDLateState.Front front = frontFor(state, card);
@@ -682,11 +677,7 @@ public final class PTSDLateEventDirector {
                 reject(state, card, "补给调度需要活跃战区与10点联合额度");
                 return null;
             }
-            state.late.humanResponseBudget -= 10f;
-            front.defense += 10f;
-            PTSDThreatDirector.recordAction(state, "SUPPLY", card.id, card.systemId,
-                    20f, .55f, hasWitness(state, card.systemId), 40f);
-            return label + "：" + front.systemId + " 的补给调度恢复；防务+10，联合额度-10";
+            return coordinateRelief(state,card,front,10f,label);
         }
         if ("WR-09".equals(card.id) && choice == 2) {
             PTSDLateState.Front front = frontFor(state, card);
@@ -694,9 +685,7 @@ public final class PTSDLateEventDirector {
                 reject(state, card, "修复需活跃防区和10点联合额度");
                 return null;
             }
-            state.late.humanResponseBudget -= 10f;
-            front.defense += 10f;
-            return label + "：防务+10，联合额度-10";
+            return coordinateRelief(state,card,front,10f,label);
         }
         if ("MB-02".equals(card.id) && choice == 2) {
             if (state.late.humanResponseBudget < 10f) {
@@ -725,9 +714,7 @@ public final class PTSDLateEventDirector {
             if (state.late.humanResponseBudget < 15f) {
                 reject(state, card, "联合防务额度不足15点"); return null;
             }
-            state.late.humanResponseBudget -= 15f;
-            front.defense += 15f;
-            return label + "：" + front.systemId + " 防务+15，联合防务额度-15";
+            return coordinateRelief(state,card,front,15f,label);
         }
         if (card.id.startsWith("FT-") && choice == 2 && hasWitness(state, card.systemId)) {
             PTSDThreatDirector.recordAction(state, "DECEPTION", card.id, card.systemId,
@@ -748,6 +735,12 @@ public final class PTSDLateEventDirector {
                 choice == 1 ? 3f : 2f, card.id, card.systemId);
         return label + "：可核实情报已共享；人类凝聚+" + (choice == 1 ? 3 : 2) +
                 "，敌方准备点不变";
+    }
+
+    private static String coordinateRelief(PTSDCrisisState state,PTSDLateState.EventCard card,PTSDLateState.Front front,float cost,String label){
+        if(!PTSDReliefDirector.requestAssistance(state,front)){reject(state,card,"该战区尚未获得可执行的援军承诺，请在联盟行动页查阅原因");return null;}
+        state.late.humanResponseBudget-=cost;
+        return label+"：调令已签收；协调额度-"+Math.round(cost)+"。兵力须完成整备、集结及航行，实际抵达后形成防御。";
     }
 
     private static boolean hasWitness(PTSDCrisisState state, String systemId) {

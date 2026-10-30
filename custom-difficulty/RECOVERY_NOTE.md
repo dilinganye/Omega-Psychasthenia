@@ -1,0 +1,1 @@
+本次latest.json与带recovered的历史快照从 D:\Game\Starsector_098\saves\common\LunaSettings\Omega_PTSD.json.data 中的 _PTSD_customDifficulty 原样提取，共110项。没有补入默认参数，也没有修改游戏或Luna设置。此文件仅代表最近保存的自定义快照，不包含尚未保存的界面草稿。自动导出未生成的原因尚未确认。

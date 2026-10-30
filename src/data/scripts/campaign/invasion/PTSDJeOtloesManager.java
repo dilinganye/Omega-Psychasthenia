@@ -15,6 +15,7 @@ public final class PTSDJeOtloesManager implements EveryFrameScript, ColonyIntera
     public static final String PERSON_ID = "PTSD_je_otloes";
     public static final float POST_TASK_BUSY_DAYS = 3f;
     public static final float TASK_COOLDOWN_DAYS = 12f;
+    public static final int MAX_CONSECUTIVE_CONTACT_ATTEMPTS = 3;
     public enum ContactResult { CONNECTED, MISSED, BLOCKED_FOR_DAY }
     private final Random random = new Random();
 
@@ -54,7 +55,7 @@ public final class PTSDJeOtloesManager implements EveryFrameScript, ColonyIntera
 
     public static ContactResult rollContactAttempt() {
         PTSDCrisisState state = PTSDCrisisState.get();
-        if (state == null || state.jeDead) return ContactResult.MISSED;
+        if (state == null || state.jeDead || PTSDJeWarExpedition.unavailable(state)) return ContactResult.MISSED;
         float day = PTSDCrisisState.getDay();
         int bucket = (int) Math.floor(day);
         if (state.jeContactDayBucket != bucket) {
@@ -63,6 +64,15 @@ public final class PTSDJeOtloesManager implements EveryFrameScript, ColonyIntera
             if (state.jeContactBlockedUntilDay <= day) state.jeContactBlockedUntilDay = 0f;
         }
         state.jeContactAttemptsToday++;
+        // Reopening contact after two unanswered calls must connect, even during a daily block.
+        // The streak spans day boundaries and is cleared after the successful greeting.
+        if (state.jeMissedContactsSinceSuccess >= MAX_CONSECUTIVE_CONTACT_ATTEMPTS - 1) {
+            state.jeContactBlockedUntilDay = 0f;
+            state.jeDevNextContactOutcome = 0;
+            if (state.jeContactAttemptsToday >= MAX_CONSECUTIVE_CONTACT_ATTEMPTS)
+                state.jeSpamComplaintPending = true;
+            return ContactResult.CONNECTED;
+        }
         if (Global.getSettings().isDevMode() && state.jeDevNextContactOutcome != 0) {
             int forced = state.jeDevNextContactOutcome;
             state.jeDevNextContactOutcome = 0;
@@ -103,7 +113,7 @@ public final class PTSDJeOtloesManager implements EveryFrameScript, ColonyIntera
     }
 
     public static boolean isPostTaskBusy(PTSDCrisisState state) {
-        return state != null && PTSDCrisisState.getDay() < state.jePostTaskBusyUntilDay;
+        return state != null && (PTSDJeWarExpedition.unavailable(state) || PTSDCrisisState.getDay() < state.jePostTaskBusyUntilDay);
     }
 
     public static int daysUntilNextTask(PTSDCrisisState state) {
@@ -112,7 +122,7 @@ public final class PTSDJeOtloesManager implements EveryFrameScript, ColonyIntera
     }
 
     public static boolean canStartAnotherTask(PTSDCrisisState state) {
-        return state != null && !state.jeDead && daysUntilNextTask(state) <= 0;
+        return state != null && !state.jeDead && !PTSDJeWarExpedition.unavailable(state) && daysUntilNextTask(state) <= 0;
     }
 
     private static void recordTaskAccepted(PTSDCrisisState state) {
@@ -159,9 +169,44 @@ public final class PTSDJeOtloesManager implements EveryFrameScript, ColonyIntera
         float readiness = PTSDCrisisProgress.getInvasionReadiness(state);
         return Math.max(1f, 1.65f - Math.min(1f, readiness / 70f) * .65f);
     }
+    public static boolean isOmegaFleet(com.fs.starfarer.api.campaign.CampaignFleetAPI fleet) {
+        if (fleet == null || fleet.getFaction() == null) return false;
+        String id = fleet.getFaction().getId();
+        return IIRT_Omega_Invasion.WATCHER_FACTION.equals(id) ||
+                IIRT_Omega_Invasion.PSYCHASTHENIA_FACTION.equals(id);
+    }
+
+    public static void recordFleetEncounter(com.fs.starfarer.api.campaign.CampaignFleetAPI fleet) {
+        if (!isOmegaFleet(fleet)) return;
+        com.fs.starfarer.api.campaign.CampaignFleetAPI player=Global.getSector().getPlayerFleet();
+        // Dialog-plugin selection may be queried without an actual player encounter.
+        if(player==null || player.getContainingLocation()!=fleet.getContainingLocation() ||
+                !fleet.isVisibleToPlayerFleet()) return;
+        String key = fleet.getMemoryWithoutUpdate().getString("$PTSD_participation_key");
+        recordParticipation(PTSDCrisisState.get(), key == null ? "fleet:" + fleet.getId() : key);
+    }
+
+    public static void recordPlayerBattle(com.fs.starfarer.api.campaign.CampaignFleetAPI fleet) {
+        if (!isOmegaFleet(fleet)) return;
+        PTSDCrisisState state = PTSDCrisisState.get();
+        if (state == null || fleet.getMemoryWithoutUpdate().getBoolean("$PTSD_player_battle_counted")) return;
+        fleet.getMemoryWithoutUpdate().set("$PTSD_player_battle_counted", true);
+        state.totalPlayerOmegaBattles++;
+        String participation = fleet.getMemoryWithoutUpdate().getString("$PTSD_participation_key");
+        recordParticipation(state, participation == null ? "fleet:" + fleet.getId() : participation);
+        PTSDFTDirector.onPlayerEncounter(state, fleet.getId());
+    }
+
+    public static void recordParticipation(PTSDCrisisState state, String key) {
+        if (state == null || key == null || key.trim().isEmpty()) return;
+        if (state.jeParticipationIds == null) state.jeParticipationIds = new java.util.LinkedHashSet<String>();
+        state.jeParticipationIds.add(key);
+    }
+
     public static boolean triggerUnlocked(PTSDCrisisState state) {
         return state != null && !state.jeDead &&
-                (state.totalScoutSightings >= 4 || state.totalPlayerOmegaBattles >= 1);
+                (state.totalScoutSightings >= 4 || state.totalPlayerOmegaBattles >= 1 ||
+                (state.jeParticipationIds != null && state.jeParticipationIds.size() >= 4));
     }
 
     public static boolean eligibleMarket(MarketAPI market) {
@@ -181,23 +226,31 @@ public final class PTSDJeOtloesManager implements EveryFrameScript, ColonyIntera
                 PTSDCrisisIncidentManager.getTemplates("CONDITIONAL", state.phase)) {
             if (template.id.startsWith("R2-") || template.id.startsWith("F2-")) {
                 if ("可触发".equals(PTSDConditionalNewsDirector.unavailableReason(state, template.id)))
-                    picker.add(template.id, Math.max(.1f, template.priority));
+                    picker.add(template.id, Math.max(.1f, template.priority) * template.eventWeight);
             }
         }
-        if ("可触发".equals(PTSDCrisisIncidentManager.unavailableReason("JE-01")))
+        for (PTSDCrisisIncidentManager.ScriptedTemplate template : PTSDCrisisIncidentManager.getJeTemplates(state.phase)) {
+            if (template.weight > 0f && "可触发".equals(PTSDCrisisIncidentManager.unavailableReason(template.id)))
+                picker.add(template.id, template.weight);
+        }
+        if (PTSDCrisisIncidentManager.enabled("JE-01") && PTSDCrisisIncidentManager.getTemplate("JE-01") != null && !PTSDCrisisIncidentManager.getTemplate("JE-01").jeOnly &&
+                "可触发".equals(PTSDCrisisIncidentManager.unavailableReason("JE-01")))
             picker.add("JE-01", .1f);
         String selected = picker.pick();
         PTSDCrisisState.CrisisIncident incident = selected == null ? null :
-                "JE-01".equals(selected) ?
+                ("JE-01".equals(selected) || PTSDCrisisIncidentManager.getTemplate(selected).jeOnly) ?
                         PTSDCrisisIncidentManager.forceAndGetPrivate(selected) :
                         PTSDConditionalNewsDirector.forJe(state, selected);
         if (incident == null) return null;
         if (!PTSDCrisisAPI.recordNewsIncident(incident.id)) return null;
         // Retain the assigned lead's truth value; supported disproof is also a valid result.
         state.jePlayerTaskIncidentId = incident.id;
+        incident.jePlayerAssignment = true;
         recordTaskAccepted(state);
-        PTSDCrisisIntel.ensureIntel();
-        if (text != null) text.addPara("Je 将一组强度明显更高的异常报告转入了你的调查列表。");
+        PTSDCrisisIntel intel = PTSDCrisisIntel.ensureIntel();
+        if (intel != null) intel.focusIncident(incident.id);
+        if (text != null) text.addPara("Je 已将这份委托录入“边缘失联信号”的“高能信号”分支。打开该情报，查看“" +
+                PTSDPlayerNewsText.headline(incident) + "”并使用任务下方的导航按钮前往调查。");
         PTSDCrisisDevIntel.report("Je 实地调查委托", incident.headline,
                 incident.targetSystemId, incident.targetEntityId);
         return incident;
@@ -215,7 +268,7 @@ public final class PTSDJeOtloesManager implements EveryFrameScript, ColonyIntera
             picked = item;
             break;
         }
-        if (picked == null) picked = PTSDCrisisIncidentManager.forceAndGet("JE-01");
+        if (picked == null && PTSDCrisisIncidentManager.enabled("JE-01")) picked = PTSDCrisisIncidentManager.forceAndGetPrivate("JE-01");
         if (picked == null) return null;
         state.jeAgentIncidentId = picked.id;
         recordTaskAccepted(state);
@@ -235,6 +288,7 @@ public final class PTSDJeOtloesManager implements EveryFrameScript, ColonyIntera
             if (incident == null) {
                 state.jePlayerTaskIncidentId = null;
             } else if (incident.investigationResolved) {
+                incident.jePlayerAssignment = true;
                 state.jePlayerTaskIncidentId = null; // Claim once before any UI/callback.
                 if (!PTSDTaskRules.successfulInvestigation(incident.investigationResult)) {
                     Global.getSector().getCampaignUI().addMessage("Je 委托已结束，未取得可核验的调查结论。", Misc.getGrayColor());
@@ -296,6 +350,7 @@ public final class PTSDJeOtloesManager implements EveryFrameScript, ColonyIntera
         incident.investigationReal = true;
         incident.investigationResult = PTSDTaskRules.InvestigationResult.CONFIRMED;
         state.jeCompletedInvestigations++;
+        PTSDInvestigationRewards.agent(incident);
         state.jeAgentIncidentId = null;
         state.jeAgentReturnDay = 0f;
         state.jeMeetingMarketId = null;

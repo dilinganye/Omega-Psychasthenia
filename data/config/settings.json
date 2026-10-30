@@ -1,6 +1,7 @@
 {
     "plugins":{
 		"IIRT_Omega_PluginStarter":"data.scripts.everyframe.IIRT_Omega_PluginStarter",
+        "PTSDCombatRelief":"data.scripts.campaign.invasion.PTSDCombatRelief",
     },
 	
     "designTypeColors":

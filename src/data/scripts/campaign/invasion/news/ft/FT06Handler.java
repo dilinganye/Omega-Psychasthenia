@@ -13,7 +13,7 @@ import data.scripts.campaign.invasion.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class FT06Handler extends AbstractFTHandler {
+public class FT06Handler extends AbstractFTHandler {
     protected String id() { return "FT-06"; }
     @Override public String unavailableReason(PTSDCrisisState state) {
         return pair(state) == null ? "没有两个可核对的非玩家相邻势力" : "可触发";
@@ -66,7 +66,7 @@ public final class FT06Handler extends AbstractFTHandler {
                     "边界核验舰", true);
             patrol.getFleetData().addFleetMember(Global.getFactory().createFleetMember(
                     FleetMemberType.SHIP, "hammerhead_Balanced"));
-            system.addEntity(patrol);
+            { system.addEntity(patrol); data.scripts.campaign.invasion.PTSDCampaignRuntime.entityAdded(patrol); }
             patrol.setLocation(system.getStar().getLocation().x + 2600f,
                     system.getStar().getLocation().y);
             patrol.addAssignment(FleetAssignment.ORBIT_AGGRESSIVE, system.getStar(), 35f, "核验边界标记");

@@ -2,7 +2,14 @@ package data.scripts.campaign.invasion;
 
 /** Stable task semantics, independent of presentation text and campaign APIs. */
 public final class PTSDTaskRules {
+    public static final float NEWS_INVESTIGATION_DAYS = 60f;
     private PTSDTaskRules() { }
+    public static int ordinaryNewsOutcome(float roll, boolean dormant) {
+        return ordinaryNewsOutcome(roll, data.scripts.IIRT_Omega_ModPlugin.news_true_chance);
+    }
+    public static int ordinaryNewsOutcome(float roll, float trueChance) {
+        return roll < Math.max(0f, Math.min(1f, trueChance)) ? 1 : 2;
+    }
 
     public enum InvestigationResult {
         PENDING, CONFIRMED, DISPROVED, INCONCLUSIVE, TRACKER, EXPIRED, TARGET_LOST, LEGACY_UNVERIFIED
@@ -13,7 +20,7 @@ public final class PTSDTaskRules {
     }
 
     public static float ordinaryDeadline(float now, float existing) {
-        return Math.max(now + 30f, existing);
+        return Math.max(now + NEWS_INVESTIGATION_DAYS, existing);
     }
 
     public static float rescueWindow(float travelDays) {

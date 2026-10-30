@@ -141,8 +141,7 @@ public final class PTSDCrisisNewsAPI {
         CustomNewsHandler registered = HANDLERS.get(key);
         if (registered != null) return registered;
         try {
-            Class<?> type = Global.getSettings().getScriptClassLoader().loadClass(key);
-            Object instance = type.getDeclaredConstructor().newInstance();
+            Object instance = Global.getSettings().getInstanceOfScript(key);
             if (!(instance instanceof CustomNewsHandler)) {
                 throw new IllegalArgumentException(key + " does not implement PTSDCrisisNewsAPI.CustomNewsHandler");
             }

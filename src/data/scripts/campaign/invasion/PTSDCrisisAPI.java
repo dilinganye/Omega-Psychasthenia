@@ -161,8 +161,13 @@ public final class PTSDCrisisAPI {
 
     /** Records a news lead without revealing whether the source is true. */
     public static boolean recordNewsIncident(String incidentId) {
+        return recordNewsIncident(incidentId,null);
+    }
+    /** DEV定向真假必须在 onAccepted 前确定，不能先初始化属实现场再改成假新闻。 */
+    public static boolean recordNewsIncident(String incidentId,Integer devOutcome) {
+        if(devOutcome!=null&&(!Global.getSettings().isDevMode()||(devOutcome!=1&&devOutcome!=2)))return false;
         PTSDCrisisState.CrisisIncident incident = getIncident(incidentId);
-        if (incident == null || !incident.investigable || incident.scenarioResolved || incident.investigationResolved) return false;
+        if (!PTSDNewsPresentation.canInvestigate(incident) || incident.scenarioResolved || incident.investigationResolved) return false;
         if (!incident.recordedByPlayer && incident.scenarioTrigger != null &&
                 PTSDCrisisState.getDay() >= incident.scenarioDeadline) return false;
         if (!incident.recordedByPlayer) {
@@ -175,12 +180,14 @@ public final class PTSDCrisisAPI {
             java.util.Random seeded = new java.util.Random(incident.id.hashCode() * 31L + 0x50545344L);
             float roll = seeded.nextFloat();
             PTSDCrisisState state = PTSDCrisisState.get();
-            // The 5% Fourth Watch tracker branch does not exist before reconnaissance begins.
+            incident.acceptedDuringRecon = state != null && state.phase == PTSDCrisisState.Phase.RECON;
+            // Ordinary investigation truth is configurable; explicit conditional/scripted outcomes are retained.
             if (incident.scenarioTrigger == null)
-                incident.investigationOutcome = state != null && state.phase == PTSDCrisisState.Phase.DORMANT
-                        ? (roll < .25f ? 1 : 2)
-                        : (roll < .25f ? 1 : (roll < .95f ? 2 : 3));
-            if (incident.investigationOutcome == 1) {
+                incident.investigationOutcome = PTSDTaskRules.ordinaryNewsOutcome(roll,
+                        state != null && state.phase == PTSDCrisisState.Phase.DORMANT);
+            if(devOutcome!=null)incident.investigationOutcome=devOutcome;
+            data.scripts.campaign.invasion.news.NewsEventLoader.accepted(state,incident,PTSDCrisisState.getDay());
+            if (incident.investigationOutcome == 1 && incident.eventError==null) {
                 PTSDCrisisIncidentManager.activateVerifiedCustomTarget(state, incident);
             }
             PTSDCrisisIntel.ensureIntel();

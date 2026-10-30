@@ -1,0 +1,3 @@
+id,trigger,conditions,script,text,options,notes
+PTSD_scene_menu,PopulateOptions,,PTSDNewsSceneEntry populate,,,Shared facilities/colonies; no object replacement
+PTSD_scene_select,DialogOptionSelected,PTSDNewsSceneEntry matches,PTSDNewsSceneEntry selected,,,

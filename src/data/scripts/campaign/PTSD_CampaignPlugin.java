@@ -39,6 +39,12 @@ public class PTSD_CampaignPlugin extends BaseCampaignPlugin {
 
     @Override
     public PluginPick<InteractionDialogPlugin> pickInteractionDialogPlugin(SectorEntityToken interactionTarget) {
+        InteractionDialogPlugin extensionDialog = data.scripts.campaign.invasion.news.NewsEventLoader.dialogFor(interactionTarget);
+        if (extensionDialog != null) return new PluginPick<InteractionDialogPlugin>(extensionDialog, PickPriority.HIGHEST);
+        InteractionDialogPlugin sceneDialog = data.scripts.campaign.invasion.PTSDNewsScene.dialogFor(interactionTarget);
+        if (sceneDialog != null) return new PluginPick<InteractionDialogPlugin>(sceneDialog, PickPriority.HIGHEST);
+        if (interactionTarget instanceof CampaignFleetAPI)
+            PTSDJeOtloesManager.recordFleetEncounter((CampaignFleetAPI) interactionTarget);
         if (interactionTarget != null && PTSDOccupationManager.isOccupied(interactionTarget.getMarket())) {
             return new PluginPick<InteractionDialogPlugin>(
                     new PTSDOccupiedColonyInteraction(), PickPriority.MOD_SPECIFIC);

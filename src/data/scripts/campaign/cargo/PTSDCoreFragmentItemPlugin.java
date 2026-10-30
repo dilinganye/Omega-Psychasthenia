@@ -8,11 +8,9 @@ import com.fs.starfarer.api.util.Misc;
 /**
  * Reward left behind by a destroyed Psychasthenia/Watcher command personality.
  *
- * The right-click hook is intentionally dormant. A later story implementation can switch
- * hasRightClickAction() to true and open a cargo-origin interaction dialog from
- * performRightClickAction(RightClickActionHelper), following ShroudedSubstratePlugin.
+ * Shared cargo-origin workshop entry for protocol fragments and investigation reports.
  */
-public final class PTSDCoreFragmentItemPlugin extends BaseSpecialItemPlugin {
+public class PTSDCoreFragmentItemPlugin extends BaseSpecialItemPlugin {
     @Override
     public void createTooltip(TooltipMakerAPI tooltip, boolean expanded,
                               CargoTransferHandlerAPI transferHandler, Object stackSource) {
@@ -20,14 +18,14 @@ public final class PTSDCoreFragmentItemPlugin extends BaseSpecialItemPlugin {
         if (spec.getDesc() != null && !spec.getDesc().isEmpty()) {
             tooltip.addPara(spec.getDesc(), Misc.getTextColor(), 10f);
         }
-        tooltip.addPara("其中封存着无法用常规方法解译的敌对协议。目前没有可用的分析手段。",
+        tooltip.addPara("右键交给工程主管与首席科学家，查看分析与装配项目。打开界面不会消耗材料。",
                 Misc.getGrayColor(), 10f);
         addCostLabel(tooltip, 10f, transferHandler, stackSource);
     }
 
     @Override
     public boolean hasRightClickAction() {
-        return false;
+        return true;
     }
 
     @Override
@@ -37,9 +35,6 @@ public final class PTSDCoreFragmentItemPlugin extends BaseSpecialItemPlugin {
 
     @Override
     public void performRightClickAction(RightClickActionHelper helper) {
-        // FUTURE STORY HOOK:
-        // create RuleBasedInteractionDialogPluginImpl, pass helper through setCustom1(),
-        // then call CampaignUIAPI.showInteractionDialogFromCargo(). Do not enable until
-        // the analysis rules and persistent story state are implemented.
+        PTSDEngineeringDialog.open(helper);
     }
 }

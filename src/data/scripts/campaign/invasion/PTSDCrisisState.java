@@ -17,6 +17,8 @@ import java.util.Map;
  */
 public final class PTSDCrisisState implements Serializable {
     private static final long serialVersionUID = 1L;
+    private transient boolean runtimeRepaired;
+    private transient Map<String, MarketAPI> runtimeMarkets;
 
     public static final String PERSISTENT_KEY = "$PTSD_crisis_state_v2";
     public static final int CURRENT_VERSION = 17;
@@ -173,6 +175,19 @@ public final class PTSDCrisisState implements Serializable {
         public float strength;
         public float createdDay;
         public float resolveDay;
+        public boolean physicalWarWave;
+        public String priorityStarId;
+        public float priorityNextCombatDay;
+        public boolean simulatedWarOperation, openingOperation, singularityOperation;
+        public boolean operationArrived, operationReturned, operationReturnScheduled;
+        public float operationNominalFp, operationArrivalDay, operationReturnDay;
+        public float operationOriginX, operationOriginY, operationTargetX, operationTargetY;
+        public float approachX, approachY;
+        public String operationWaveId;
+        public float operationRescueDeadline;
+        public float operationContactDay;
+        public List<String> operationReturningFleetIds = new ArrayList<String>();
+        public float musterUntilDay, arrivalDay;
         public String materializedFleetId;
         /** All temporary physical groups currently projecting this strategic event. */
         public List<String> materializedFleetIds = new ArrayList<String>();
@@ -268,7 +283,7 @@ public final class PTSDCrisisState implements Serializable {
         public int investigationOutcome;
         public boolean investigationResolved;
         public boolean investigationReal;
-        public PTSDTaskRules.InvestigationResult investigationResult;
+        public PTSDTaskRules.InvestigationResult investigationResult = PTSDTaskRules.InvestigationResult.PENDING;
         /** A concrete comparison record or script-supplied proof, never absence alone. */
         public String investigationDisproofEvidence;
         public boolean playerOperationAccepted;
@@ -302,11 +317,26 @@ public final class PTSDCrisisState implements Serializable {
         public boolean customTargetCreationInvoked;
         /** CSV-driven true-site template(s), optional custom handler, and persisted physical scene. */
         public String siteTemplate = "";
+        public PTSDNewsScene.State scene;
+        /** Backend site anchor; never use this as a public map marker. */
+        public String sceneSourceSystemId;
+        public boolean jeExclusiveScene;
+        /** Accepted personal assignment from Je, including shared public leads. */
+        public boolean jePlayerAssignment;
+        public boolean acceptedDuringRecon;
         public String siteHandlerExpression = "";
         public String siteTitle = "";
         public String siteDescription = "";
         public String siteConfirmationHint = "";
         public List<String> siteEntityIds = new ArrayList<String>();
+        public boolean investigationAbandoned;
+        public int investigationReportsAwarded;
+        /** DLC 新闻入口与持久数据。只保存类名/简单值，不能把运行时处理器写进存档。 */
+        public String eventLoc, eventError;
+        public java.util.Map<String,String> eventData;
+        public java.util.List<String> eventInteractionIds;
+        public boolean siteCleanupNotified;
+        public boolean eventAccepted, eventFinished, eventEvidenceCollected, eventManualCompletion;
         public boolean siteMaterialized;
         public boolean siteConfirmed;
         public boolean martialSiteEligible;
@@ -462,6 +492,10 @@ public final class PTSDCrisisState implements Serializable {
 
     public int totalScoutSightings;
     public int totalScoutEscapes;
+    /** One guaranteed observer at the first reached investigation accepted during RECON. */
+    public Integer stormScoutWindow;
+    public String firstReconInvestigationId;
+    public String firstReconInvestigationScoutId;
     public int totalOmegaEncounters;
     /** Player-involved battles against either crisis-era faction; sightings do not count. */
     public int totalPlayerOmegaBattles;
@@ -491,7 +525,12 @@ public final class PTSDCrisisState implements Serializable {
     public float warCommitDay;
 
     // Je Otloes independent contact/event state.
+    public boolean uninhabitedSurveyCompleted, warOpeningSurveyCompleted, humanBaselineInitialized;
+    public float nextHumanBaselineDay;
+    public float nextWarWaveDay, warWaveLaunchDay;
+    public int warWaveNumber;
     public boolean jeIntroCompleted;
+    public java.util.Set<String> jeParticipationIds = new java.util.LinkedHashSet<String>();
     public boolean jeDead;
     public boolean jeResistedOnce;
     public String jePendingIntroMarketId;
@@ -559,11 +598,12 @@ public final class PTSDCrisisState implements Serializable {
         Object existing = Global.getSector().getPersistentData().get(PERSISTENT_KEY);
         if (existing instanceof PTSDCrisisState) {
             PTSDCrisisState state = (PTSDCrisisState) existing;
-            state.repairCollections();
+            state.ensureRuntimeReady();
             return state;
         }
         PTSDCrisisState state = new PTSDCrisisState();
         state.migrateLegacyMemory();
+        state.ensureRuntimeReady();
         Global.getSector().getPersistentData().put(PERSISTENT_KEY, state);
         return state;
     }
@@ -601,6 +641,7 @@ public final class PTSDCrisisState implements Serializable {
     }
 
     public void repairCollections() {
+        long performanceStart = PTSDCampaignPerformance.begin();
         if (version < 11) newsIntelSubscribed = true;
         if (systems == null) systems = new LinkedHashMap<String, SystemData>();
         if (events == null) events = new ArrayList<StrategicEvent>();
@@ -648,6 +689,10 @@ public final class PTSDCrisisState implements Serializable {
         }
         for (CrisisIncident incident : incidents) {
             if (incident == null) continue;
+            // 持久现场的新增集合也必须修补；不能只修星区最外层集合。
+            if (incident.scene != null) incident.scene.repairCollections();
+            if (incident.siteEntityIds == null) incident.siteEntityIds = new ArrayList<String>();
+            if (incident.siteAbortedRecoveryFleetIds == null) incident.siteAbortedRecoveryFleetIds = new ArrayList<String>();
             if (incident.panicByMarket == null) incident.panicByMarket =
                     new LinkedHashMap<String, Float>();
             if (incident.panicMitigationRatio <= 0f) incident.panicMitigationRatio = 1f;
@@ -693,7 +738,15 @@ public final class PTSDCrisisState implements Serializable {
         }
         ensureProgressInitialized();
         version = CURRENT_VERSION;
+        runtimeRepaired = true;
+        PTSDCampaignPerformance.end("状态修补", performanceStart);
     }
+
+    public void ensureRuntimeReady() {
+        if (!runtimeRepaired) repairCollections();
+    }
+
+    public void invalidateRuntime() { runtimeRepaired = false; runtimeMarkets = null; }
 
     public void ensureProgressInitialized() {
         if (progressInitialized) return;
@@ -886,20 +939,33 @@ public final class PTSDCrisisState implements Serializable {
 
     public StarSystemAPI resolveSystem(String systemId) {
         if (systemId == null || Global.getSector() == null) return null;
-        return Global.getSector().getStarSystem(systemId);
+        StarSystemAPI direct = Global.getSector().getStarSystem(systemId);
+        if (direct != null) return direct;
+        // Vanilla lookup prefers optionalUniqueId, while persisted records use getId().
+        for (StarSystemAPI system : Global.getSector().getStarSystems())
+            if (systemId.equals(system.getId())) return system;
+        return null;
     }
 
     public MarketAPI resolveMarket(String marketId) {
         if (marketId == null || Global.getSector() == null) return null;
+        if (runtimeMarkets == null) runtimeMarkets = new LinkedHashMap<String, MarketAPI>();
+        MarketAPI cached = runtimeMarkets.get(marketId);
+        if (cached != null && cached.getPrimaryEntity() != null &&
+                cached.getPrimaryEntity().getContainingLocation() != null &&
+                cached.getPrimaryEntity().getMarket() == cached) return cached;
+        runtimeMarkets.remove(marketId);
         if (Global.getSector().getEconomy() != null) {
             MarketAPI market = Global.getSector().getEconomy().getMarket(marketId);
-            if (market != null) return market;
+            if (market != null) { runtimeMarkets.put(marketId, market); return market; }
         }
         // Crisis colonies deliberately live outside EconomyAPI; resolve their planet-attached shell directly.
         for (com.fs.starfarer.api.campaign.LocationAPI location : Global.getSector().getAllLocations()) {
             for (com.fs.starfarer.api.campaign.SectorEntityToken entity : location.getAllEntities()) {
                 MarketAPI market = entity.getMarket();
-                if (market != null && marketId.equals(market.getId())) return market;
+                if (market != null && marketId.equals(market.getId())) {
+                    runtimeMarkets.put(marketId, market); return market;
+                }
             }
         }
         return null;
@@ -909,7 +975,8 @@ public final class PTSDCrisisState implements Serializable {
         if (events.size() <= 160) return;
         List<StrategicEvent> kept = new ArrayList<StrategicEvent>();
         for (StrategicEvent event : events) {
-            if (event.status == EventStatus.PLANNED || event.status == EventStatus.MATERIALIZED) {
+            if (event.status == EventStatus.PLANNED || event.status == EventStatus.MATERIALIZED ||
+                    (event.simulatedWarOperation && !event.operationReturned)) {
                 kept.add(event);
             }
         }

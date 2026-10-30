@@ -117,7 +117,7 @@
 		"shipQuality":5,
 		"numShips":3,
 		
-		"shipSize":4,
+		"shipSize":5,
 		
 		"aggression":5, # doesn't matter since automated ships are super aggressive regardless
 		

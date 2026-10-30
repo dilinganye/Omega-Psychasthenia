@@ -8,7 +8,7 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.util.Misc;
 import data.scripts.campaign.invasion.*;
 
-public final class FT02Handler extends AbstractFTHandler {
+public class FT02Handler extends AbstractFTHandler {
     protected String id() { return "FT-02"; }
     @Override public String unavailableReason(PTSDCrisisState state) {
         return state.late.fortresses.isEmpty() ? "尚无可核实的黑洞观测异常" : "可触发";

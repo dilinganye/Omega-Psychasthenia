@@ -13,6 +13,7 @@ public final class HumanReportStateTest {
         constructor.setAccessible(true);
         PTSDCrisisState state = constructor.newInstance();
         PTSDCrisisState.CrisisIncident legacy = new PTSDCrisisState.CrisisIncident();
+        legacy.investigationResult = null; // Field absent in an old save.
         legacy.investigationResolved = true; legacy.investigationReal = false;
         state.incidents.add(legacy);
         Method repair = PTSDCrisisState.class.getDeclaredMethod("repairCollections");

@@ -13,9 +13,9 @@ public final class TaskRulesTest {
             check(PTSDTaskRules.successfulInvestigation(result) == valid, "Unexpected credit: " + result);
         }
         check(!PTSDTaskRules.successfulInvestigation(null), "Missing legacy result cannot earn credit");
-        check(PTSDTaskRules.ordinaryDeadline(100f, 105f) == 130f, "Short remaining lead needs 30 days");
-        check(PTSDTaskRules.ordinaryDeadline(100f, 150f) == 150f, "Longer deadline must survive");
-        check(PTSDTaskRules.ordinaryDeadline(100f, 0f) == 130f, "Uninitialized deadline");
+        check(PTSDTaskRules.ordinaryDeadline(100f, 105f) == 160f, "Short remaining lead needs 60 days");
+        check(PTSDTaskRules.ordinaryDeadline(100f, 190f) == 190f, "Longer deadline must survive");
+        check(PTSDTaskRules.ordinaryDeadline(100f, 0f) == 160f, "Uninitialized deadline");
         check(PTSDTaskRules.rescueWindow(0f) == 15f, "Nearby rescue minimum");
         check(PTSDTaskRules.rescueWindow(30f) == 35f, "Travel plus five days");
         check(PTSDTaskRules.rescueWindow(90f) == 60f, "Distant rescue maximum");

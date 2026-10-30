@@ -33,6 +33,7 @@ public final class PTSDLateEventIntel extends BaseIntelPlugin {
         PTSDCrisisState state = PTSDCrisisState.get();
         if (state == null || state.late == null) return;
         info.addPara("公开报道与已下达命令在此归档。报道须另行核查，未收到的后续记录不会补作结论。", 0f);
+        info.addButton("查看联盟行动与Je战区求援", "OPEN_RELIEF", width-24, 32, 8);
         int shown = 0;
         for (int i = state.late.eventCards.size() - 1; i >= 0 && shown < 20; i--) {
             PTSDLateState.EventCard card = state.late.eventCards.get(i);
@@ -75,14 +76,17 @@ public final class PTSDLateEventIntel extends BaseIntelPlugin {
     }
 
     @Override public void createLargeDescription(CustomPanelAPI panel, float width, float height) {
-        TooltipMakerAPI info = panel.createUIElement(width, height, true);
-        createSmallDescription(info, width, height);
-        panel.addUIElement(info).inTL(0f, 0f);
+        PTSDCommandSurface.document(panel,width,height,getName(),"战役档案 / 行动回执",PTSDCommandSurface.AMBER,
+                new PTSDCommandSurface.Content(){public void draw(TooltipMakerAPI info,float w,float h){createSmallDescription(info,w,h);}});
     }
 
     @Override public void buttonPressConfirmed(Object buttonId, IntelUIAPI ui) {
         if (!(buttonId instanceof String)) return;
         String input = (String) buttonId;
+        if("OPEN_RELIEF".equals(input)){
+            PTSDWarIntel war=PTSDWarIntel.ensureIntel();war.coalitionView().openReliefPage();
+            Global.getSector().getCampaignUI().showCoreUITab(com.fs.starfarer.api.campaign.CoreUITabId.INTEL,war);return;
+        }
         if (input.startsWith("GO:")) {
             PTSDCrisisState state = PTSDCrisisState.get();
             if (state == null || state.late == null) return;
